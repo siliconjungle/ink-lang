@@ -30,9 +30,12 @@ python3 bench/gpu/analyse_engine_profile.py --receipt results/engine-fit-receipt
 
 The acquisition server snapshots and hashes every served JavaScript, Wasm and
 WGSL asset before running. Later filesystem changes cannot change served bytes.
-Each record binds the protocol and supplied profile bytes and retains all five
+Each record binds the protocol and supplied profile bytes and retains all eight
 interleaved rounds, including the actual backend, decision and resource counters.
-Output correctness is checked for every execution outside the timed call.
+Each block balances backend positions and every directed within-round adjacent
+backend pair, using a recorded process seed. This avoids always measuring one
+path immediately after GPU disposal. Across-round boundaries and unrelated
+machine activity still require caution. Output correctness is checked for every execution outside the timed call.
 
 The report verifies the fitting receipt's training files and profile, consistent
 source/device/protocol provenance, disjoint processes and input splits, full
@@ -49,3 +52,14 @@ fits forced CPU/GPU calls; it does not establish that the profiled automatic pat
 recovers its own selection overhead. Held-out end-to-end results must establish
 that profitability separately. Do not use evaluation records to refit a profile
 and then report those same records as held-out validation.
+
+Set `profile_mode` to `prepared` in the protocol to reuse an immutable prepared
+profile across calls (`inline` is the default). Acquisition times preparation
+once before the calls. It also measures the shared decision ABI's initial Wasm
+load separately, before interleaving, and charges that common startup once to
+each compared workload total. Thus the first sampled path does not absorb setup
+on behalf of the other paths. `workload_totals` reports the number of profile
+calls, common startup, profile preparation, execution sums and the complete
+CPU/profile ratio. Per-case ratios still describe engine calls alone. Preparation
+is not free and a prepared profile is not automatically profitable for a short
+workload. Compare the complete totals before claiming a gain.

@@ -31,6 +31,7 @@ def analyse(training, evaluation, profile_sha256):
     processes = set()
     contexts = {}
     cells = {}
+    workload_totals = []
     for mode, records in [('train', training), ('evaluation', evaluation)]:
         for record in records:
             require(record['schema'] == 1 and record['mode'] == mode and
@@ -41,11 +42,24 @@ def analyse(training, evaluation, profile_sha256):
             processes.add(pid)
             provenance = {k: record[k] for k in ('target_key', 'environment', 'device',
                           'source_hashes', 'protocol_sha256', 'training_protocol', 'evaluation_protocol')}
+            provenance['profile_mode'] = record.get('profile_mode', 'inline')
+            require(provenance['profile_mode'] in ('inline', 'prepared'), 'unknown profile preparation')
             require(cohort is None or provenance == cohort, 'mixed acquisition provenance')
             cohort = provenance
             require(record['device'].get('isFallbackAdapter') is False, 'hardware GPU required')
             require(record['profile_sha256'] == (profile_sha256 if mode == 'evaluation' else None),
                     'wrong fitted profile or profile used in training')
+            common_setup = record.get('common_setup_ns', 0)
+            require(type(common_setup) in (int, float) and math.isfinite(common_setup) and common_setup >= 0,
+                    'invalid shared ABI startup cost')
+            preparation = record.get('profile_preparation_ns', 0)
+            require(type(preparation) in (int, float) and math.isfinite(preparation) and preparation >= 0,
+                    'invalid profile preparation cost')
+            require((mode == 'evaluation' and provenance['profile_mode'] == 'prepared') or preparation == 0,
+                    'unexpected preparation cost')
+            if mode == 'evaluation' and provenance['profile_mode'] == 'prepared':
+                require(preparation > 0, 'prepared profile setup cost missing')
+            totals = {name: 0 for name in MODES}
             train, held = record['training_protocol'], record['evaluation_protocol']
             require(not set(train['sizes']) & set(held['sizes']) and
                     not set(train['horizons']) & set(held['horizons']) and train['seed'] != held['seed'],
@@ -71,8 +85,8 @@ def analyse(training, evaluation, profile_sha256):
                 times = {}
                 for name in names:
                     samples = case['samples'][name]
-                    require(len(samples) == 5 and [s['round'] for s in samples] == list(range(5)),
-                            'five complete rounds required')
+                    require(len(samples) == 8 and [s['round'] for s in samples] == list(range(8)),
+                            'eight complete rounds required')
                     require([s['elapsed_ns'] for s in samples] == case['complete_engine_ns'][name],
                             'timing samples differ')
                     for sample in samples:
@@ -91,9 +105,23 @@ def analyse(training, evaluation, profile_sha256):
                             case['decisions'][name] == samples[-1]['decision'] and
                             case['counters'][name] == samples[-1]['counters'], 'last-sample summary differs')
                     times[name] = statistics.median(s['elapsed_ns'] for s in samples)
-                for r in range(5):
+                    totals[name] += sum(s['elapsed_ns'] for s in samples)
+                for r in range(8):
                     require(sorted(case['samples'][name][r]['order'] for name in names) == list(range(len(names))),
                             'incomplete interleaved round')
+                # Each complete block includes every backend at each position and
+                # every directed within-round adjacent pair exactly once.
+                # Across-round boundary carryover and background activity remain.
+                for block in range(0, 8, len(names)):
+                    orders = [[None] * len(names) for _ in names]
+                    for r in range(len(names)):
+                        for name in names:
+                            orders[r][case['samples'][name][block + r]['order']] = name
+                    require(all(set(row[p] for row in orders) == set(names) for p in range(len(names))),
+                            'backend positions are unbalanced')
+                    pairs = Counter((row[i - 1], row[i]) for row in orders for i in range(1, len(names)))
+                    require(len(pairs) == len(names) * (len(names) - 1) and all(v == 1 for v in pairs.values()),
+                            'preceding backends are unbalanced')
                 if mode == 'evaluation':
                     entry = cells.setdefault(key, [])
                     entry.append(dict(process_id=pid, median_ns=times,
@@ -102,6 +130,12 @@ def analyse(training, evaluation, profile_sha256):
                         profile_backend_counts=dict(Counter(s['backend'] for s in case['samples']['profile'])),
                         profile_decisions=case['samples']['profile']))
             require(seen == expected, 'missing registered case')
+            if mode == 'evaluation':
+                workload_totals.append(dict(process_id=pid, profile_calls=8 * len(expected),
+                    profile_preparation_ns=preparation, common_setup_ns=common_setup, execution_ns=totals,
+                    cpu_complete_ns=common_setup + totals['cpu'],
+                    profile_complete_ns=common_setup + preparation + totals['profile'],
+                    profile_speedup_including_preparation=(common_setup + totals['cpu']) / (common_setup + preparation + totals['profile'])))
     results = []
     for (family, n, iterations), measurements in sorted(cells.items()):
         ratios = {name: [m['speedup_vs_cpu'][name] for m in measurements] for name in MODES[1:]}
@@ -110,10 +144,11 @@ def analyse(training, evaluation, profile_sha256):
                             for name, values in ratios.items()},
             profile_slower_processes=sum(v < 1 for v in ratios['profile'])))
     return dict(schema=1, lifecycle=LIFECYCLE, cohort=cohort, profile_sha256=profile_sha256,
-        training_processes=len(training), evaluation_processes=len(evaluation), cases=results,
+        training_processes=len(training), evaluation_processes=len(evaluation), cases=results, workload_totals=workload_totals,
         profile_median_loss_cells=sum(c['speedup_vs_cpu']['profile']['median'] < 1 for c in results),
         scope='Two existing ECS/physics kernels, held-out sizes/horizons/seeds. All cells retained. '
-              'Full engine calls; browser startup and common module import excluded. '
+              'Case ratios cover full engine calls; workload totals additionally include shared ABI startup and one-time profile preparation. '
+              'Browser startup and common module import excluded. '
               'Ratios are descriptive, not confidence bounds. No machine-isolation claim. '
               'CPU and driver memory unmeasured; not Box2D or a full game engine.')
 
