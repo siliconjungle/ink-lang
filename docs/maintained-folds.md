@@ -20,6 +20,15 @@ derived keep observation. For each keep the checker regenerates eight obligation
 7. Deleting a cell removes its contribution.
 8. Replacing a cell removes the old contribution and adds the new one.
 
+Admission authenticates the complete borrowed knowledge bundle once before
+replaying its mathematical declarations. During offline search, the checker can
+reuse a sealed prefix only when its canonical bytes match under the same original
+module. The session retains at most eight prefixes and 128 MB of prefix bytes;
+large maintained proofs share immutable witnesses across layout continuations.
+Changed membership or proof bytes require fresh admission. An invalid continuation
+cannot replace an earlier checked witness, and frozen emission still replays the
+whole selected chain in a fresh process.
+
 The factorisation includes arbitrary row order and duplicate rows. Native source
 tables implement the original ordered, unique map contract; portable ingress
 rejects duplicate or unordered keys. The per-cell laws and commutativity license
