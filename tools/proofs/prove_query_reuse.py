@@ -18,7 +18,7 @@ def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--core',type=Path,required=True);p.add_argument('--subject',type=Path,required=True);p.add_argument('--compiler',type=Path,required=True);p.add_argument('--state-observer',required=True);p.add_argument('--state-proof',type=Path,required=True);p.add_argument('--zero-observer',required=True);p.add_argument('--zero-proof',type=Path,required=True);p.add_argument('--read-laws',type=Path,required=True);p.add_argument('-o',type=Path,required=True);a=p.parse_args()
  core=json.loads(a.core.read_text());subject=json.loads(a.subject.read_text());functions={f['name']:f for f in core['program']['functions']};objects={}
  def dependency(root,name):
-  store=Store(root);key=json.loads((root/'store/names.json').read_text())[name];objects.update(store.bundle([key])['objects']);return key
+  store=Store(root);key=store.names[name];objects.update(store.bundle([key])['objects']);return key
  frame=dependency(a.state_proof,a.state_observer);zero=dependency(a.zero_proof,a.zero_observer);reuse=dependency(a.read_laws,'repeat_read')
  def call(t):return t['node'].get('Op')if isinstance(t['node'],dict)else None
  def app(f,x):return op(f['sort']['Arrow'][1],'apply',f,x)

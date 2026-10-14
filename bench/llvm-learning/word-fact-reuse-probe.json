@@ -1,0 +1,39 @@
+{
+  "finding": "F063",
+  "scope": "Deterministic profiling of constructed analysis inputs, not application performance or a compiler speed benchmark. Scope is part of the key; profile includes aborted/repeated traversal only when actually executed.",
+  "rows": [
+    {
+      "case": "bounded-mask",
+      "source_bytes": 254,
+      "visit_calls": 8,
+      "distinct_term_scope_pairs": 5,
+      "repeated_term_scope_visits": 3,
+      "terms_seen_in_multiple_scopes": 0,
+      "proposals": [
+        "redundant-mask"
+      ]
+    },
+    {
+      "case": "scoped-branch",
+      "source_bytes": 394,
+      "visit_calls": 16,
+      "distinct_term_scope_pairs": 8,
+      "repeated_term_scope_visits": 8,
+      "terms_seen_in_multiple_scopes": 2,
+      "proposals": [
+        "branch-scoped-facts"
+      ]
+    },
+    {
+      "case": "nested-scoped-branches",
+      "source_bytes": 10926,
+      "visit_calls": 207,
+      "distinct_term_scope_pairs": 66,
+      "repeated_term_scope_visits": 141,
+      "terms_seen_in_multiple_scopes": 14,
+      "proposals": [
+        "branch-scoped-facts"
+      ]
+    }
+  ]
+}

@@ -10,7 +10,7 @@ from portable_context import prune
 class ModularFrames(unittest.TestCase):
  def test_exact_reuse_pruned_types_false_proof_and_cycles(self):
   compiler=Path(os.environ.get('INK_COMPILER',ROOT/'build/compiler-projected-item-fields-frozen/ink')).resolve()
-  frame=Store(ROOT/'knowledge/libraries/proofs/until-frame');key=json.loads((frame.data/'names.json').read_text())['until_frame']
+  frame=Store(ROOT/'knowledge/libraries/proofs/until-frame');key=frame.names['until_frame']
   with tempfile.TemporaryDirectory(prefix='ink-modular-frames-')as directory:
    d=Path(directory);source=d/'source.ink';source.write_text('''module modular_frame_test;
 record Row{value:u32,}record Frame{rows:List<Row>,tag:u32,}record Unrelated{data:List<u64>,}
