@@ -1,0 +1,255 @@
+{
+  "schema": 1,
+  "finding": "F027",
+  "status": "Completed driver exited0; all10trials checked every proof and rejected an absent obligation.",
+  "change": "Earlier same-immutable-context obligation export removes separate export/derivation before proof replay. This comparison predates later proof-context reuse improvements.",
+  "scope": "Contended shared-machine debug compiler authoring preparation and existing-proof replay; not application runtime performance.",
+  "trial_order": {
+    "abstract-interfaces": [
+      "before0",
+      "after0",
+      "after1",
+      "before1",
+      "before2",
+      "after2"
+    ],
+    "storage-generic": [
+      "before0",
+      "after0",
+      "after1",
+      "before1"
+    ]
+  },
+  "summary": [
+    {
+      "fixture": "abstract-interfaces",
+      "trials_per_variant": 3,
+      "proofs_per_trial": 19,
+      "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+      "metrics": {
+        "preparation_seconds": {
+          "median": {
+            "before": 0.06015695817768574,
+            "after": 0.049633249873295426
+          },
+          "ranges": {
+            "before": [
+              0.05978604103438556,
+              0.06974845891818404
+            ],
+            "after": [
+              0.044749041786417365,
+              0.4481508331373334
+            ]
+          },
+          "observed_median_reduction_percent": 17.4937507200853
+        },
+        "total_replay_seconds": {
+          "median": {
+            "before": 1.1142192920669913,
+            "after": 1.0813115839846432
+          },
+          "ranges": {
+            "before": [
+              1.0966004580259323,
+              1.1230499160010368
+            ],
+            "after": [
+              1.0658818338997662,
+              1.4647171250544488
+            ]
+          },
+          "observed_median_reduction_percent": 2.9534319066851666
+        }
+      }
+    },
+    {
+      "fixture": "storage-generic",
+      "trials_per_variant": 2,
+      "proofs_per_trial": 30,
+      "export_sha256": "b82185036460616866d50813404dcc7d9ccd9eaab569450d580be49999e24fb0",
+      "metrics": {
+        "preparation_seconds": {
+          "median": {
+            "before": 256.93664079147857,
+            "after": 126.95877458353061
+          },
+          "ranges": {
+            "before": [
+              255.5117303330917,
+              258.36155124986544
+            ],
+            "after": [
+              125.8701754999347,
+              128.04737366712652
+            ]
+          },
+          "observed_median_reduction_percent": 50.58751675415331
+        },
+        "total_replay_seconds": {
+          "median": {
+            "before": 2174.4345507705584,
+            "after": 2046.4031452080235
+          },
+          "ranges": {
+            "before": [
+              2173.0618376662023,
+              2175.8072638749145
+            ],
+            "after": [
+              2041.2266329580452,
+              2051.5796574580017
+            ]
+          },
+          "observed_median_reduction_percent": 5.888032156091527
+        }
+      }
+    }
+  ],
+  "raw_trials": [
+    {
+      "label": "before",
+      "fixture": "abstract-interfaces",
+      "trial": 0,
+      "preparation_seconds": 0.06974845891818404,
+      "total_replay_seconds": 1.1142192920669913,
+      "proofs": 19,
+      "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+      "compiler_sha256": "f7db5659044b0010b294e828d818f5eb38b727f248c2e1e7695d342af9ba5360"
+    },
+    {
+      "label": "after",
+      "fixture": "abstract-interfaces",
+      "trial": 0,
+      "preparation_seconds": 0.4481508331373334,
+      "total_replay_seconds": 1.4647171250544488,
+      "proofs": 19,
+      "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+      "compiler_sha256": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca"
+    },
+    {
+      "label": "after",
+      "fixture": "abstract-interfaces",
+      "trial": 1,
+      "preparation_seconds": 0.044749041786417365,
+      "total_replay_seconds": 1.0813115839846432,
+      "proofs": 19,
+      "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+      "compiler_sha256": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca"
+    },
+    {
+      "label": "before",
+      "fixture": "abstract-interfaces",
+      "trial": 1,
+      "preparation_seconds": 0.05978604103438556,
+      "total_replay_seconds": 1.0966004580259323,
+      "proofs": 19,
+      "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+      "compiler_sha256": "f7db5659044b0010b294e828d818f5eb38b727f248c2e1e7695d342af9ba5360"
+    },
+    {
+      "label": "before",
+      "fixture": "abstract-interfaces",
+      "trial": 2,
+      "preparation_seconds": 0.06015695817768574,
+      "total_replay_seconds": 1.1230499160010368,
+      "proofs": 19,
+      "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+      "compiler_sha256": "f7db5659044b0010b294e828d818f5eb38b727f248c2e1e7695d342af9ba5360"
+    },
+    {
+      "label": "after",
+      "fixture": "abstract-interfaces",
+      "trial": 2,
+      "preparation_seconds": 0.049633249873295426,
+      "total_replay_seconds": 1.0658818338997662,
+      "proofs": 19,
+      "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+      "compiler_sha256": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca"
+    },
+    {
+      "label": "before",
+      "fixture": "storage-generic",
+      "trial": 0,
+      "preparation_seconds": 258.36155124986544,
+      "total_replay_seconds": 2175.8072638749145,
+      "proofs": 30,
+      "export_sha256": "b82185036460616866d50813404dcc7d9ccd9eaab569450d580be49999e24fb0",
+      "compiler_sha256": "f7db5659044b0010b294e828d818f5eb38b727f248c2e1e7695d342af9ba5360"
+    },
+    {
+      "label": "after",
+      "fixture": "storage-generic",
+      "trial": 0,
+      "preparation_seconds": 128.04737366712652,
+      "total_replay_seconds": 2051.5796574580017,
+      "proofs": 30,
+      "export_sha256": "b82185036460616866d50813404dcc7d9ccd9eaab569450d580be49999e24fb0",
+      "compiler_sha256": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca"
+    },
+    {
+      "label": "after",
+      "fixture": "storage-generic",
+      "trial": 1,
+      "preparation_seconds": 125.8701754999347,
+      "total_replay_seconds": 2041.2266329580452,
+      "proofs": 30,
+      "export_sha256": "b82185036460616866d50813404dcc7d9ccd9eaab569450d580be49999e24fb0",
+      "compiler_sha256": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca"
+    },
+    {
+      "label": "before",
+      "fixture": "storage-generic",
+      "trial": 1,
+      "preparation_seconds": 255.5117303330917,
+      "total_replay_seconds": 2173.0618376662023,
+      "proofs": 30,
+      "export_sha256": "b82185036460616866d50813404dcc7d9ccd9eaab569450d580be49999e24fb0",
+      "compiler_sha256": "f7db5659044b0010b294e828d818f5eb38b727f248c2e1e7695d342af9ba5360"
+    }
+  ],
+  "limitations": [
+    "Shared-machine contention; debug compiler builds; two large and three small trials per variant. No confidence interval or application runtime speed claim.",
+    "A one-second sampling profile was taken during a baseline run; retained with evidence. Other authoring, corpus and test work overlapped these trials.",
+    "The small case has an after preparation outlier0.448s versus0.045\u20130.050s on the other after trials. Medians do not establish a universal benefit for small workloads.",
+    "All paired exported obligations are byte-identical; source readiness identities match fixture evidence. Every saved proof and an absent-obligation rejection were checked.",
+    "Timing covers preparation and existing-proof replay through completion of request replies, not generation of replacement proofs or full browser/native execution."
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/measure-proof-export.py",
+      "bytes": 2820,
+      "sha256": "97aafcbd5d1fd682b460328e9077da783aadc50e5b49100760af4d2d70333c7d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-measurement/results.json",
+      "bytes": 4123,
+      "sha256": "fd5c00afd32cda4480a8acf8d769abb15036496632433f10af589218d30c0940"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-baseline-profile.txt",
+      "bytes": 7599709,
+      "sha256": "048f210e1ebd26d802f2f2269326b893309c07c89604074eaaa3e96f9961b31a"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-baseline-profile-command.log",
+      "bytes": 235,
+      "sha256": "6805c5c1fa065807467b8e1e88a9d42839f43e332b30c838187875bd6e0cf1e0"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-before-ink",
+      "bytes": 55326384,
+      "sha256": "f7db5659044b0010b294e828d818f5eb38b727f248c2e1e7695d342af9ba5360"
+    },
+    {
+      "path": "work/llvm-learning-smoke/proof-export-after-ink",
+      "bytes": 55265168,
+      "sha256": "4a2a09ba306961c6de1885c8cd1403ef23cf32ec7d3d676c194b6644039bb5ca"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/proof-export-conformance-audit.json",
+      "bytes": 8185,
+      "sha256": "fa6ea0ad1144052767ff37d649b1c77b0caafddd1901a4a4be90dc279a810797"
+    }
+  ]
+}
