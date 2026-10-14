@@ -230,6 +230,24 @@ impl Circuit {
                         Value::Bool(self.gate(if op == "&&" { "and" } else { "or" }, a, b)?),
                     ),
                     (Value::Word(a), Value::Word(b)) => match op.as_str() {
+                        "|" | "^" => Ok(Value::Word(a.iter().zip(&b).map(|(&a,&b)|
+                            self.gate(if op=="|"{"or"}else{"xor"},a,b)
+                        ).collect::<LangResult<_>>()?)),
+                        "word32.shl" | "word32.shr" | "word64.shl" | "word64.shr" => {
+                            let width=if op.starts_with("word32."){32}else{64};
+                            let left=op.ends_with(".shl");let mut bits=a;
+                            for (stage,&condition) in b.iter().take(if width==32{5}else{6}).enumerate(){
+                                let shift=1usize<<stage;let mut next=Vec::with_capacity(64);
+                                for index in 0..64usize {
+                                    let changed=if index>=width{-1}else if left{
+                                        if index>=shift{bits[index-shift]}else{-1}
+                                    }else if index+shift<width{bits[index+shift]}else{-1};
+                                    next.push(if index>=width{-1}else{self.select(condition,changed,bits[index])?});
+                                }
+                                bits=next;
+                            }
+                            Ok(Value::Word(bits))
+                        }
                         "&" => Ok(Value::Word(
                             a.iter()
                                 .zip(&b)

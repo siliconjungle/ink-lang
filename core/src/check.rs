@@ -370,8 +370,12 @@ fn infer_value_constructor(
 ) -> LangResult<Type> {
     match e {
         Expr::Call(n, args) if crate::word::primitive(n) => {
-            if args.len() != if n == "word_not" { 1 } else { 2 } {
+            if args.len() != if crate::word::unary(n) { 1 } else { 2 } {
                 return Err("word operation arity".into());
+            }
+            if let Some((input,output))=crate::word::conversion(n) {
+                infer_as(&args[0],env,p,&input)?;
+                return Ok(output);
             }
             let context = want
                 .filter(|t| is_word(t))

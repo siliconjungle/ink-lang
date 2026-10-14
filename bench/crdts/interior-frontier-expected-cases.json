@@ -1,0 +1,244 @@
+[
+  {
+    "name": "insert-at-interior-frontier",
+    "changes": [
+      {
+        "id": 4294967297,
+        "parents": [],
+        "position": 0,
+        "remove": 0,
+        "text": [
+          65,
+          66,
+          67,
+          68
+        ]
+      },
+      {
+        "id": 8589934593,
+        "parents": [
+          4294967298
+        ],
+        "position": 1,
+        "remove": 0,
+        "text": [
+          88
+        ]
+      }
+    ],
+    "expected": [
+      65,
+      88,
+      66,
+      67,
+      68
+    ]
+  },
+  {
+    "name": "delete-at-interior-frontier",
+    "changes": [
+      {
+        "id": 4294967297,
+        "parents": [],
+        "position": 0,
+        "remove": 0,
+        "text": [
+          65,
+          66,
+          67,
+          68
+        ]
+      },
+      {
+        "id": 8589934593,
+        "parents": [
+          4294967298
+        ],
+        "position": 0,
+        "remove": 1,
+        "text": []
+      }
+    ],
+    "expected": [
+      66,
+      67,
+      68
+    ]
+  },
+  {
+    "name": "same-actor-interior-branch",
+    "changes": [
+      {
+        "id": 4294967297,
+        "parents": [],
+        "position": 0,
+        "remove": 0,
+        "text": [
+          65,
+          66,
+          67,
+          68
+        ]
+      },
+      {
+        "id": 4294967301,
+        "parents": [
+          4294967298
+        ],
+        "position": 1,
+        "remove": 0,
+        "text": [
+          88
+        ]
+      }
+    ],
+    "expected": [
+      65,
+      88,
+      66,
+      67,
+      68
+    ]
+  },
+  {
+    "name": "merged-interior-frontier",
+    "changes": [
+      {
+        "id": 4294967297,
+        "parents": [],
+        "position": 0,
+        "remove": 0,
+        "text": [
+          65,
+          66,
+          67,
+          68
+        ]
+      },
+      {
+        "id": 8589934593,
+        "parents": [
+          4294967298
+        ],
+        "position": 1,
+        "remove": 0,
+        "text": [
+          88
+        ]
+      },
+      {
+        "id": 12884901889,
+        "parents": [
+          4294967299,
+          8589934593
+        ],
+        "position": 2,
+        "remove": 1,
+        "text": [
+          89
+        ]
+      }
+    ],
+    "expected": [
+      65,
+      88,
+      89,
+      67,
+      68
+    ]
+  },
+  {
+    "name": "parent-inside-delete-portion",
+    "changes": [
+      {
+        "id": 4294967297,
+        "parents": [],
+        "position": 0,
+        "remove": 0,
+        "text": [
+          65,
+          66,
+          67,
+          68
+        ]
+      },
+      {
+        "id": 8589934593,
+        "parents": [
+          4294967300
+        ],
+        "position": 1,
+        "remove": 2,
+        "text": [
+          88,
+          89
+        ]
+      },
+      {
+        "id": 12884901889,
+        "parents": [
+          8589934593
+        ],
+        "position": 1,
+        "remove": 0,
+        "text": [
+          90
+        ]
+      }
+    ],
+    "expected": [
+      65,
+      88,
+      89,
+      90,
+      68
+    ]
+  },
+  {
+    "name": "unicode-interior-frontier",
+    "changes": [
+      {
+        "id": 4294967297,
+        "parents": [],
+        "position": 0,
+        "remove": 0,
+        "text": [
+          65,
+          128578,
+          233,
+          66
+        ]
+      },
+      {
+        "id": 8589934593,
+        "parents": [
+          4294967298
+        ],
+        "position": 1,
+        "remove": 0,
+        "text": [
+          90
+        ]
+      },
+      {
+        "id": 12884901889,
+        "parents": [
+          4294967300
+        ],
+        "position": 3,
+        "remove": 0,
+        "text": [
+          87
+        ]
+      }
+    ],
+    "expected": [
+      65,
+      90,
+      128578,
+      233,
+      87,
+      66
+    ]
+  }
+]

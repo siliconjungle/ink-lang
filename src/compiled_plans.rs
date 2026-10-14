@@ -34,6 +34,7 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
                 || !p.borrow_rows.is_empty()
                 || p.definitions != Definitions::Shared
                 || !p.reservations.is_empty()
+                || !p.inline_functions.is_empty()
         })
     {
         return Err("requested physical sites require the Rust or Rust-Wasm capability; select a compatible database plan".into());
@@ -108,6 +109,7 @@ fn emit_state_route(plan: &CheckedPlan, target: &str, output: &Path) -> LangResu
             || !p.plan().borrow_reads.is_empty()
             || !p.plan().borrow_rows.is_empty()
             || p.plan().definitions != Definitions::Shared
+            || !p.plan().inline_functions.is_empty()
     }) {
         return Err("GPU state facade requires host-compatible physical choices".into());
     }

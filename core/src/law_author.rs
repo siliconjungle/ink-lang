@@ -84,7 +84,7 @@ fn dependencies(
             dependencies(premise, out, budget, depth + 1)?;
             dependencies(body, out, budget, depth + 1)?;
         }
-        Proof::Linear { .. } | Proof::Word { .. } | Proof::Normalize | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => {}
+        Proof::BitVector { .. } | Proof::Word { .. } | Proof::Linear { .. } | Proof::Normalize | Proof::Unfold | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => {}
     }
     Ok(())
 }
@@ -227,6 +227,36 @@ pub fn compile_source(
         bundle: registry::from_catalogue(&catalogue)?,
         names,
     })
+}
+
+/// Prepare an unproved scalar obligation from the same source elaboration used
+/// for admission. This never returns a catalogue or an admitted law.
+pub fn source_bitvector_problem(source:LawSource,name:&str)->LangResult<crate::bitproof::Problem>{
+    Ok(source_bitvector_obligation(source,name)?.problem)
+}
+pub struct ScalarObligation {
+    pub problem:crate::bitproof::Problem,
+    pub condition_count:usize,
+}
+pub fn source_bitvector_obligation(source:LawSource,name:&str)->LangResult<ScalarObligation>{
+    let LawSource{mut program,laws}=source;
+    if laws.is_empty() || laws.len()>64{return Err("source bit obligation needs 1..64 law declarations".into());}
+    if !program.rules.is_empty() || !program.actions.is_empty() || !program.states.is_empty() || !program.keeps.is_empty() || !program.events.is_empty(){
+        return Err("source bit obligation requires a pure external law module".into());
+    }
+    let mut found=laws.iter().filter(|d|d.name==name);
+    let mut decl=found.next().ok_or("unknown source law")?.clone();
+    if found.next().is_some(){return Err("duplicate source law name".into());}
+    if !decl.types.is_empty() || !decl.assumes.is_empty(){return Err("source bit obligation does not export quantified type parameters or assumptions".into());}
+    // Export checks meanings and types; proof search remains external. The
+    // ordinary compile_source path still replays the supplied proof afterwards.
+    decl.proof=Tactic::Normalize;program.module.clear();
+    let module=CheckedModule::from_source(program)?;
+    let catalogue=Catalogue{schema:1,semantics:laws::SEMANTICS.into(),roots:vec![],objects:BTreeMap::new()};
+    let law=author(&module,&decl,&mut BTreeMap::new(),&catalogue,&BTreeMap::new(),&BTreeMap::new(),&mut s::Budget::new())?;
+    let condition_count=law.conditions.len();
+    let problem=laws::bitvector_problem(module.program(),&law.params,&law.conditions,&Equation{from:law.from,to:law.to})?;
+    Ok(ScalarObligation{problem,condition_count})
 }
 
 /// A function parameter, elaborated through a signature-only helper whose
@@ -865,42 +895,44 @@ impl Lower<'_> {
                     .get(variable)
                     .ok_or_else(|| format!("unknown induction variable {variable}"))?
                     .clone();
-                let Sort::Value(Type::List(item)) = &sort else {
-                    return Err("induction is over a list".into());
-                };
-                let names = if names.is_empty() {
-                    let head = fresh(&cx.env, &format!("{variable}_head"));
-                    let mut env = cx.env.clone();
-                    env.insert(head.clone(), sort.clone());
-                    vec![head, fresh(&env, &format!("{variable}_tail"))]
-                } else {
-                    names.clone()
-                };
                 let mut env = cx.env.clone();
                 env.remove(variable);
-                let head = s::free(s::value((**item).clone()), &names[0]);
-                let tail = s::free(sort.clone(), &names[1]);
-                env.insert(names[0].clone(), head.sort.clone());
-                env.insert(names[1].clone(), sort.clone());
+                let (names, zero, next, ih_arg, guard) = match &sort {
+                    Sort::Value(Type::List(item)) => {
+                        let names = if names.is_empty() {
+                            let head = fresh(&cx.env, &format!("{variable}_head"));
+                            let mut named = cx.env.clone();
+                            named.insert(head.clone(), s::value((**item).clone()));
+                            vec![head, fresh(&named, &format!("{variable}_tail"))]
+                        } else { names.clone() };
+                        if names.len() != 2 { return Err("list induction requires two binders".into()); }
+                        let head = s::free(s::value((**item).clone()), &names[0]);
+                        let tail = s::free(sort.clone(), &names[1]);
+                        env.insert(names[0].clone(), head.sort.clone());
+                        env.insert(names[1].clone(), sort.clone());
+                        (names, s::term(sort.clone(), Node::Nil),
+                         s::term(sort.clone(), Node::Cons(Box::new(head), Box::new(tail.clone()))), tail, None)
+                    }
+                    Sort::Value(ty @ (Type::U32 | Type::U64)) => {
+                        let names = if names.is_empty() { vec![fresh(&cx.env, &format!("{variable}_previous"))] } else { names.clone() };
+                        if names.len() != 1 { return Err("word induction requires one binder".into()); }
+                        let previous = s::free(sort.clone(), &names[0]);
+                        env.insert(names[0].clone(), sort.clone());
+                        let guard = Equation {
+                            from:s::op(s::value(Type::Bool),"binary:<",vec![previous.clone(),s::word(ty.clone(),if *ty==Type::U32 {u32::MAX as u64}else{u64::MAX})]),
+                            to:s::term(s::value(Type::Bool),Node::Bool(true)),
+                        };
+                        (names,s::word(ty.clone(),0),s::op(sort.clone(),"binary:+",vec![previous.clone(),s::word(ty.clone(),1)]),previous,Some(guard))
+                    }
+                    _ => return Err("induction is over a list or unsigned word".into()),
+                };
                 let sub = |arg: Term| BTreeMap::from([(variable.clone(), arg)]);
-                let base_goal = laws::sub_equation(goal, &sub(s::term(sort.clone(), Node::Nil)), self.budget)?;
-                let base = self.lower(
-                    base,
-                    &base_goal,
-                    &Cx {
-                        env: env.clone(),
-                        hyps: cx.hyps.clone(),
-                        schemas: cx.schemas.clone(),
-                        ih: cx.ih,
-                    },
-                    depth + 1,
-                )?;
-                let hypothesis = laws::sub_equation(goal, &sub(tail.clone()), self.budget)?;
-                let step_goal = laws::sub_equation(
-                    goal,
-                    &sub(s::term(sort.clone(), Node::Cons(Box::new(head), Box::new(tail)))),
-                    self.budget,
-                )?;
+                let base_goal = laws::sub_equation(goal, &sub(zero), self.budget)?;
+                let base = self.lower(base, &base_goal, &Cx {
+                    env:env.clone(), hyps:cx.hyps.clone(), schemas:cx.schemas.clone(), ih:cx.ih,
+                }, depth+1)?;
+                let hypothesis = laws::sub_equation(goal, &sub(ih_arg), self.budget)?;
+                let step_goal = laws::sub_equation(goal, &sub(next), self.budget)?;
                 let mut inner = Cx {
                     env,
                     hyps: cx.hyps.clone(),
@@ -921,6 +953,7 @@ impl Lower<'_> {
                     inner.schemas.push((params, hypothesis));
                     inner.ih = None;
                 }
+                if let Some(guard) = guard { inner.hyps.push((Some("successor_bound".into()), guard)); }
                 let step = self.lower(step, &step_goal, &inner, depth + 1)?;
                 if generalizing.is_empty() {
                     Proof::Induction {

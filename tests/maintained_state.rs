@@ -481,3 +481,122 @@ println!("rust extremum history {} steps passed",history.len());}"#).unwrap();
         .unwrap();
     assert!(ran.status.success(), "{}{}", String::from_utf8_lossy(&ran.stdout), String::from_utf8_lossy(&ran.stderr));
 }
+
+#[test]
+fn grouped_query_views_follow_histories_and_reject_forged_groups() {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let dir = root.join("build/maintained-grouped-conformance");
+    let _ = fs::remove_dir_all(&dir);
+    fs::create_dir_all(&dir).unwrap();
+    let source_text = "module grouped;
+enum Error{Rejected,}
+record Entry{account:u64,region:u32,amount:u64,open:Bool,}
+state Ledger:Table<u64,Entry> = Table.empty();
+change put(k:u64,e:Entry,reject:Bool)->Result<Unit,Error> writes(Ledger){Ledger.put(k,e);if reject{return Err(Error.Rejected);}return Ok(());}
+change erase(k:u64)->Unit writes(Ledger){Ledger.remove(k);return ();}
+query balance(account:u64)->u64 reads(Ledger){return sum(Ledger.values().filter(fn(e)=>e.account==account).map(fn(e)=>e.amount));}
+query open_balance(account:u64)->u64 reads(Ledger){return sum(Ledger.values().filter(fn(e)=>e.open && account==e.account).map(fn(e)=>e.amount*2+1));}
+query regional(region:u32)->u64 reads(Ledger){return sum(Ledger.values().filter(fn(e)=>e.region==region).map(fn(e)=>e.amount));}
+";
+    let source = dir.join("source.ink");
+    fs::write(&source, source_text).unwrap();
+    let out = Command::new("python3")
+        .args(["-m", "producers.maintained_folds", "--grouped"])
+        .arg(&source)
+        .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "-o"])
+        .arg(dir.join("plan"))
+        .env("PYTHONPATH", root.join("knowledge"))
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    let module = CheckedModule::from_source(parse(source_text).unwrap()).unwrap();
+    let packet: planning::Package =
+        serde_json::from_slice(&fs::read(dir.join("plan/plan.json")).unwrap()).unwrap();
+    let plan = planning::check(&module, &packet).unwrap();
+    let views = &plan.maintained().unwrap().package().views;
+    assert_eq!(views.len(), 3, "{}", fs::read_to_string(dir.join("plan/production.json")).unwrap());
+    assert!(views.iter().all(|v| v.group.is_some()));
+    // JavaScript has no grouped controller and fails closed.
+    assert!(verified_language::javascript::lower_planned(&plan).is_err());
+    // Grouping rows by their contribution, or dropping the group, is rejected.
+    let mut regrouped = packet.clone();
+    if let planning::Step::Maintained(ref mut p) = regrouped.steps[0] {
+        p.views[0].group = Some(p.views[0].contribution.clone());
+    }
+    assert!(planning::check(&module, &regrouped).is_err());
+    let mut ungrouped = packet.clone();
+    if let planning::Step::Maintained(ref mut p) = ungrouped.steps[0] {
+        p.views[0].group = None;
+    }
+    assert!(planning::check(&module, &ungrouped).unwrap_err().contains("one-parameter"));
+
+    let entry = |a: u64, r: u32, m: u64, o: bool| json!({"account":a,"region":r,"amount":m,"open":o});
+    let mut calls = vec![
+        ("balance", json!([1])),
+        ("put", json!([1, entry(1, 0, 50, true), false])),
+        ("put", json!([2, entry(1, 1, 7, false), false])),
+        ("put", json!([3, entry(2, 1, 9, true), false])),
+        ("put", json!([2, entry(2, 1, 7, true), false])),
+        ("put", json!([1, entry(3, 0, 5, true), true])),
+        ("put", json!([4, entry(1, 2, u64::MAX, true), false])),
+        ("erase", json!([3])),
+        ("erase", json!([42])),
+    ];
+    let mut seed = 0x9e3779b97f4a7c15u64;
+    for i in 0..60 {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        let key = seed % 10;
+        calls.push(if i % 6 == 0 {
+            ("erase", json!([key]))
+        } else {
+            ("put", json!([key, entry(seed % 4, (seed >> 8) as u32 % 3, if i % 4 == 0 { seed } else { seed % 100 }, i % 3 != 0), i % 7 == 0]))
+        });
+    }
+    let mut oracle = Runtime::new(module.program().clone()).unwrap();
+    let mut history = vec![];
+    for (name, args) in calls {
+        let mut step = vec![(name, args)];
+        for a in 0..4u64 {
+            step.push(("balance", json!([a])));
+            step.push(("open_balance", json!([a])));
+        }
+        for r in 0..3u32 {
+            step.push(("regional", json!([r])));
+        }
+        for (name, args) in step {
+            let reply = oracle.invoke_json(name, &args).unwrap();
+            history.push(json!({"name":name,"args":args,"expected":normal(&reply.json()),"snapshot":oracle.checkpoint_portable().unwrap()}));
+        }
+    }
+    fs::write(dir.join("history.json"), serde_json::to_vec(&history).unwrap()).unwrap();
+    let rust = dir.join("rust");
+    verified_language::runtime::emit_rust_program(
+        &verified_language::state_native::emit_planned(&plan).unwrap(),
+        &rust,
+    )
+    .unwrap();
+    fs::write(rust.join("src/main.rs"), r#"use compiled_state::State;use serde_json::{json,Value};
+fn normal(v:&Value)->Value{match v{Value::Number(n)=>Value::String(n.to_string()),Value::Array(a)=>Value::Array(a.iter().map(normal).collect()),Value::Object(o)=>Value::Object(o.iter().map(|(k,v)|(k.clone(),normal(v))).collect()),_=>v.clone()}}
+fn main(){let history:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();
+for(i,h)in history.iter().enumerate(){let reply=serde_json::to_value(state.invoke_json(h["name"].as_str().unwrap(),&h["args"]).unwrap()).unwrap();assert_eq!(normal(&reply),h["expected"],"observation {i}");
+let snapshot=state.checkpoint().unwrap();assert_eq!(json!(snapshot),h["snapshot"],"snapshot {i}");if i%17==0{state=State::restore(&snapshot).unwrap();}}
+let before:Vec<Value>=(0..4).map(|a|serde_json::to_value(state.invoke_json("balance",&json!([a])).unwrap()).unwrap()).collect();
+state.begin_transaction().unwrap();state.invoke_json("put",&json!([77,{"account":1,"region":0,"amount":5,"open":true},false])).unwrap();state.invoke_json("erase",&json!([0])).unwrap();state.invoke_json("put",&json!([1,{"account":3,"region":2,"amount":11,"open":false},false])).unwrap();state.rollback_transaction();
+let after:Vec<Value>=(0..4).map(|a|serde_json::to_value(state.invoke_json("balance",&json!([a])).unwrap()).unwrap()).collect();assert_eq!(before,after);
+println!("rust grouped history {} steps passed",history.len());}"#).unwrap();
+    let built = Command::new(env!("CARGO"))
+        .args(["build", "--offline", "--quiet", "--bin", "compiled-state", "--manifest-path"])
+        .arg(rust.join("Cargo.toml"))
+        .arg("--target-dir")
+        .arg(rust.join("target"))
+        .output()
+        .unwrap();
+    assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
+    let ran = Command::new(rust.join("target/debug/compiled-state"))
+        .arg(dir.join("history.json"))
+        .output()
+        .unwrap();
+    assert!(ran.status.success(), "{}{}", String::from_utf8_lossy(&ran.stdout), String::from_utf8_lossy(&ran.stderr));
+}
