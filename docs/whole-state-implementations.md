@@ -28,6 +28,15 @@ execution, including budget checks. Bounded literal preflight actions cannot
 exhaust the fixed 100-million-step action budget, so repeated ticks are unnecessary.
 The source-derived bound is structural admission, not whole compiler correctness.
 
+The callback-free preflight path retains the entry boundary check but needs no
+in-progress flag writes or cleanup before publication. Bound result-only functions
+are emitted separately from full replies. Selected native inline maintenance can
+compute scalar keeps in locals, then store the row and install those keeps in one
+kernel; all maintained computations precede mutation. Full replies retain the
+separate preparation phase before fallible public event copying.
+For eligible result-only actions, the compiler embeds that kernel directly in
+the action entrypoint, without a separate maintained-kernel call or scratch cells.
+
 ## Direct reads and output publication
 
 A database choice can select a parameterless scalar query returning a checked
@@ -45,6 +54,20 @@ notifications. `subscribeValues(queries, (first, second, ...) => ...)` has the s
 publication grouping with positional owned values. Scalar pairs use retained
 consumer slots without allocating tuple payloads; composite and other arities keep
 the ordinary ownership path.
+
+Consumer installation and disposal bind per-root publication schedules. A lone
+committed scalar pair uses its direct schedule; multiple or unknown consumers keep
+the normal queued schedule and value snapshot before delivery. Batching, reentry
+and publication budgets are shared by both schedules.
+
+## Event retention choices
+
+`event_columns` retains ordered events without private per-event records.
+`event_runs` additionally retains contiguous commit metadata as an exact base and
+offsets, falling back to literal commit columns on gaps or repeated commits. It
+requires event columns and is an offline plan choice. Position/channel columns,
+public owned records, acknowledgement, rollback and portable snapshots retain the
+same semantics. Compact commit metadata widens at the checked 53-bit bound.
 
 ## Scalar column prefixes
 

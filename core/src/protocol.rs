@@ -29,6 +29,9 @@ pub struct Plan {
     #[serde(default)] pub snapshot_rows:bool,
     /// Trusted ordered event retention layout; no event is omitted.
     #[serde(default)] pub event_columns:bool,
+    /// Retain contiguous commit metadata as a base and exact offsets, with
+    /// literal commit columns after any discontinuity or repeated commit.
+    #[serde(default)] pub event_runs:bool,
     #[serde(default)] pub inline_maintenance:bool,
     /// Exact Number commit metadata, widening before the 53-bit bound.
     #[serde(default,skip_serializing_if="Option::is_none")] pub compact_commits:Option<crate::bitproof::Certificate>,
@@ -125,6 +128,7 @@ pub fn check(module:&CheckedModule,plan:&Plan,views:Option<&crate::maintained::C
         crate::bitproof::verify(&problem,guard)?;
     }
     if plan.event_columns&&p.events.is_empty(){return Err("event columns require source events".into());}
+    if plan.event_runs&&!plan.event_columns{return Err("event runs require event columns".into());}
     for c in &plan.actions {
         if !seen.insert(&c.action){return Err("duplicate protocol action".into());}
         let f=facts.iter().find(|f|f.action==c.action).ok_or("protocol action missing")?;
