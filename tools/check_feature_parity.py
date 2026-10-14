@@ -138,6 +138,7 @@ def main():
     parser.add_argument("--partition-index", type=int, default=0)
     parser.add_argument("--partition-count", type=int, default=1)
     parser.add_argument("--partition-tests", action="store_true", help="partition individual tests instead of entire suites")
+    parser.add_argument("--exclude-suite", action="append", default=[], help="exclude a suite supplied by another audited CI partition")
     args = parser.parse_args()
     partition([], args.partition_index, args.partition_count)
     if args.partition_count != 1 and args.scope != "cpu":
@@ -148,11 +149,15 @@ def main():
         raise ValueError("suite sharding requires CPU scope")
     suites = catalog["cpu_suites"]
     if args.shard == "general":
-        suites = [s for s in suites if s not in ("representation_parity", "source_contracts")]
+        suites = [s for s in suites if s != "representation_parity"]
     elif args.shard == "representations":
         suites = [s for s in suites if s == "representation_parity"]
     elif args.shard == "contracts":
         suites = [s for s in suites if s == "source_contracts"]
+    if args.exclude_suite:
+        if args.scope != "cpu" or len(set(args.exclude_suite)) != len(args.exclude_suite) or not set(args.exclude_suite).issubset(suites):
+            raise ValueError("invalid excluded suite")
+        suites = [suite for suite in suites if suite not in args.exclude_suite]
     all_suites = suites
     if not args.partition_tests:
         suites = partition(suites, args.partition_index, args.partition_count)
