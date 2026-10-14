@@ -1,6 +1,6 @@
 # Checked boundary planning integration
 
-The distribution composes database-proposed checked boundary readers with the independently developed source-state protocols and Set/fact machinery. Each independent package below was published after its relevant standalone gates; JavaScript additionally passed every standalone CI job. Runtime metadata and its complete lockfile were refreshed after transitive pin changes. Distribution CI and final main publication remain pending.
+The distribution composes database-proposed checked boundary readers with the independently developed source-state protocols and Set/fact machinery. Each independent package below was published after its relevant standalone gates; JavaScript additionally passed every standalone CI job. Runtime metadata and its complete lockfile were refreshed after transitive pin changes. All standalone JavaScript CI jobs for 5766277 passed, and GPU/runtime pins were subsequently refreshed and tested. The final distribution candidate 3a184663 is under complete CI run 38510074790; final main publication remains pending.
 
 - abi: `8ad066eaca7ed7d7876bb3ff88414b071013b554`
 - native-support: `ca9bc59f119db62c2c1ea5000b6baf390f94705a`
