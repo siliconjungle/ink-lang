@@ -212,6 +212,8 @@ fn run() -> LangResult<()> {
         "--minimum-measured-gain-ppm",
         "--measure-processes",
         "--measure-timeout",
+        "--reference-budget",
+        "--evaluation-budget",
         "--measurement-mode",
         "--planning-cache",
         "--cargo",
@@ -331,6 +333,7 @@ fn run() -> LangResult<()> {
             ("--minimum-measured-gain-ppm", "--minimum-measured-gain-ppm"),
             ("--measure-processes", "--measure-processes"),
             ("--measure-timeout", "--measure-timeout"),
+            ("--reference-budget", "--reference-budget"),
             ("--measurement-mode", "--measurement-mode"),
             ("--planning-cache", "--cache"),
         ] {
@@ -810,7 +813,7 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
-        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] (1..10000000000; default100000000)\nink build SOURCE [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -1487,7 +1490,13 @@ fn run() -> LangResult<()> {
                 .zip(&f.params)
                 .map(|(v, (_, t))| eval::Value::from_program_json(v, t, &p))
                 .collect::<LangResult<Vec<_>>>()?;
-            println!("{}", eval::call(&p, name, vs, &mut 100_000_000)?.json());
+            let mut budget = arg_value(&args, "--evaluation-budget")?
+                .map(|s| s.parse::<u64>().map_err(|_| "invalid evaluation budget".to_string()))
+                .transpose()?.unwrap_or(100_000_000);
+            if !(1..=10_000_000_000).contains(&budget) {
+                return Err("evaluation budget must be between 1 and 10000000000".into());
+            }
+            println!("{}", eval::call(&p, name, vs, &mut budget)?.json());
         }
         "build" | "emit-rust" => {
             let input_core = core::CheckedModule::from_source(p.clone())?;
