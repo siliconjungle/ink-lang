@@ -1,0 +1,465 @@
+{
+  "schema": 1,
+  "finding": "F032",
+  "base_distribution": "525cc2030aeb36a192a6f58a9ff1c51bfef15a0a",
+  "base_knowledge": "c1dbd85ffced540e52bb1e8586f4fe7d2d6c42e2",
+  "change": [
+    "Generated constructor case names check the actual ambient parameter namespace.",
+    "Congruence holes are chosen freshly and passed explicitly to the existing substitution constructor.",
+    "Match normalization uses capture-avoiding alpha conversion before a capturing rename can lose lexical meaning.",
+    "Untrusted search limits, ordinary theorem representation, premise scope and independent kernel replay remain unchanged."
+  ],
+  "reproduction": {
+    "binders": {
+      "before": [
+        {
+          "case": "induction-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "induction-collision",
+          "returncode": 1,
+          "error": "error: first-order entry aaf1fab049f1110c6111f0042e8b0834281946f4b23a124da4ad21f184852c2d: logic binder contract_case_2_0 shadows an existing variable"
+        },
+        {
+          "case": "observed-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-collision",
+          "returncode": 1,
+          "error": "error: first-order entry 1f58d896c11771c986973b1c7db4ba94376d0f1583e46bfd8d7ae9e19b477774: logic binder contract_observed_2_0 shadows an existing variable"
+        }
+      ],
+      "after": [
+        {
+          "case": "induction-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "induction-collision",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-collision",
+          "returncode": 0,
+          "error": ""
+        }
+      ]
+    },
+    "holes": {
+      "before": [
+        {
+          "case": "induction-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "induction-collision",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-collision",
+          "returncode": 1,
+          "error": "error: first-order entry 74e0f1f8422fcf707148754c3742ec9a16fe1cb447d5ac7ebbb2059a8b8083c0: congruence hole must be fresh"
+        }
+      ],
+      "after": [
+        {
+          "case": "induction-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "induction-collision",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-collision",
+          "returncode": 0,
+          "error": ""
+        }
+      ]
+    },
+    "alpha": {
+      "before": [
+        {
+          "case": "induction-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "induction-collision",
+          "returncode": 1,
+          "error": "error: first-order entry 5da65fe8b64f1db1b5be331df9999514d1de66d0a9f4bb514fe1b8f518627190: logic binder eq_bound_0_0 shadows an existing variable"
+        },
+        {
+          "case": "observed-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-collision",
+          "returncode": 1,
+          "error": "error: first-order entry 94adaca13fbc72b3a65f340ee5fd18270b2eca1b58d5d67f6bc3d4c500aec8fe: logic binder eq_bound_0_0 shadows an existing variable"
+        }
+      ],
+      "after": [
+        {
+          "case": "induction-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "induction-collision",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-ordinary",
+          "returncode": 0,
+          "error": ""
+        },
+        {
+          "case": "observed-collision",
+          "returncode": 0,
+          "error": ""
+        }
+      ]
+    }
+  },
+  "validation": {
+    "typed_positive_matrix": 40,
+    "matrix_scope": "Induction and observed-constructor Cases; U64/Bool fields; active and unused ambient parameters; ordinary names, both generated field names, substitution holes, normalized Match names and occupied suffixes.",
+    "rehashed_false_conclusion": "Rejected by ordinary proof checking after a valid control passed.",
+    "related_unittests": 28,
+    "mandatory_hardening_hook": "Passed; includes real kernel replay regression.",
+    "ordinary_authoring": [
+      {
+        "case": "fresh",
+        "label": "before",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "fresh",
+        "label": "after",
+        "pure": 4,
+        "state": 13,
+        "export_sha256": "c255282cf0ae562f149dc45816e02608af678325d8373b5a6c3f2904f8565989",
+        "evidence_sha256": "546b303a0c42946116da7befb1173ecca0886f0d12970b504cfa34453bdd3502"
+      },
+      {
+        "case": "replay",
+        "label": "before",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "replay",
+        "label": "after",
+        "pure": 9,
+        "state": 10,
+        "export_sha256": "8b100f371342bef6491322b298a67d46bbc36aaacf990a3deda7b2376856a1df",
+        "evidence_sha256": "1e95bedcc46f6624a44019d7a0fe176a0b824d15190d044479c2b05867aea05b"
+      },
+      {
+        "case": "refinement",
+        "label": "before",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      },
+      {
+        "case": "refinement",
+        "label": "after",
+        "pure": 8,
+        "state": 0,
+        "export_sha256": "de4099218b34fc003010b19af03239b67317338737d6ef1b27d074eac6cc373a",
+        "evidence_sha256": "12cf327597afb002b4a636877847f76a96ae6bc67faec1bf9291b8a8a5df10d9"
+      }
+    ],
+    "refinement_final_admission": "passed",
+    "corpus_before": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 14.1525,
+      "stopped_by_time": 1,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 6
+      }
+    },
+    "corpus_after": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 13.892,
+      "stopped_by_time": 1,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 5,
+        "profitability": 1
+      }
+    },
+    "equal_corpus_headline_fields": [
+      "programs",
+      "compiled",
+      "programs_with_rewrite_alternative",
+      "programs_with_any_alternative",
+      "programs_selecting_alternative",
+      "laws_admitted",
+      "laws_admitted_in_multiple_programs",
+      "representations_admitted"
+    ],
+    "equal_cross_program_attribution": true,
+    "per_program_differences": [
+      {
+        "program": "sequence-every",
+        "fields": {
+          "alternatives_with_knowledge": [
+            30,
+            29
+          ],
+          "rewrite_alternatives": [
+            30,
+            29
+          ],
+          "admitted_edges": [
+            {
+              "rewrite": 31,
+              "properties": 1
+            },
+            {
+              "rewrite": 30,
+              "properties": 2
+            }
+          ]
+        }
+      },
+      {
+        "program": "drawing-hit",
+        "fields": {
+          "selection_reason": [
+            "baseline retained; no robust measured lifecycle improvement",
+            "paired complete-lifecycle improvement on selection inputs"
+          ],
+          "last_gate": [
+            "measurement_budget",
+            "selected_alternative"
+          ],
+          "selected_alternative": [
+            false,
+            true
+          ]
+        }
+      },
+      {
+        "program": "particle-step",
+        "fields": {
+          "selection_reason": [
+            "paired complete-lifecycle improvement on selection inputs",
+            "baseline retained; no robust measured lifecycle improvement"
+          ],
+          "last_gate": [
+            "selected_alternative",
+            "profitability"
+          ],
+          "semantic": [
+            {
+              "matched": 5,
+              "checked": 5,
+              "admitted": 5,
+              "rejected": 0,
+              "unchecked": 0
+            },
+            {
+              "matched": 4,
+              "checked": 4,
+              "admitted": 4,
+              "rejected": 0,
+              "unchecked": 0
+            }
+          ],
+          "selected_alternative": [
+            true,
+            false
+          ],
+          "admitted_edges": [
+            {
+              "rewrite": 5,
+              "physical": 18
+            },
+            {
+              "rewrite": 4,
+              "physical": 18
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "limits": [
+    "The frozen corpus is not wholly identical. Drawing-hit selected an alternative only after, particle-step only before; sequence-every and particle-step have small admitted-edge/count differences.",
+    "Both runs use quick planning with two recipe workers, a 32-state cap and an 8-second search budget on a contended machine. Particle-step stops on time in both, sequence-every on state count. Measurements and bounded search ordering are observations, not proof authority.",
+    "The run does not establish a broad runtime performance or new held-out reuse gain. Both compile10/10, select4 alternatives, admit44 laws and reuse7 across programs.",
+    "The naming matrix is real first-order kernel replay on arbitrary typed declarations; it does not prove every authoring path or backend correct.",
+    "Full remote CI remains required."
+  ],
+  "source_files": [
+    {
+      "path": "work/ink-development/knowledge/producers/contract_proofs.py",
+      "bytes": 49975,
+      "sha256": "8ee70452f6001237a3563d4913cb623010d1892817d8b47532ad07541dbcf27b"
+    },
+    {
+      "path": "work/ink-development/knowledge/producers/proof_composition.py",
+      "bytes": 3622,
+      "sha256": "d8df47b786d418bf3d5699a50df0d4a72821c7565ccc95336e6da36ff62211b9"
+    },
+    {
+      "path": "work/ink-development/knowledge/producers/point_delta.py",
+      "bytes": 12814,
+      "sha256": "1fcb8174cc4bfbb69701ddf810760f6c51ed500c83f7f84015e4c08cbfc6578c"
+    },
+    {
+      "path": "work/ink-development/knowledge/tests/test_contract_proof_hygiene.py",
+      "bytes": 5870,
+      "sha256": "49991bf5ae1a216e0e681849db9880c87421b6ffac547c8dfde1e20c7c154ebd"
+    },
+    {
+      "path": "work/ink-development/tests/hardening.rs",
+      "bytes": 79822,
+      "sha256": "c0e86aa8e8138340d9b9d3e77f0ae575eb96b0b98b47ce7fa6ddc2c6e172b823"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/contract-binders-before.log",
+      "bytes": 548,
+      "sha256": "7cea15add8741c426968ed4a667c0c94f54833f10cc94e333871d15df7434c34"
+    },
+    {
+      "path": "work/llvm-learning-smoke/contract-binders-after.log",
+      "bytes": 244,
+      "sha256": "5031c0bc6c3b7def4cb822956f86f64612ad3f979ab1877430de9fabcf897b9d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/contract-holes-before.log",
+      "bytes": 364,
+      "sha256": "b2a766244d88a75157ebcd0d981d0c4b6c46485a8241f3876fe438462be0cd25"
+    },
+    {
+      "path": "work/llvm-learning-smoke/contract-holes-after.log",
+      "bytes": 244,
+      "sha256": "5031c0bc6c3b7def4cb822956f86f64612ad3f979ab1877430de9fabcf897b9d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/contract-alpha-before.log",
+      "bytes": 534,
+      "sha256": "479902f47939303d6d7601edd01bb3156f4bc933ec530b8bbe779a58793e73ed"
+    },
+    {
+      "path": "work/llvm-learning-smoke/contract-alpha-after.log",
+      "bytes": 244,
+      "sha256": "5031c0bc6c3b7def4cb822956f86f64612ad3f979ab1877430de9fabcf897b9d"
+    },
+    {
+      "path": "work/llvm-learning-smoke/contract-proof-hygiene-before-final-tests.log",
+      "bytes": 34857,
+      "sha256": "a7666da69006627d606a9d6dd6349e54f50bdbf62582228efa63d480f753a099"
+    },
+    {
+      "path": "work/llvm-learning-smoke/contract-proof-hygiene-related-tests.log",
+      "bytes": 127,
+      "sha256": "8629576e920663e155165df47fa8ae970461ef2c1cee646e297c0ab9dcd4c85a"
+    },
+    {
+      "path": "work/llvm-learning-smoke/binder-hygiene-hardening.log",
+      "bytes": 488,
+      "sha256": "f70bd1fb20f981e1492686abc495c5a517bb9b9b15d3e501685b55a0dc2bb887"
+    },
+    {
+      "path": "work/llvm-learning-smoke/binder-hygiene-authoring.log",
+      "bytes": 1405,
+      "sha256": "96e57149850b94957d6f1b872be20570d0762dcb978f0f292b7e3c22a607a041"
+    },
+    {
+      "path": "work/llvm-learning-smoke/binder-hygiene-authoring/results.json",
+      "bytes": 1594,
+      "sha256": "a72a75b08c755a76175df89b5c64c2a91ebf7b6e95adaaa00ab00e934dba594f"
+    },
+    {
+      "path": "work/llvm-learning-smoke/binder-hygiene-authoring/refinement-admission.log",
+      "bytes": 993,
+      "sha256": "fb13bead15c341f0315ea14acfd39ea4b325e311d016520e8d4879348d190733"
+    },
+    {
+      "path": "work/llvm-learning-smoke/binder-hygiene-corpus-before.log",
+      "bytes": 781,
+      "sha256": "378fd1342fab6d6489dab3c39887fad6954e33dbee09779e70d53e541f5d859b"
+    },
+    {
+      "path": "work/llvm-learning-smoke/binder-hygiene-corpus-after.log",
+      "bytes": 801,
+      "sha256": "a98c032a9e53dcf0868c034919e0ddddb3f73a68b9600d2b3c7e2f941831b9b6"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/binder-hygiene-corpus/before/report.json",
+      "bytes": 18622,
+      "sha256": "e7a9c1185d2d19026e0d532244841d1823dbb27a2103066aa56f6b6ac9053b6a"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/binder-hygiene-corpus/before/records.json",
+      "bytes": 105450,
+      "sha256": "5e7bd03257836761e9c2c70ed0dae6bfe137f077e7d87a5e2983de954362cacc"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/binder-hygiene-corpus/after/report.json",
+      "bytes": 18656,
+      "sha256": "3296d864e7e88c75458be15b74fce8db78daee9470e88acfdf5a76642db63384"
+    },
+    {
+      "path": "outputs/llvm-ink-audit/binder-hygiene-corpus/after/records.json",
+      "bytes": 105290,
+      "sha256": "9bd23bcd40d46cd327022566ff7a7e1040c351e7dc4b16e1d74248f4cbcafb23"
+    }
+  ]
+}

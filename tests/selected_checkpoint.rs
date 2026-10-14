@@ -57,6 +57,37 @@ fn fixture() -> (String, CheckedModule, optimisation::CheckedSelection) {
     (source, module, selected)
 }
 #[test]
+fn checked_selection_reference_preserves_original_portable_layout_and_restore() {
+    let (_, module, selected) = fixture();
+    let mut baseline = Runtime::from_checked(&module).unwrap();
+    let mut reused = Runtime::new_selected(&selected).unwrap();
+    let id = "00000000000000000000000000000001";
+    for (name, args) in [
+        ("create", json!([id, "item", 10])),
+        ("restock", json!([id, 5])),
+        ("restock", json!([id, u32::MAX])),
+        ("stock_of", json!([id])),
+    ] {
+        assert_eq!(
+            baseline.invoke_json(name, &args).unwrap().json(),
+            reused.invoke_json(name, &args).unwrap().json()
+        );
+        let portable = baseline.checkpoint_portable().unwrap();
+        assert_eq!(reused.checkpoint_portable().unwrap(), portable);
+        reused = Runtime::restore_portable_selected(&selected, &portable).unwrap();
+        assert_eq!(reused.checkpoint_portable().unwrap(), portable);
+        let local = reused.checkpoint().unwrap();
+        reused = Runtime::restore_selected(&selected, &local).unwrap();
+        assert_eq!(reused.checkpoint().unwrap(), local);
+    }
+    // A bare transformed program has its own namespace; preserving the original
+    // checkpoint identity requires the checked selection, not just its body.
+    assert!(Runtime::restore_portable(
+        selected.module().program().clone(),
+        &baseline.checkpoint_portable().unwrap()
+    ).is_err());
+}
+#[test]
 fn selected_cpu_wasm_and_mixed_gpu_hosts_use_original_checkpoints() {
     let (source, module, selected) = fixture();
     let id = "00000000000000000000000000000001";
@@ -136,6 +167,8 @@ fn build_and_emit_commands_keep_selected_provenance_and_native_host_assembly() {
         let out = Command::new(env!("CARGO"))
             .args(["build", "--offline", "--quiet", "--manifest-path"])
             .arg(destination.join("Cargo.toml"))
+            .arg("--target-dir")
+            .arg(destination.join("target"))
             .output()
             .unwrap();
         assert!(

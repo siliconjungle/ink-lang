@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "finding": "F039",
+  "status": "Confirmed discovery defect; production repair still pending.",
+  "reproduction": [
+    "Fresh authoring fails a Set-union invariant goal. All47 old evidence laws are present in the installed database.",
+    "The needed law exactly matches the current goal endpoints, parameters and conditions, and occurs at query position63.",
+    "Current rewrite search yields7 rejected proposals referencing one other law and never proposes the exact existing law.",
+    "A direct use of the exact existing law with ordinary Normalize premises is accepted by the same source-bound checker.",
+    "In a scratch copy of the producer, disabling body-only deduplication yields56 proposals within the unchanged64-proposal budget; the exact law appears at positions49..55, and its generated transitivity proof is checked."
+  ],
+  "cause": "rewrite_proposals inserts an updated term into seen before proof admission. Distinct rejected and valid derivations yielding the same term are collapsed; the generator cannot infer admission from a term fingerprint.",
+  "next": "Make search deduplication respect proof derivations or explicit admission feedback; preserve finite proposal/frontier/depth budgets and kernel checking. Add a rejection-then-valid-alternative regression and frozen corpus comparison; avoid just increasing search limits.",
+  "sources": [
+    {
+      "path": "work/ink-development/knowledge/producers/contract_proofs.py",
+      "bytes": 49975,
+      "sha256": "8ee70452f6001237a3563d4913cb623010d1892817d8b47532ad07541dbcf27b"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/llvm-learning-smoke/library-contract-renewal.log",
+      "bytes": 1302,
+      "sha256": "771638f444b84457ac58770f391d4e35e5cf4ef96956f2e399f291227417715b"
+    },
+    {
+      "path": "work/llvm-learning-smoke/library-contract-store-coverage.json",
+      "bytes": 54,
+      "sha256": "78e8934ee930cf416c137fa5c3b756a590d29c90fd91e9f0b0b06cbf6404a533"
+    },
+    {
+      "path": "work/llvm-learning-smoke/library-contract-discovery-gap.json",
+      "bytes": 331,
+      "sha256": "7054e147d65fde6f3fcc6d0f5f38cd4e5ccfe4dfa6216fa2284b40c9b513a7af"
+    },
+    {
+      "path": "work/llvm-learning-smoke/library-contract-search-before.json",
+      "bytes": 681,
+      "sha256": "24527115b1986b1ebd2d4773410356e7b5ebbe6853ffaa43268963f5823ea9fc"
+    },
+    {
+      "path": "work/llvm-learning-smoke/library-contract-search-replay.json",
+      "bytes": 2692,
+      "sha256": "7f0155d044b1772380bb8e2845684937127b3e167c71eba4077e1e7eaca221e8"
+    },
+    {
+      "path": "work/llvm-learning-smoke/library-contract-search-without-body-dedup.json",
+      "bytes": 801,
+      "sha256": "f449ff5a19ebd590eeb7d758de585e3e6ffa012423cf104f87ff24aef7e06794"
+    },
+    {
+      "path": "work/llvm-learning-smoke/library-contract-no-dedup-replay.json",
+      "bytes": 129,
+      "sha256": "7e1d7cb0c7de753cca9889bc8c6e87fe5eb68513ffee7ca7b8b3d37e2d48cc43"
+    }
+  ]
+}
