@@ -59,10 +59,11 @@ jobs:
           target/release
           core/target/debug
           runtime/target/debug
-        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
+        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-${{ github.sha }}
         restore-keys: |-
-          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-
+          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-
           ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-
+      continue-on-error: true
     - name: Install pinned representation proof authoring dependency
       run: python -m pip install python-sat==1.9.dev5
     - name: Install pinned cross compiler
@@ -212,10 +213,11 @@ jobs:
           target/release
           core/target/debug
           runtime/target/debug
-        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
+        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-${{ github.sha }}
         restore-keys: |-
-          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-
+          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-
           ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-
+      continue-on-error: true
     - name: Install pinned representation proof authoring dependency
       run: python -m pip install python-sat==1.9.dev5
     - name: Install pinned cross compiler
@@ -365,10 +367,11 @@ jobs:
           target/release
           core/target/debug
           runtime/target/debug
-        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
+        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-${{ github.sha }}
         restore-keys: |-
-          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-
+          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-
           ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-
+      continue-on-error: true
     - name: Install pinned representation proof authoring dependency
       run: python -m pip install python-sat==1.9.dev5
     - name: Install pinned cross compiler
@@ -514,10 +517,11 @@ jobs:
           target/release
           core/target/debug
           runtime/target/debug
-        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
+        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-${{ github.sha }}
         restore-keys: |-
-          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-
+          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-
           ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-
+      continue-on-error: true
     - name: Install pinned representation proof authoring dependency
       run: python -m pip install python-sat==1.9.dev5
     - name: Install pinned cross compiler
@@ -665,10 +669,11 @@ jobs:
           target/release
           core/target/debug
           runtime/target/debug
-        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
+        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-${{ github.sha }}
         restore-keys: |-
-          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-
+          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-
           ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-
+      continue-on-error: true
     - name: Install pinned representation proof authoring dependency
       run: python -m pip install python-sat==1.9.dev5
     - name: Install pinned cross compiler
@@ -813,10 +818,11 @@ jobs:
           target/release
           core/target/debug
           runtime/target/debug
-        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
+        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-${{ github.sha }}
         restore-keys: |-
-          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-
+          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-
           ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-
+      continue-on-error: true
     - name: Install pinned proof authoring and cross compiler
       run: |
         python -m pip install python-sat==1.9.dev5 ziglang==0.14.1
@@ -908,10 +914,11 @@ jobs:
           target/release
           core/target/debug
           runtime/target/debug
-        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
+        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-${{ github.sha }}
         restore-keys: |-
-          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-
+          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-
           ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-
+      continue-on-error: true
     - name: Private device runtime directory and replayable seeds
       run: |
         mkdir -p build/xdg
@@ -1035,10 +1042,11 @@ jobs:
           target/release
           core/target/debug
           runtime/target/debug
-        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
+        key: ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-${{ github.sha }}
         restore-keys: |-
-          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('**/Cargo.lock') }}-
+          ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'core/Cargo.lock', 'runtime/Cargo.lock') }}-
           ${{ runner.os }}-ink-conformance-v1-${{ github.job }}-${{ strategy.job-index }}-
+      continue-on-error: true
     - name: Private device runtime directory and replayable seeds
       run: |
         mkdir -p build/xdg
