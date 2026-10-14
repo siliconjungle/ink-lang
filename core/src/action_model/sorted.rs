@@ -103,6 +103,32 @@ fn rename(t: &Term, map: &BTreeMap<&str, &str>) -> LangResult<Term> {
     })
 }
 
+fn free_variables(t: &Term, bound: &BTreeSet<String>, out: &mut BTreeSet<String>) {
+    match t {
+        Term::Var(n) => {
+            if !bound.contains(n) {
+                out.insert(n.clone());
+            }
+        }
+        Term::Match {
+            scrutinee,
+            branches,
+        } => {
+            free_variables(scrutinee, bound, out);
+            for b in branches {
+                let mut inner = bound.clone();
+                inner.extend(b.bindings.iter().cloned());
+                free_variables(&b.body, &inner, out);
+            }
+        }
+        _ => {
+            for child in crate::logic::term_children(t) {
+                free_variables(child, bound, out);
+            }
+        }
+    }
+}
+
 fn declaration(e: &Entry) -> LangResult<Declaration> {
     serde_json::from_value(e.payload["declaration"].clone()).map_err(|e| e.to_string())
 }
@@ -130,11 +156,26 @@ impl Projection {
         let [_, cons] = branches.as_slice() else {
             return Err("unexpected table insert shape".into());
         };
-        let Term::If { condition, .. } = &cons.body else {
+        let Term::If { condition, on_true, .. } = &cons.body else {
             return Err("unexpected table insert shape".into());
         };
         if cons.bindings != ["head", "value", "tail"] {
             return Err("unexpected table insert binders".into());
+        }
+        // The order must be exactly "insert `key` before `head`": the new row
+        // goes first, and the condition reads only those two keys.
+        let first = c(
+            &table.datatype,
+            1,
+            vec![v("key"), v("new"), v("rows")],
+        );
+        if **on_true != first {
+            return Err("unexpected table insert order".into());
+        }
+        let mut free = BTreeSet::new();
+        free_variables(condition, &BTreeSet::new(), &mut free);
+        if !free.iter().all(|n| n == "key" || n == "head") {
+            return Err("table key order reads more than two keys".into());
         }
         rename(
             condition,
