@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "finding": "F053",
+  "status": "Interface review; transfer constraints identified, implementation audit pending.",
+  "sources": [
+    {
+      "repo": "llvm",
+      "path": "llvm/include/llvm/Analysis/ConstantFolding.h",
+      "blob": "e5c0883e31190bc739f4bcc3c1cdeca91ce2bd04",
+      "bytes": 11311
+    }
+  ],
+  "insights": [
+    "Constant folding has explicit target DataLayout and TargetLibraryInfo dependencies. Layout-sensitive results must not be cached or reused as context-free language equalities.",
+    "LLVM permits choosing a legal nondeterministic result for some folds only when all uses are replaced. Ink exact floating bits/canonical arithmetic NaN rules require its own equality semantics; LLVM AllowNonDeterministic defaults cannot be copied into a proof producer.",
+    "Input and output denormal modes are distinct; dynamic input mode can prevent folding. A generic producer must decline unsupported semantic environments rather than silently using host arithmetic.",
+    "Loads from constant data need exact bounds, layout and value interpretation. LLVM poison/undef behavior and lossless cast refinement do not authorize Ink out-of-range or wrapping substitutions.",
+    "Math-call folding separately checks effects such as errno. Constant arguments alone do not prove purity.",
+    "Useful producer/checker design: carry explicit width/sign/layout/effect context, return no candidate when unavailable, and replay an exact Ink equality proof. Existing Ink constant-fold capabilities must be audited before adding duplicate mechanisms."
+  ],
+  "scope": "Reviewed complete header declarations and documented API contracts; implementation ConstantFolding.cpp and Ink fold sites are not yet fully audited. No performance claim or implemented new optimisation."
+}

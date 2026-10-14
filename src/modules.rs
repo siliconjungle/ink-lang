@@ -14,6 +14,8 @@ pub struct SourceFile {
     pub path: PathBuf,
     pub module: String,
     pub sha256: String,
+    /// Exact UTF-8 bytes consumed by this load, including embedded standard modules.
+    pub source: String,
 }
 pub struct Loaded {
     pub program: Program,
@@ -819,6 +821,7 @@ fn load_impl(path:impl AsRef<Path>,authoring:bool)->LangResult<Loaded> {
             path: n.path.clone(),
             module: n.module.clone(),
             sha256: format!("{:x}", Sha256::digest(n.text.as_bytes())),
+            source: n.text.clone(),
         })
         .collect();
     Ok(Loaded { program, files })

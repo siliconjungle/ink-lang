@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "finding": "F052",
+  "status": "Implemented and locally validated; publication/CI tracked separately.",
+  "repair": "One compiler load exports checked core and complete consumed source text. Corpus authenticates root manifest hash and all captured byte hashes, binds the full capture/core identities, and compiles private copies of in-memory captured cores. No original source path is passed to the planning worker.",
+  "files": {
+    "src/main.rs": "b1178ee2b14455cfc709eb6615eb8c83557adbb4c63c1a9c09735557a9f104b5",
+    "src/modules.rs": "eb09322316fbad49612c713338bc6ab6b5e0920559051127cca8d9ea71363959",
+    "planner/ink_planner/corpus.py": "621074533ecc7dae32fac5fbf8c1553e69404764092a3d1e0e5886ab5e345904",
+    "planner/ink_planner/corpus_inputs.py": "d876c510c8928a45717ba99a93267fb21a4eafe75da3ff860459b26e7936907c",
+    "planner/tests/test_corpus_inputs.py": "2a0cc094ffb90bb02918f168b2991fc04844b3794b94442f7543473380e83c2b",
+    "planner/README.md": "015b829e4122542578c5c694895fbe1f28b14f789a9c3d7eaccb6c3232d64548",
+    "tests/hardening.rs": "dd2add884cdc8fe1468332ee94e82a32fd87a2b12f3850dcbf858629aff8d762"
+  },
+  "tests": {
+    "regression": "11 input/context/environment tests pass, including five new actual-compiler capture tests.",
+    "mandatory": "llvm_learning_and_incremental_knowledge_remain_checked passed in25.88s.",
+    "scenarios": [
+      "Relative and absolute transitive imports",
+      "Embedded std:words bytes",
+      "Symlink import uses canonical target parent",
+      "Root mutation after manifest validation rejects capture",
+      "Dependency change rejects resume",
+      "Original files deleted after capture: original checked core still executes",
+      "Worker uses private core even if originals and archive are changed",
+      "Missing/corrupt saved source or core rejects resume",
+      "Type-invalid acquisition fails before replacing records/context"
+    ]
+  },
+  "smoke": {
+    "runs": [
+      {
+        "label": "frozen",
+        "status": 0,
+        "expected_error": null
+      },
+      {
+        "label": "frozen-resume",
+        "status": 0,
+        "expected_error": null
+      },
+      {
+        "label": "frozen-report-only",
+        "status": 0,
+        "expected_error": null
+      },
+      {
+        "label": "imported",
+        "status": 0,
+        "expected_error": null
+      },
+      {
+        "label": "imported-resume",
+        "status": 0,
+        "expected_error": null
+      },
+      {
+        "label": "changed-import",
+        "status": 1,
+        "expected_error": "exact original execution context"
+      },
+      {
+        "label": "corrupt-input",
+        "status": 1,
+        "expected_error": "saved input missing or changed"
+      }
+    ],
+    "frozen_headline": {
+      "programs": 1,
+      "compiled": 1,
+      "programs_with_rewrite_alternative": 1,
+      "programs_with_any_alternative": 1,
+      "programs_selecting_alternative": 1,
+      "median_seconds": 32.848,
+      "stopped_by_time": 0,
+      "laws_admitted": 7,
+      "laws_admitted_in_multiple_programs": 0,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 1
+      }
+    },
+    "imported_headline": {
+      "programs": 1,
+      "compiled": 1,
+      "programs_with_rewrite_alternative": 1,
+      "programs_with_any_alternative": 1,
+      "programs_selecting_alternative": 0,
+      "median_seconds": 20.482,
+      "stopped_by_time": 0,
+      "laws_admitted": 12,
+      "laws_admitted_in_multiple_programs": 0,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_budget": 1
+      }
+    },
+    "all_ten_emissions_byte_identical": [
+      {
+        "name": "sequence-every",
+        "sha256": "44dc64a74456ff85189fc9d8969a5d23ca8b1fdfc43db8a28b18656980a840b3"
+      },
+      {
+        "name": "ast-ancestor",
+        "sha256": "c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a"
+      },
+      {
+        "name": "text-lines",
+        "sha256": "0634958705c7abf328f46a587248b142ecc0b787c8f6adc86e7caaec25e98971"
+      },
+      {
+        "name": "drawing-hit",
+        "sha256": "4353976cdb705e415e24e54597fcc71b87812fcff845d5d66e13aa13c678fc12"
+      },
+      {
+        "name": "particle-step",
+        "sha256": "de0b37ddb9679078d9aa6030d4faabfee76e27d389ab1952329aefb2be9a0ea8"
+      },
+      {
+        "name": "spatial-collision",
+        "sha256": "d7ec714b376b0d6ef96de74d4c82a11f2e5fe1f69741e3a16c3769994167c14f"
+      },
+      {
+        "name": "index-membership",
+        "sha256": "3dd1622462455584f5c70eac19f035c668ceedb440472462a006ff6070959693"
+      },
+      {
+        "name": "incremental-distinct",
+        "sha256": "57abb3fd09d2310f001759da691b0514a45611ddadc5c11d7a0f0f9094d2b29b"
+      },
+      {
+        "name": "bulk-update",
+        "sha256": "4974307099a2517e44d06e4cb6b5e2e8e64aefde0157c06cff2934fc58d01a37"
+      },
+      {
+        "name": "compact-set",
+        "sha256": "eddeb5f9ed8754afd2bb466ff9eab47821ae3aaa79ecaf776f85d6db593a65db"
+      }
+    ],
+    "compiler_sha256": "15961fd6031b619c1be7548cf385a7783cc193020180e02bddd43422f0a2ae90",
+    "scope": "Diagnostic integrity and actual planning; no application runtime speed claim."
+  },
+  "limitations": [
+    "No filesystem-wide atomic snapshot: captures bytes consumed by this loader.",
+    "Acquisition is fail-closed before corpus planning and captures every manifest member, including subset evaluations.",
+    "Existing contexts without captured inputs cannot resume; older compiler binaries lack the required diagnostic export.",
+    "Source capture and planning times are separated and summed; cache state and shared-machine contention remain.",
+    "Compiler/environment/dependency checks are diagnostics, never proof authority.",
+    "No application runtime performance improvement claimed."
+  ],
+  "logs": {
+    "corpus-input-build-final.log": "2a4da2920d0453b8a26dfbd49c7a896d10179763550dfa3c442e317d773be578",
+    "corpus-input-tests-complete.log": "f9629cf664bb150e672e0d45c2427b7f3001478ed97ec472af829ad658596b2a",
+    "corpus-input-hardening.log": "4000fed27ecd2be03b0ecea5d51b2d4fb6661f476d4e337e438462d1f6387d15",
+    "corpus-input-smoke-results.json": "744680ce522f49a08e931e08351c334258b3c346f437b2e09375c60330a2498b"
+  },
+  "initial_repairs": "First test run exposed missing CLI option registration, corrected. Next run exposed test invocation passing inline JSON where CLI expects a JSON file, corrected. Passing logs are explicitly named above; earlier failed logs retained."
+}

@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "finding": "F052",
+  "status": "Reproduced source mutation after initial validation; repair pending.",
+  "expected_source_sha256": "2742a8fc653c774b044b7efa6434b6ca4e09249206b2e906687619398e911b94",
+  "actual_source_sha256": "399d92d86751c5431a44fb9f4e6d374f343945e09019ed6c3f1d5d2647bb6157",
+  "execution_context_unchanged": true,
+  "actual_compiler_outputs_differ": true,
+  "before_core_sha256": "624c10225039736368b7aae2450bb6a0534bd1e79b29172e694a5d495946c5ff",
+  "after_core_sha256": "bf27e1bcdb08eed5fc23bbeedb49b8f42d780ad286b03ed21e7de72c582ee5cd",
+  "explicit_revalidation_error": "corpus source changed: identity",
+  "scope": "Manifest is validated once, but subsequent execution_context calls hash manifest bytes rather than referenced program bytes. run_program passes original source path to the compiler. This does not bypass source/proof checking; it can misattribute a fixed-corpus record to changed program bytes.",
+  "next": "Capture verified source inputs and compile the captured bytes; include transitive import dependencies or reject unsupported import closure rather than checking only a mutable top-level path."
+}
