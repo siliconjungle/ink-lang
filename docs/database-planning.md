@@ -50,8 +50,9 @@ kind/semantic domain. Dependencies and diagnostic evidence are distinguished fro
 standalone replacement candidates. Inapplicable families, unsupported capabilities,
 rejected proofs and exhausted budgets have explicit receipts.
 
-Recipe input metadata permits exact, process-local reuse of untrusted proposals when their source, requirements, compiler, code, pin and budgets are unchanged. Final admission is never cached by a producer. Discovery visits every registered family before spending the state's proof budget,
-and interleaves their proposals. Streaming retains complete rows from a producer
+Recipe input metadata permits exact, process-local reuse of untrusted proposals when their source, requirements, compiler, code, pin and budgets are unchanged. Final admission is never cached by a producer. Discovery schedules eligible registered families and interleaves their streamed
+proposals. Resource limits can leave families unstarted or partial; receipts record
+those omissions explicitly. Streaming retains complete rows from a producer
 that reaches a process limit. A full catalogue pass does not mean every theorem
 applies to a particular source or target; applicability still requires proof.
 
@@ -97,6 +98,15 @@ maintenance, memory and placement differences stay distinct. Semantic search ret
 admitted alternatives and deferred branches, including a temporarily more expensive
 route to a better later result. Cycles, proof work, retained bytes, process time and
 state count bound exploration. None of these hashes confer proof authority.
+
+The retained-byte budget charges serialized complete proof chains and checked
+states; it is not a process RSS limit. The admitted baseline is retained even if
+the requested limit is smaller than that baseline. A valid chain that does not fit is deferred
+without marking its target visited, so a later smaller chain to the same state
+can still enter the frontier. Other queued states also remain eligible. The
+`memory_deferred` receipt counts such deferrals, and exhaustion of the available
+frontier reports `memory` rather than a complete fixed point if any occurred.
+Proof-attempt, state and time limits still stop search when reached.
 
 All retained complete chains can be published and measured. There is no 32-candidate
 ceiling. Measurement paging covers more than 1024 plans and repetitions. Lifecycle
