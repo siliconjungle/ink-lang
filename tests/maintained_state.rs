@@ -101,10 +101,14 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
         serde_json::from_slice(&fs::read(dir.join("plan.json")).unwrap()).unwrap();
     let plan = planning::check(&module, &packet).unwrap();
     assert_eq!(plan.maintained().unwrap().package().views.len(), 3);
+<<<<<<< HEAD
     assert_eq!(plan.maintained().unwrap().package().views.iter().filter(|v|v.row_update.is_some()).count(),1);
+=======
+    // Rust executes maintained folds; dense prefixes remain JavaScript-only.
+>>>>>>> origin/main
     assert!(verified_language::state_native::emit_planned(&plan)
         .unwrap_err()
-        .contains("maintained"));
+        .contains("dense"));
     assert!(ink_lowering_c::complete::lower_planned(&plan)
         .err()
         .unwrap()
@@ -118,7 +122,7 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
         .contains("pinned snapshot"));
     let mut forged = packet.clone();
     if let planning::Step::Maintained(ref mut p) = forged.steps[0] {
-        p.views[0].replacement = Proof::Refl(Term::U64(0));
+        p.views[0].replacement = Some(Proof::Refl(Term::U64(0)));
     }
     assert!(planning::check(&module, &forged)
         .unwrap_err()
@@ -305,6 +309,35 @@ assert.deepEqual(state.bind('observed',{resultOnly:true})(1n,row,true),{Err:'Err
 assert.equal(globalThis.__viewWork,1,'a staged keep read evaluates only the requested view');
 assert.equal(state.bind('weight',{resultOnly:true})(),0n);
 "#).unwrap();
+    // The Rust lowering of the maintained-only plan replays the same history:
+    // exact replies, snapshots after every request, and restore mid-history.
+    let rust = dir.join("rust");
+    verified_language::runtime::emit_rust_program(
+        &verified_language::state_native::emit_planned(&map).unwrap(),
+        &rust,
+    )
+    .unwrap();
+    fs::write(rust.join("src/main.rs"), r#"use compiled_state::State;use serde_json::{json,Value};
+fn normal(v:&Value)->Value{match v{Value::Number(n)=>Value::String(n.to_string()),Value::Array(a)=>Value::Array(a.iter().map(normal).collect()),Value::Object(o)=>Value::Object(o.iter().map(|(k,v)|(k.clone(),normal(v))).collect()),_=>v.clone()}}
+fn main(){let history:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();
+for(i,h)in history.iter().enumerate(){let reply=serde_json::to_value(state.invoke_json(h["name"].as_str().unwrap(),&h["args"]).unwrap()).unwrap();assert_eq!(normal(&reply),h["expected"],"observation {i}");
+let snapshot=state.checkpoint().unwrap();assert_eq!(json!(snapshot),h["snapshot"],"snapshot {i}");if i%17==0{state=State::restore(&snapshot).unwrap();}}
+let saved=state.checkpoint().unwrap();let total=state.invoke_json("weight",&json!([])).unwrap();state.begin_transaction().unwrap();state.invoke_json("write",&json!([2,{"amount":9,"weight":5,"included":true},false])).unwrap();state.rollback_transaction();
+assert_eq!(serde_json::to_value(state.invoke_json("weight",&json!([])).unwrap()).unwrap(),serde_json::to_value(total).unwrap());assert_eq!(state.checkpoint().unwrap(),saved);
+println!("rust maintained history {} steps passed",history.len());}"#).unwrap();
+    let built = Command::new(env!("CARGO"))
+        .args(["build", "--offline", "--quiet", "--bin", "compiled-state", "--manifest-path"])
+        .arg(rust.join("Cargo.toml"))
+        .arg("--target-dir")
+        .arg(rust.join("target"))
+        .output()
+        .unwrap();
+    assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
+    let ran = Command::new(rust.join("target/debug/compiled-state"))
+        .arg(dir.join("history.json"))
+        .output()
+        .unwrap();
+    assert!(ran.status.success(), "{}{}", String::from_utf8_lossy(&ran.stdout), String::from_utf8_lossy(&ran.stderr));
     let out = Command::new("node")
         .arg(dir.join("run.mjs"))
         .output()
@@ -319,4 +352,135 @@ assert.equal(state.bind('weight',{resultOnly:true})(),0n);
         "{}",
         String::from_utf8_lossy(&out.stderr)
     );
+}
+
+/// Word maximum and minimum keeps become maintained extremum views on Rust:
+/// the core checks that `combine` is the fixed word max/min, and the fixed
+/// multiset controller follows every write, failed change, rollback and
+/// restore exactly as recomputation would.
+#[test]
+fn word_extremum_views_follow_histories_and_reject_forged_orders() {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let dir = root.join("build/maintained-extremum-conformance");
+    let _ = fs::remove_dir_all(&dir);
+    fs::create_dir_all(&dir).unwrap();
+    let source_text = "module extrema;
+enum Error{Rejected,}
+record Order{price:u64,qty:u64,}
+fn largest(xs:List<u64>)->u64{return foldr(xs,0,fn(x)=>fn(acc)=>choose(x>acc,x,acc));}
+fn smallest(xs:List<u64>)->u64{return foldr(xs,18446744073709551615,fn(x)=>fn(acc)=>choose(x<acc,x,acc));}
+state Orders:Table<u64,Order> = Table.empty();
+keep highest:u64 = largest(Orders.values().map(fn(o)=>o.price));
+keep lowest:u64 = smallest(Orders.values().map(fn(o)=>o.price));
+change put(k:u64,o:Order,reject:Bool)->Result<Unit,Error> writes(Orders){Orders.put(k,o);if reject{return Err(Error.Rejected);}return Ok(());}
+change erase(k:u64)->Unit writes(Orders){Orders.remove(k);return ();}
+query top()->u64 reads(highest){return highest;}
+query bottom()->u64 reads(lowest){return lowest;}
+";
+    let source = dir.join("source.ink");
+    fs::write(&source, source_text).unwrap();
+    let out = Command::new("python3")
+        .args(["-m", "producers.maintained_folds", "--extrema"])
+        .arg(&source)
+        .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "-o"])
+        .arg(dir.join("plan"))
+        .env("PYTHONPATH", root.join("knowledge"))
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    let module = CheckedModule::from_source(parse(source_text).unwrap()).unwrap();
+    let packet: planning::Package =
+        serde_json::from_slice(&fs::read(dir.join("plan/plan.json")).unwrap()).unwrap();
+    let plan = planning::check(&module, &packet).unwrap();
+    let views = &plan.maintained().unwrap().package().views;
+    assert_eq!(views.len(), 2);
+    assert!(views.iter().all(|v| v.extremum.is_some() && v.inverse.is_empty()));
+    // JavaScript has no multiset controller and fails closed.
+    assert!(verified_language::javascript::lower_planned(&plan).is_err());
+    // A maximum claimed as a minimum, a missing order proof, and a group
+    // field on an extremum view are all rejected.
+    let mut flipped = packet.clone();
+    if let planning::Step::Maintained(ref mut p) = flipped.steps[0] {
+        let e = p.views[0].extremum.as_mut().unwrap();
+        e.order = if e.order == verified_language::maintained::Order::Max {
+            verified_language::maintained::Order::Min
+        } else {
+            verified_language::maintained::Order::Max
+        };
+    }
+    assert!(planning::check(&module, &flipped).unwrap_err().contains("extremum"));
+    let mut unordered = packet.clone();
+    if let planning::Step::Maintained(ref mut p) = unordered.steps[0] {
+        p.views[0].extremum = None;
+    }
+    assert!(planning::check(&module, &unordered).is_err());
+    let mut mixed = packet.clone();
+    if let planning::Step::Maintained(ref mut p) = mixed.steps[0] {
+        p.views[0].deletion = Some(Proof::Refl(Term::U64(0)));
+    }
+    assert!(planning::check(&module, &mixed).unwrap_err().contains("group or a word extremum"));
+
+    let order = |p: u64, q: u64| json!({"price":p,"qty":q});
+    let mut calls = vec![
+        ("top", json!([])),
+        ("bottom", json!([])),
+        ("put", json!([1, order(50, 1), false])),
+        ("put", json!([2, order(50, 2), false])),
+        ("put", json!([3, order(7, 3), false])),
+        ("erase", json!([1])),
+        ("put", json!([2, order(9, 2), true])),
+        ("put", json!([4, order(u64::MAX, 1), false])),
+        ("put", json!([5, order(0, 1), false])),
+        ("erase", json!([4])),
+        ("erase", json!([42])),
+    ];
+    let mut seed = 0x9e3779b97f4a7c15u64;
+    for i in 0..60 {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        let key = seed % 12;
+        calls.push(if i % 5 == 0 {
+            ("erase", json!([key]))
+        } else {
+            ("put", json!([key, order(if i % 3 == 0 { seed } else { seed % 100 }, i), i % 7 == 0]))
+        });
+    }
+    let mut oracle = Runtime::new(module.program().clone()).unwrap();
+    let mut history = vec![];
+    for (name, args) in calls {
+        for (name, args) in [(name, args), ("top", json!([])), ("bottom", json!([]))] {
+            let reply = oracle.invoke_json(name, &args).unwrap();
+            history.push(json!({"name":name,"args":args,"expected":normal(&reply.json()),"snapshot":oracle.checkpoint_portable().unwrap()}));
+        }
+    }
+    fs::write(dir.join("history.json"), serde_json::to_vec(&history).unwrap()).unwrap();
+    let rust = dir.join("rust");
+    verified_language::runtime::emit_rust_program(
+        &verified_language::state_native::emit_planned(&plan).unwrap(),
+        &rust,
+    )
+    .unwrap();
+    fs::write(rust.join("src/main.rs"), r#"use compiled_state::State;use serde_json::{json,Value};
+fn normal(v:&Value)->Value{match v{Value::Number(n)=>Value::String(n.to_string()),Value::Array(a)=>Value::Array(a.iter().map(normal).collect()),Value::Object(o)=>Value::Object(o.iter().map(|(k,v)|(k.clone(),normal(v))).collect()),_=>v.clone()}}
+fn main(){let history:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();
+for(i,h)in history.iter().enumerate(){let reply=serde_json::to_value(state.invoke_json(h["name"].as_str().unwrap(),&h["args"]).unwrap()).unwrap();assert_eq!(normal(&reply),h["expected"],"observation {i}");
+let snapshot=state.checkpoint().unwrap();assert_eq!(json!(snapshot),h["snapshot"],"snapshot {i}");if i%13==0{state=State::restore(&snapshot).unwrap();}}
+let top=serde_json::to_value(state.invoke_json("top",&json!([])).unwrap()).unwrap();let bottom=serde_json::to_value(state.invoke_json("bottom",&json!([])).unwrap()).unwrap();
+state.begin_transaction().unwrap();state.invoke_json("put",&json!([77,{"price":18446744073709551615u64,"qty":1},false])).unwrap();state.invoke_json("put",&json!([78,{"price":0,"qty":1},false])).unwrap();state.rollback_transaction();
+assert_eq!(serde_json::to_value(state.invoke_json("top",&json!([])).unwrap()).unwrap(),top);assert_eq!(serde_json::to_value(state.invoke_json("bottom",&json!([])).unwrap()).unwrap(),bottom);
+println!("rust extremum history {} steps passed",history.len());}"#).unwrap();
+    let built = Command::new(env!("CARGO"))
+        .args(["build", "--offline", "--quiet", "--bin", "compiled-state", "--manifest-path"])
+        .arg(rust.join("Cargo.toml"))
+        .arg("--target-dir")
+        .arg(rust.join("target"))
+        .output()
+        .unwrap();
+    assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
+    let ran = Command::new(rust.join("target/debug/compiled-state"))
+        .arg(dir.join("history.json"))
+        .output()
+        .unwrap();
+    assert!(ran.status.success(), "{}{}", String::from_utf8_lossy(&ran.stdout), String::from_utf8_lossy(&ran.stderr));
 }

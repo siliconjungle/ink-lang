@@ -2,8 +2,19 @@
 
 Ink can now admit a source keep as a maintained fold through a commutative group.
 The knowledge database supplies the row contribution, combination, inverse and
-identity, together with proofs. The JavaScript source-state emitter executes those
-checked definitions and updates auxiliary folds at concrete cell mutations.
+identity, together with proofs. The JavaScript and Rust source-state emitters execute
+those checked definitions and update auxiliary folds at concrete cell mutations.
+
+## Selection
+
+Ordinary compilation selects a plan made only of maintained folds without a
+workload profile: each cell write does a constant amount of extra work, and each
+read of a maintained keep is constant time instead of a scan of the table, so no
+workload makes it asymptotically worse. This is the single evidence-free selection
+rule (`planner/ink_planner/static_dominance.py`); plans with any other step remain
+evidence-gated, and supplied profiles, measurements or a validated work model
+still decide first. On a 4,000-row table, a JavaScript write followed by a read of
+a summed keep drops from 17.8 to 4.6 µs.
 
 ## Admission and scope
 
@@ -41,8 +52,9 @@ currently factors through one table. Products compose at the runtime boundary.
 The installed producer authors wrapping U64 sums, counts, filtered contributions
 and mapped contributions such as weighted totals. Its word-key and algebraic
 tactic limits are reported as declines. Other group definitions require their own
-proofs. IEEE floating addition, minimum and other non-invertible aggregates cannot
-use this capability without a different valid representation.
+proofs. IEEE floating addition and other non-invertible aggregates cannot use this
+capability without a different valid representation; word maximum and minimum use
+the extremum views below.
 
 The compiler emits the admitted contribution/group bodies literally. It does not
 recognise aggregate function names or install a backend-authored replacement.
@@ -107,10 +119,46 @@ slots; every other valid key uses an exact map fallback. This is one fixed stora
 implementation. It never infers a source range from a profile, silently narrows
 keys or changes the meaning of a key outside the proposed range.
 
-Emission currently supports maintained source folds and dense prefixes on
-JavaScript. Other target APIs explicitly reject those choices. Their ordinary
+Emission supports maintained source folds on JavaScript, Rust and Rust-Wasm, and
+dense prefixes on JavaScript. Other target APIs explicitly reject those choices.
+
+The Rust lane (`lowerings/rust/src/maintained_native.rs`) emits each fold's
+admitted insertion, removal and replacement definitions as literal functions over
+the borrowed source key and row, with wrapping word arithmetic. A cell write moves
+each fold of its table by the old and new rows before the table changes and journals
+the previous total, so action failure and host rollback restore it; restore rebuilds
+folds from validated rows. Carriers the lane cannot read natively (recursive rows,
+inspected opaque fields) make the plan unemittable for Rust, so selection fails
+closed. The maintained-ledger conformance history runs on Rust as well as JavaScript. Their ordinary
 source implementations remain available; the planner must select a compatible
 packet. This does not claim device execution of maintained state.
+
+## Word extremum views
+
+Maximum and minimum have no inverse, so they cannot be groups. A view may instead
+carry `extremum: {order, proof}` with no `inverse`, `cancellation`, `deletion` or
+`replacement`; a view is either a complete group or an extremum, never a mix. The
+checker regenerates the factorisation, identity, associativity, commutativity and
+insertion obligations as for a group, requires a U64 result and no `update`, and
+checks `extremum.proof`: `combine(a,b)` equals `if a < b then b else a` for `max`
+(or `if a < b then a else b` for `min`) for arbitrary words. Deleting a row is
+therefore exactly the removal of one occurrence of its contribution from the
+multiset the fold ranges over.
+
+The fixed controller keeps that multiset (an ordered map from contribution to
+count). A cell write removes the old contribution and adds the new one, journaling
+each step so action failure and host rollback undo it; a keep read takes the
+largest or smallest key, or the identity when empty. Each write adds one
+logarithmic multiset update and each read is logarithmic instead of a table scan,
+so static dominance selects these plans too. Restore rebuilds the multiset from
+validated rows.
+
+`producers.maintained_extrema` authors these views for word keeps over word-keyed
+tables whose empty value is `0` (max) or `2^64-1` (min): every word fact is a
+bit-vector certificate that the kernel replays, and the factorisation is an
+induction over the row list. Only the Rust and Rust-Wasm lowerings implement the
+multiset controller; JavaScript rejects extremum views, so JavaScript selection
+fails closed to its ordinary scan.
 
 ## Lean action machinery
 
