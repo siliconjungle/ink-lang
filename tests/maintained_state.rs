@@ -101,9 +101,10 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
         serde_json::from_slice(&fs::read(dir.join("plan.json")).unwrap()).unwrap();
     let plan = planning::check(&module, &packet).unwrap();
     assert_eq!(plan.maintained().unwrap().package().views.len(), 3);
+    // Rust executes maintained folds; dense prefixes remain JavaScript-only.
     assert!(verified_language::state_native::emit_planned(&plan)
         .unwrap_err()
-        .contains("maintained"));
+        .contains("dense"));
     assert!(ink_lowering_c::complete::lower_planned(&plan)
         .err()
         .unwrap()
@@ -304,6 +305,35 @@ assert.deepEqual(state.bind('observed',{resultOnly:true})(1n,row,true),{Err:'Err
 assert.equal(globalThis.__viewWork,1,'a staged keep read evaluates only the requested view');
 assert.equal(state.bind('weight',{resultOnly:true})(),0n);
 "#).unwrap();
+    // The Rust lowering of the maintained-only plan replays the same history:
+    // exact replies, snapshots after every request, and restore mid-history.
+    let rust = dir.join("rust");
+    verified_language::runtime::emit_rust_program(
+        &verified_language::state_native::emit_planned(&map).unwrap(),
+        &rust,
+    )
+    .unwrap();
+    fs::write(rust.join("src/main.rs"), r#"use compiled_state::State;use serde_json::{json,Value};
+fn normal(v:&Value)->Value{match v{Value::Number(n)=>Value::String(n.to_string()),Value::Array(a)=>Value::Array(a.iter().map(normal).collect()),Value::Object(o)=>Value::Object(o.iter().map(|(k,v)|(k.clone(),normal(v))).collect()),_=>v.clone()}}
+fn main(){let history:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();
+for(i,h)in history.iter().enumerate(){let reply=serde_json::to_value(state.invoke_json(h["name"].as_str().unwrap(),&h["args"]).unwrap()).unwrap();assert_eq!(normal(&reply),h["expected"],"observation {i}");
+let snapshot=state.checkpoint().unwrap();assert_eq!(json!(snapshot),h["snapshot"],"snapshot {i}");if i%17==0{state=State::restore(&snapshot).unwrap();}}
+let saved=state.checkpoint().unwrap();let total=state.invoke_json("weight",&json!([])).unwrap();state.begin_transaction().unwrap();state.invoke_json("write",&json!([2,{"amount":9,"weight":5,"included":true},false])).unwrap();state.rollback_transaction();
+assert_eq!(serde_json::to_value(state.invoke_json("weight",&json!([])).unwrap()).unwrap(),serde_json::to_value(total).unwrap());assert_eq!(state.checkpoint().unwrap(),saved);
+println!("rust maintained history {} steps passed",history.len());}"#).unwrap();
+    let built = Command::new(env!("CARGO"))
+        .args(["build", "--offline", "--quiet", "--bin", "compiled-state", "--manifest-path"])
+        .arg(rust.join("Cargo.toml"))
+        .arg("--target-dir")
+        .arg(rust.join("target"))
+        .output()
+        .unwrap();
+    assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
+    let ran = Command::new(rust.join("target/debug/compiled-state"))
+        .arg(dir.join("history.json"))
+        .output()
+        .unwrap();
+    assert!(ran.status.success(), "{}{}", String::from_utf8_lossy(&ran.stdout), String::from_utf8_lossy(&ran.stderr));
     let out = Command::new("node")
         .arg(dir.join("run.mjs"))
         .output()
