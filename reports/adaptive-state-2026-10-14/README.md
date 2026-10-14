@@ -36,7 +36,7 @@ prices belong only to that conformance cohort, never the performance profiles.
 ## Interpretation
 
 - Aggregate read-heavy sessions improve versus raw direct calls as well as the fixed direct host. The frozen read-optimised choice remains faster than learning and switching during that same stationary workload.
-- Write-to-read sessions improve versus the fixed direct **host**, but lose to raw direct calls at this small size. Do not present the host-relative gain as an unconditional end-to-end win.
+- Write-to-read sessions improve versus the fixed direct **host**. Their final median is close to raw direct calls at this small size; the roughly 4% difference is not a robust end-to-end gain claim on this shared host.
 - Read-to-write reversal causes two switches and loses to fixed direct on these histories. Detection delay, expensive cached writes and migration are real costs.
 - The point-query variant never wins the cost guard; all adaptive runs retain direct. Recording and serialization still add overhead.
 - Alternating and unknown workloads do not switch. No compiled-source semantics, proof kernel, or language syntax changes were needed.
