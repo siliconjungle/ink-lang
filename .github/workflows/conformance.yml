@@ -98,7 +98,7 @@ jobs:
           cargo test --test hardening
           cargo test --test rust_cpu_adapters --test javascript_package --test literal_collections_package --test javascript_word_collections
           CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
-          cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation
+          cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation --test reference_evaluation_budget
           cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity
           cargo test --test physical_capabilities --test gpu
       - name: Composable state proofs, publication, journals and bounded search

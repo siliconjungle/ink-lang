@@ -19,18 +19,20 @@ def main():
  source=R/'bench/planning-corpus/heldout/compact-set.ink'
  sha=lambda f:hashlib.sha256(f.read_bytes()).hexdigest()
  registration=dict(schema=1,created=datetime.datetime.now(datetime.timezone.utc).isoformat(),
-  source_sha256=sha(source),compiler_sha256=sha(args.compiler),
+  source_sha256=sha(source),compiler_sha256=sha(args.compiler),harness_sha256=sha(pathlib.Path(__file__)),
   source_scope='Frozen compact-set was used to develop discovery; this is a development source, not an untouched program.',
   selection_scope='Default registry, balanced search. No forced recipe, candidate or rewrite. Automatic probes or supplied workload select a static compiled plan.',
   timing_scope='Complete pure call, including index and buffer construction and full output consumption. Import, compilation and input generation excluded and reported separately.',
-  cases=['automatic-probes','small-profile','large-profile','duplicate-profile'],
+  cases=['automatic-probes','automatic-memory-cap','small-profile','large-profile','duplicate-profile'],
+  reference_budget=1_000_000_000,
   training={'small':17,'large':3072,'duplicate':4096,'seed':37},
   validation={'small':19,'large':3584,'duplicate':4608,'seed':101},
   evaluation=dict(sizes=[0,1,23,257,4097,12289],shapes=['unique','repeated64','reverseUnique'],seed=733,processes=3,rounds=7,minimum_batch_ms=3),
-  memory_scope='Planner gates on conservative whole-process peak RSS; evaluation reports whole-process peak RSS, not per-candidate memory.',
+  memory_scope='automatic-probes uses default settings without a cap. Other cases request a512MB conservative whole-process peak RSS cap; missing lifecycle memory evidence can retain baseline. Evaluation reports whole-process peak RSS, not per-candidate memory.',
   policy='Validation may reject the trained choice. Evaluation never fits, selects, rejects, or repairs a plan. Report every case; static profile selection does not imply dynamic dispatch.')
  (d/'registration.json').write_text(json.dumps(registration,indent=2)+'\n')
  shutil.copy2(source,d/'source.ink');shutil.copy2(args.compiler,d/'ink')
+ shutil.copy2(pathlib.Path(__file__),d/'discover.py')
  shutil.copytree(R/'planner',d/'planner',ignore=shutil.ignore_patterns('.git','__pycache__','build'))
  shutil.copy2(pathlib.Path(__file__).with_name('evaluate.mjs'),d/'evaluate.mjs')
  clone_knowledge(args.knowledge_root,d/'knowledge')
@@ -60,9 +62,10 @@ def main():
   print(time.strftime('%H:%M:%S'),label,'normal planning',flush=True)
   command=[sys.executable,'-m','ink_planner.compiled_planning','--compiler',d/'ink','--source',d/'source.ink',
    '--knowledge-root',d/'knowledge','--snapshot',snapshot,'--target','javascript','--planning-effort','balanced',
-   '--measure-processes','3','--measure-timeout','600','--check-timeout','300','--memory-limit','512000000',
+   '--measure-processes','3','--measure-timeout','600','--check-timeout','300','--reference-budget',str(registration['reference_budget']),
    '--cache','off','--emit',d/(label+'.mjs'),'-o',d/(label+'.plan.json')]
-  if label!='automatic-probes':command+=['--measure-workload',d/(label+'-training.json'),'--measure-holdout',d/(label+'-validation.json')]
+  if label!='automatic-probes':command+=['--memory-limit','512000000']
+  if not label.startswith('automatic-'):command+=['--measure-workload',d/(label+'-training.json'),'--measure-holdout',d/(label+'-validation.json')]
   timings[label]=run(command,d/(label+'.log'))
   print(time.strftime('%H:%M:%S'),label,'evaluation',flush=True)
   for trial in range(registration['evaluation']['processes']):
