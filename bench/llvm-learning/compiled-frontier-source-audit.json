@@ -1,0 +1,46 @@
+{
+  "finding": "F066",
+  "files": [
+    {
+      "repo": "ink/planner",
+      "path": "ink_planner/compiled_planning.py",
+      "blob": "6b48fec8c6fc1650f4dc6683581a6d5ce4f1ed75",
+      "bytes": 43085,
+      "sha256": "10a009c9cbc884340118856b07fe8f8ecbae751b4e30fea1d63a8b43547b85c2",
+      "insights": [
+        "Full pinned baseline source reviewed. Semantic source, physical choices, maintained state, protocol, properties and routing contribute to exact state identity; proof bytes remain independently checked.",
+        "Structural priority estimates reachable helper costs; it is not a runtime call-multiplicity model and cannot select an alternative without comparable evidence except the existing maintained-fold policy.",
+        "Real checker reproduction shows memory overflow of one valid chain terminates the whole agenda before an equivalent shorter fitting chain. F066 fixes candidate deferral without visiting its target; existing attempted-proof/time/state caps remain in force.",
+        "Action models cache by exact source; producer context and cache keys include code/registry/snapshot/options and required inputs. Source rewrites regenerate state models; previous immutable observations only guide ordering.",
+        "Fresh whole-chain replay remains mandatory before emission even with process-local prefix admission and historical plan-cache reuse. Held-out inputs reject the chosen calibrated alternative rather than search for a replacement.",
+        "Retained bytes account serialized packages and states, not total process memory: admissions cache, models, diagnostics and subprocess memory are separate. Future whole-process resource work must not claim this limit is RSS."
+      ]
+    },
+    {
+      "repo": "ink/planner",
+      "path": "tests/test_compiled_planning.py",
+      "blob": "ac56c5681e148bd9e44f488cc520b0481a4a04d1",
+      "bytes": 10649,
+      "sha256": "03808c188fff6f58dd8d0d26d6f86151430ffabaea68bb105deaf09e1af8e931",
+      "insights": [
+        "Full pinned baseline test file reviewed. Tests cover reachable helper priorities, immutable versus owning carrier estimates, unfinished family cleanup, recursive80-layer exploration, cycles, rejected proof alternatives, checker deadlines and resource-stop baseline retention.",
+        "Existing memory test only requires baseline preservation under tiny capacity, missing a later fitting candidate or already queued branch. New F066 regressions add those cases and bounded infinite deferred streams."
+      ]
+    },
+    {
+      "repo": "ink",
+      "path": "docs/database-planning.md",
+      "blob": "e879bced66c728d4ff3b5b5dc37c9b8ebdc64c1c",
+      "bytes": 11415,
+      "sha256": "97eee3cbc071d657aad30a7b56ec8ca6f3307d105cf981813c9b9dd6c5a13bbd",
+      "insights": [
+        "Full pinned document reviewed. Distinguishes database-authored transformations, independent proofs, backend trust, recursive intermediate states, lifecycle evidence and historical versus current validation.",
+        "Document asserted every registered family is visited before spending proof budget, while bounded streaming can leave workers unstarted. Corrected to schedules eligible families, records partial/unstarted omissions.",
+        "Added explicit serialized-retention budget scope, per-candidate memory deferral and incomplete fixed-point reporting; no total RSS or runtime speed guarantee."
+      ]
+    }
+  ],
+  "real_before": "outputs/llvm-ink-audit/memory-frontier-before.json",
+  "real_after": "outputs/llvm-ink-audit/memory-frontier-after.json",
+  "scope": "Full review of pinned baseline files; local candidate fix separately validated and not yet published."
+}

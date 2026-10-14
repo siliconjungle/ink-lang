@@ -1,0 +1,132 @@
+{
+  "finding": "F065",
+  "files": [
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-nodup.ll",
+      "blob": "a89aa2db84333e18ba296cac3e3c89f5f40ec644",
+      "bytes": 943,
+      "sha256": "3d469fed707970ddf365cc52cf8c3f5992fae5b9c1ab84eec33df5a5471111c4",
+      "insight": "Function-level noduplicate is a legality restriction distinct from profitability and remains effective under forced specialization."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-nodup2.ll",
+      "blob": "a61013e07b73a9dbda73d96efd53761c4a1f7cea",
+      "bytes": 1168,
+      "sha256": "f32dc215b788c1f0458bc3d8ee1e826c90c3bccc3920fcc18b3213c9e3a24fd0",
+      "insight": "A noduplicate operation inside a body prevents cloning even without a matching function annotation. Legality requires checking transitive operation constraints, not only outer flags."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-recursive2.ll",
+      "blob": "68ad5821dbe6e554b702905f0f3c319a4b2f3014",
+      "bytes": 872,
+      "sha256": "f37c002da6a86488d1071418162e60cc2235d5f6ae658fc09beafa28a3b93f93",
+      "insight": "A volatile store prevents recursive constant-stack promotion; equal values alone do not erase observable memory effects."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-recursive3.ll",
+      "blob": "a98c91d2b82a3915d20c58b3e7aaa9684649bbd3",
+      "bytes": 906,
+      "sha256": "69c24c74d38d701aa1e007711394fecc172b57eb9ceffd201db3d3c22e21c8f7",
+      "insight": "Multiple stores prevent the simple unique-store promotion rule even if stored expressions match; supporting more cases needs a stronger alias/effect analysis."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-recursive4.ll",
+      "blob": "e9bee3e50088d12d1ca8928aa5477a4fc9a3250a",
+      "bytes": 803,
+      "sha256": "f97bc6a09505f09ab4c0995bd87e70577d4935ff6d92bd4b2dae86aec4222502",
+      "insight": "Unsupported allocation types do not gain integer promotion merely because a downstream consumer reads integers. Typed storage and initialization remain required."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization-stats.ll",
+      "blob": "c1ca3eb3ae299369f21247d5949ff445db9ece1e",
+      "bytes": 783,
+      "sha256": "c62690b7e4566a5c02ea1fda1f1e41c491a502868cc6741ab60ed348b946605e",
+      "insight": "Specialization-created counters track actual clones, separately from discovered or ranked candidates; test requires assertions-enabled statistics support."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization.ll",
+      "blob": "e1cacce4a7dde20d4c05bf46a5002bd07deb9432",
+      "bytes": 2056,
+      "sha256": "8df1fa5ea0409b18f9de8e269899ccdfd4bb1635ab67fe93a5f20b85bb922de4",
+      "insight": "Enabling/disabling cloning is independently tested; known function arguments become direct calls and the fully specialized internal original disappears. This differs from merely unfolding at each call."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization2.ll",
+      "blob": "eaec98d3522e5871b0cd4c0c1f42655f3fa6d3fa",
+      "bytes": 9569,
+      "sha256": "25d73fc6fc4a448390557f9a520e6ca693e14407b3033b3ae99a387c6a8f7dba",
+      "insight": "Recursive function-valued arguments can redirect recursive calls within each clone, then dead-argument elimination removes bound callback parameters and unused returns. Iteration zero disables clones but ordinary solver simplification continues."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization3.ll",
+      "blob": "8e075edaa6844c99a9a42ad995c511d46cbdecd5",
+      "bytes": 1645,
+      "sha256": "398ac9cfd03aef6629516c5f29a37bd9f4df81fd082b0f3cce91d5095a56c22c",
+      "insight": "Forcing specialization bypasses profitability for tiny constant-global cases; successful clone generation is not evidence that default ranking should choose it."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization4.ll",
+      "blob": "a6a990c3415936344e8a3fc0c62300cec68913a4",
+      "bytes": 2072,
+      "sha256": "00b11e0dca12bb8770e80835523d15c8bd39438811e7cd220163e247544753a6",
+      "insight": "Whole multi-argument signatures specialize together under a clone-count budget; max-clones1 versus2 changes the available family while preserving remaining original users."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/function-specialization5.ll",
+      "blob": "aff1b770f8c812ee2920f8f32391f89322f3f8e7",
+      "bytes": 1115,
+      "sha256": "e70ce9e305beaca6301b8c2119fc726f3d91a76003bb6d59f23cb153f6f55202",
+      "insight": "If every known call passes the same constant signature, ordinary interprocedural propagation suffices; avoid redundant cloning even under force."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/profile-counts.ll",
+      "blob": "4d26247ad09cb975b6a381d0d08ac18d176cb0d1",
+      "bytes": 4346,
+      "sha256": "ce27ca5d0195da17a8389f3424870c3decb7a9ea2c5e5fbec4156f3c5b2212b1",
+      "insight": "Distribute observed entry counts among clones according to redirected callsite weights, subtract from the original and preserve zero-count caller behavior. Do not duplicate whole profile counts into each clone; observations remain non-authoritative."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/promoteContantStackValues.ll",
+      "blob": "e75e0476957eb19d45701a67499bd210e3fc79dc",
+      "bytes": 4238,
+      "sha256": "07659c5af9ef914c54e49e3b453fa04b7b21779ba960b4bccb21227c96be984c",
+      "insight": "Readonly, nonescaping single-store stack values can expose successive recursive specialization, with each bounded iteration enabling more downstream folding/inlining. Preserve print order and termination; no unlimited unrolling."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/recursive-penalty.ll",
+      "blob": "fc17387dec94ddf554a0127c3ebdb0fb2d9c9bc2",
+      "bytes": 1553,
+      "sha256": "56a224e5fc4c17ba5e2824d1e5ab8212c64386266cca2ed39ae0fe0f0a577c10",
+      "insight": "Recursive specialization profitability must penalize cumulative family growth so clone count does not scale mechanically with maximum iterations. Assertions-enabled fixture checks four clones under100 iterations."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/solver-constant-strictfpmetadata.ll",
+      "blob": "99224b4efba6bcb7e3e692eb057761d6ae96d590",
+      "bytes": 932,
+      "sha256": "990fc2167de910fdd7b18de2da98d696bf6075cd0c356f0276e6d479e69fc2e7",
+      "insight": "Strict floating comparisons carry metadata operands that are not scalar lattice values. Preserve floating exception effects while specializing unrelated constant arguments; cannot treat all call operands uniformly."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/solver-constants.ll",
+      "blob": "516fd5cb49bb7658f5177e77fb2618411ce01793",
+      "bytes": 2462,
+      "sha256": "7903ece0558102c0a9dc665da2debdd5f9a0a9eb869216a42eb95efb8b4e2fb1",
+      "insight": "Profitability combines pre-existing solver constants with proposed argument constants to expose branch savings. Avoid forgetting upstream facts or double-counting already removed work."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/solver-dead-blocks.ll",
+      "blob": "05368e934ebb66ba3df5c3a6879d42bed1bb1625",
+      "bytes": 2564,
+      "sha256": "d8bb9d5226beb1677eac88e4d0fa78426ddc7bcae6c7306f678b93f99470e79e",
+      "insight": "Dead-block savings depend on all surviving predecessors, combining existing solver-dead paths with newly specialized paths; checking only a local branch misses transitive savings."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/ssa-copy.ll",
+      "blob": "b7cee46aa6f32d904e0536dc8072444feb47a0c8",
+      "bytes": 3885,
+      "sha256": "998eb895bde70d82877486def6ad718a73ec69047700e01aed2f4a79fbcd2ec1",
+      "insight": "Cost analysis must look through PredicateInfo copy wrappers while respecting their scoped facts, and temporary analysis forms must be removed afterward. Representation changes between passes affect discoverable opportunities."
+    }
+  ],
+  "validation": "Full source review only; opt/FileCheck not executed. Expected outputs and statistics are test specifications, not results of a local LLVM run."
+}
