@@ -85,3 +85,25 @@ fn complete_gpu_bundle_keeps_state_on_the_host() {
     )
     .is_ok());
 }
+
+#[test]
+fn scalar_and_packed_browser_bundles_have_complete_module_dependencies() {
+    for (name, source, schema) in [
+        ("scalar", "module scalar; fn total(xs:List<u32>)->u32{return sum(xs);}", 1),
+        ("packed", "module packed; fn mapped(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}", 2),
+    ] {
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("build/browser-module-dependencies").join(name);
+        let program = parse(source).unwrap();
+        verified_language::runtime::emit_gpu(&program, &dir).unwrap();
+        let manifest: serde_json::Value = serde_json::from_slice(&fs::read(dir.join("manifest.json")).unwrap()).unwrap();
+        assert_eq!(manifest["schema"], schema);
+        // Import the emitted host, not source-tree modules: an absent transitive
+        // asset prevents browser startup before any CPU/GPU choice is possible.
+        let output = std::process::Command::new("node")
+            .args(["--input-type=module", "-e", "import {pathToFileURL} from 'node:url'; await import(pathToFileURL(process.argv[1]));"])
+            .arg(dir.join("ink-gpu.mjs"))
+            .output().unwrap();
+        assert!(output.status.success(), "{name}: {}", String::from_utf8_lossy(&output.stderr));
+    }
+}
