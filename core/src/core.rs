@@ -136,6 +136,7 @@ pub const CONTRACT_SEMANTICS: &str = "ink-executable-core-v10";
 pub const VALUE_INVARIANT_SEMANTICS: &str = "ink-executable-core-v11";
 pub const MEASURE_SEMANTICS: &str = "ink-executable-core-v12";
 pub const BORROW_RANGE_SEMANTICS: &str = "ink-executable-core-v13";
+pub const WORD_CONVERSION_SEMANTICS: &str = "ink-executable-core-v11";
 pub const BULK_BUFFER_SEMANTICS: &str = "ink-executable-core-v9";
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
 pub const SEQUENCE_SEMANTICS: &str = "ink-executable-core-v4";
@@ -472,6 +473,36 @@ fn borrow_range_needed(p:&Program)->bool {
     }}}
     found
 }
+fn word_conversion_needed(p: &Program) -> bool {
+    let mut found = false;
+    let mut visit = |e: &Expr| {
+        crate::analysis::walk(e, |e| {
+            found |= matches!(e, Expr::Call(name, _) if crate::word::conversion(name).is_some());
+        })
+    };
+    for f in &p.functions {
+        visit(&f.body);
+    }
+    for s in p.states.iter().chain(&p.keeps) {
+        visit(&s.value);
+    }
+    let mut statements: Vec<_> = p.actions.iter().flat_map(|a| &a.body).collect();
+    while let Some(s) = statements.pop() {
+        match s {
+            Statement::Let(_, _, e)
+            | Statement::Return(e)
+            | Statement::Emit(_, e)
+            | Statement::Expr(e) => visit(e),
+            Statement::If(e, yes, no) => {
+                visit(e);
+                statements.extend(yes);
+                statements.extend(no);
+            }
+        }
+    }
+    found
+}
+
 impl CheckedModule {
     pub fn from_source(program: Program) -> LangResult<Self> {
         let (extended, sequence) = validate(&program)?;
@@ -483,7 +514,7 @@ impl CheckedModule {
                 BORROW_RANGE_SEMANTICS
             } else if !program.termination.is_empty() {
                 MEASURE_SEMANTICS
-            } else if !program.contracts.value_invariants.is_empty() || primitive_needed(&program) {
+            } else if !program.contracts.value_invariants.is_empty() || primitive_needed(&program) || word_conversion_needed(&program) {
                 VALUE_INVARIANT_SEMANTICS
             } else if !program.contracts.is_empty() || program.actions.iter().any(|a| a.kind==ActionKind::Change && !matches!(a.result,Type::Result(..))) {
                 CONTRACT_SEMANTICS
@@ -536,6 +567,7 @@ impl CheckedModule {
                 VALUE_INVARIANT_SEMANTICS,
                 MEASURE_SEMANTICS,
                 BORROW_RANGE_SEMANTICS,
+                WORD_CONVERSION_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
         {

@@ -111,7 +111,7 @@ fn tree_rebuilding_preserves_capture_checks_scope_roundtrips_and_budgets() {
     assert!(s::unshift_hole(&t, 1).is_err());
     let closed = s::lambda(sort.clone(), s::term(sort.clone(), Node::Bound(0)));
     assert_eq!(s::unshift_hole(&closed, 1).unwrap(), closed);
-    assert!(s::substitute(&t, &BTreeMap::new(), &mut Budget { remaining: 0 }).is_err());
+    assert!(s::substitute(&t, &BTreeMap::new(), &mut Budget { remaining: 0, ..Budget::new() }).is_err());
     let mut seen = vec![];
     let cons = s::term(
         s::value(Type::List(Box::new(Type::U32))),

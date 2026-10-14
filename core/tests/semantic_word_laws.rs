@@ -52,7 +52,7 @@ fn word_certificate_inputs_are_typed_scoped_and_resource_bounded(){
     let x=s::free(s::value(Type::U32),"x");let env=BTreeMap::from([("x".into(),x.sort.clone())]);
     let goal=Equation{from:x.clone(),to:x};
     assert!(semantic_word::problem(&Program::default(),&env,&[goal.clone()],&goal,&[0,0],bitproof::Encoding::SharedV2,&mut Budget::new()).is_err());
-    assert!(semantic_word::problem(&Program::default(),&env,&[],&goal,&[],bitproof::Encoding::SharedV2,&mut Budget{remaining:1}).is_err());
+    assert!(semantic_word::problem(&Program::default(),&env,&[],&goal,&[],bitproof::Encoding::SharedV2,&mut Budget{remaining:1,..Budget::new()}).is_err());
     let renamed=serde_json::to_string(&base).unwrap().replace("\"x\"","\"renamed\"");
     check(serde_json::from_str(&renamed).unwrap()).unwrap();
     let mut law=base;law.semantics=laws::SEMANTICS.into();assert!(check(law).is_err());
