@@ -13,6 +13,7 @@ pub fn arguments(ty: &Type, name: &str) -> LangResult<Vec<Type>> {
         (Type::Buffer(_), "copy_within") => vec![Type::U32, Type::U32, Type::U32],
         (Type::Buffer(t), "fill_range") => vec![Type::U32, Type::U32, *t.clone()],
         (Type::Buffer(t), "push") => vec![*t.clone()],
+        (Type::Buffer(_), "append") => vec![ty.clone()],
         (Type::Buffer(_), "truncate") => vec![Type::U32],
         (Type::Buffer(_), "freeze" | "len" | "pop" | "scan") => vec![],
         (Type::Map(k, v), "get_or" | "set") => vec![*k.clone(), *v.clone()],
@@ -338,7 +339,7 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
             }
         }
         (
-            "method:push" | "method:set" | "method:pop" | "method:truncate" | "method:swap"
+            "method:push" | "method:append" | "method:set" | "method:pop" | "method:truncate" | "method:swap"
             | "method:fill_range" | "method:copy_within",
             args,
         ) if matches!(
@@ -362,6 +363,13 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
             };
             let edited = match n.as_str() {
                 "method:push" => list_edit("local:append", vec![xs, args[1].clone()]),
+                "method:append" => {
+                    let other=match &args[1].node{
+                        Node::Op(name,values)if name=="call:buffer"=>values[0].clone(),
+                        _=>op(xs.sort.clone(),"method:freeze",vec![args[1].clone()]),
+                    };
+                    op(xs.sort.clone(),"method:concat",vec![xs,other])
+                },
                 "method:set" => list_edit("local:set", vec![xs, args[1].clone(), args[2].clone()]),
                 "method:pop" => list_edit("local:pop", vec![xs]),
                 "method:truncate" => list_edit("local:truncate", vec![xs, args[1].clone()]),

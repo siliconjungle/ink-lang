@@ -476,7 +476,23 @@ fn evaluate_binding(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lan
             local.insert(n.clone(), value);
             let mut ts = types.clone();
             ts.insert(n.clone(), at);
-            expr(b, &local, &ts, p, fuel, Some(&ty), depth)
+            // A sequence of lexical bindings needs one evaluator frame. Keep
+            // the recursion bound for nested RHS expressions and function
+            // calls; source elaboration must not turn a long straight-line
+            // function into an artificial recursion failure. Retain the same
+            // expression and environment-copy fuel charges for each binding.
+            let mut tail = b.as_ref();
+            while let Expr::Let(n, t, a, b) = tail {
+                charge(fuel, 1)?;
+                crate::check::infer_context(tail, &ts, p, Some(&ty))?;
+                let at = crate::check::infer_context(a, &ts, p, t.as_deref())?;
+                let value = expr(a, &local, &ts, p, fuel, Some(&at), depth)?;
+                local = copy_env(&local, fuel)?;
+                local.insert(n.clone(), value);
+                ts.insert(n.clone(), at);
+                tail = b.as_ref();
+            }
+            expr(tail, &local, &ts, p, fuel, Some(&ty), depth)
         }
         _ => unreachable!("expression dispatch"),
     }

@@ -137,6 +137,6 @@ mod tests {
         let u=s::value(Type::U32);let x=s::free(u.clone(),"x");
         let mut term=x.clone();for _ in 0..28{term=s::op(u.clone(),"call:word_or",vec![term,x.clone()]);}
         let mut image=Image{names:BTreeMap::new(),params:BTreeMap::new()};
-        assert!(image.term(&term,&mut Budget{remaining:10_000},0).is_err());
+        assert!(image.term(&term,&mut Budget{remaining:10_000,..Budget::new()},0).is_err());
     }
 }
