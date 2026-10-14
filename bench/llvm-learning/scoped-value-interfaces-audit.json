@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "finding": "F054",
+  "status": "Complete interface review; scoped word analysis implementation in progress.",
+  "sources": [
+    {
+      "path": "llvm/include/llvm/Analysis/LazyValueInfo.h",
+      "blob": "23f4d04018cf2dfc430ba570d0f2fb1f76b60ff7",
+      "bytes": 7173
+    },
+    {
+      "path": "llvm/include/llvm/Transforms/Scalar/CorrelatedValuePropagation.h",
+      "blob": "075718a60e5ea11cfd4dd904956996c469d26c7b",
+      "bytes": 827
+    }
+  ],
+  "insights": [
+    "Value facts are location-specific: edge, instruction and individual use are separate queries. A global fact cache cannot safely reuse a fact established on only one branch.",
+    "Lazy analysis caches have explicit invalidation hooks for edge threading, forgotten values, erased blocks and complete resets. An Ink cross-call fact cache would need exact source and lexical scope identities; the current new implementation uses per-invocation scopes and no persistent cache.",
+    "Range queries explicitly distinguish undef permission. Ink total word semantics must not import this permission or LLVM poison facts.",
+    "The propagation pass returns preserved-analysis information; changing source and keeping all prior facts would require justification.",
+    "Header exposes only the pass interface; it does not prove the implementation behavior or establish complete LLVM control-flow coverage."
+  ],
+  "transfer": "Derive constraints separately inside true/false choose arms; intersect simultaneous constraints and union arms; reconstruct full guarded expression and independently prove an unconditional equality. Database templates can generalise masks with explicit checked conditions.",
+  "remaining": "Audit LazyValueInfo.cpp/CorrelatedValuePropagation.cpp, widen scoped fact rules only after concrete proof-backed examples, investigate context-aware memoization if measured worthwhile; no global contract facts or runtime adaptation added."
+}

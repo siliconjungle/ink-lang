@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "finding": "F060",
+  "status": "Reproduced; repairs pending after in-flight corpus",
+  "sources": [
+    {
+      "path": "ink_planner/semantic_search.py",
+      "blob": "53601800d84f45f683d693708be269641e5b617c",
+      "bytes": 62633
+    },
+    {
+      "path": "ink_planner/modular.py",
+      "blob": "55f1664eb1eaf01b114f33bf0009e55492d4af83",
+      "bytes": 4925
+    }
+  ],
+  "probe": {
+    "path": "outputs/llvm-ink-audit/modular-planning-contract-probe.json",
+    "sha256": "dae9b1576ffe0043e26c3b06b65b34fa72a269707fd4391a0ff3b3deffc8bca3"
+  },
+  "findings": [
+    "Actual schema2 plus --modular-cache CLI fails with TypeError: TargetCostModel is passed to mapping-only structural cost. No output emitted.",
+    "Actual modular plan with zero checker/time budgets still produces one proposal and invokes checker twice because per-function shares are clamped to one.",
+    "Invalid JSON in disposable per-function cache aborts planning instead of becoming a cache miss.",
+    "Replanning after combined rejection is not included in reported attempt totals; global budgets need centralized accounting, including replays and retries.",
+    "Per-function cache writes are direct rather than atomic; bounded, validated reads and atomic writes should follow existing plan-cache machinery.",
+    "Modular CLI omits refresh and alternatives integration used by the ordinary planner; verify equivalent discovery/output behavior while repairing composition."
+  ],
+  "other_review_notes": [
+    "Search distinguishes typed syntax, binding-safe match/substitution, candidate ranking, final checker admission and actual measured profitability.",
+    "Cached costs and module serializations assume immutable shared bodies, retain objects beside Python ids and are per-search; contextual fact cache must preserve scope if later added.",
+    "Candidate diversity and premise-class interleaving preserve search breadth; rejected proofs do not mark target states seen. Memo retention and time/check/memory gates are explicit.",
+    "Condition alternatives include normalization, certificates, supporting lemmas and congruence; no hint is admitted without replay. Higher-order generation refreshes intermediate syntax.",
+    "Checker sessions reuse admitted supersets and bounded leases, independently replay complete chains and exact closure; pipe error/timeout lifecycle deserves separate audit.",
+    "Guard deduplication precomputes initial guard set, while dynamic refresh may add new laws. Current refresh does not synthesize guarded variants; new guarded generation must update this set if enabled.",
+    "CLI supports costs, cache replay, egraph, stochastic, modular and streams. Capability combinations need actual integration tests, not merely individual-feature tests."
+  ],
+  "limitations": [
+    "No proof bypass established; reproduced failures are planning availability and resource-contract defects.",
+    "Generalization/performance changes from repairing modular search have not been measured."
+  ]
+}

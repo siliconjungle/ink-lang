@@ -1,0 +1,38 @@
+{
+  "schema2_cli": {
+    "returncode": 1,
+    "error": "<frozen runpy>:130: RuntimeWarning: 'ink_planner.semantic_search' found in sys.modules after import of package 'ink_planner', but prior to execution of 'ink_planner.semantic_search'; this may result in unpredictable behaviour\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/ink-development/planner/ink_planner/semantic_search.py\", line 1008, in <module>\n    if __name__ == '__main__': main()\n                               ~~~~^^\n  File \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/ink-development/planner/ink_planner/semantic_search.py\", line 951, in main\n    receipt.update(initial_cost=sum(structural(b, operation_costs) for b in subject['functions'].values()),\n                                ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/ink-development/planner/ink_planner/semantic_search.py\", line 951, in <genexpr>\n    receipt.update(initial_cost=sum(structural(b, operation_costs) for b in subject['functions'].values()),\n                                    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/ink-development/planner/ink_planner/semantic_search.py\", line 156, in cost\n    operation_costs = dict(structural_prices(), **operation_costs)\nTypeError: dict() argument after ** must be a mapping, not TargetCostModel\n",
+    "output_exists": false
+  },
+  "zero_budget": {
+    "check_calls": 2,
+    "applications": 1,
+    "receipt": {
+      "attempts": 1,
+      "rejected": 0,
+      "generated_proposals": 0,
+      "exhausted": false,
+      "estimate": "structural; not measured runtime",
+      "modular": {
+        "functions": [
+          {
+            "function": "run",
+            "cache": "miss",
+            "steps": 1,
+            "attempts": 1,
+            "initial_cost": 3,
+            "selected_cost": 1
+          }
+        ],
+        "hits": 0,
+        "misses": 1,
+        "replanned": false,
+        "scope": "Cached per-function chains are hints; the combined chain is checked against the module"
+      }
+    }
+  },
+  "corrupt_cache": {
+    "error_type": "JSONDecodeError",
+    "message": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+  }
+}
