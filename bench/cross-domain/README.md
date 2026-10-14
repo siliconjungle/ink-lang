@@ -24,7 +24,7 @@ cargo build --release --locked
 python3 bench/cross-domain/prepare.py --compiler target/release/ink --scalar-calls
 python3 bench/cross-domain/run.py --compiler path/to/baseline-ink --name baseline --upstreams path/to/upstreams --build-only
 python3 bench/cross-domain/run.py --compiler target/release/ink --name expanded --plan build/cross-domain/prepared/plan.json --upstreams path/to/upstreams --build-only
-python3 bench/cross-domain/compare.py baseline expanded --rounds 9
+python3 bench/cross-domain/compare.py baseline expanded --rounds 8
 ```
 
 Run timing without other builds or planning evaluations. Build metadata contains
