@@ -115,8 +115,13 @@ induction proofs and replays them through `check-contract-proof-stream`. Its
 context before the ready frame. This avoids deriving the goals again in a
 separate export process; derivation order, exact source identity, definition
 context and state obligations are preserved. Editing that exported file cannot
-alter the checker's goals. Every proposed proof and dependency bundle still
-replays independently, and final module or refinement admission remains required.
+alter the checker's goals. Every proposed proof is checked independently. Each
+incoming dependency bundle is authenticated, including its content, snapshot and
+complete closure. Pure laws already checked in this exact executable context may
+be reused when present in the incoming view; the session retains at most one
+bounded catalogue and never grants previous laws to a request without them.
+State dependencies retain their existing replay path. Final module or refinement
+admission remains required.
 The single-request `check-contract-proof` endpoint remains available.
 
 The state-contract author reserves the full typed parameter scope when choosing

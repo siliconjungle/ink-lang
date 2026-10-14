@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "repo": "ink",
+      "path": "core/src/contracts/state.rs",
+      "blob": "eb391545dfb5a1d7d676fb00c7840504aa560700",
+      "bytes": 34469,
+      "sha256": "91db8cd6138c0f522d2cd2a19761c9ad4f4fe68d61bd4b948912d32934dc91c4"
+    }
+  ],
+  "insights": [
+    "Ghost queries derive observations from typed source transitions; pure observers are captured as explicit arguments instead of granting callback assumptions.",
+    "Before captures forbid result/nested before and mutable Table/Buffer observations, with explicit depth/count limits. Investigate lexical local binder handling and generated-name edge cases with typed counterexamples before any change.",
+    "State equality projection distinguishes raw structural identity from IEEE F32 numeric equality; preserve this when generating state-domain laws.",
+    "Call-site facts follow typed source-site mappings and actual action prefixes. Only readonly actions receive stable boundary invariants in the fallback route; mutating actions require prefix reasoning.",
+    "Postconditions are conditional on the actual callee arguments/requirements. Host-error branches discharge true, and transition projection supplies transaction semantics; generated proof code cannot substitute a different transition.",
+    "Each state request rebuilds its authenticated first-order context plus derived definitions. Existing logic::Context sealed entries/imports suggest possible bounded source-session reuse, but byte identity, complete current closure and no historical-law leakage must be checked first. Not implemented.",
+    "Context definition installation repeatedly scans pending dependencies. A checked topological order may reduce work for large contexts; must profile and preserve complete source-derived definitions and cycle rejection.",
+    "Internal reply/host binders are fixed strings; investigate against Projection parameter normalization before claiming a source-name collision.",
+    "Final admission rejects unknown evidence and replays each goal; immediate Convert/hypothesis fallback is proof, not a trusted producer verdict."
+  ],
+  "status": "Full source review completed. Follow-up candidates are unverified investigations, not claimed defects or speedups."
+}
