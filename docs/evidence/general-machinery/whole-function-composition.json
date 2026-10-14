@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "knowledge": "ac8b922223c045c6dcd350f61c81c1a197c9dfeb",
+  "core_changed": false,
+  "scope": "Untrusted whole-function equality construction from scoped local semantic applications; ordinary proof replay remains mandatory.",
+  "proofs": [
+    "Use retains concrete law arguments and all application premise certificates.",
+    "Forall introduces fresh binders and opens both arguments and nested premise terms in the application scope.",
+    "Cases preserves choose/and/or branch facts; congruence lifts other expression children.",
+    "Balanced transitivity retains original step order within each function.",
+    "Whole-function laws use exact source/portable definition contexts before guarded-choice authoring."
+  ],
+  "validation": {
+    "integrated_tests": 88,
+    "final_targeted_tests": 11,
+    "logs": [
+      "work/whole-selection-integrated-regression-v3.log",
+      "work/whole-selection-final-regression-v1.log"
+    ],
+    "parity": {
+      "passed": true,
+      "calls": 48,
+      "targets": [
+        "independent expectations",
+        "Ink reference",
+        "selected native Rust",
+        "selected JavaScript",
+        "selected Rust-Wasm"
+      ],
+      "scope": "Nested lambdas, repeated local rewrites, branch/lazy-Boolean premises, guarded whole-function composition, empty inputs and guard boundaries. No performance or GPU claim.",
+      "compiler_sha256": "00698bac39c7685b24d36651ea7bf6110fff037af5d271440e27d6ce0a1fe72f",
+      "authoring_sha256": "f134f553f7fcf26bb31bc33cc4e8c26d43098968ea485fe671d93dc3989b11aa",
+      "replayed_generation_byte_identical": true,
+      "files": {
+        "source.ink": "e37f9a4389599bab79722331ec2a2170a7ecb9c1e2d46810f68e08192a2d2db5",
+        "core.json": "fc440d1435ac5f8a9137fce559ddc9b63124c50b957ba4f6ce0f212072ba88be",
+        "subject.json": "d3960051cc92746b5c1d444661655d7a3b3a9e0d66f46a39d701d7444e86ddd8",
+        "selected.json": "510db3a0d7d8eb969dd784f9869a4d36c3c439162e84a4ebd478aeff3f6de78c",
+        "selected.mjs": "b42137fa9d3365ca73d28a64df1a043b8162a02acce3a9630b9c3ce78e53f80f",
+        "calls.json": "0c4346a8ae2baf9ef4afe7c46e083fa49e47f67e113e3270ab40fd8cf1243f30",
+        "expected.json": "496e35526be78f276b83c9b6a43ad4e2c99e17c47765536fd45aad581cab56f6",
+        "reference-result.json": "496e35526be78f276b83c9b6a43ad4e2c99e17c47765536fd45aad581cab56f6",
+        "native-result.json": "4bff340fe8c8751b926c0d5776a8b046bfbf0ae7a614e8052fd7c88227a4ca46",
+        "verify.mjs": "6f5054e8ead0d88bce2a29f09e70c035c142e893824da6022d48672b84df1439",
+        "rust/src/lib.rs": "bfea10f67dc6cbcaad0431f36f88216973bcff507d3358c9d44cb0d977b9971c",
+        "rust/Cargo.lock": "108ef5f4292306623b70fc6cea61debb13fc172b421594f528bd1263d96d14e5",
+        "wasm-target/wasm32-unknown-unknown/debug/compiled_state.wasm": "fb3e94760f74547c6b4c290b8a87e750753bfc89d64c9b4d69866d7b8ec59f42"
+      }
+    }
+  },
+  "limits": [
+    "Only pure semantic function roots are composed.",
+    "Ambient entry contracts, call postconditions and known let-argument facts may require further proof proposals; unsupported compositions fail ordinary replay.",
+    "Bounded application/path/proof work can decline large proposals.",
+    "Conformance does not establish profitability; mixed-grid selection experiment remains pending."
+  ]
+}
