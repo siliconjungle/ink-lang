@@ -82,7 +82,7 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
             "-o",
         ])
         .arg(&dir)
-        .env("PYTHONPATH", root.join("knowledge"))
+        .env("PYTHONPATH", std::env::join_paths(std::iter::once(root.join("knowledge")).chain(std::env::split_paths(&std::env::var_os("PYTHONPATH").unwrap_or_default()))).unwrap())
         .env("INK_PROOF_DEBUG", "1")
         .output()
         .unwrap();
@@ -381,7 +381,7 @@ query bottom()->u64 reads(lowest){return lowest;}
         .arg(&source)
         .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "-o"])
         .arg(dir.join("plan"))
-        .env("PYTHONPATH", root.join("knowledge"))
+        .env("PYTHONPATH", std::env::join_paths(std::iter::once(root.join("knowledge")).chain(std::env::split_paths(&std::env::var_os("PYTHONPATH").unwrap_or_default()))).unwrap())
         .output()
         .unwrap();
     assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
