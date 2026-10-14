@@ -1,9 +1,12 @@
 // Conformance replay across the state-module and stateless packed/scalar ABIs.
 // Pure packed hosts expose values, not logical checkpoints. Never fabricate a
 // snapshot for them or allow stateful fixtures to pass through that path.
-export async function replayContracts(host,{name,steps,wanted}) {
+export async function replayContracts(host,{name,steps,wanted,pureStateModule=null}) {
   const abi=host.manifest.runtime_abi;
   const stateful=abi==='ink-module-v1';
+  // The optional companion is the same checked source emitted as complete
+  // Rust/Wasm; its values and snapshots provide additional cross-ABI checks.
+  const pureReplay=!stateful&&pureStateModule!=null;
   if(!stateful&&!['ink-packed-pipeline-v2','ink-scalar-pipeline-v1'].includes(abi))throw Error(`unsupported contract replay ABI: ${abi}`);
   if(!stateful&&steps.some(s=>!s.pure||s.reject_restore))throw Error(`${name}: state fixture requires state-module ABI`);
   if(steps.filter(s=>!s.reject_restore).length!==wanted.length)throw Error(`${name}: fixture reply count differs`);
@@ -13,7 +16,7 @@ export async function replayContracts(host,{name,steps,wanted}) {
   let comparisons=0,gpu_calls=0,rejectedRestores=0,snapshotComparisons=0;
   for(const backend of ['cpu','javascript','gpu']) {
     const jsState=stateful&&backend==='javascript'&&host.manifest.javascript.state!=null;
-    const state=stateful?(jsState?host.createJavaScriptState():host.createState()):null;
+    const state=stateful?(jsState?host.createJavaScriptState():host.createState()):pureReplay?pureStateModule.create():null;
     const snapshot=async()=>Array.from(jsState?await state.checkpoint():state.snapshot());
     let index=0;
     try {for(const step of steps) {
@@ -33,6 +36,7 @@ export async function replayContracts(host,{name,steps,wanted}) {
           const result=await(host.call?host.call(step.pure,args,{backend:request}):host.run(step.pure,args,request));
           if(request==='gpu-required') {if(result.backend!=='gpu')throw Error('required GPU fell back');gpu_calls++;}
           reply={value:result.value};
+          if(pureReplay&&exact(state.pure(step.pure,args))!==exact(result.value))throw Error(`${name}/${backend}: complete Rust/Wasm replay differs`);
         } else {
           const action=host.manifest.javascript.state.actions.find(a=>a.name===step.call);
           const args=step.args.map((v,i)=>typed(v,action.params[i].type));
@@ -40,7 +44,7 @@ export async function replayContracts(host,{name,steps,wanted}) {
         }
       }catch(e){reply={host_error:e.message};}
       if(exact(reply)!==exact(wanted[index].reply))throw Error(`${name}/${backend}/${index}: contract value differs: ${exact(reply)}`);
-      if(stateful) {
+      if(stateful||pureReplay) {
         if(exact(await snapshot())!==exact(wanted[index].snapshot))throw Error(`${name}/${backend}/${index}: contract snapshot differs`);
         snapshotComparisons++;
       }

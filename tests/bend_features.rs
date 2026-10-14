@@ -216,3 +216,16 @@ fn independent_boolean_verdict_checks_exact_theorems() {
 
 #[path = "fixtures/universal_control.rs"]
 mod universal_control;
+
+#[test]
+fn packed_parallel_wasm_preserves_order_captures_and_nested_callbacks() {
+    if std::env::var_os("INK_TEST_WASM").is_none() { return; }
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("build/packed-parallel-wasm");
+    let p = parse("module packed;fn run(xs:List<u32>,offset:u32)->List<u32>{return parallel_map(xs,2,fn(i)=>fn(x)=>x+i+offset);} fn nested(xs:List<u32>)->List<u32>{return parallel_map(xs,1,fn(i)=>fn(x)=>sum(parallel_map(list(x,x+1),1,fn(j)=>fn(v)=>v+j)));}").unwrap();
+    verified_language::runtime::emit_gpu(&p, &root).unwrap();
+    let built=std::process::Command::new("python3").args(["tools/build_gpu_wasm.py"]).arg(&root).output().unwrap();
+    assert!(built.status.success(),"{}",String::from_utf8_lossy(&built.stderr));
+    std::fs::write(root.join("check.mjs"),r#"import fs from 'node:fs/promises';import assert from 'node:assert/strict';globalThis.fetch=async url=>new Response(await fs.readFile(url));const {loadInk}=await import('./ink-gpu.mjs');const engine=await loadInk(new URL('./',import.meta.url),{gpu:false});for(const xs of [[],[1],[1,2,3,4,5]]){for(const backend of ['cpu','javascript']){const r=await engine.run('run',[xs,7],backend);assert.deepEqual(r.value,xs.map((x,i)=>(x+i+7)>>>0));const n=await engine.run('nested',[xs],backend);assert.deepEqual(n.value,xs.map(x=>(2*x+2)>>>0));}}await engine.close();"#).unwrap();
+    let run=std::process::Command::new("node").arg(root.join("check.mjs")).output().unwrap();
+    assert!(run.status.success(),"{}",String::from_utf8_lossy(&run.stderr));
+}

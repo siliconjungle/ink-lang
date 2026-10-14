@@ -1,0 +1,2877 @@
+{
+  "binding": {
+    "source": "83baab250e2ca4968f2c864e2f0269d9852b92ce72f818a7b6fe97cd795ca378",
+    "compiler": "f89b4c447807d91bb8d20dcaebb74e9425ec2ced050ab8b578d98033a2f7cc9a",
+    "target": "apple-arm-node26-main-frontier-2026-10-14",
+    "boundary": "owned-serial-state-v1",
+    "variants": {
+      "direct": "6e1e2141409b082c84b5d108f301ddb8c7f596dc522861d5f280093df0177c2d",
+      "cached": "5e6432494e0523b7f95fde1837f30f1098987f1377996b0e08358748842b2aeb"
+    }
+  },
+  "node": "v26.1.0",
+  "cpu": "Apple M2",
+  "rotation": 2,
+  "hashes": {
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/bench/adaptive-learning/frontier.mjs": "4d74b6ba5e5cee6560ac7c85bb4a5f66d3dd9e20e33c058519d41d50a2987776",
+    "build/adaptive-main-frontier/acquisition.json.fitted.json": "18c5fbd2d434c755f68b844c383b472d47496b9facadf414506ac496cab68123",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/adaptive-main-frontier/aggregate/bundle/direct.mjs": "6e1e2141409b082c84b5d108f301ddb8c7f596dc522861d5f280093df0177c2d",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/adaptive-main-frontier/aggregate/bundle/cached.mjs": "5e6432494e0523b7f95fde1837f30f1098987f1377996b0e08358748842b2aeb",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/adaptive-main-frontier/aggregate/bundle/adaptive-state.mjs": "3d11adbf2445a6e32e26319018cd1f08974c67cad10bb10483076e269f82e0ff",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/adaptive-main-frontier/aggregate/bundle/adaptive-profile.mjs": "446ab79766772684d430bd66734ed94f96248e64dafc349c873327c44c6849b2",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/adaptive-main-frontier/aggregate/bundle/usage-window.mjs": "f898224de6f1e50576a58039ff3eba139a7611ee0b7b2476d988a490764d664b",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/adaptive-main-frontier/aggregate/bundle/ink-selection.mjs": "bbd63dfd959c06658dde1f5da743af125e5394171202e865a07de7826166afd5",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/adaptive-main-frontier/aggregate/bundle/ink-selection.wasm": "10cb958b02c0373f416aabc843fcd5819ffec8cd857c53716f292e64fff12455",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-state-main/dist/index.js": "b53bb2552a05f2360cf2f9246686178e3ec65bfa6bb527690735a1c60d0d0a7c",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-state-main/dist/subscription.js": "e8d4af71d5e9f1328e15bf4861aa347fe04897725d023cc061f0d85ec9f3a398",
+    "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-json-values-2026-10-13/build/frontier-state-main/dist/types.js": "01ae2a5b120382f9a648ced7ee8507493a134f216d100fc61600c6c9738235d2"
+  },
+  "frontier_revision": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+  "timing": "Complete session: state restoration/setup, calls, result checksumming, recording and all migrations. Module import, offline cost acquisition, final snapshot validation and forced GC excluded. Shared host.",
+  "scope": "128 numeric rows, finite exact safe-integer domain; watcher-free. Frontier facade adds Ink reply/version/event/rollback observations; maintained control explicitly maintains equivalent sum. No JSON text, heap or startup ranking.",
+  "results": [
+    {
+      "trace": "steady_read",
+      "calls": 6144,
+      "samples": [
+        {
+          "mode": "ink_fixed_host",
+          "round": 0,
+          "elapsed_ns": 95181375,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 0,
+          "elapsed_ns": 57505333.00000001,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 3391999.999999996
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 0,
+          "elapsed_ns": 59094625.00000001,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 2665958.9999999865
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 0,
+          "elapsed_ns": 16473250.000000007,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 0,
+          "elapsed_ns": 3693750.000000023,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 0,
+          "elapsed_ns": 78601042,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 0,
+          "elapsed_ns": 10554499.99999996,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 1,
+          "elapsed_ns": 64308540.99999999,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 3835249.9999999735
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 1,
+          "elapsed_ns": 63474749.99999997,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 2984542.000000033
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 1,
+          "elapsed_ns": 18875416.99999997,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 1,
+          "elapsed_ns": 4868875.000000003,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 1,
+          "elapsed_ns": 81109542.00000003,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 1,
+          "elapsed_ns": 8876541.999999972,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 1,
+          "elapsed_ns": 109907542.00000003,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 2,
+          "elapsed_ns": 87223584.00000007,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 2877583.999999956
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 2,
+          "elapsed_ns": 17390041.00000011,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 2,
+          "elapsed_ns": 4766333.999999915,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 2,
+          "elapsed_ns": 80275500.0000002,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 2,
+          "elapsed_ns": 6761208.000000124,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 2,
+          "elapsed_ns": 92787583.00000004,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 2,
+          "elapsed_ns": 46700125.000000075,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 3105833.000000075
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 3,
+          "elapsed_ns": 15062417.000000095,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 3,
+          "elapsed_ns": 2745708.9999998063,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 3,
+          "elapsed_ns": 67188958.00000018,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 3,
+          "elapsed_ns": 5856291.999999939,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 3,
+          "elapsed_ns": 82373834.00000021,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 3,
+          "elapsed_ns": 46306083.00000017,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 2091208.9999999353
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 3,
+          "elapsed_ns": 49913375.00000009,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 2215083.9999999334
+            }
+          ]
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 4,
+          "elapsed_ns": 3219624.999999951,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 4,
+          "elapsed_ns": 65842834.00000004,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 4,
+          "elapsed_ns": 6158958.999999868,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 4,
+          "elapsed_ns": 85109666.99999994,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 4,
+          "elapsed_ns": 48531375.00000002,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 2229374.999999891
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 4,
+          "elapsed_ns": 46474332.99999989,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 1893542.000000025
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 4,
+          "elapsed_ns": 14791541.999999937,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 5,
+          "elapsed_ns": 62814667.0000001,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 5,
+          "elapsed_ns": 6300625.000000082,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 5,
+          "elapsed_ns": 83418042.00000024,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 5,
+          "elapsed_ns": 44671083.00000018,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 2778750.0000004
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 5,
+          "elapsed_ns": 44882749.99999976,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 1869999.9999998908
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 5,
+          "elapsed_ns": 13532457.999999678,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 5,
+          "elapsed_ns": 2650125.0000001164,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 6,
+          "elapsed_ns": 5601040.999999896,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 6,
+          "elapsed_ns": 81149583.99999978,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 6,
+          "elapsed_ns": 51187750.00000005,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 2719790.9999999865
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 6,
+          "elapsed_ns": 45973750.00000011,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 2073624.9999999928
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 6,
+          "elapsed_ns": 14330167.000000075,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 6,
+          "elapsed_ns": 2982124.9999999963,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 6,
+          "elapsed_ns": 65977875.00000004,
+          "diagnostics": []
+        }
+      ]
+    },
+    {
+      "trace": "steady_write",
+      "calls": 6144,
+      "samples": [
+        {
+          "mode": "ink_fixed_host",
+          "round": 0,
+          "elapsed_ns": 40473375.00000003,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 0,
+          "elapsed_ns": 43910582.99999986,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 0,
+          "elapsed_ns": 45620125.00000037,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 0,
+          "elapsed_ns": 8161999.999999807,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 0,
+          "elapsed_ns": 5256457.999999839,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 0,
+          "elapsed_ns": 10118958.00000002,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 0,
+          "elapsed_ns": 561277625.0000001,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 1,
+          "elapsed_ns": 34823417.00000006,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 1,
+          "elapsed_ns": 39804832.99999969,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 1,
+          "elapsed_ns": 5299958.000000061,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 1,
+          "elapsed_ns": 5123500.000000149,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 1,
+          "elapsed_ns": 6697208.000000046,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 1,
+          "elapsed_ns": 532726541.9999999,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 1,
+          "elapsed_ns": 30704040.999999505,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 2,
+          "elapsed_ns": 43750166.99999924,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 2,
+          "elapsed_ns": 7063333.999999486,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 2,
+          "elapsed_ns": 5283459.000000221,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 2,
+          "elapsed_ns": 6425957.99999981,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 2,
+          "elapsed_ns": 549635792,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 2,
+          "elapsed_ns": 37110999.99999987,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 2,
+          "elapsed_ns": 37102915.99999982,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 3,
+          "elapsed_ns": 7423624.999999447,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 3,
+          "elapsed_ns": 4935708.000000887,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 3,
+          "elapsed_ns": 8223292.000000583,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 3,
+          "elapsed_ns": 565718291.9999995,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 3,
+          "elapsed_ns": 32650958.000000175,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 3,
+          "elapsed_ns": 37796542.000000045,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 3,
+          "elapsed_ns": 42370624.99999956,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 4,
+          "elapsed_ns": 6605209.000000286,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 4,
+          "elapsed_ns": 11127375.00000003,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 4,
+          "elapsed_ns": 545779833.9999999,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 4,
+          "elapsed_ns": 25759165.99999982,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 4,
+          "elapsed_ns": 36122374.99999992,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 4,
+          "elapsed_ns": 42087416.99999973,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 4,
+          "elapsed_ns": 5955582.999999933,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 5,
+          "elapsed_ns": 6370957.9999995185,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 5,
+          "elapsed_ns": 477035249.9999999,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 5,
+          "elapsed_ns": 28382125.000000086,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 5,
+          "elapsed_ns": 40416582.99999926,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 5,
+          "elapsed_ns": 42113500.00000039,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 5,
+          "elapsed_ns": 5366541.999999754,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 5,
+          "elapsed_ns": 5725166.999999601,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 6,
+          "elapsed_ns": 498529833.00000054,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 6,
+          "elapsed_ns": 32499458.99999966,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 6,
+          "elapsed_ns": 36529000.000000454,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 6,
+          "elapsed_ns": 44118583.0000004,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 6,
+          "elapsed_ns": 5783416.999999645,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 6,
+          "elapsed_ns": 4890334.000000621,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 6,
+          "elapsed_ns": 9352624.999999534,
+          "diagnostics": []
+        }
+      ]
+    },
+    {
+      "trace": "write_read",
+      "calls": 8192,
+      "samples": [
+        {
+          "mode": "ink_fixed_host",
+          "round": 0,
+          "elapsed_ns": 92849374.99999978,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 0,
+          "elapsed_ns": 79238082.99999928,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3584,
+              "elapsed_ns": 21231041.999999434
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 0,
+          "elapsed_ns": 76047291.99999928,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2240,
+              "elapsed_ns": 21868707.99999997
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 0,
+          "elapsed_ns": 15391208.000000916,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 0,
+          "elapsed_ns": 4941584.000000148,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 0,
+          "elapsed_ns": 66717291.00000084,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 0,
+          "elapsed_ns": 158171000.00000027,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 1,
+          "elapsed_ns": 71254333.00000077,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3584,
+              "elapsed_ns": 15774417.00000054
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 1,
+          "elapsed_ns": 69685792.00000022,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2240,
+              "elapsed_ns": 17460917.000000335
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 1,
+          "elapsed_ns": 15234166.000000186,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 1,
+          "elapsed_ns": 5496834.0000014,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 1,
+          "elapsed_ns": 65523041.00000037,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 1,
+          "elapsed_ns": 191161790.99999863,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 1,
+          "elapsed_ns": 95710000.00000094,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 2,
+          "elapsed_ns": 63222249.9999989,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2240,
+              "elapsed_ns": 17729957.999999896
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 2,
+          "elapsed_ns": 15363250.000000335,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 2,
+          "elapsed_ns": 4463292.000000365,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 2,
+          "elapsed_ns": 58965125.000000626,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 2,
+          "elapsed_ns": 163479292,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 2,
+          "elapsed_ns": 90000167.00000015,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 2,
+          "elapsed_ns": 77172999.99999887,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3584,
+              "elapsed_ns": 18878082.999999605
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 3,
+          "elapsed_ns": 14659333.999999944,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 3,
+          "elapsed_ns": 5241374.999999607,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 3,
+          "elapsed_ns": 64470457.999999784,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 3,
+          "elapsed_ns": 172201917.00000033,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 3,
+          "elapsed_ns": 122873583.0000005,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 3,
+          "elapsed_ns": 79498583.0000005,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3584,
+              "elapsed_ns": 18328207.999998994
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 3,
+          "elapsed_ns": 78478291.00000127,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2240,
+              "elapsed_ns": 21678459.000000656
+            }
+          ]
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 4,
+          "elapsed_ns": 4333667.000000787,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 4,
+          "elapsed_ns": 71094041.99999881,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 4,
+          "elapsed_ns": 186160791.99999878,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 4,
+          "elapsed_ns": 90386500.00000052,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 4,
+          "elapsed_ns": 72459667.00000098,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3584,
+              "elapsed_ns": 16449749.999999767
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 4,
+          "elapsed_ns": 66067624.99999968,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2240,
+              "elapsed_ns": 17730374.999999184
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 4,
+          "elapsed_ns": 14907457.999999678,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 5,
+          "elapsed_ns": 68831999.99999851,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 5,
+          "elapsed_ns": 196744375.0000002,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 5,
+          "elapsed_ns": 88701041.00000025,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 5,
+          "elapsed_ns": 70311207.99999917,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3584,
+              "elapsed_ns": 17110457.9999992
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 5,
+          "elapsed_ns": 76695458.00000015,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2240,
+              "elapsed_ns": 20655749.9999999
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 5,
+          "elapsed_ns": 15324749.999999767,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 5,
+          "elapsed_ns": 5597166.999999899,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 6,
+          "elapsed_ns": 176159958.00000018,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 6,
+          "elapsed_ns": 94211165.99999914,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 6,
+          "elapsed_ns": 84370624.99999957,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3584,
+              "elapsed_ns": 20545916.999999464
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 6,
+          "elapsed_ns": 81584749.99999999,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2240,
+              "elapsed_ns": 24001166.999998532
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 6,
+          "elapsed_ns": 13259374.999999637,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 6,
+          "elapsed_ns": 5040291.9999996815,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 6,
+          "elapsed_ns": 65927207.99999916,
+          "diagnostics": []
+        }
+      ]
+    },
+    {
+      "trace": "read_write",
+      "calls": 8192,
+      "samples": [
+        {
+          "mode": "ink_fixed_host",
+          "round": 0,
+          "elapsed_ns": 84117791.9999991,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 0,
+          "elapsed_ns": 191732833.00000003,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 2225207.999999839
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5632,
+              "elapsed_ns": 11024583.999998868
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 0,
+          "elapsed_ns": 79407750.00000031,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 4231416.999999056
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 4288,
+              "elapsed_ns": 2312667.0000001467
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 0,
+          "elapsed_ns": 13652916.999999434,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 0,
+          "elapsed_ns": 5320374.99999933,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 0,
+          "elapsed_ns": 56088334.00000003,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 0,
+          "elapsed_ns": 374988459.0000001,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 1,
+          "elapsed_ns": 220165750.00000012,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 3925584.000000526
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5632,
+              "elapsed_ns": 7677125.00000016
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 1,
+          "elapsed_ns": 88319040.99999884,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 3004541.999998764
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 4288,
+              "elapsed_ns": 2103874.9999988796
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 1,
+          "elapsed_ns": 14285583.00000077,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 1,
+          "elapsed_ns": 5543041.999999332,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 1,
+          "elapsed_ns": 55863874.9999991,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 1,
+          "elapsed_ns": 340091875.00000006,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 1,
+          "elapsed_ns": 75263166.00000064,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 2,
+          "elapsed_ns": 80228541.0000004,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 3431249.9999996363
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 4288,
+              "elapsed_ns": 1644374.9999998545
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 2,
+          "elapsed_ns": 11288417.000001572,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 2,
+          "elapsed_ns": 5288292.000001092,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 2,
+          "elapsed_ns": 47233667.000000425,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 2,
+          "elapsed_ns": 317952457.99999976,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 2,
+          "elapsed_ns": 75731957.99999848,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 2,
+          "elapsed_ns": 189533499.99999955,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 3807917.0000000885
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5632,
+              "elapsed_ns": 6523333.999999522
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 3,
+          "elapsed_ns": 10976167.000000715,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 3,
+          "elapsed_ns": 5513666.0000007395,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 3,
+          "elapsed_ns": 42269834.000000626,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 3,
+          "elapsed_ns": 299742291.999999,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 3,
+          "elapsed_ns": 66717874.99999846,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 3,
+          "elapsed_ns": 176817791.99999982,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 1968209.00000057
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5632,
+              "elapsed_ns": 7225666.000000274
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 3,
+          "elapsed_ns": 71403541.00000149,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 2386042.0000000885
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 4288,
+              "elapsed_ns": 1724250.0000011204
+            }
+          ]
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 4,
+          "elapsed_ns": 4885292.000000846,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 4,
+          "elapsed_ns": 43895290.999998905,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 4,
+          "elapsed_ns": 294866582.9999991,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 4,
+          "elapsed_ns": 66308082.999999896,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 4,
+          "elapsed_ns": 172044916.99999925,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 2685749.999998734
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5632,
+              "elapsed_ns": 7071541.9999996815
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 4,
+          "elapsed_ns": 64643708.00000142,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 1748125.0000000726
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 4288,
+              "elapsed_ns": 1414875.000000393
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 4,
+          "elapsed_ns": 9758583.999999246,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 5,
+          "elapsed_ns": 41716666.99999878,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 5,
+          "elapsed_ns": 276793707.9999992,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 5,
+          "elapsed_ns": 60065749.999997936,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 5,
+          "elapsed_ns": 156634834.00000042,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 1844042.000000627
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5632,
+              "elapsed_ns": 6248124.999998254
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 5,
+          "elapsed_ns": 70981292.00000039,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 2968375.000000378
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 4288,
+              "elapsed_ns": 1506291.9999982114
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 5,
+          "elapsed_ns": 10429000.000000088,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 5,
+          "elapsed_ns": 4644709.000000148,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 6,
+          "elapsed_ns": 277712208.00000083,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 6,
+          "elapsed_ns": 64149958.99999849,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 6,
+          "elapsed_ns": 161801209.0000011,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1536,
+              "elapsed_ns": 1585209.0000007593
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5632,
+              "elapsed_ns": 6360040.999999911
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 6,
+          "elapsed_ns": 66740916.00000247,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 3157624.9999998254
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 4288,
+              "elapsed_ns": 1707416.0000011034
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 6,
+          "elapsed_ns": 8849292.000002606,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 6,
+          "elapsed_ns": 4032957.99999978,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 6,
+          "elapsed_ns": 43321416.9999992,
+          "diagnostics": []
+        }
+      ]
+    },
+    {
+      "trace": "short_bursts",
+      "calls": 8192,
+      "samples": [
+        {
+          "mode": "ink_fixed_host",
+          "round": 0,
+          "elapsed_ns": 57312083.000000715,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 0,
+          "elapsed_ns": 60121083.00000182,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 0,
+          "elapsed_ns": 227493916.9999998,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 6344291.999997949
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2240,
+              "elapsed_ns": 5080582.999999024
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 10421332.999998413
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 11747374.999999011
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6848,
+              "elapsed_ns": 22067291.999999724
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 0,
+          "elapsed_ns": 9581208.000003245,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 0,
+          "elapsed_ns": 4358499.999998458,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 0,
+          "elapsed_ns": 41905624.99999942,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 0,
+          "elapsed_ns": 275087041.9999992,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 1,
+          "elapsed_ns": 63680875.00000183,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 1,
+          "elapsed_ns": 237547916.99999988,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 6989083.000000391
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2240,
+              "elapsed_ns": 5588542.000001325
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 11196707.99999949
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 12243667.00000246
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6848,
+              "elapsed_ns": 19016458.000001878
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 1,
+          "elapsed_ns": 8440999.999998894,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 1,
+          "elapsed_ns": 4571541.999997862,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 1,
+          "elapsed_ns": 40208500.00000064,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 1,
+          "elapsed_ns": 284359624.9999973,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 1,
+          "elapsed_ns": 60553833.99999846,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 2,
+          "elapsed_ns": 235225750.00000143,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 6359166.000002006
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2240,
+              "elapsed_ns": 5650874.999999359
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 11131041.000000551
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 12926875.000001019
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6848,
+              "elapsed_ns": 22292165.99999927
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 2,
+          "elapsed_ns": 9807791.000002908,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 2,
+          "elapsed_ns": 4119500.0000006985,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 2,
+          "elapsed_ns": 39299250.00000003,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 2,
+          "elapsed_ns": 269337541.0000008,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 2,
+          "elapsed_ns": 59060958.00000185,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 2,
+          "elapsed_ns": 71473874.99999969,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 3,
+          "elapsed_ns": 10157333.999999536,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 3,
+          "elapsed_ns": 4822707.999999693,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 3,
+          "elapsed_ns": 42212916.0000004,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 3,
+          "elapsed_ns": 294915875.00000244,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 3,
+          "elapsed_ns": 60841625.00000093,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 3,
+          "elapsed_ns": 69140166.99999775,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 3,
+          "elapsed_ns": 262764832.99999747,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 7421333.000002051
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2240,
+              "elapsed_ns": 5476166.000000376
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 11187374.999997701
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 12895499.999998719
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6848,
+              "elapsed_ns": 26166375.0000007
+            }
+          ]
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 4,
+          "elapsed_ns": 5195499.999997992,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 4,
+          "elapsed_ns": 47872083.00000202,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 4,
+          "elapsed_ns": 274279583.00000316,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 4,
+          "elapsed_ns": 56049417.000002,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 4,
+          "elapsed_ns": 65887667.0000027,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 4,
+          "elapsed_ns": 238541209.0000027,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 7708750.000001601
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2240,
+              "elapsed_ns": 5643250.000000989
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 11495332.999998936
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 11296583.999999711
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6848,
+              "elapsed_ns": 17899124.999999914
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 4,
+          "elapsed_ns": 9638875.000000553,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 5,
+          "elapsed_ns": 36982250.00000093,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 5,
+          "elapsed_ns": 260589790.9999985,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 5,
+          "elapsed_ns": 59847708.00000115,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 5,
+          "elapsed_ns": 65540750.00000012,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 5,
+          "elapsed_ns": 228095124.99999982,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 6691458.000001148
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2240,
+              "elapsed_ns": 5108499.999998458
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 10425999.999999477
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 11271541.000001889
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6848,
+              "elapsed_ns": 18411583.999997675
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 5,
+          "elapsed_ns": 9424707.999998646,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 5,
+          "elapsed_ns": 4410834.000002069,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 6,
+          "elapsed_ns": 263585917.00000033,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 6,
+          "elapsed_ns": 58326832.999999166,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 6,
+          "elapsed_ns": 60769584.00000149,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 6,
+          "elapsed_ns": 227541832.9999993,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 6253165.9999986
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2240,
+              "elapsed_ns": 5037000.000000262
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 10444250.000000466
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 11798542.000000453
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6848,
+              "elapsed_ns": 21711499.999997612
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 6,
+          "elapsed_ns": 9124583.000000712,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 6,
+          "elapsed_ns": 3771542.0000022277,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 6,
+          "elapsed_ns": 40174166.9999974,
+          "diagnostics": []
+        }
+      ]
+    },
+    {
+      "trace": "sparse_updates",
+      "calls": 8192,
+      "samples": [
+        {
+          "mode": "ink_fixed_host",
+          "round": 0,
+          "elapsed_ns": 74207875.00000006,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 0,
+          "elapsed_ns": 165990582.99999887,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2048,
+              "elapsed_ns": 8260915.99999927
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 0,
+          "elapsed_ns": 153772374.99999684,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 8166625.000001659
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2752,
+              "elapsed_ns": 3794582.9999989653
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 6663207.9999981215
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 7391166.999997949
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6336,
+              "elapsed_ns": 8693500.000001222
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 7872,
+              "elapsed_ns": 9929124.999998748
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 0,
+          "elapsed_ns": 13414042.000000335,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 0,
+          "elapsed_ns": 4724083.000000974,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 0,
+          "elapsed_ns": 61049291.999999695,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 0,
+          "elapsed_ns": 161319792.00000206,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 1,
+          "elapsed_ns": 169181458.00000274,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2048,
+              "elapsed_ns": 7981958.000000305
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 1,
+          "elapsed_ns": 159095208.00000244,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 7605750.000002445
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2752,
+              "elapsed_ns": 4398250.000002008
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 6863750.000000437
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 5921709.000002011
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6336,
+              "elapsed_ns": 8130042.000000685
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 7872,
+              "elapsed_ns": 16279125.000000931
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 1,
+          "elapsed_ns": 16727208.999996947,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 1,
+          "elapsed_ns": 4446374.999999534,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 1,
+          "elapsed_ns": 58269000.00000023,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 1,
+          "elapsed_ns": 152501583.00000113,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 1,
+          "elapsed_ns": 77994582.99999969,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 2,
+          "elapsed_ns": 134495084.00000197,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 7369709.000002331
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2752,
+              "elapsed_ns": 3709957.9999994603
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 5963125.000002038
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 5594624.9999979045
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6336,
+              "elapsed_ns": 8152582.99999914
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 7872,
+              "elapsed_ns": 7360124.999999244
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 2,
+          "elapsed_ns": 12286082.999999054,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 2,
+          "elapsed_ns": 4360791.9999994915,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 2,
+          "elapsed_ns": 52515583.000000335,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 2,
+          "elapsed_ns": 139186624.99999845,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 2,
+          "elapsed_ns": 69058000.00000091,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 2,
+          "elapsed_ns": 150061000.00000152,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2048,
+              "elapsed_ns": 7733333.000000129
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 3,
+          "elapsed_ns": 11266166.000001248,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 3,
+          "elapsed_ns": 4841208.999998344,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 3,
+          "elapsed_ns": 55967625.00000113,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 3,
+          "elapsed_ns": 146845332.99999747,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 3,
+          "elapsed_ns": 76348292.0000024,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 3,
+          "elapsed_ns": 162078667.00000158,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2048,
+              "elapsed_ns": 8933457.99999952
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 3,
+          "elapsed_ns": 127248125.00000189,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 7059667.000001354
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2752,
+              "elapsed_ns": 3716416.9999996377
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 5268499.999998312
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 5520749.99999968
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6336,
+              "elapsed_ns": 6572624.999997061
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 7872,
+              "elapsed_ns": 7139833.999997791
+            }
+          ]
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 4,
+          "elapsed_ns": 4355292.00000019,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 4,
+          "elapsed_ns": 54648874.99999895,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 4,
+          "elapsed_ns": 141621584.00000045,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 4,
+          "elapsed_ns": 68340584.0000014,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 4,
+          "elapsed_ns": 142950042.0000004,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2048,
+              "elapsed_ns": 6727707.9999985285
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 4,
+          "elapsed_ns": 118617750.00000125,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 5942291.999999724
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2752,
+              "elapsed_ns": 3063707.99999786
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 5291625.000001659
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 5305790.999998862
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6336,
+              "elapsed_ns": 6726999.999998952
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 7872,
+              "elapsed_ns": 6895749.99999968
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 4,
+          "elapsed_ns": 11245291.999999609,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 5,
+          "elapsed_ns": 51787499.99999855,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 5,
+          "elapsed_ns": 132253875.00000216,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 5,
+          "elapsed_ns": 70002749.99999966,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 5,
+          "elapsed_ns": 140571707.9999995,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2048,
+              "elapsed_ns": 7589916.000000812
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 5,
+          "elapsed_ns": 115169040.99999738,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 6074166.999998852
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2752,
+              "elapsed_ns": 3033834.0000016615
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 4842333.0000005085
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 4790207.9999985285
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6336,
+              "elapsed_ns": 6122250.000000349
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 7872,
+              "elapsed_ns": 6848041.000001104
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 5,
+          "elapsed_ns": 11255750.000000263,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 5,
+          "elapsed_ns": 3843750,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_cached",
+          "round": 6,
+          "elapsed_ns": 137037707.99999985,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_fixed_host",
+          "round": 6,
+          "elapsed_ns": 69480292.0000002,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_adaptive",
+          "round": 6,
+          "elapsed_ns": 154903249.99999937,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 2048,
+              "elapsed_ns": 9670833.00000013
+            }
+          ]
+        },
+        {
+          "mode": "ink_adaptive_short",
+          "round": 6,
+          "elapsed_ns": 120257250.00000238,
+          "diagnostics": [
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 1024,
+              "elapsed_ns": 6501958.000000741
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 2752,
+              "elapsed_ns": 3100417.000001471
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 3776,
+              "elapsed_ns": 5599292.000002606
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 5312,
+              "elapsed_ns": 5192041.999998764
+            },
+            {
+              "kind": "switched",
+              "from": "direct",
+              "to": "cached",
+              "total_calls": 6336,
+              "elapsed_ns": 6781582.999999955
+            },
+            {
+              "kind": "switched",
+              "from": "cached",
+              "to": "direct",
+              "total_calls": 7872,
+              "elapsed_ns": 7389416.000001802
+            }
+          ]
+        },
+        {
+          "mode": "frontier_scan",
+          "round": 6,
+          "elapsed_ns": 11604458.999998314,
+          "diagnostics": []
+        },
+        {
+          "mode": "frontier_maintained",
+          "round": 6,
+          "elapsed_ns": 3133791.9999969015,
+          "diagnostics": []
+        },
+        {
+          "mode": "ink_direct",
+          "round": 6,
+          "elapsed_ns": 53088874.999997646,
+          "diagnostics": []
+        }
+      ]
+    }
+  ]
+}

@@ -27,7 +27,7 @@ execution and general evidence checking. It builds independently. The
 | [ink-knowledge](https://github.com/siliconjungle/ink-knowledge) | Immutable entries, authenticated snapshots, typed discovery and performance observations |
 | [ink-planner](https://github.com/siliconjungle/ink-planner) | Bounded compositional search, applicability proofs and plan selection |
 | [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Checked-graph execution, host ABIs, scheduling, profiling, bundle assembly and pure fallback |
-| [Lowerings](backend-packages.md) | C/Rust/Wasm/JavaScript target emission and WGSL/WebGPU/wgpu device operations |
+| [Lowerings](backend-packages.md) | Rust/Wasm/JavaScript target emission and WGSL/WebGPU/wgpu device operations |
 
 Each canonical knowledge entry has a content identity, kind, semantics version,
 exact dependencies, typed interface and payload. SQLite is a rebuildable
@@ -55,22 +55,22 @@ keep/exact-Int correspondence, other physical executors and general live adaptat
 remain unfinished. See [whole-action transitions](action-transitions.md),
 [physical representations](database-representations.md) and [status](../STATUS.md).
 
-C, Rust, JavaScript and Wasm implement the currently executable pure and stateful
+Rust, JavaScript and Rust/Wasm implement the currently executable pure and stateful
 language, including exact values, tables, transactions, ordered events, keeps and
 portable snapshots. JavaScript emits literal ES modules with explicit wrapping
-and binary32 operation order. Complete C emission uses a shared Rust primitive
-runtime. Browser selection compares eligible JavaScript, Wasm and WebGPU pure
-execution costs; per-stage adaptive placement remains unfinished. See the
+and binary32 operation order. Rust emission uses the shared native support primitives. The browser editor
+executes JavaScript and eligible WebGPU computation with fixed placement;
+native toolchains build emitted Rust and Rust/Wasm projects. See the
 [parity contract](lowering-parity.md) and [JavaScript target](javascript-backend.md).
 
-C/Rust toolchains produce native machine code and Wasm. The GPU package emits
+Rust toolchains produce native machine code and Wasm. The GPU package emits
 WGSL and operates WebGPU/wgpu devices; runtime assembles artifacts with compiled
 CPU fallback and owns browser/native scheduling. Supported host pipelines retain
 GPU arrays across steps and iterations. Checked pure source graphs mix CPU/GPU
 stages, but general proved resident-buffer routing is unfinished.
 
 The proof checker is written in Rust; Lean is separate research tooling.
-The checker, correspondence bridges, emitted C/Rust/JavaScript/WGSL, toolchains, runtime
+The checker, correspondence bridges, emitted Rust/JavaScript/WGSL, toolchains, runtime
 adapters and GPU drivers remain trusted implementations. This draft does not
 claim end-to-end verified machine code. See [the repository contract](repository-architecture.md).
 
@@ -151,7 +151,7 @@ Pure mathematical replacement proofs preserve total values. They exclude host
 resource exhaustion, allocation/OOM and native trap traces. Stateful replacement
 admission must separately cover return values/errors, future state, tentative
 reads, aborts, versions, event order and snapshots; pure equality cannot authorise
-it. Code generation, allocation primitives, generated C/Rust, LLVM and host ABIs
+it. Code generation, allocation primitives, generated Rust, LLVM and host ABIs
 remain explicit trusted components. Lean research is external to core admission.
 
 ```sh
@@ -162,7 +162,7 @@ ink emit-state core.json --core -o generated-state
 ```
 
 The richer type system, general ownership/arenas, foreign effects, concurrency,
-generic stateful replacement and migration in the design below remain subsequent milestones. Runtime filesystem/IndexedDB adapters now provide a documented native C/Rust and compiled-JavaScript/Wasm durability baseline; they replace whole snapshots rather than implementing the draft's incremental-log protocol. See `docs/durable-host.md`.
+generic stateful replacement and migration in the design below remain subsequent milestones. Runtime filesystem/IndexedDB adapters now provide a documented native Rust and compiled-JavaScript/Wasm durability baseline; they replace whole snapshots rather than implementing the draft's incremental-log protocol. See `docs/durable-host.md`.
 A new executable operation or changed meaning requires an explicit core-version
 and correspondence decision; a new equivalent implementation belongs in knowledge.
 
@@ -703,7 +703,7 @@ Every accepted high-level transformation records its premises and proof dependen
 
 LLVM supplies initial code generation for native targets and WebAssembly. A custom backend is justified only by demonstrated limitations. MLIR may later support structured loop and vector transformations; it is not required to validate the first prototype.
 
-The executable implementation currently emits C or Rust through the independent
+The executable implementation currently emits Rust through the independent
 backend packages and invokes existing toolchains. Its core format is a bounded
 typed AST, not the complete semantic graph, ownership system or proof-authoring
 surface shown in this proposed pipeline.

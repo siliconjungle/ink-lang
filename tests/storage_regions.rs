@@ -580,7 +580,8 @@ fn scoped_range_borrows_preserve_payloads_owner_lifetimes_and_action_history_acr
     assert!(output.status.success(),"{}\n{}",String::from_utf8_lossy(&output.stdout),String::from_utf8_lossy(&output.stderr));
     let generated=fs::read_to_string(root.join("selected.rs")).unwrap();
     assert!(generated.contains("with_range"));
-    assert_eq!(generated.matches(").get_unchecked(").count(),1,"the one certified borrowed read must reach literal lowering, without admitting the four unsafe reads");
+    // Count source-bound reads, not the separate paged-column support access.
+    assert_eq!(generated.matches(").get_unchecked(ink_local_").count(),1,"the one certified borrowed read must reach literal lowering, without admitting the four unsafe reads");
 }
 
 #[test]

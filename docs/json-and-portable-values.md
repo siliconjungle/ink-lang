@@ -66,7 +66,7 @@ if (Object.hasOwn(result, 'Ok')) console.log(documents.toJS(result.Ok));
 
 These are explicit JavaScript host adapters to the same recursive `Json` type.
 They do not add source primitives, alter portable schemas/checkpoints, or run in
-native Rust/C/Wasm execution. Existing calls and codecs do not invoke them.
+native Rust and Rust/Wasm execution. Existing calls and codecs do not invoke them.
 Their source bytes are included in generated JavaScript; traversal work and
 allocation occur only when the methods are called. The resulting logical value
 can use ordinary calls or existing portable/compact binary calls. A JavaScript
@@ -149,9 +149,9 @@ console.log(documents.stringify(result.Ok));
 // {"received":true,"title":"hello","unknown":1e10000}
 ```
 
-Generated native C/Rust packages expose `State::call_binary`,
+Generated native Rust packages expose `State::call_binary`,
 `State::binary_schemas`, `State::validate_binary_arguments` and `ValueWireLimits`.
-C and both Wasm hosts additionally expose optional `lang_call_binary(state,
+The Rust/Wasm host additionally exposes optional `lang_call_binary(state,
 function_index,arguments_buffer)`, returning a raw result buffer (zero on error,
 read `lang_error`). Indices enumerate sorted supported wire signature names.
 `StateInstance.pureBinary(index,bytes)` is the browser/Node adapter. These are
@@ -214,7 +214,7 @@ text output is an owned string without requiring a detached intermediate tree.
 
 ## Compiler, database and trust boundary
 
-Compiler changes are stable, hygienic naming of all payload enums and a shared generic recursive-record analysis. C checkpoint schema construction now handles bound recursive types with explicit budgets. JSON
+Compiler changes are stable, hygienic naming of all payload enums and a shared generic recursive-record analysis. Schema derivation handles bound recursive types with explicit budgets. JSON
 algorithms and datatype definitions stay in knowledge. General schema derivation,
 byte codecs, bounded validation and entrypoint plumbing live in ABI/support,
 lowerings and runtime. No JSON-specific rewrite or storage strategy is selected
@@ -232,10 +232,9 @@ already ordered fields need no reorder copy. Unknown, missing or duplicate names
 invalid numbers, forged frames and lowered resource-limit violations reject.
 
 Generated Rust binary calls decode directly into the emitted native types through
-`BinaryValue` and encode those types through the ABI's bounded `Encoder`. C calls
-decode directly into their ordinary typed value arena and emit frames from arena
-values. Both paths preserve preconditions, raw f32 bits and exact Int. Wasm uses
-the same implementations, with copies at its memory boundary. Calls still
+`BinaryValue` and encode those types through the ABI's bounded `Encoder`.
+This path preserves preconditions, raw f32 bits and exact Int. Rust/Wasm uses
+the same implementation, with copies at its memory boundary. Calls still
 materialise native values, and source algorithms retain their normal ownership
 costs; this is not zero-copy execution of arbitrary compiled programs.
 
@@ -256,3 +255,52 @@ alternatives, separate from source rewrites. No compiler recognition case or
 benchmark result grants mathematical authority. See the measured report in
 `reports/value-boundaries-2026-10-13` and the Frontier comparison in
 `reports/frontier-json-2026-10-13` for current numbers and limits.
+
+## Constructing compiled inputs directly
+
+Generated JavaScript codecs expose generic typed construction sessions through
+`compiledValues.function.params[index].builder(limits)`. The session accepts
+constructor and scalar events, enforces the source schema and resource limits,
+and returns an opaque handle only after a complete root. Constructor path fusion
+retains the resource charges of erased records and flattened sums. Private
+composite values never become mutable host inputs. Representation choices still
+come from checked physical plans and their database proofs.
+
+`JsonCodec.parseCompiled(codec, text, limits)` feeds that interface directly. It
+preserves exact numeric tokens, member order, unknown fields, Unicode checks and
+duplicate rejection. Existing parsing and calls retain their contracts.
+
+```js
+const json = new JsonCodec(valueCodecs.identity.result);
+const input = json.parseCompiled(compiledValues.identity.params[0], text);
+const result = callCompiled('identity', [input]);
+const bytes = compiledValues.identity.result.encodeCompact(result);
+// Peers must agree on this codec's identity and compact transport format.
+```
+
+The generic codec `visit(handle, visitor, limits)` also emits portable framing and
+scalar events without a logical tree or binary buffer. It exposes no private
+composite nodes or writer callbacks. These are boundary tools, not automatic
+speedups: comparable whole-workload measurements must establish profitability.
+The attempted JSON renderer that interpreted those events was slower and removed;
+see the retained Frontier comparison reports. Source typing alone does not prove
+format-specific invariants such as valid JSON number tokens.
+
+Opaque-value codecs expose `decodeFused` and `decodeCompactFused`, which validate
+and construct in one traversal through a checked literal ABI reader. The compiler emits scalar constraints, vector sizes
+and every source frame even when the private layout erases records or flattens
+sums. Headers, UTF-8, compact count canonicality, source resource limits and owned
+outputs remain checked. Malformed-input tests compare this path with independent
+generic decoding. The emitted reader remains a trusted backend implementation;
+structural validity does not establish JSON numeric grammar or unique members.
+The baseline decoding methods remain the default; lifecycle costs must govern
+selection of the fused alternative.
+
+Compiled codecs additionally expose `reducer(factory)`: a literal typed fold
+whose callbacks see scalars and their own child results. It can compute summaries
+or render output without allocating a logical tree or exposing private nodes.
+`JsonCodec.stringifyCompiled(codec, handle, limits)` uses this interface and
+retains JSON-specific checks, exact numeric tokens and member order. For a
+`Result<Json,E>` reply, pass `{unwrapResult:true}`; Err is rejected. Source and
+output resource limits remain checked. Ordinary JSON APIs keep their existing
+behaviour, and this explicit path requires comparable lifecycle measurements.
