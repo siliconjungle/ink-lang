@@ -1,5 +1,6 @@
-//! Fixed source key correspondence. UTF-8 lexicographic order and unsigned
-//! 128-bit identity are represented by ordinary total first-order definitions.
+//! Fixed source key correspondence. UTF-8 lexicographic order, signed word
+//! order and unsigned 128-bit identity are represented by ordinary total
+//! first-order definitions.
 use super::*;
 impl Lower<'_> {
     pub(super) fn string_literal(&mut self, text: &str) -> LangResult<Term> {
@@ -13,7 +14,17 @@ impl Lower<'_> {
     }
     pub(super) fn key_less(&mut self, ty: &Type, a: Term, z: Term) -> LangResult<Term> {
         match ty {
-            Type::U64 | Type::U32 | Type::I32 => self.operator(ty, "<", a, z),
+            Type::U64 | Type::U32 => self.operator(ty, "<", a, z),
+            // Signed key order as a strict total order on the whole word sort:
+            // wrapping subtraction of 2^31 is a bijection on words that maps
+            // every 32-bit i32 encoding, in signed order, onto ascending words.
+            // On encoded keys it agrees with the masked biased comparison of
+            // the `<` operator, and general order laws hold for every word, so
+            // they need no range hypothesis.
+            Type::I32 => {
+                let shift = |x| b("-", x, Term::U64(1 << 31));
+                Ok(b("<", shift(a), shift(z)))
+            }
             Type::Bool => Ok(choice(a, Term::Bool(false), z)),
             Type::String => {
                 let sort = self.sort(ty)?;
