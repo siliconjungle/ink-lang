@@ -1,6 +1,6 @@
 use serde_json::{json,Value};
 use verified_language::{eval,modules,stateful::Runtime};
-#[path="parity.rs"] mod parity;
+use super::parity;
 
 #[test]
 fn sparse_ecs_histories_match_slot_oracle_and_portable_targets(){

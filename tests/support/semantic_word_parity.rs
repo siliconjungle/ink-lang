@@ -1,6 +1,6 @@
 use serde_json::json;
 use verified_language::{modules, stateful::Runtime};
-#[path="parity.rs"] mod parity;
+use super::parity;
 
 #[test]
 fn word_laws_preserve_callbacks_all_portable_targets_and_actual_gpu_words(){

@@ -1,6 +1,6 @@
 use serde_json::{json,Value};
 use verified_language::{eval,modules,stateful::Runtime};
-#[path="parity.rs"] mod parity;
+use super::parity;
 
 #[test]
 fn cross_domain_kernels_match_independent_edge_oracles_and_all_targets(){

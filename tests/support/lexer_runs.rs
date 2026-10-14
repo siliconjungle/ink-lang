@@ -1,6 +1,6 @@
 use serde_json::{json,Value};
 use verified_language::{eval,modules,stateful::Runtime};
-#[path="parity.rs"] mod parity;
+use super::parity;
 
 #[test]
 fn lexer_runs_preserve_complete_tokens_at_class_boundaries(){
