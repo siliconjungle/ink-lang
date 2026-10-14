@@ -1,0 +1,28 @@
+{
+  "finding": "F065",
+  "revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "files": [
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/global-rank.ll",
+      "blob": "06185332f22e0cda2b9a9c44e3551a880f49020c",
+      "bytes": 1642,
+      "sha256": "811e1d48fa7c6574134042788612f73a38a20e7126f63ad5d9a42f8cce9370e2",
+      "insight": "Global clone ranking can allocate two choices to f and none to g even with max-clones=1, since the budget is multiplied by eligible functions. Ink should distinguish global family allocation from strict per-function limits; benefits still require target evidence."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/maxgrowth.ll",
+      "blob": "82d1f7ae4a6e1601360f892052eeaf033195dd2a",
+      "bytes": 1728,
+      "sha256": "78da9edb8b285997e2648d4ebdbe46cd53ab019c0788f34d9da2eeb619f9fee7",
+      "insight": "Unprofitable speculative analyses must not consume permanent growth budget or prevent a later profitable specialization. The expected poison return depends on unused-return LLVM semantics; never import it as an Ink equality."
+    },
+    {
+      "path": "llvm/test/Transforms/FunctionSpecialization/identical-specializations.ll",
+      "blob": "97d77971a92d3b1516782f1cc6817daa24157490",
+      "bytes": 4658,
+      "sha256": "7d7e1b7b2698088f3f5ed1ffc414c726a6f88149de3c901f086f7da4bbb682b7",
+      "insight": "Repeated call sites with the same ordered specialized argument signature reuse a clone; different signatures and partially bound recursive calls are rematched. Ink keys must bind exact source/context and proofs rather than only helper names."
+    }
+  ],
+  "validation": "Full source reviews only; opt/FileCheck not executed. No Ink general specialization implementation or runtime performance claim."
+}

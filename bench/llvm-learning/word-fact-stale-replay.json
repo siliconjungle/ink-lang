@@ -1,0 +1,138 @@
+{
+  "finding": "F063",
+  "compiler_sha256": "b59a73a11a57237cbfb735499f52df78c322dfe58dfdc2e4b166aeb911019115",
+  "probe_sha256": "f27dd4b284fe459de88b945b702bd5bddd00038a509a802789b4272c0d564f51",
+  "results": [
+    {
+      "name": "valid_constant",
+      "entry": {
+        "schema": 1,
+        "kind": "rewrite",
+        "semantics": "ink-conditional-laws-v1",
+        "dependencies": [],
+        "interface": {
+          "parameters": {},
+          "result": {
+            "Value": "U32"
+          },
+          "operations": [
+            "call:word_and"
+          ],
+          "effects": [],
+          "conditions": []
+        },
+        "payload": {
+          "params": {},
+          "conditions": [],
+          "from": {
+            "sort": {
+              "Value": "U32"
+            },
+            "node": {
+              "Op": [
+                "call:word_and",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 8
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 3
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "U32"
+            },
+            "node": {
+              "Word": 0
+            }
+          },
+          "proof": "Normalize"
+        }
+      },
+      "identity": "013b58009ff8f65c11184973cbb83c24ecfa139eab4458981b3b882cda0c4c2a",
+      "exit": 0,
+      "stdout": "{\"entries\":[\"013b58009ff8f65c11184973cbb83c24ecfa139eab4458981b3b882cda0c4c2a\"],\"snapshot_sha256\":\"559fe0e9ceb11957c91e89e74b5ce378a236847b0743addbcd501b89572f2573\",\"status\":\"checked\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "stale_redundant_mask",
+      "entry": {
+        "schema": 1,
+        "kind": "rewrite",
+        "semantics": "ink-conditional-laws-v1",
+        "dependencies": [],
+        "interface": {
+          "parameters": {},
+          "result": {
+            "Value": "U32"
+          },
+          "operations": [
+            "call:word_and"
+          ],
+          "effects": [],
+          "conditions": []
+        },
+        "payload": {
+          "params": {},
+          "conditions": [],
+          "from": {
+            "sort": {
+              "Value": "U32"
+            },
+            "node": {
+              "Op": [
+                "call:word_and",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 8
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 3
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "U32"
+            },
+            "node": {
+              "Word": 8
+            }
+          },
+          "proof": "Normalize"
+        }
+      },
+      "identity": "d4498d6359a77d0fd0fce7dd670e48891fda913f4aece80be810d7f39d23f324",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: semantic normal forms differ\n"
+    }
+  ],
+  "interpretation": "Actual ordinary Normalize proof replay accepts 8&3=0 and rejects the stale prototype proposal 8&3=8. This does not validate every candidate or the whole prototype."
+}
