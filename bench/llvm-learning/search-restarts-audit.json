@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "finding": "F061",
+  "path": "ink_planner/stochastic_search.py",
+  "blob": "ec2c206e5472ceea03027b24262dfe71191142ed",
+  "bytes": 4453,
+  "status": "Fully reviewed; shared deadline repair and modular option composition pending",
+  "notes": [
+    "Seeded weighted ordering uses structural cost, step count and optional compiled-Ink scores; every other expansion reserves ordinary cheapest proposal. No admission authority.",
+    "Policy logs exact proposed chain digest, features, accepted status and checker elapsed time. These observations do not authorize rewrites.",
+    "Restarts divide remaining checker-attempt quota, use baseline first, and choose lowest estimated cost. Returned aggregate attempts/rejections/proposals are summed.",
+    "Each restart receives the unchanged time_seconds option; deterministic probe shows4x5second caps for one5second request. Need one deadline and aggregated timeout flags.",
+    "Optional scorer exceptions from score() fall back, but indexing/arithmetic on malformed returned shape happens later; inspect Scorer contract before modifying.",
+    "Modular CLI currently invokes raw search and bypasses optional stochastic/neighbourhood settings; composition must retain prefix checking and actual budget accounting."
+  ],
+  "probe": {
+    "path": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/outputs/llvm-ink-audit/search-restart-budget-probe.json",
+    "sha256": "3612da925e0557b0532c5c33b9f104028257b5cd8a0960d826be630c6f815b07"
+  },
+  "limitations": [
+    "Interface probe is not an actual20second timed execution.",
+    "No performance or proof-soundness claim."
+  ]
+}

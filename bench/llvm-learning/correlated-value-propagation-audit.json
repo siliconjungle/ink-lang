@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "finding": "F055",
+  "status": "Complete52,184byte implementation review; transfer candidates recorded, not all implemented.",
+  "source": {
+    "repo": "llvm",
+    "path": "llvm/lib/Transforms/Scalar/CorrelatedValuePropagation.cpp",
+    "blob": "2c983b1dcb7f614c45d3aeae2398599f0f674208",
+    "bytes": 52184
+  },
+  "insights": [
+    {
+      "topic": "Per-use simplification",
+      "detail": "Select users are replaced using facts at each instruction/PHI incoming edge, rather than replacing the definition globally. Phi common-value elimination also requires dominance and nonpoison checks.",
+      "ink": "Scope candidate derivation to exact guarded uses; whole checked expression proves removal. Do not turn one branch fact into a function-wide assumption."
+    },
+    {
+      "topic": "Circular assumptions",
+      "detail": "constantFoldCmp excludes AssumeInst uses when replacing a comparison.",
+      "ink": "Keep explicit proof premises as obligations; deriving a fact from a premise must not erase the obligation needed to justify that fact."
+    },
+    {
+      "topic": "Switch coverage",
+      "detail": "Ranges and individual predicates remove unreachable cases; default removal needs complete range coverage. Successor multiplicities and dominator updates account for shared targets.",
+      "ink": "General enum/match simplification can be knowledge-driven, but complete arm coverage and source exhaustiveness must remain explicit; pure tests alone do not authorise removal of fallible outcomes."
+    },
+    {
+      "topic": "No-overflow region",
+      "detail": "Saturating/overflow operations become ordinary arithmetic only after guaranteed no-wrap regions cover operands. Signed and unsigned flags are separate.",
+      "ink": "Reusable laws for checked/saturating arithmetic under explicit bounds are worthwhile; preserve zero-divisor/overflow results and wrapping language semantics. Never import LLVM flag authority."
+    },
+    {
+      "topic": "Bounded division/remainder",
+      "detail": "Unsigned ranges simplify x/y to0 or1 and x%y to x or x-y when ranges prove at most one subtraction. Signed narrowing accounts for the newly introduced MIN/-1 corner case; width is never reduced below8 and profitability is assumed by this pass.",
+      "ink": "Investigate database quotient/remainder laws under checked ranges. Requires auditing Ink division semantics and bitvector support first; no new primitive/op recogniser solely to mimic LLVM."
+    },
+    {
+      "topic": "Repeated value evaluation",
+      "detail": "Remainder expansion freezes potentially undef operands before duplicating uses.",
+      "ink": "Total pure scalar values are stable but expressions with effects, errors, allocations or callbacks require separate evaluation-order/ownership preservation. Do not transfer the transform to actions blindly."
+    },
+    {
+      "topic": "Signedness and conversions",
+      "detail": "Sign domains permit signed-to-unsigned arithmetic/comparisons, arithmetic-to-logical shifts and sext-to-zext. Integer-to-float conversion equivalence also depends on nonnegativity.",
+      "ink": "Retain explicit types, bit widths and FP conversion rules; pursue exact proof-backed cross-width laws rather than backend reinterpretation shortcuts."
+    },
+    {
+      "topic": "Use-derived flags",
+      "detail": "Expensive no-wrap fallback examines at most4uses and skips same-block/PHI uses; all relevant uses must justify flags.",
+      "ink": "Use bounded, demand-driven analysis and diagnostics; a checked selected candidate can exploit guarded uses, but skipping a use cannot certify a global property."
+    },
+    {
+      "topic": "Low-mask elimination",
+      "detail": "processAnd requires a low contiguous mask and an unsigned maximum not exceeding that mask, excluding undef.",
+      "ink": "Matches the new general low-mask law: mask shape is an explicit checked condition. Arbitrary numerical bounds do not justify removing arbitrary bit masks."
+    },
+    {
+      "topic": "Traversal and summaries",
+      "detail": "Preorder reachable traversal simplifies earlier blocks before expensive dependent queries. Return summaries require exact definitions, union all returns and intersect existing attributes; empty/constant summaries are treated separately.",
+      "ink": "Consider parent-first bounded candidate simplification; summary reuse must bind exact definitions, captures and all return paths."
+    },
+    {
+      "topic": "Cache lifetime",
+      "detail": "The pass deliberately abandons LazyValueAnalysis even when preserved because retaining it costs memory and invalidation work.",
+      "ink": "Measure whether reuse beats recomputation before adding persistent caches; bounded invocation-local scopes currently avoid stale shared fact state."
+    }
+  ],
+  "remaining": "Candidate list is not completion. Division, overflow, sign conversions, switch/match, whole-definition summaries and use-scoped profitability still require Ink counterpart audit, proof authoring and broad measurements."
+}

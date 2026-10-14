@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "finding": "F058",
+  "status": "Complete higher-order template source/test review; conditional-adapter limitation identified for follow-up.",
+  "files": [
+    {
+      "path": "ink_knowledge/higher_patterns.py",
+      "blob": "598cf3cafcc49c94e47f96c9180becd1792f6a12",
+      "bytes": 3142
+    },
+    {
+      "path": "ink_knowledge/law_templates.py",
+      "blob": "a6d1c686d0226661c8e5853b0d41411c1efc7ea5",
+      "bytes": 7761
+    },
+    {
+      "path": "tests/test_higher_patterns.py",
+      "blob": "3ab7df9b48c9da4863f25b771e01d2be1a8894ca",
+      "bytes": 3783
+    }
+  ],
+  "insights": [
+    "Miller abstraction accepts function holes only on distinct locally bound variables. It remaps deBruijn indices under nested lambdas and rejects dependence on unabstracted locals; free captured values remain explicit.",
+    "Repeated hole bindings must be equal and parameter/concrete callback types unify. Structural discovery cannot assume arbitrary lambda equivalence.",
+    "Type instantiation and exact-source adapter construction are distinct phases. Adapters compose ordinary normalization with a Use proof of an instantiated base law, preserving database authority.",
+    "Generated law dependencies are authenticated through snapshot-owned objects, limited to4096templates,64dependencies/template,depth16and1024instantiated objects. Type cache keys include template identity and complete bindings; cached dependency height still participates in depth checks.",
+    "Adapter cache keys include base identity and exact target. Open local sites and conflicting free-variable sorts are rejected; nominal definitions are rebound to exact core/subject.",
+    "A current explicit limitation skips higher-order exact adapters when base conditions are nonempty. General conditional callback laws may need substituted adapter conditions and explicit premise replay, rather than dropping conditions or trusting a matched template. This needs an actual admitted conditional fixture before implementation.",
+    "Existing tests verify permutation/nesting/capture rejection, repeated-variable rejection, real endpoint adapter admission and rehashed false-adapter rejection. These checks do not cover conditional higher-order adapters."
+  ],
+  "next": "Reproduce a useful conditional higher-order adapter case; investigate constructing substituted conditions with ordinary Hypothesis/Use proof composition. Preserve normal premise synthesis and exact source checks. No such extension is implemented or claimed yet."
+}
