@@ -8,12 +8,19 @@
     "Trace rows and digest come from one bounded byte snapshot"
   ],
   "validation": {
-    "focused_tests": 33,
-    "mandatory_hardening_python_tests": 107,
+    "focused_tests": 34,
+    "mandatory_hardening_python_tests": 108,
     "actual_emitted_js_oracle_fixtures": 9,
     "known_traversal_fixtures": 6,
     "unknown_native_sort_fixtures": 3,
-    "original_collector_regressions": "7 of 8 initial acquisition regressions fail against the prior source; it also rejects the actual emitted module due to nested receiver overlap"
+    "original_collector_regressions": "7 of 8 initial acquisition regressions fail against the prior source; it also rejects the actual emitted module due to nested receiver overlap",
+    "cli_followup": {
+      "status": "passed",
+      "cli_observations": 9,
+      "identical_to_function_api": true,
+      "produce_function_sha256": "7510d0ef6880934fe0cf40a636700da01db35238366dc5a41fdc7d16a6dafd79",
+      "corpus_scope": "Frozen corpus validates the collector and sidecar implementation. Subsequent change only wires optional --parser through the CLI; produce() is byte-identical and nine CLI observations exactly match the already-validated function API."
+    }
   },
   "frozen_corpus": {
     "baseline_headline": {
