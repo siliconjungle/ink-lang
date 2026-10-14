@@ -90,3 +90,56 @@ fn rust_scalar_gpu_fallback_handles_empty_and_full_width_inputs() {
     }
 
 }
+
+#[test]
+fn packed_wasm_parallel_fallback_preserves_partitions_captures_and_nested_calls() {
+    let source = r#"module PackedParallel;
+fn partition(x:u32,at:u32)->u32 {
+ let b:Buffer<u32>=buffer_fill(8,0);
+ let b=repeat(8,b,fn(i,b)=>b.set(i,x+i));
+ let b=b.split_at(at,fn(left,right)=>left.map_parallel(1,fn(i,v)=>v*3+i)
+  .append(right.map_parallel(1,fn(i,v)=>v*5+i)));
+ return b.at_or(0,11)+b.at_or(7,13)+b.len();
+}
+fn nested(xs:List<u32>,at:u32,bias:u32)->List<u32>{
+ return parallel_map(xs,1,fn(i,x)=>partition(x,at)+bias+i);
+}
+"#;
+    let root=project("packed-parallel",source,r#"
+#[test] fn native_parallel(){
+ let xs=vec![0,1,u32::MAX,17];
+ for at in [0,1,4,8,u32::MAX]{
+  let expected=xs.iter().enumerate().map(|(i,x)|{
+   let split=at.min(8);let first=x.wrapping_mul(if split==0{5}else{3});
+   let last=x.wrapping_add(7).wrapping_mul(if split==8{3}else{5}).wrapping_add(if split==8{7}else{7-split});
+   first.wrapping_add(last).wrapping_add(8).wrapping_add(19).wrapping_add(i as u32)
+  }).collect::<Vec<_>>();
+  assert_eq!(State::new().function_l_nested(xs.clone().into(),at,19).into_iter().collect::<Vec<_>>(),expected);
+ }
+}
+"#,true);
+    if std::env::var_os("INK_TEST_WASM").is_some() || std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some(){
+        run(Command::new("cargo").args(["build","--offline","--quiet","--lib","--target","wasm32-unknown-unknown","--manifest-path"]).arg(root.join("Cargo.toml")));
+        fs::write(root.join("parallel.mjs"),r#"import fs from'node:fs';import assert from'node:assert/strict';
+const bytes=fs.readFileSync(new URL('target/wasm32-unknown-unknown/debug/adapter_check.wasm',import.meta.url));
+const module=await WebAssembly.compile(bytes);assert.deepEqual(WebAssembly.Module.imports(module),[]);
+const c=(await WebAssembly.instantiate(module,{})).exports;
+for(const xs of [[],[0],[0,1,0xffffffff,17]])for(const at of [0,1,4,8,0xffffffff]){
+ c.ink_compute_reset();
+ const words=(values)=>{const p=c.ink_alloc(values.length,4);new Uint32Array(c.memory.buffer,p,values.length).set(values);return p;};
+ const p=words(xs),a=words([at]),b=words([19]),data=words([p,a,b]),lens=words([xs.length,1,1]),out=words([0]),count=words([0]);
+ c.ink_compute_call(1,data,lens,out,count);
+ const ptr=new Uint32Array(c.memory.buffer,out,1)[0],n=new Uint32Array(c.memory.buffer,count,1)[0];
+ const split=Math.min(at,8),expected=xs.map((x,i)=>{
+  const first=Math.imul(x,split===0?5:3);
+  const last=Math.imul((x+7)>>>0,split===8?3:5)+(split===8?7:7-split);
+  return(first+last+8+19+i)>>>0;
+ });
+ assert.deepEqual(Array.from(new Uint32Array(c.memory.buffer,ptr,n)),expected);
+ assert.deepEqual(Array.from(new Uint32Array(c.memory.buffer,p,xs.length)),xs);
+ c.ink_compute_reset();assert.equal(c.ink_compute_mark(),0);
+}
+"#).unwrap();
+        run(Command::new("node").arg(root.join("parallel.mjs")));
+    }
+}
