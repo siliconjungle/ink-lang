@@ -111,20 +111,19 @@ fn derived_predicates_accept_exactly_strictly_ascending_rows() {
     agrees(index("Names"), names.into_iter().map(text).collect());
 }
 
-/// The commutation tool's conditional certificate, then tampering with it.
-#[test]
-fn removal_and_insertion_of_different_keys_commute_only_under_the_checked_invariant() {
+/// Run the commutation tool on `erase` then `put` in `source`.
+fn certify(source: &str, directory: &str) -> (Json, std::path::PathBuf) {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let work = root.join("build/sorted-tables");
+    let work = root.join("build").join(directory);
     let _ = fs::remove_dir_all(&work);
     fs::create_dir_all(&work).unwrap();
-    let source = work.join("a.ink");
-    fs::write(&source, SOURCE).unwrap();
+    let path = work.join("a.ink");
+    fs::write(&path, source).unwrap();
     let script = format!(
         "import json,sys;sys.path.insert(0,'tools');from action_algebra import certify\n\
          print(json.dumps(certify({:?},{:?},'erase','put','knowledge',{:?},[[0,0]])))",
         env!("CARGO_BIN_EXE_ink"),
-        source.to_str().unwrap(),
+        path.to_str().unwrap(),
         work.join("certificates").to_str().unwrap(),
     );
     let out = Command::new("python3")
@@ -135,8 +134,30 @@ fn removal_and_insertion_of_different_keys_commute_only_under_the_checked_invari
     assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
     let result: Json = serde_json::from_slice(&out.stdout).unwrap();
     assert_eq!(result["certificate"], "checked when keys differ", "{result}");
+    (result, work.join("certificates/erase--put--keys-differ"))
+}
 
-    let pair = work.join("certificates/erase--put--keys-differ");
+/// The same commutation over i32 keys: the signed key order is a total word
+/// order, so the published signed sorted-row laws apply without range facts.
+#[test]
+fn signed_key_removal_and_insertion_commute_under_the_checked_invariant() {
+    let (result, pair) = certify(&SOURCE.replace("Table<u64,u64>", "Table<i32,u64>").replace("key:u64", "key:i32"), "sorted-tables-signed");
+    let original = CheckedModule::from_bytes(&fs::read(pair.join("ab-core.json")).unwrap()).unwrap();
+    let selection: Package = serde_json::from_slice(&fs::read(result["selection"].as_str().unwrap()).unwrap()).unwrap();
+    let checked = optimisation::check(&original, &selection).unwrap();
+    assert_eq!(
+        checked.evidence().assumptions,
+        vec![verified_language::action_model::SORTED_SEMANTICS.to_string()]
+    );
+    let mut unassumed = selection.clone();
+    unassumed.action_replacement.as_mut().unwrap().sorted_tables = None;
+    assert!(optimisation::check(&original, &unassumed).is_err());
+}
+
+/// The commutation tool's conditional certificate, then tampering with it.
+#[test]
+fn removal_and_insertion_of_different_keys_commute_only_under_the_checked_invariant() {
+    let (result, pair) = certify(SOURCE, "sorted-tables");
     let original = CheckedModule::from_bytes(&fs::read(pair.join("ab-core.json")).unwrap()).unwrap();
     let selection: Package = serde_json::from_slice(&fs::read(result["selection"].as_str().unwrap()).unwrap()).unwrap();
     let checked = optimisation::check(&original, &selection).unwrap();
