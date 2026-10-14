@@ -721,15 +721,16 @@ pub fn check_proof(
 pub struct ProofContext {
     source: Program,
     executable: CheckedModule,
-    pure: BTreeMap<String, Obligation>,
+    pure: Vec<Obligation>,
+    pure_names: BTreeMap<String, usize>,
     empty_catalogue: CheckedCatalogue,
     state: Option<StateObligations>,
 }
 impl ProofContext {
     pub fn new(p: &Program) -> LangResult<Self> {
-        let pure = obligations(p)?
-            .into_iter()
-            .map(|g| (g.name.clone(), g))
+        let pure = obligations(p)?;
+        let pure_names = pure.iter().enumerate()
+            .map(|(i, g)| (g.name.clone(), i))
             .collect();
         let mut executable = p.clone();
         executable.contracts = Contracts::default();
@@ -747,6 +748,7 @@ impl ProofContext {
             source: p.clone(),
             executable,
             pure,
+            pure_names,
             empty_catalogue,
             state: None,
         })
@@ -754,13 +756,41 @@ impl ProofContext {
     pub fn source_identity(&self) -> LangResult<String> {
         subject_identity(&self.source)
     }
+    /// Export the same source-derived goals used by this context, in derivation
+    /// order. The returned document is authoring data, never proof authority.
+    pub fn export_obligations(&mut self) -> LangResult<serde_json::Value> {
+        let pure = serde_json::to_value(&self.pure).map_err(|e| e.to_string())?;
+        fn called_helpers(value: &serde_json::Value, program: &Program, names: &mut BTreeSet<String>) {
+            match value {
+                serde_json::Value::String(value) => if let Some(name) = value.strip_prefix("call:") {
+                    if program.functions.iter().any(|f| f.name == name) { names.insert(name.into()); }
+                },
+                serde_json::Value::Array(values) => for value in values { called_helpers(value, program, names); },
+                serde_json::Value::Object(fields) => for value in fields.values() { called_helpers(value, program, names); },
+                _ => (),
+            }
+        }
+        let mut roots = BTreeSet::new();
+        called_helpers(&pure, &self.source, &mut roots);
+        let definition_context = crate::definition_context::DefinitionContext::capture(
+            &self.executable, &roots.into_iter().collect::<Vec<_>>(),
+        )?;
+        let state = if needs_state(&self.source)? {
+            if self.state.is_none() { self.state = Some(state::derive(&self.source)?); }
+            self.state.as_ref()
+        } else { None };
+        Ok(serde_json::json!({"schema":1,"semantics":SEMANTICS,
+            "source_sha256":self.source_identity()?,"pure":pure,"state":state,
+            "definition_context":definition_context}))
+    }
     pub fn check(
         &mut self,
         name: &str,
         proof: serde_json::Value,
         bundle: Option<&crate::registry::Bundle>,
     ) -> LangResult<()> {
-        if let Some(g) = self.pure.get(name) {
+        if let Some(&index) = self.pure_names.get(name) {
+            let g = &self.pure[index];
             let catalogue = if let Some(b) = bundle {
                 Some(crate::registry::CheckedBundle::check(b)?.catalogue()?)
             } else {
