@@ -121,6 +121,27 @@ fn unsound_or_ill_formed_laws_are_rejected() {
 }
 
 #[test]
+fn generalised_induction_cannot_forget_accumulator_assumptions() {
+    // For seed=0 and any nonempty xs this fold returns 1, not 0. An IH
+    // instantiated with seed=1 cannot inherit the original seed=0 assumption.
+    rejects(
+        "module assumption_scope;
+         law false_fold(xs:List<u32>,seed:u32) {
+          assume seed_zero(): seed==0;
+          foldl(xs,seed,fn(x,s)=>1)==0;
+          proof by induction xs generalizing(seed) {
+           nil=>assumption seed_zero();
+           cons(head,tail)=>calc {
+            _==foldl(tail,1,fn(x,s)=>1) by normalize;
+            ==_ by ih(seed=1);
+           };
+          };
+         }",
+        "premises independent of quantified variables",
+    );
+}
+
+#[test]
 fn executable_sources_reject_law_declarations() {
     let e = syntax::parse("module m; law t(x: u32) { x == x; }").unwrap_err();
     assert!(e.contains("emit-laws"), "{e}");
