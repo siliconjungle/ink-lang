@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "scope": "Observed quick-effort planning on the unchanged ten-program corpus with a frozen compiler and planner; not performance evidence",
+  "compiler_sha256": "9d7057b5c0b1978df2cda56f61a4d1894142ff49d70a41102e296bb96bae0d6a",
+  "planner_revision": "d0b3d0c19fa460f143dd9fd2b6caff6232cc7ed5",
+  "knowledge_source_revision": "da53d335642c939fea1bcd6495ba4a4afa274d42",
+  "baseline": "Same knowledge sources and canonical snapshot with only producers.v8_word_laws removed from the catalog; private publications",
+  "results": {
+    "before": {
+      "headline": {
+        "programs": 10,
+        "compiled": 10,
+        "programs_with_rewrite_alternative": 9,
+        "programs_with_any_alternative": 9,
+        "programs_selecting_alternative": 1,
+        "median_seconds": 21.308999999999997,
+        "stopped_by_time": 10,
+        "laws_admitted": 30,
+        "laws_admitted_in_multiple_programs": 7,
+        "representations_admitted": 0,
+        "last_gates": {
+          "no_alternative": 1,
+          "measurement_budget": 7,
+          "profitability": 1,
+          "selected_alternative": 1
+        }
+      },
+      "v8_laws_admitted": {}
+    },
+    "after": {
+      "headline": {
+        "programs": 10,
+        "compiled": 10,
+        "programs_with_rewrite_alternative": 10,
+        "programs_with_any_alternative": 10,
+        "programs_selecting_alternative": 1,
+        "median_seconds": 20.761,
+        "stopped_by_time": 10,
+        "laws_admitted": 32,
+        "laws_admitted_in_multiple_programs": 7,
+        "representations_admitted": 0,
+        "last_gates": {
+          "selected_alternative": 1,
+          "measurement_budget": 7,
+          "profitability": 2
+        }
+      },
+      "v8_laws_admitted": {
+        "b7952562ae9ff58d0ee1213ff737e14b2c08700e8d8c1abc6ff36a896f0bb556": "u32/branch_condition_value"
+      }
+    }
+  },
+  "interpretation": "No V8 patterns matched the initial programs directly. Later generic planning admitted u32/branch_condition_value for ast-ancestor, which retained the baseline after the measurement-budget gate. No V8 law was observed in multiple held-out programs. Both runs compiled all ten programs and selected one alternative, on different programs; these shared-machine, time-bounded search differences are not performance evidence.",
+  "limitations": [
+    "Shared machine and simultaneous isolated runs; planning durations are diagnostics, not compiler-performance benchmarks",
+    "All programs exhausted their quick planning time budget",
+    "The later main planner pin 12a730a is not the frozen planner used by these runs"
+  ]
+}
