@@ -335,9 +335,15 @@ pub fn emit(checked: &CheckedRepresentation, target: &str, output: &Path) -> Lan
             &ink_lowering_rust::representation_program::lower(checked)?,
             target,
         ),
-        "wasm" | "wasm32" | "wgpu" | "gpu" => {
-            let source=match target {"wgpu"|"gpu"=>ink_lowering_gpu::lower_representation(checked)?,_=>ink_lowering_wasm::lower_representation(checked)?};
-            project(output,&source,target)
+        "wgpu" | "gpu" => project(
+            output,
+            &ink_lowering_gpu::lower_representation(checked)?,
+            target,
+        ),
+        "wasm" | "wasm32" => {
+            let source = ink_lowering_wasm::lower_representation(checked)?;
+            project(output, &source, target)
+
         }
         _ => Err(format!("unknown representation target {target}")),
     }
