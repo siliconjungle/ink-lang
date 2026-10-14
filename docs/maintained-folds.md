@@ -52,8 +52,9 @@ currently factors through one table. Products compose at the runtime boundary.
 The installed producer authors wrapping U64 sums, counts, filtered contributions
 and mapped contributions such as weighted totals. Its word-key and algebraic
 tactic limits are reported as declines. Other group definitions require their own
-proofs. IEEE floating addition, minimum and other non-invertible aggregates cannot
-use this capability without a different valid representation.
+proofs. IEEE floating addition and other non-invertible aggregates cannot use this
+capability without a different valid representation; word maximum and minimum use
+the extremum views below.
 
 The compiler emits the admitted contribution/group bodies literally. It does not
 recognise aggregate function names or install a backend-authored replacement.
@@ -121,6 +122,33 @@ inspected opaque fields) make the plan unemittable for Rust, so selection fails
 closed. The maintained-ledger conformance history runs on Rust as well as JavaScript. Their ordinary
 source implementations remain available; the planner must select a compatible
 packet. This does not claim device execution of maintained state.
+
+## Word extremum views
+
+Maximum and minimum have no inverse, so they cannot be groups. A view may instead
+carry `extremum: {order, proof}` with no `inverse`, `cancellation`, `deletion` or
+`replacement`; a view is either a complete group or an extremum, never a mix. The
+checker regenerates the factorisation, identity, associativity, commutativity and
+insertion obligations as for a group, requires a U64 result and no `update`, and
+checks `extremum.proof`: `combine(a,b)` equals `if a < b then b else a` for `max`
+(or `if a < b then a else b` for `min`) for arbitrary words. Deleting a row is
+therefore exactly the removal of one occurrence of its contribution from the
+multiset the fold ranges over.
+
+The fixed controller keeps that multiset (an ordered map from contribution to
+count). A cell write removes the old contribution and adds the new one, journaling
+each step so action failure and host rollback undo it; a keep read takes the
+largest or smallest key, or the identity when empty. Each write adds one
+logarithmic multiset update and each read is logarithmic instead of a table scan,
+so static dominance selects these plans too. Restore rebuilds the multiset from
+validated rows.
+
+`producers.maintained_extrema` authors these views for word keeps over word-keyed
+tables whose empty value is `0` (max) or `2^64-1` (min): every word fact is a
+bit-vector certificate that the kernel replays, and the factorisation is an
+induction over the row list. Only the Rust and Rust-Wasm lowerings implement the
+multiset controller; JavaScript rejects extremum views, so JavaScript selection
+fails closed to its ordinary scan.
 
 ## Lean action machinery
 
