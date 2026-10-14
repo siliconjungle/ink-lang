@@ -1,0 +1,30 @@
+{
+  "finding": "F065",
+  "knowledge_revision": "7884630e313adedcfc6d9363c8a323e1a42c8d9a",
+  "files": [
+    {
+      "path": "producers/small_inline.py",
+      "bytes": 7099,
+      "sha256": "2f682236f2a1ecd1f236bf49d103d5bc87937ecc8bb00022c391d9dbb69b3be0"
+    },
+    {
+      "path": "tests/test_small_inline.py",
+      "bytes": 5524,
+      "sha256": "2d0415363ed3693b73a956562a29c5bfefbe3e78c049422d66f09dbbb6870f40"
+    }
+  ],
+  "test": {
+    "result": "pass",
+    "count": 1,
+    "log_sha256": "0362bae470631f885d4c7a3fec5e14bf66b0c792eb50e940a8aadfd2fa49ffb6",
+    "log": "work/llvm-learning-smoke/small-inline-source-audit-test.log"
+  },
+  "mappings": [
+    "Ink already proposes source-bound small-helper unfolding with static carrier width, ownership and call-frequency ranking. These are ordering heuristics only; exact equality and source application replay remain required.",
+    "Existing module composes helper unfolding with new physical/scoped capabilities derived from the CHECKED rewritten core. This matches the LLVM lesson that prior lexical/analysis summaries must invalidate after rewriting.",
+    "Applications are capped to one per caller and 32 total; helper bodies are bounded to 64 nodes and proposals to 8 by default. These local bounds do not alone establish a cumulative module code-growth guarantee across planner states.",
+    "Direct recursion is excluded. General mutually recursive summary/family budgets and argument-signature specialization are separate future work; this module is unfolding, not a complete interprocedural constant-propagation engine.",
+    "The real test checks nested binders, affine carriers, source proof rejection after rehashing a false body, composed plan replay and stale capability rejection. It does not benchmark generated execution or establish whole-backend correctness."
+  ],
+  "next": "Reuse the existing proof-bound unfolding/composition machinery when designing general specialization and family cost models; do not create a backend name-pattern shortcut."
+}
