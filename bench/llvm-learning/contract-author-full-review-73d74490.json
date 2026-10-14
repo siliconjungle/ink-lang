@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "source": "knowledge/producers/contract_proofs.py",
+  "blob": "73d74490de089e799c3f8c46f5d9d339be566b8b",
+  "bytes": 50977,
+  "sha256": "f8286ef49f9a4c3512d6d5e7a6a098e2d95c41b1e1d544652b9a5a041a96fa9d",
+  "review": "Full file read in recorded ranges0..50977.",
+  "observations": [
+    "Pure proposals enumerate normalization, hypotheses, linear combinations, bounded guard splits and list/sum cases; individual proposals are replayed.",
+    "Rewrite discovery is bounded to1024 scanned rows per typed operation,8 rounds,8 frontier entries,64 emitted proposals. Existing typed-head metadata avoids irrelevant nested operation mentions; F042 reproduced separately.",
+    "State proof search retains18depth/100000node limits and bounded fact,alias,lemma budgets; selected splits or induction failures can terminate before trying another candidate. Bounded alternative search remains an open generalisation opportunity.",
+    "State branch replacement compares independently alpha-normalized subterms. Further binder-aware substitution investigation remains; no new admitted-proof bypass claimed.",
+    "ProofSession readiness binds exact source identity; each candidate verdict is checked. Blocking pipe reads/wait have no explicit local deadline here; actual caller coverage and finite subprocess lifecycle need followup.",
+    "context_for closes called functions, record type dependencies and recursive groups. Suspected nested enum payload omission is not established: core DefinitionContext.enums contains variant names only, with payload elaboration elsewhere.",
+    "Supplied pure/state evidence replays before reuse; final check-contracts verifies emitted ordinary evidence unless authoring separate refinement bodies."
+  ],
+  "references": [
+    "typed-head-discovery-probe.json",
+    "contract-search-alternatives-audit.json",
+    "proof-authoring-hygiene-audit.json"
+  ],
+  "complete_goal": false
+}

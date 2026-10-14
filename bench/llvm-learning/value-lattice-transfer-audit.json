@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "finding": "F050",
+  "scope": "Full source review; implementation proposals, not new analysis authority or measured speed.",
+  "sources": [
+    {
+      "repo": "llvm",
+      "path": "llvm/include/llvm/Analysis/ValueLattice.h",
+      "revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+      "blob": "705ad9a05be0f70a84616f36828f24d6689b3d9c",
+      "bytes": 17732,
+      "sha256": "f6860a15f617e3ece0f261358340f4d6835c93d385622ce43e8585991ef9ea61"
+    },
+    {
+      "repo": "llvm",
+      "path": "llvm/lib/Analysis/ValueLattice.cpp",
+      "revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+      "blob": "03810f1c554e5db56e4ad34ed36a33eb494c3927",
+      "bytes": 5022,
+      "sha256": "004de38f60ba2a30211749c398a4554b3382b4eec3286453ad4ebe5b4b416ca6"
+    },
+    {
+      "repo": "ink/knowledge",
+      "path": "producers/word_facts.py",
+      "revision": "c5b74822207ca472a1a3852ef10416e06dfbc919",
+      "blob": "5d85c0fb3884748619e7f689e9e82c1a457cd69f",
+      "bytes": 9906,
+      "sha256": "44c29b434f08583898368b328e80074842ca3c28bf2d20cdc8e88a64653e324b"
+    }
+  ],
+  "insights": [
+    {
+      "topic": "Fact combination",
+      "llvm": "mergeIn widens possible values across alternative paths; intersect combines facts about the same value at the same program location.",
+      "ink": "Facts currently combines known bits and unsigned intervals locally; choose joins alternatives conservatively. Future branch facts must use intersection only within the exact checked branch scope, and union at joins.",
+      "action": "General path-scoped range/bit candidate discovery with proof-producing database conditions; do not mistake mutually exclusive branch predicates for simultaneous assumptions."
+    },
+    {
+      "topic": "Convergence",
+      "llvm": "Optional range-extension counting widens to overdefined after a bounded number of changes.",
+      "ink": "Current word analysis walks a bounded expression tree; it is not a loop fixed-point solver.",
+      "action": "For future loop facts, monotone transfer and explicit widening should degrade to unknown candidates rather than invent stronger invariants. Measure proof yield against budget."
+    },
+    {
+      "topic": "Semantic distinctions",
+      "llvm": "Unknown, undef, overdefined, constants and possibly-undef ranges are distinct; singletons with undef use LLVM replacement rules.",
+      "ink": "Default Facts describes all possible concrete Ink words. Ink wrapping arithmetic and masked shift counts must not inherit LLVM undef/poison/nowrap reasoning.",
+      "action": "Keep unreachable/unvisited/unknown states separate if flow analysis is added. Derive rules from fixed Ink semantics and replay proof evidence."
+    },
+    {
+      "topic": "Provenance",
+      "llvm": "Equal constants can still have distinct pointer provenance; merges propagate a conservative provenance marker.",
+      "ink": "Scalar numerical facts cannot establish borrowing, storage aliasing or checked layout invariants.",
+      "action": "Retain source-bound ownership/effect provenance separately from value equality when extending physical planning."
+    },
+    {
+      "topic": "Reduced domains",
+      "llvm": "Integer constants use singleton ranges, comparisons use full-range relations, and intersection deliberately permits imprecise conservative outcomes.",
+      "ink": "Facts reduces unsigned intervals and known-bit prefixes; carry, wrapping and feasible shift residues are explicit.",
+      "action": "Add future relational precision through ordinary proved laws; do not treat stronger abstract estimates as compiler equality authority."
+    }
+  ],
+  "remaining": [
+    "Implement and evaluate scoped fact discovery where source semantics and proof machinery support it.",
+    "Audit full LLVM ConstantRange implementation and users before adopting modular interval operations.",
+    "Broader loop/alias source review and actual held-out workload measurement remain open."
+  ]
+}
