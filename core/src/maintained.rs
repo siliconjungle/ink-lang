@@ -23,22 +23,45 @@ pub struct View {
     pub table: String,
     pub contribution: String,
     pub combine: String,
+    /// Group inverse; empty for an extremum view, which has none.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub inverse: String,
     pub zero: Term,
     pub factorisation: Proof,
     pub identity: Proof,
     pub associativity: Proof,
     pub commutativity: Proof,
-    pub cancellation: Proof,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cancellation: Option<Proof>,
     pub insertion: Proof,
-    pub deletion: Proof,
-    pub replacement: Proof,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub deletion: Option<Proof>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub replacement: Option<Proof>,
+    /// A word maximum or minimum instead of a group: `combine` is proved equal
+    /// to the fixed word max/min, so the fixed controller keeps the multiset of
+    /// contributions and reads its largest or smallest member (or `zero`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extremum: Option<Extremum>,
     /// Optional database implementation of the group replacement operation.
     /// Admission checks it for arbitrary totals and contributions, not a profile.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub update: Option<Update>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub contribution_choice: Option<Update>,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Order {
+    Max,
+    Min,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Extremum {
+    pub order: Order,
+    /// `combine(a, b) = if a < b { b } else { a }` (max) or `{ a } else { b }` (min).
+    pub proof: Proof,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -283,9 +306,11 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
             id.clone(),
             view.contribution.clone(),
             view.combine.clone(),
-            view.inverse.clone(),
             s.query.clone(),
         ]);
+        if view.extremum.is_none() {
+            exports.insert(view.inverse.clone());
+        }
         if let Some(update) = &view.update {
             exports.insert(update.function.clone());
         }
@@ -300,11 +325,22 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
     )?;
     let mut zeros = vec![];
     for ((s, fold), v) in selected.iter().zip(&package.views) {
-        let signatures = [
+        // A view is either a commutative group (inverse, cancellation, deletion
+        // and replacement) or a word extremum (none of those): never a mix.
+        let group = v.extremum.is_none();
+        if group != (!v.inverse.is_empty() && v.cancellation.is_some() && v.deletion.is_some() && v.replacement.is_some())
+            || (!group && (!v.inverse.is_empty() || v.cancellation.is_some() || v.deletion.is_some()
+                || v.replacement.is_some() || v.update.is_some() || s.result != Sort::U64))
+        {
+            return Err("maintained view must be a complete group or a word extremum".into());
+        }
+        let mut signatures = vec![
             (&v.contribution, vec![s.key.clone(), s.row.clone()]),
             (&v.combine, vec![s.result.clone(), s.result.clone()]),
-            (&v.inverse, vec![s.result.clone()]),
         ];
+        if group {
+            signatures.push((&v.inverse, vec![s.result.clone()]));
+        }
         for (id, want) in signatures {
             let d: Declaration = serde_json::from_value(
                 package.knowledge.objects[id].payload["declaration"].clone(),
@@ -410,16 +446,35 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
                 },
                 &v.commutativity,
             ),
-            (
+        ];
+        let mut goals = goals.to_vec();
+        if let Some(cancellation) = &v.cancellation {
+            goals.push((
                 "cancellation",
                 vec![("a".into(), s.result.clone())],
                 Equation {
                     from: combine(call(&v.inverse, vec![var("a")]), var("a")),
                     to: v.zero.clone(),
                 },
-                &v.cancellation,
-            ),
-        ];
+                cancellation,
+            ));
+        }
+        if let Some(extremum) = &v.extremum {
+            let less = Term::Binary { op: "<".into(), left: Box::new(var("a")), right: Box::new(var("b")) };
+            let (when_less, otherwise) = match extremum.order {
+                Order::Max => (var("b"), var("a")),
+                Order::Min => (var("a"), var("b")),
+            };
+            goals.push((
+                "extremum",
+                vec![("a".into(), Sort::U64), ("b".into(), Sort::U64)],
+                Equation {
+                    from: combine(var("a"), var("b")),
+                    to: Term::If { condition: Box::new(less), on_true: Box::new(when_less), on_false: Box::new(otherwise) },
+                },
+                &extremum.proof,
+            ));
+        }
         for (role, params, eq, proof) in goals {
             context
                 .check(&params, &[], &eq.from, &eq.to, proof)
@@ -439,7 +494,7 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
         ];
         let old = contribution(var("row"));
         let neg = call(&v.inverse, vec![old.clone()]);
-        let mutation_goals = [
+        let mut mutation_goals = vec![
             (
                 "insertion",
                 params.clone(),
@@ -449,6 +504,9 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
                 },
                 &v.insertion,
             ),
+        ];
+        if let (Some(deletion), Some(replacement)) = (&v.deletion, &v.replacement) {
+            mutation_goals.extend([
             (
                 "deletion",
                 params.clone(),
@@ -456,7 +514,7 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
                     from: combine(total(node(var("row"))), neg.clone()),
                     to: total(var("tail")),
                 },
-                &v.deletion,
+                deletion,
             ),
             (
                 "replacement",
@@ -473,9 +531,10 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
                     ),
                     to: total(node(var("new"))),
                 },
-                &v.replacement,
+                replacement,
             ),
-        ];
+            ]);
+        }
         for (role, params, eq, proof) in mutation_goals {
             context
                 .check(&params, &[], &eq.from, &eq.to, proof)
