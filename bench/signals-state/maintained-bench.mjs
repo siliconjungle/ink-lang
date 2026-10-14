@@ -53,7 +53,7 @@ async function ink(artifact,init){
  return {put(k,v,a,fail=false){return put(k,v,a,fail);},total,count,
   contracts(){return {version:state.version,outbox:state.outbox};},
   clear(){(state.acknowledgeThrough??state.acknowledge_through).call(state,word(-1n),word(-1n));},
-  connect(cb){const a=state.subscribe('total_query',[],v=>cb(v,count())),b=state.subscribe('count_query',[],v=>cb(total(),v));return ()=>{a();b();};}};
+  connect(cb){if(cfg.grouped_subscriptions)return state.subscribeGroup(['total_query','count_query'],([total,count])=>cb(total,count));const a=state.subscribe('total_query',[],v=>cb(v,count())),b=state.subscribe('count_query',[],v=>cb(total(),v));return ()=>{a();b();};}};
 }
 let sink=0n;
 const samples=[],validations=[];
@@ -64,7 +64,7 @@ const factories=[
  {label:'Svelte manual delta',create:init=>svelte.deltaRows(init)},
  {label:'Preact computed',create:init=>derived(init),baseline:true}
 ];
-const phases=['sync-update-and-aggregate','awaited-update-and-aggregate','sync-unchanged-read','sync-burst32','sync-observed-update'];
+const phases=cfg.phases??['sync-update-and-aggregate','awaited-update-and-aggregate','sync-unchanged-read','sync-burst32','sync-observed-update'];
 // Warm shared generated bodies on a small state before comparing table sizes.
 // Otherwise the first (smallest) size also pays for evolving V8 optimisation.
 const warmInitial=Array.from({length:8},(_,i)=>({value:BigInt(i),active:i%2===0}));
@@ -141,4 +141,4 @@ for(const label of factories.map(f=>f.label))for(const rows of cfg.rows??[256,40
 console.log(JSON.stringify({schema:1,date:new Date().toISOString(),process_index:cfg.process_index,node:process.version,hardware:cpus()[0].model,
  artifacts:modules.map(({label,path,sha256})=>({label,path,sha256})),validations,samples,summary,sink:String(sink),
  warmup:{sharedBodyCallsPerLane:20000,rows:8,connectedCalls:10000,phaseRounds:3},
- scope:'State-only; synchronous prebound result-only Ink retains versions/events/atomic failures. Raw controls omit them; separate commits/events control matches this hot action only, without portable restore or general source transactions. Matched synchronous and awaited windows; full-width U64 controls; no DOM; cold setup/restore excluded here and measured separately by planner lifecycles; connected Ink has two independently owned query subscriptions versus one batched signals effect'}));
+ scope:'State-only; synchronous prebound result-only Ink retains versions/events/atomic failures. Raw controls omit them; separate commits/events control matches this hot action only, without portable restore or general source transactions. Matched synchronous and awaited windows; full-width U64 controls; no DOM; cold setup/restore excluded here and measured separately by planner lifecycles; connected publication contract declared by grouped_subscriptions; grouped Ink uses one tuple subscription matching one batched signals effect',grouped_subscriptions:!!cfg.grouped_subscriptions}));

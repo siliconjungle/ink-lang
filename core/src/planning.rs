@@ -32,6 +32,7 @@ pub enum Step {
     Routing(Route),
     Resources(resources::Plan),
     Maintained(crate::maintained::Package),
+    Protocol(crate::protocol::Plan),
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -52,6 +53,7 @@ pub struct CheckedPlan {
     route: Option<source_routing::CheckedRouting>,
     resources: Option<resources::CheckedResources>,
     maintained: Option<Arc<crate::maintained::CheckedViews>>,
+    protocol: Option<crate::protocol::CheckedProtocol>,
     package: Arc<Package>,
 }
 impl CheckedPlan {
@@ -74,9 +76,11 @@ impl CheckedPlan {
         self.route.as_ref()
     }
     pub fn resources(&self) -> Option<&resources::CheckedResources> { self.resources.as_ref() }
+    pub fn protocol(&self)->Option<&crate::protocol::CheckedProtocol>{self.protocol.as_ref()}
     pub fn maintained(&self) -> Option<&crate::maintained::CheckedViews> { self.maintained.as_deref() }
     /// Emitters declare support explicitly; an admitted choice cannot disappear.
     pub fn require_source_storage_capability(&self,folds:bool,dense:bool)->LangResult<()>{
+        if !folds&&self.protocol.is_some(){return Err("target does not support selected state protocol".into());}
         if !folds&&self.maintained.is_some(){return Err("target does not support maintained source folds".into());}
         if !dense&&self.physical.as_ref().is_some_and(|p|!p.plan().dense_prefixes.is_empty()){return Err("target does not support dense source table prefixes".into());}
         Ok(())
@@ -96,7 +100,8 @@ impl CheckedPlan {
 fn interface(original: &CheckedModule, selected: &CheckedModule) -> LangResult<()> {
     let a = original.program();
     let b = selected.program();
-    if a.module != b.module
+    if a.contracts.action_protocols != b.contracts.action_protocols
+        || a.module != b.module
         || crate::snapshot::layout(a)?.roots != crate::snapshot::layout(b)?.roots
         || crate::snapshot::layout(a)?.events != crate::snapshot::layout(b)?.events
         || a.actions.len() != b.actions.len()
@@ -165,6 +170,7 @@ fn check_from(
         route: None,
         resources: None,
         maintained: None,
+        protocol: None,
         package: packet.clone(),
     });
     checked.package = packet;
@@ -176,7 +182,7 @@ fn check_from(
                 checked.module=selected;
                 checked.representation=None;checked.physical=None;checked.properties.clear();
                 checked.definitions.clear();checked.route=None;checked.resources=None;
-                checked.maintained=None;
+                checked.maintained=None;checked.protocol=None;
             }
             Step::Rewrite(p) => {
                 let selected = optimisation::check(&checked.module, p)?;
@@ -192,12 +198,14 @@ fn check_from(
                 checked.route = None;
                 checked.resources = None;
                 checked.maintained = None;
+                checked.protocol = None;
             }
             Step::Representation(p) => {
                 if checked.maintained.is_some(){return Err("maintained source folds cannot compose with a definition representation".into());}
                 let mut r = representation::check(&checked.module, p)?;
                 r.set_snapshot_module(original);
                 checked.representation = Some(r);
+                checked.protocol = None;
                 checked.physical = None;
                 checked.definitions.clear();
             }
@@ -219,12 +227,14 @@ fn check_from(
                 r.set_snapshot_module(original);
                 checked.definitions.push(p.proposals.clone());
                 checked.representation = Some(r);
+                checked.protocol = None;
                 checked.physical = None;
             }
             Step::Properties(p) => checked
                 .properties
                 .push(property::check(&checked.module, p)?),
             Step::Physical(p) => {
+                if p.dense_prefixes.iter().any(|d|checked.protocol.as_ref().is_some_and(|p|p.plan().columns.iter().any(|c|c.table==d.table))){return Err("column and boxed dense prefixes cannot select the same table".into());}
                 checked.physical = Some(physical::check(
                     &checked.module,
                     checked.representation.as_ref(),
@@ -234,9 +244,15 @@ fn check_from(
             Step::Resources(p) => {
                 checked.resources = Some(resources::check(checked.route.as_ref().ok_or("resource plan needs a checked graph")?, p)?);
             }
+            Step::Protocol(p) => {
+                if checked.representation.is_some(){return Err("state protocol requires source tables".into());}
+                if p.columns.iter().any(|c|checked.physical.as_ref().is_some_and(|p|p.plan().dense_prefixes.iter().any(|d|d.table==c.table))){return Err("column and boxed dense prefixes cannot select the same table".into());}
+                checked.protocol=Some(crate::protocol::check(&checked.module,p,checked.maintained())?);
+            }
             Step::Maintained(p) => {
                 if checked.representation.is_some(){return Err("maintained folds require source tables".into());}
                 checked.maintained=Some(Arc::new(crate::maintained::check(&checked.module,p)?));
+                checked.protocol=None;
             }
             Step::Routing(p) => {
                 checked.resources = None;

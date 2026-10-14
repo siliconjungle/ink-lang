@@ -853,6 +853,16 @@ impl Parser {
                         _ => emits.extend(ns),
                     }
                 }
+                if self.eat("protocol") {
+                    self.expect("(")?;
+                    let execution = match self.take().as_str() {
+                        "preflight" => crate::protocol::Execution::Preflight,
+                        "transactional" => crate::protocol::Execution::Transactional,
+                        _ => return Err(self.err("protocol requires preflight or transactional")),
+                    };
+                    self.expect(")")?;
+                    p.contracts.action_protocols.insert(name.clone(), execution);
+                }
                 self.mutables.clear();
                 self.pure = false;
                 self.generic_scope.clear();
