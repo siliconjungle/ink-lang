@@ -64,6 +64,26 @@ if(mode==='codec'){
    (groups[operation]??={})[name]=run;
   }
  }
+}else if(mode==='quote-cache'){
+ const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
+ const encoder=new TextEncoder(),checksum=bytes=>{let h=0;for(let i=0;i<bytes.length;i++)h=Math.imul(h,31)^bytes[i];return h;};
+ let expected;
+ for(const[name,ink]of Object.entries(modules)){
+  const json=new ink.JsonCodec(ink.valueCodecs.identity.result),entry=ink.compiledValues.set_document,codec=entry.params[0];
+  const key=entry.params[1].capture('k00000'),value=entry.params[2].capture(json.parse('777')),handle=json.parseCompiled(codec,text),prepared=ink.callCompiled('set_document',[handle,key,value]);
+  const quoter=name==='candidate'?ink.createJsonQuoter():undefined;
+  const render=(result,cache=quoter)=>json.stringifyCompiled(entry.result,result,{unwrapResult:true,quoter:cache});
+  const output=encoder.encode(render(prepared));expected??=output;assert.deepEqual(output,expected);
+  const pipeline=()=>render(ink.callCompiled('set_document',[json.parseCompiled(codec,text),key,value]));
+  assert.deepEqual(encoder.encode(pipeline()),expected);
+  (groups['prepared-render-utf8']??={})[name]=()=>checksum(encoder.encode(render(prepared)));
+  (groups['compiled-text-edit-utf8']??={})[name]=()=>checksum(encoder.encode(pipeline()));
+  (groups['cold-quote-render-utf8']??={})[name]=()=>checksum(encoder.encode(render(prepared,name==='candidate'?ink.createJsonQuoter():undefined)));
+ }
+ const {applyPatch}=await import('@shapeshift-labs/frontier/apply'),{OP_SET}=await import('@shapeshift-labs/frontier/constants');
+ const patch=[[OP_SET,['k00000'],777]],frontier=()=>JSON.stringify(applyPatch(JSON.parse(text),patch,{cloneValues:true}));
+ assert.deepEqual(encoder.encode(frontier()),expected);
+ groups['compiled-text-edit-utf8'].frontier=()=>checksum(encoder.encode(frontier()));
 }else if(mode==='compiled-writer'){
  const text=JSON.stringify(Object.fromEntries(Array.from({length:textFields},(_,i)=>['k'+String(i).padStart(5,'0'),textFixture==='unicode'?`雪😀${i}\n"\\`:textFixture==='nested'?{items:[i,true,null,'雪😀'],enabled:false}:i])));
  const byteHash=bytes=>{let h=0;for(let i=0;i<bytes.length;i++)h=Math.imul(h,31)^bytes[i];return h;};
@@ -143,7 +163,8 @@ const measure=(run,count)=>{const at=process.hrtime.bigint();for(let i=0;i<count
 const measurements=[];
 for(const[operation,lanes]of Object.entries(groups)){
  const counts={};for(const[name,run]of Object.entries(lanes)){measure(run,100);counts[name]=Math.max(10,Math.min(100000,Math.ceil(50000000/(measure(run,100)/100))));}
- for(let round=0;round<15;round++)for(const name of round%2?['baseline','candidate']:['candidate','baseline']){
+ const names=Object.keys(lanes);
+ for(let round=0;round<15;round++)for(let i=0;i<names.length;i++){const name=names[(round+i)%names.length];
   global.gc?.();const calls=counts[name],elapsed_ns=measure(lanes[name],calls);measurements.push({operation,lane:name,round,calls,elapsed_ns});
  }
 }
