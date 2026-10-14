@@ -130,3 +130,113 @@ include aggregate reads, writes, phase reversals, oscillation, unknown workloads
 a point-query negative control, raw calls, fixed choices and a frozen initial-profile
 choice. Synthetic prices are used only to force migrations in conformance tests;
 performance decisions use the separately acquired empirical samples.
+
+## Usage diagnostics, independent collections and incremental JSON lookup
+
+All of these facilities are opt-in. `enabled: false, recording: false` on the
+state host removes its timers, window counters and controller requests. An explicit
+`usage` option can still enable access diagnostics independently. Ordinary compiled
+calls do not install any of these hosts. `--measurement-mode off` disables automatic
+compile-time acquisition; already saved evidence may still inform planning.
+
+An adaptive host can accept `usage: {windowCalls: 256, sampleEvery: 16,
+maxSamples: 256, historyWindows: 4}`. Supply `features.usage` with a `kind` of
+`read`, `write`, `scan` or `invalidate`, plus optional nonnegative safe integers:
+`key`, `path`, `shape`, `size`, `scanned`, `touched`, `invalidated`. The first three
+are application-scoped opaque IDs, not raw strings or payloads. Declare what each
+counter counts; an operation label alone does not imply its internal work. Arguments
+and documents are never traversed to derive these features. Missing sampled metadata
+marks the window incomplete. Failed calls remain identified in the sample.
+
+```js
+await app.call('total', [], {
+  shape: 'rows128', state_elements: 128,
+  usage: {kind: 'scan', path: 4, size: 128, scanned: 128}
+});
+const windows = app.status().access.windows;
+```
+
+The shared Rust `ink_abi::usage` implementation calculates operation mixes,
+logarithmic size distributions, scan/update/invalidation work, repeated keys,
+hottest-key counts, consecutive accesses, distinct paths/shapes, run lengths and
+change in operation mix. JavaScript runs this same code in Wasm once per window.
+Native callers can use `ink_runtime::usage::Recorder` independently of execution.
+Samples and distinct identities have fixed caps; saturation is explicit and
+suppresses the drift comparison. Sampling can alias periodic workloads. These are
+sample summaries, not population estimates, schema proofs or cost-model inputs
+admitted automatically. Retained reports contain aggregate counts, not the IDs.
+
+`createAdaptiveCollections(configs)` in `adaptive-collections.mjs` constructs up
+to 64 **independently owned compiled states**. Use `call(collection, action, args,
+features)`, `checkpoint(collection)`, `restore(collection, bytes)` and `close()`.
+Each collection has its own policy, recording window, migration and queue. A hot
+collection can switch while cold collections keep their current representation.
+The native counterpart is `ink_runtime::adaptive::Collections`. Applications must
+already own independent states; this API does not infer partitions or split a
+transaction. There is no atomic checkpoint or transaction across collections.
+
+The JSON boundary exports `createJsonLookup(text, options)`; native callers use
+`ink_abi::json_lookup::Lookup`. It owns parsed arbitrary JSON and incrementally
+indexes object-member offsets as paths are read. `lookup(path)` returns
+`{found, value}` with an owned logical Ink JSON value; numeric path elements select
+array positions and strings select object members. Missing differs from present
+null; wrong container kinds return errors. Numeric token spelling and member order
+are preserved. Duplicate JSON names are rejected on ingress.
+
+```js
+const view = createJsonLookup(text, {
+  stepEntries: 16, minReads: 4, maxEntries: 4096,
+  maxObjects: 64, maxIndexBytes: 262144
+});
+const result = view.lookup(['items', 0, 'title']);
+view.set(['items', 0], 'title', '"updated"');
+const json = view.stringify();
+```
+
+At most `stepEntries` entries are built across a lookup. Partial indexes scan the
+remaining suffix; a complete index can answer a missing-key query immediately.
+`set(objectPath, key, jsonText)` follows the source library's prepend-and-remove
+meaning, validates a complete candidate before publication and invalidates only
+indexes at/below the changed object. Ancestor and sibling indexes remain usable.
+`replace(jsonText)` clears all indexes. Failed updates preserve values and indexes.
+The current write path clones and validates the document, so write-heavy use can
+be expensive. Construction of an index is bounded by entries and charged bytes,
+not a wall-clock deadline; charged bytes are not a measured heap bound.
+
+This is an explicit host JSON read-view API, also available from generated
+JavaScript modules. It does not replace compiled `std:json` actions, provide a
+stateful interpreter, infer arbitrary JSON schemas, or grant a new rewrite. Native
+and JavaScript behavior is compared with linear lookup and compiled/reference
+source results. Other emitted targets do not expose this host API.
+
+## Measuring the opportunity to adapt
+
+`python3 -m ink_planner.lifecycle_analysis replay.json -o analysis.json` compares
+all fixed variants and uses bounded dynamic programming to find the cheapest
+switching schedule at recorded window boundaries. It charges measured setup and
+each directional migration. Missing edges cannot be used. `--max-switches` bounds
+the search; the tool rejects missing variant prices instead of interpolating.
+Every window records the identity of its shared starting snapshot, and needs at
+least three observations for every variant. These identities describe acquisition;
+they are not proof of its honesty or semantics.
+
+Optional `limits` (`memory_limit_bytes`, `max_pause_ns`) require measured
+`peak_bytes` per variant and migration, and exclude choices outside those budgets.
+Absent limits, the hindsight diagnostic is resource-unconstrained.
+
+The input kind is `ink-lifecycle-replay-v1`, schema 1: `binding`, `setup_ns` lists
+per variant, and `windows` containing `calls`, `snapshot_sha256`, `costs_ns` lists
+per variant and directional `migrations` (`from`, `to`, `samples_ns`). An optional
+`controller` supplies a schedule with one variant per window and measured
+`elapsed_ns` samples. Output separates the remaining switching opportunity, the
+controller's replay-priced choice gap, and the difference between replay prices
+and real host execution. The latter also contains timing noise and replay/session
+differences; it is not an isolated measurement of instrumentation overhead.
+
+Hindsight sees future phases and is an optimistic diagnostic, not a runtime policy.
+It searches only supplied implementations and boundaries. Acquiring every candidate
+window from the same logical prefix prevents state mutations from contaminating
+counterfactual measurements. This work belongs offline. The runtime still never
+trials a mutation or runs an unselected variant to estimate its profitability.
+See `bench/adaptive-learning/run.py` and the dated report for complete rotating
+process controls, phase reversals, short bursts, local adaptation and JSON cases.

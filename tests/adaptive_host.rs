@@ -76,6 +76,17 @@ fn native_switch_retains_reply_state_and_never_repeats_effects() {
         assert_eq!(calls.get(), 10);
         assert_eq!(host.checkpoint().unwrap(), 7u64.to_le_bytes());
         assert!(host.recent().len() <= 4);
+        host.disable_recording();
+        let count = host.recent().len();
+        assert_eq!(host.call("read", &json!([]), "unknown", 0).unwrap(), 7);
+        assert_eq!(host.recent().len(), count);
+        let mut group = ink_runtime::adaptive::Collections::default();
+        group.insert("one".into(), host).unwrap();
+        assert_eq!(
+            group.get_mut("one").unwrap().checkpoint().unwrap(),
+            7u64.to_le_bytes()
+        );
+        assert!(group.get_mut("missing").is_err());
     }
 }
 
@@ -123,4 +134,115 @@ fn emitted_adaptive_state_preserves_reference_histories() {
         "{}",
         String::from_utf8_lossy(&run.stderr)
     );
+}
+
+#[test]
+fn optional_json_index_matches_compiled_source_and_reference() {
+    use std::{path::Path, process::Command};
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let dir = root.join(format!(
+        "build/json-lookup-conformance-{}",
+        std::process::id()
+    ));
+    std::fs::create_dir_all(&dir).unwrap();
+    let module = dir.join("program.mjs");
+    let build = Command::new(env!("CARGO_BIN_EXE_ink"))
+        .current_dir(root)
+        .args([
+            "build",
+            "examples/json/main.ink",
+            "--target",
+            "javascript",
+            "-o",
+        ])
+        .arg(&module)
+        .output()
+        .unwrap();
+    assert!(
+        build.status.success(),
+        "{}",
+        String::from_utf8_lossy(&build.stderr)
+    );
+    let script = r#"import assert from 'node:assert/strict';import * as m from './program.mjs';
+for(const text of ['{}','{"title":null}','{"title":-0}','{"title":1.2300e+1000}','{"title":[1,"日本語",{"a":false}],"__proto__":null}']){
+ const v=m.createJsonLookup(text,{stepEntries:1,minReads:1});
+ for(let i=0;i<8;i++){const actual=v.lookup(['title']),expected=m.call('title',[m.parseJson(v.stringify())]);assert.deepEqual(expected,{Ok:actual.found?{Some:actual.value}:{None:null}});}
+ const expected=m.call('mark_received',[m.parseJson(text)]);v.set([],'received','true');assert.deepEqual(m.parseJson(v.stringify()),expected.Ok);
+}
+"#;
+    std::fs::write(dir.join("run.mjs"), script).unwrap();
+    let run = Command::new("node")
+        .arg(dir.join("run.mjs"))
+        .output()
+        .unwrap();
+    assert!(
+        run.status.success(),
+        "{}",
+        String::from_utf8_lossy(&run.stderr)
+    );
+    // The independent evaluator, rather than another emitted implementation,
+    // establishes the observed source result for exact-token lookup and set.
+    let value = ink_abi::json_value::parse(
+        "{\"title\":1.2300e+1000}",
+        ink_abi::value_wire::Limits::default(),
+    )
+    .unwrap()
+    .to_ink();
+    let calls = dir.join("calls.json");
+    std::fs::write(&calls, serde_json::to_vec(&json!([value])).unwrap()).unwrap();
+    let reference = Command::new(env!("CARGO_BIN_EXE_ink"))
+        .current_dir(root)
+        .args(["run", "examples/json/main.ink", "title"])
+        .arg(calls)
+        .output()
+        .unwrap();
+    assert!(
+        reference.status.success(),
+        "{}",
+        String::from_utf8_lossy(&reference.stderr)
+    );
+    let replies: Value = serde_json::from_slice(&reference.stdout).unwrap();
+    assert_eq!(
+        replies,
+        json!({"Ok":{"Some":ink_abi::json_value::parse("1.2300e+1000",ink_abi::value_wire::Limits::default()).unwrap().to_ink()}})
+    );
+}
+
+#[test]
+fn offline_hindsight_analysis_and_native_usage_windows() {
+    let run = std::process::Command::new("python3")
+        .current_dir(env!("CARGO_MANIFEST_DIR"))
+        .env("PYTHONPATH", "planner")
+        .args([
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "planner/tests",
+            "-p",
+            "test_lifecycle_analysis.py",
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        run.status.success(),
+        "{}",
+        String::from_utf8_lossy(&run.stderr)
+    );
+    let mut usage = ink_runtime::usage::Recorder::new(4, 1, 2, 1).unwrap();
+    for _ in 0..4 {
+        usage
+            .observe(Some(
+                serde_json::from_value(json!({"kind":"read","key":1})).unwrap(),
+            ))
+            .unwrap();
+    }
+    assert!(usage.recent()[0].summary.saturated);
+    assert_eq!(usage.recent()[0].summary.samples, 2);
+    for _ in 0..4 {
+        usage.observe(None).unwrap();
+    }
+    assert_eq!(usage.recent().len(), 1);
+    assert_eq!(usage.snapshot()["total_calls"], 8);
+    assert!(usage.recent()[0].operation_mix_drift.is_none());
 }

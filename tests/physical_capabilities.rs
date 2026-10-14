@@ -228,3 +228,5 @@ query read(k:u32)->Result<Batch,Error> reads(Groups){return Groups.get(k).ok_or(
 // machinery; keep them in the mandatory physical-capability CI suite.
 #[path = "support/cross_domain_workloads.rs"]
 mod cross_domain_workloads;
+
+#[path="support/ecs_lifecycle.rs"] mod ecs_lifecycle;

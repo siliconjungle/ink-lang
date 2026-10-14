@@ -2,6 +2,26 @@ use serde_json::{json, Value};
 use std::{fs,path::PathBuf,process::Command};
 use verified_language::{core::CheckedModule,syntax::parse,planning,protocol,stateful::Runtime};
 const SOURCE:&str=include_str!("../examples/filtered-aggregate.ink");
+#[test]
+fn event_columns_preserve_multiple_channels_owned_records_and_transactional_positions(){
+ let source="module event_storage;enum Error{Failed,}record Payload{value:u64,}event one:Payload;event two:u64;change multi(v:Payload,fail:Bool)->Result<Unit,Error> emits(one,two){emit one(v);emit two(v.value);if fail{return Err(Error.Failed);}return Ok(());}change single(v:Payload)->Unit emits(one) protocol(preflight){emit one(v);return ();}";
+ let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
+ let protocol:protocol::Plan=serde_json::from_value(json!({"schema":1,"semantics":protocol::SEMANTICS,"input_core_sha256":module.identity().unwrap(),"event_columns":true,"actions":[{"action":"single","execution":"preflight"}]})).unwrap();
+ let packet:planning::Package=serde_json::from_value(json!({"schema":1,"semantics":planning::SEMANTICS,"input_core_sha256":module.identity().unwrap(),"steps":[{"kind":"protocol","package":protocol}]})).unwrap();
+ let checked=planning::check(&module,&packet).unwrap();
+ let dir=directory().join("events");fs::create_dir_all(&dir).unwrap();fs::write(dir.join("events.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
+ let mut oracle=Runtime::new(parse(source).unwrap()).unwrap();let mut histories=vec![];
+ for i in 0..30u64{let name=if i%2==0{"single"}else{"multi"};let args=if i%2==0{json!([{ "value":u64::MAX-i}])}else{json!([{ "value":u64::MAX-i},i%3==0])};let outcome=oracle.invoke_json(name,&args).unwrap().json();histories.push(json!({"name":name,"args":normal(&args),"result":normal(&outcome),"snapshot":oracle.checkpoint_portable().unwrap()}));}
+ fs::write(dir.join("history.json"),serde_json::to_vec(&histories).unwrap()).unwrap();
+ fs::write(dir.join("run.mjs"),r#"import assert from 'node:assert/strict';import fs from 'node:fs';import {createState} from './events.mjs';
+const state=createState(),normal=v=>JSON.parse(JSON.stringify(v,(_k,x)=>typeof x==='bigint'||typeof x==='number'?String(x):x));
+for(const h of JSON.parse(fs.readFileSync(new URL('./history.json',import.meta.url)))){const args=[{value:BigInt(h.args[0].value)},...h.args.slice(1)];const result=state.bind(h.name)(...args);assert.deepEqual(normal(result),h.result);args[0].value=0n;assert.deepEqual([...await state.checkpoint()],h.snapshot);if(result.events.length){const saved=await state.checkpoint();result.events[0].value.value=0n;const out=state.outbox;out[0].value.value=0n;assert.deepEqual(await state.checkpoint(),saved);}}
+const before=await state.checkpoint();state.beginTransaction();state.acknowledgeThrough(18446744073709551615n,18446744073709551615n);state.bind('single')({value:5n});state.rollbackTransaction();assert.deepEqual(await state.checkpoint(),before);
+state.beginTransaction();const transactionEdge=state.outbox[2];state.acknowledgeThrough(transactionEdge.commit,transactionEdge.position);state.bind('multi')({value:6n},false);state.rollbackTransaction();assert.deepEqual(await state.checkpoint(),before);
+const edge=state.outbox[2],expected=state.outbox.slice(3);state.acknowledgeThrough(edge.commit,edge.position);assert.deepEqual(state.outbox,expected);const acknowledged=await state.checkpoint();await state.restore(before);assert.deepEqual(await state.checkpoint(),before);await state.restore(acknowledged);assert.deepEqual(state.outbox,expected);
+"#).unwrap();
+ let out=Command::new("node").arg(dir.join("run.mjs")).output().unwrap();assert!(out.status.success(),"{}",String::from_utf8_lossy(&out.stderr));
+}
 fn directory()->PathBuf{PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("build/state-protocol-tests")}
 fn normal(v:&Value)->Value{match v{Value::Number(n)=>Value::String(n.to_string()),Value::Array(a)=>Value::Array(a.iter().map(normal).collect()),Value::Object(o)=>Value::Object(o.iter().map(|(k,v)|(k.clone(),normal(v))).collect()),_=>v.clone()}}
 #[test]
@@ -15,10 +35,11 @@ fn execution_declarations_and_proposals_replay_structural_capabilities(){
  assert!(CheckedModule::from_source(parse(&bad).unwrap()).unwrap_err().contains("preflight"));
  let source=SOURCE.replace("emits(seen){","emits(seen) protocol(transactional){");
  let module=CheckedModule::from_source(parse(&source).unwrap()).unwrap();
- let p=protocol::Plan{schema:1,semantics:protocol::SEMANTICS.into(),input_core_sha256:module.identity().unwrap(),actions:vec![protocol::ActionChoice{action:"put".into(),execution:protocol::Execution::Preflight}],direct_reads:vec![],output_publication:false,snapshot_rows:false,columns:vec![]};
+ let p=protocol::Plan{schema:1,semantics:protocol::SEMANTICS.into(),input_core_sha256:module.identity().unwrap(),actions:vec![protocol::ActionChoice{action:"put".into(),execution:protocol::Execution::Preflight}],direct_reads:vec![],output_publication:false,snapshot_rows:false,event_columns:false,inline_maintenance:false,compact_commits:None,columns:vec![]};
  assert!(protocol::check(&module,&p,None).unwrap_err().contains("source declaration"));
  let mut p=p;p.actions.clear();p.direct_reads.push("total_query".into());
  assert!(protocol::check(&module,&p,None).unwrap_err().contains("maintained"));
+ p.direct_reads.clear();p.inline_maintenance=true;assert!(protocol::check(&module,&p,None).unwrap_err().contains("checked views"));
 }
 #[test]
 fn whole_implementations_preserve_histories_publication_changes_and_portable_state(){
@@ -31,12 +52,13 @@ fn whole_implementations_preserve_histories_publication_changes_and_portable_sta
  let plan=planning::check(&module,&packet).unwrap();
  fs::write(dir.join("baseline.mjs"),verified_language::javascript::lower(&module).unwrap().javascript).unwrap();
  let facts=protocol::capabilities(&module).unwrap();
- let protocol=protocol::Plan{schema:1,semantics:protocol::SEMANTICS.into(),input_core_sha256:module.identity().unwrap(),actions:facts.iter().filter(|c|c.preflight).map(|c|protocol::ActionChoice{action:c.action.clone(),execution:protocol::Execution::Preflight}).collect(),direct_reads:facts.iter().filter(|c|c.direct_keep.is_some()).map(|c|c.action.clone()).collect(),output_publication:true,snapshot_rows:true,columns:vec![]};
+ let protocol=protocol::Plan{schema:1,semantics:protocol::SEMANTICS.into(),input_core_sha256:module.identity().unwrap(),actions:facts.iter().filter(|c|c.preflight).map(|c|protocol::ActionChoice{action:c.action.clone(),execution:protocol::Execution::Preflight}).collect(),direct_reads:facts.iter().filter(|c|c.direct_keep.is_some()).map(|c|c.action.clone()).collect(),output_publication:true,snapshot_rows:true,event_columns:false,inline_maintenance:false,compact_commits:None,columns:vec![]};
  assert_eq!(protocol.actions.len(),2);
  packet.steps.push(planning::Step::Protocol(protocol));
  let optimized=planning::check(&module,&packet).unwrap();
  assert!(verified_language::state_native::emit_planned(&optimized).unwrap_err().contains("protocol"));
  fs::write(dir.join("map.mjs"),verified_language::javascript::lower_planned(&optimized).unwrap().javascript).unwrap();
+ let mut column_events=packet.clone();if let planning::Step::Protocol(p)=column_events.steps.last_mut().unwrap(){p.event_columns=true;}let checked=planning::check(&module,&column_events).unwrap();fs::write(dir.join("event_columns.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
  fs::write(dir.join("plan.json"),serde_json::to_vec(&packet).unwrap()).unwrap();
  let mut oracle=Runtime::new(parse(SOURCE).unwrap()).unwrap();let mut history=vec![];
  for i in 0..240u64{
@@ -98,6 +120,19 @@ for row in rows:
   let mut forged=p.clone();for step in &mut forged.steps{if let planning::Step::Maintained(p)=step{p.views[0].update.as_mut().unwrap().proof=verified_language::logic::Proof::Refl(verified_language::logic::Term::U64(0));}}
   assert!(planning::check(&module,&forged).is_err());
  }
+ for (name,events) in [("compact",false),("compact_events",true)]{
+  let mut p=packet.clone();if let planning::Step::Protocol(p)=p.steps.last_mut().unwrap(){p.event_columns=events;p.compact_commits=Some(serde_json::from_slice(&std::process::Command::new("python3").args(["-c","import gzip,sys;sys.stdout.buffer.write(gzip.open(sys.argv[1],'rb').read())"]).arg(root.join("knowledge/producers/data/commit-word53.json.gz")).output().unwrap().stdout).unwrap());}
+  let checked=planning::check(&module,&p).unwrap();fs::write(dir.join(format!("{name}.mjs")),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();
+  if events{let mut inline=p.clone();if let planning::Step::Protocol(p)=inline.steps.last_mut().unwrap(){p.inline_maintenance=true;}let checked=planning::check(&module,&inline).unwrap();fs::write(dir.join("inline_compact.mjs"),verified_language::javascript::lower_planned(&checked).unwrap().javascript).unwrap();}
+  let mut forged=p;if let planning::Step::Protocol(p)=forged.steps.last_mut().unwrap(){p.compact_commits.as_mut().unwrap().problem_sha256="0".repeat(64);}assert!(planning::check(&module,&forged).is_err());
+ }
+ let mut boundaries=vec![];
+ for version in [9007199254740990u64,9007199254740991,9007199254740992,9007199254740993,u64::MAX-1,u64::MAX]{
+  let mut saved:Value=serde_json::from_slice(&oracle.checkpoint().unwrap()).unwrap();saved["version"]=json!(version);let mut rt=Runtime::restore(parse(SOURCE).unwrap(),&serde_json::to_vec(&saved).unwrap()).unwrap();let seed=rt.checkpoint_portable().unwrap();
+  let failed=rt.invoke_json("put",&json!([0,97,true,true])).unwrap().json();let result=rt.invoke_json("put",&json!([0,97,true,false]));
+  boundaries.push(json!({"seed":seed,"failed":normal(&failed),"result":result.as_ref().ok().map(|r|normal(&r.json())),"snapshot":rt.checkpoint_portable().unwrap()}));
+ }
+ fs::write(dir.join("commit_boundaries.json"),serde_json::to_vec(&boundaries).unwrap()).unwrap();
  fs::write(dir.join("run.mjs"),include_str!("support/state_protocol.mjs")).unwrap();
  let out=Command::new("node").arg(dir.join("run.mjs")).output().unwrap();fs::write(dir.join("validation.log"),[out.stdout.as_slice(),out.stderr.as_slice()].concat()).unwrap();
  assert!(out.status.success(),"{}",String::from_utf8_lossy(&out.stderr));
