@@ -1,9 +1,9 @@
 """Compile every Rust/Wasm CPU fallback used by browser word parity."""
 from pathlib import Path
-import sys
+import json,sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'tools'))
 from build_gpu_wasm import build
-for name in ['generated-parity-word-boundaries','generated-parity-semantic-word-baseline','semantic-word-selected']:
+for name in json.loads(Path(__file__).with_name('word-fixtures.json').read_text()):
  bundle=Path('build')/name/'gpu-module'
  build(bundle)
  binary=bundle/'cpu.wasm'
