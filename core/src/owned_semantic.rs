@@ -2,7 +2,7 @@
 //! Allocation identity/failure and fuel are outside the total-value domain.
 use crate::{
     core::{Program, Type},
-    semantic::{arrow, op, term, value, word, Node, Sort, Term},
+    semantic::{arrow, lambda as lam, op, term, value, word, Node, Sort, Term},
     LangResult,
 };
 
@@ -252,6 +252,22 @@ fn dec(n: Term) -> Term {
 }
 fn empty_map(t: &Term) -> bool {
     matches!(&t.node,Node::Op(n,a) if n=="local:map-empty" && a.is_empty())
+}
+// Membership observes the same finite key domain as keys(), including for a
+// symbolic map. Bind the queried key with an application so ordinary beta
+// reduction handles captured de Bruijn indices under the two fold binders.
+fn map_membership(m: &Term, key: &Term) -> LangResult<Term> {
+    let boolean = value(Type::Bool);
+    let item = key.sort.clone();
+    let step = lam(item.clone(), lam(item.clone(), lam(boolean.clone(), op(
+        boolean.clone(), "binary:||", vec![
+            eq(term(item.clone(), Node::Bound(2)), term(item.clone(), Node::Bound(1))),
+            term(boolean.clone(), Node::Bound(0)),
+        ],
+    ))));
+    let step = op(arrow(item.clone(), arrow(boolean.clone(), boolean.clone())), "apply", vec![step, key.clone()]);
+    let keys = op(value(Type::List(Box::new(ty(&key.sort)?.clone()))), "method:keys", vec![m.clone()]);
+    Ok(op(boolean.clone(), "call:foldr", vec![keys, term(boolean, Node::Bool(false)), step]))
 }
 pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
     let Node::Op(n, a) = &t.node else {
@@ -595,7 +611,7 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
             } else {
                 t.clone()
             };
-            if empty_map(m) {
+            let reduced = if empty_map(m) {
                 if n == "local:map-value" {
                     None
                 } else {
@@ -649,7 +665,8 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
                 }
             } else {
                 None
-            }
+            };
+            if reduced.is_none() && n == "method:contains" {Some(map_membership(m, k)?)} else {reduced}
         }
         ("method:keys", [m]) => {
             if empty_map(m) {

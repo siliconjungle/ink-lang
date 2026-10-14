@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "status": "checked and published in knowledge main",
+  "snapshot": "b083ea957453467e8110021cbd7ee2004e2900aa97fddff89bb30989bad4267a",
+  "root": "6a8f7eed5a39ef1dab9792758e7d446114f5abfe99c757aa8a7dc3bae8500c00",
+  "entries": 30294,
+  "added_objects": 7,
+  "proof_closure_objects": 14,
+  "equivalence": "a364d28589d1c32e85177da4c9858c322b5c5e03a832a7fa8efbfe10c63da68c",
+  "source": "tests/fixtures/indexed-sets/main.ink",
+  "compiler_sha256": "b110a26eaacc8fad030319fb347d0ab3e3677009bddfe0529f62347c89c86d94",
+  "limits": [
+    "u32 ordered construction only; no automatic algorithm replacement",
+    "map primitive total-value correspondence excludes allocation/fuel observations",
+    "Persistent indexed representation and raw ingress cost remain unfinished"
+  ],
+  "checks": {
+    "indexed-full-equivalence-tests": {
+      "status": "passed",
+      "log_sha256": "eade2b57e90d4b2dc225d913ba33d287310aa4dfea34d2da22be97c255f941d9"
+    },
+    "map-symbolic-membership-full-core": {
+      "status": "passed",
+      "log_sha256": "bc1bfc37bfe1c229b8d00a7b1355d03e695c2a9452d0842837d898d49054ddc5"
+    },
+    "map-symbolic-membership-key-domains": {
+      "status": "passed",
+      "log_sha256": "e7f86d7706db635872ad09b10043c98084f827432b5d9a3823e0891f80d08028"
+    },
+    "map-membership-contract-tests": {
+      "status": "passed",
+      "log_sha256": "992dd107598104eae4a06a9e5019f80113d5f6e60f8199c5b53679a2b6931875"
+    },
+    "map-membership-search-tests": {
+      "status": "passed",
+      "log_sha256": "91b949bdd1dae9000b0864932f50e8552ed7a431b34a0f43a0cfc08fc21ece52"
+    },
+    "set-indexed-equivalence-targets": {
+      "status": "passed",
+      "log_sha256": "00e48efcf3ace5c542531e5d169b716594c287babf54cd9fa5fea99097c45612"
+    },
+    "indexed-construction-canonical-replay": {
+      "status": "passed",
+      "log_sha256": "9cb23600a4103efd25fcab666b0ae0930f5574fc4f98f13035b2336a85106c21"
+    },
+    "source-binding-replay": {
+      "status": "checked",
+      "log_sha256": "ada07c4214a1dd55a3018d9b55810cc98ae8b60c1296b43533243c1eb4b00bef"
+    }
+  },
+  "source_replay": {
+    "status": "checked",
+    "input_core_sha256": "709f3ca6030943f2d3c007b67732a159c7beabe6a53c17ba862f4e791222381d",
+    "application_count": 0,
+    "scope": "bind every closure definition to the actual source; does not claim automatic selection"
+  },
+  "commands": [
+    "PYTHONPATH=knowledge:planner build/general-machinery/python/bin/python -m producers.indexed_set_equivalence tests/fixtures/indexed-sets/main.ink build/general-machinery/indexed-construction-equivalence --compiler target/debug/ink",
+    "target/debug/ink knowledge-check build/general-machinery/indexed-construction-equivalence/empty.core.json knowledge/store/indexed-construction-view.json",
+    "target/debug/ink check-selection build/general-machinery/indexed-construction-equivalence/source.core.json build/general-machinery/indexed-construction-equivalence/applicability.json"
+  ],
+  "knowledge_main": "e49a45b7d500e0abbdbe863ac04f2724b231971c"
+}
