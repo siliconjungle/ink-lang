@@ -11,6 +11,15 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 pub const SEMANTICS: &str = "ink-physical-plan-v1";
+/// Lexical parameter identity, separate from identically named parameters in
+/// other functions. The checked module supplies the type and source binding.
+pub fn parameter_read_site(function:&str,parameter:&str)->LangResult<String>{
+    registry::identity(&serde_json::json!({"capability":"ink-parameter-read-v1","function":function,"parameter":parameter}))
+}
+/// Borrow an observation in one function without borrowing its owning formal.
+pub fn expression_read_site(function:&str,expression:&crate::syntax::Expr)->LangResult<String>{
+    registry::identity(&serde_json::json!({"capability":"ink-function-read-v1","function":function,"expression":registry::identity(expression)?}))
+}
 #[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum Tables {
@@ -103,6 +112,10 @@ pub struct Plan {
     pub memo_functions: Vec<String>,
     #[serde(default)]
     pub reservations: Vec<Reservation>,
+    /// Native code-generation hints only. They confer no source equality,
+    /// invariant or profitability authority and bind this exact source image.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub inline_functions: Vec<String>,
 }
 #[derive(Clone, Debug)]
 pub struct CheckedPhysicalPlan {
@@ -111,6 +124,9 @@ pub struct CheckedPhysicalPlan {
     column_maps: crate::column_codec::CheckedMaps,
 }
 impl CheckedPhysicalPlan {
+    pub fn inlines_function(&self, function: &str) -> bool {
+        self.plan.inline_functions.binary_search_by(|s|s.as_str().cmp(function)).is_ok()
+    }
     pub fn column_maps(&self) -> &crate::column_codec::CheckedMaps { &self.column_maps }
     pub fn bounds(&self) -> &crate::bounds::CheckedBounds { &self.bounds }
     pub fn plan(&self) -> &Plan {
@@ -230,6 +246,13 @@ pub fn check(
     ] {
         ids(sites)?;
     }
+    if plan.inline_functions.len()>4096
+        || !plan.inline_functions.windows(2).all(|p|p[0]<p[1])
+        || representation.is_some() && !plan.inline_functions.is_empty()
+        || plan.inline_functions.iter().any(|name|!module.program().functions.iter().any(|f|&f.name==name))
+    {
+        return Err("native inlining hints must name sorted, unique source functions".into());
+    }
     if plan.dictionary_tables.len()>256 || !plan.dictionary_tables.windows(2).all(|w|w[0]<w[1]) {
         return Err("dictionary table ordering/count limit".into());
     }
@@ -331,6 +354,13 @@ pub fn check(
     }
     let mut read_sites = BTreeSet::new();
     for f in &p.functions {
+        if !crate::recursion::recursive(f) {
+            for (name,ty) in &f.params {
+                if matches!(ty,crate::syntax::Type::Named(_)|crate::syntax::Type::List(_)) && !crate::local_collections::owned(ty,p) {
+                    read_sites.insert(parameter_read_site(&f.name,name)?);
+                }
+            }
+        }
         let mut failure = None;
         crate::analysis::typed_walk(p, f, |e, env| {
             let lexical = crate::collection_facts::lexical_projection(e);
@@ -338,6 +368,7 @@ pub fn check(
                 env.get(*root), Some(crate::syntax::Type::Named(_) | crate::syntax::Type::List(_))));
             if rooted && crate::check::infer(e, env, p).is_ok() {
                 match registry::identity(e) { Ok(id) => {read_sites.insert(id);}, Err(e) => failure=Some(e) }
+                match expression_read_site(&f.name,e) { Ok(id) => {read_sites.insert(id);}, Err(e) => failure=Some(e) }
             }
         })?;
         if let Some(error) = failure {return Err(error)}

@@ -244,9 +244,9 @@ impl Parser {
             "fn" => {
                 self.expect("(")?;
                 let input = self.ty()?;
-                // Laws may write `fn(A, B) -> C` for the curried `fn(A) -> fn(B) -> C`.
+                // Multi-argument signatures use existing curried callback types.
                 let mut rest = vec![];
-                while self.law_mode && self.eat(",") {
+                while self.eat(",") {
                     rest.push(self.ty()?);
                 }
                 self.expect(")")?;
@@ -497,8 +497,9 @@ impl Parser {
         } else if self.eat("fn") {
             self.expect("(")?;
             let mut names = vec![self.name()?];
-            // Laws may write `fn(a, b) => e` for the curried `fn(a) => fn(b) => e`.
-            while self.law_mode && self.eat(",") {
+            // Multiple parameters elaborate to the same nested pure lambdas
+            // in executable code and external laws.
+            while self.eat(",") {
                 names.push(self.name()?);
             }
             self.expect(")")?;
@@ -543,8 +544,16 @@ impl Parser {
                 self.expect("{")?;
                 let mut fields = Vec::new();
                 while !self.eat("}") {
-                    let f = self.name()?;
-                    self.expect(":")?;
+                    let f = if self.eat("..") {
+                        if !fields.is_empty() {
+                            return Err(self.err("record update base must be first and unique"));
+                        }
+                        "..".into()
+                    } else {
+                        let f = self.name()?;
+                        self.expect(":")?;
+                        f
+                    };
                     let value = self.expr(0)?;
                     fields.push((f, value));
                     if self.eat("}") {
@@ -1541,44 +1550,43 @@ impl Parser {
         }
         Ok(())
     }
+    // Bodies are hygienically renamed before this analysis: shadowed locals
+    // and loop items have fresh identities, while assignments retain their
+    // exact outer target. Keep readonly references as well as writes, so an
+    // affine owner remains available across iterations without being captured.
     fn loop_variables(
         &self,
+        mut variables: std::collections::BTreeMap<String, Type>,
         body: &[Statement],
-        outer: &std::collections::BTreeMap<String, Type>,
+        condition: Option<&Expr>,
     ) -> std::collections::BTreeMap<String, Type> {
-        fn assigned(
-            parser: &Parser,
-            body: &[Statement],
-            outer: &std::collections::BTreeMap<String, Type>,
-            mut shadowed: std::collections::BTreeSet<String>,
-            out: &mut std::collections::BTreeSet<String>,
-        ) {
-            for statement in body {
-                match statement {
-                    Statement::Let(name, _, _) => {
-                        if let Some(target) = parser.assignments.get(name) {
-                            if outer.contains_key(target) && !shadowed.contains(target) {
-                                out.insert(target.clone());
-                            }
-                        } else if outer.contains_key(name) {
-                            shadowed.insert(name.clone());
-                        }
+        let mut used = std::collections::BTreeSet::new();
+        if let Some(condition) = condition {
+            used.extend(crate::analysis::free_variables(condition));
+        }
+        let mut pending: Vec<_> = body.iter().collect();
+        while let Some(statement) = pending.pop() {
+            match statement {
+                Statement::Let(name, _, expression) => {
+                    used.extend(crate::analysis::free_variables(expression));
+                    if let Some(target) = self.assignments.get(name) {
+                        used.insert(target.clone());
                     }
-                    Statement::If(_, yes, no) => {
-                        assigned(parser, yes, outer, shadowed.clone(), out);
-                        assigned(parser, no, outer, shadowed.clone(), out);
-                    }
-                    _ => (),
+                }
+                Statement::If(condition, yes, no) => {
+                    used.extend(crate::analysis::free_variables(condition));
+                    pending.extend(yes);
+                    pending.extend(no);
+                }
+                Statement::Return(expression)
+                | Statement::Expr(expression)
+                | Statement::Emit(_, expression) => {
+                    used.extend(crate::analysis::free_variables(expression));
                 }
             }
         }
-        let mut writes = std::collections::BTreeSet::new();
-        assigned(self, body, outer, Default::default(), &mut writes);
-        outer
-            .iter()
-            .filter(|(name, _)| writes.contains(*name))
-            .map(|(n, t)| (n.clone(), t.clone()))
-            .collect()
+        variables.retain(|name, _| used.contains(name));
+        variables
     }
     fn for_loop(&mut self) -> LangResult<Vec<Statement>> {
         let item = self.name()?;
@@ -1599,14 +1607,10 @@ impl Parser {
         } else {
             None
         };
-        let outer_variables = self.mutables.clone();
+        let all_variables = self.mutables.clone();
         self.mutables.remove(&item);
         let body = self.block()?;
-        self.mutables = outer_variables.clone();
-        let variables = self.loop_variables(&body, &outer_variables);
-        if variables.len() > 16 {
-            return Err(self.err("loop state exceeds 16 mutable locals"));
-        }
+        self.mutables = all_variables.clone();
         fn control(body: &[Statement]) -> bool {
             body.iter().any(|s| match s {
                 Statement::Return(_) | Statement::Emit(..) => true,
@@ -1616,6 +1620,12 @@ impl Parser {
         }
         if control(&body) {
             return Err(self.err("finite loop body cannot return or emit; use its carried state"));
+        }
+        let element = self.fresh_name();
+        let scoped = self.scoped_branch(&body, &[(item, element.clone())].into_iter().collect());
+        let variables = self.loop_variables(all_variables, &scoped, None);
+        if variables.len() > 16 {
+            return Err(self.err("loop state exceeds 16 mutable locals"));
         }
         let record = format!("__ink_loop_{}_{}", self.application_prefix, self.fresh);
         self.fresh += 1;
@@ -1647,8 +1657,6 @@ impl Parser {
         };
         let accumulator = self.fresh_name();
         let index = self.fresh_name();
-        let element = self.fresh_name();
-        let scoped = self.scoped_branch(&body, &[(item, element.clone())].into_iter().collect());
         let fields = || {
             variables
                 .keys()
@@ -1723,12 +1731,8 @@ impl Parser {
         if limit > 65536 {
             return Err(self.err("while exceeds iteration bound"));
         }
-        let outer_variables = self.mutables.clone();
+        let all_variables = self.mutables.clone();
         let body = self.block()?;
-        let variables = self.loop_variables(&body, &outer_variables);
-        if variables.len() > 16 {
-            return Err(self.err("loop state exceeds 16 mutable locals"));
-        }
         fn control(body: &[Statement]) -> bool {
             body.iter().any(|s| match s {
                 Statement::Return(_) | Statement::Emit(..) => true,
@@ -1738,6 +1742,11 @@ impl Parser {
         }
         if control(&body) {
             return Err(self.err("bounded loop body cannot return or emit; use its carried state"));
+        }
+        let scoped = self.scoped_branch(&body, &Default::default());
+        let variables = self.loop_variables(all_variables, &scoped, Some(&condition));
+        if variables.len() > 16 {
+            return Err(self.err("loop state exceeds 16 mutable locals"));
         }
         let record = format!("__ink_loop_{}_{}", self.application_prefix, self.fresh);
         self.fresh += 1;
@@ -1775,7 +1784,6 @@ impl Parser {
                 .map(|n| (n.clone(), Expr::Var(n.clone())))
                 .collect()
         };
-        let scoped = self.scoped_branch(&body, &Default::default());
         let mut step = self.pure_body(&scoped, Some(Expr::Record(record.clone(), fields())))?;
         let mut stop = Expr::Binary(
             "==".into(),
@@ -2321,9 +2329,16 @@ impl Parser {
                     while !self.eat("}") {
                         let case = self.name()?;
                         match case.as_str() {
-                            "nil" => {
+                            "nil" | "zero" => {
                                 self.expect("=>")?;
                                 base = self.tactic()?;
+                            }
+                            "succ" => {
+                                self.expect("(")?;
+                                names.push(self.name()?);
+                                self.expect(")")?;
+                                self.expect("=>")?;
+                                step = self.tactic()?;
                             }
                             "cons" => {
                                 self.expect("(")?;
@@ -2334,7 +2349,7 @@ impl Parser {
                                 self.expect("=>")?;
                                 step = self.tactic()?;
                             }
-                            _ => return Err(self.err("induction cases are nil and cons(head, tail)")),
+                            _ => return Err(self.err("induction cases are nil/cons(head, tail) or zero/succ(previous)")),
                         }
                         self.expect(";")?;
                     }

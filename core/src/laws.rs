@@ -16,6 +16,8 @@ pub struct Equation {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Proof {
+    /// Reconstruct the exact fixed-width scalar circuit and replay hinted RUP.
+    BitVector { hypotheses: Vec<usize>, certificate: crate::bitproof::Certificate },
     AssertEquality {
         equality: Equation,
         premise: Box<Proof>,
@@ -26,6 +28,9 @@ pub enum Proof {
     /// RUP refutation of the fixed typed unsigned-word/Boolean equality.
     Word { hypotheses: Vec<usize>, certificate: crate::bitproof::Certificate },
     Normalize,
+    /// One exact fixed-meaning computation at the outermost node. Keeps
+    /// symbolic loop recursion opaque until a proof explicitly unfolds it.
+    Unfold,
     Hypothesis(usize),
     /// Instantiate only the quantified parameters of a branch-local induction
     /// hypothesis. Its recursive argument remains the immediate predecessor.
@@ -73,6 +78,9 @@ pub enum Proof {
     /// ordering's comparisons and equalities as appended hypotheses. See
     /// `order_regions`.
     Order { atoms: Vec<Term>, body: Box<Proof> },
+    /// Natural/list induction and bounded unsigned induction. For U32/U64,
+    /// the successor branch receives the additional premise predecessor < MAX;
+    /// its induction hypothesis is only about that immediate predecessor.
     Induction {
         variable: String,
         names: Vec<String>,
@@ -153,7 +161,7 @@ pub fn required_semantics(law: &Law) -> &'static str {
 }
 fn general_proof(p: &Proof) -> bool {
     match p {
-        Proof::Assume { .. } | Proof::Variants { .. } | Proof::Order { .. } | Proof::Word { .. } => true,
+        Proof::Assume { .. } | Proof::Variants { .. } | Proof::Order { .. } | Proof::Word { .. } | Proof::Unfold => true,
         Proof::Use { types, assumptions, premises, .. } => {
             !types.is_empty() || !assumptions.is_empty() || premises.iter().any(general_proof)
         }
@@ -166,7 +174,7 @@ fn general_proof(p: &Proof) -> bool {
         Proof::Induction { base, step, .. } | Proof::GeneralizedInduction { base, step, .. } => {
             general_proof(base) || general_proof(step)
         }
-        Proof::Normalize | Proof::Linear { .. } | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => false,
+        Proof::BitVector { .. } | Proof::Normalize | Proof::Linear { .. } | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => false,
     }
 }
 pub fn identity<T: Serialize>(v: &T) -> LangResult<String> {
@@ -175,6 +183,75 @@ pub fn identity<T: Serialize>(v: &T) -> LangResult<String> {
         "{:x}",
         Sha256::digest(serde_json::to_vec(v).map_err(|e| e.to_string())?)
     ))
+}
+
+/// Export only an obligation. No equality is admitted without replaying its
+/// certificate against this same reconstructed circuit in `prove_inner`.
+pub fn bitvector_problem(p:&Program,env:&Env,hyp:&[Equation],goal:&Equation)->LangResult<crate::bitproof::Problem>{
+    bitvector_problem_with_budget(p,env,hyp,goal,&mut Budget::new())
+}
+fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equation,b:&mut Budget)->LangResult<crate::bitproof::Problem>{
+    use crate::logic::{Term as L,Sort as S,Equation as E};
+    struct Lower{atoms:BTreeMap<String,String>,env:BTreeMap<String,S>}
+    fn bin(op:&str,left:L,right:L)->L{L::Binary{op:op.into(),left:Box::new(left),right:Box::new(right)}}
+    impl Lower {
+        fn lower(&mut self,t:&Term,b:&mut Budget,d:usize)->LangResult<L>{
+            b.step(d)?;
+            let kind=match &t.sort{
+                Sort::Value(Type::U64)=>S::U64,
+                Sort::Value(Type::U32)=>S::U64,
+                Sort::Value(Type::Bool)=>S::Bool,
+                _=>return Err("source bit circuits support only u32, u64 and Bool endpoints".into()),
+            };
+            let raw=match &t.node{
+                Node::Word(n)=>L::U64(*n),Node::Bool(v)=>L::Bool(*v),
+                Node::Op(n,args) if n=="call:choose" && args.len()==3=>L::If{
+                    condition:Box::new(self.lower(&args[0],b,d+1)?),
+                    on_true:Box::new(self.lower(&args[1],b,d+1)?),
+                    on_false:Box::new(self.lower(&args[2],b,d+1)?),
+                },
+                Node::Op(n,args) if n=="unary:!" && args.len()==1=>bin("==",self.lower(&args[0],b,d+1)?,L::Bool(false)),
+                Node::Op(n,args) if ["call:word_and","call:word_or","call:word_xor"].contains(&n.as_str()) && args.len()==2=>{
+                    bin(match n.as_str(){"call:word_and"=>"&","call:word_or"=>"|",_=>"^"},self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
+                },
+                Node::Op(n,args) if n=="call:word_not" && args.len()==1=>bin("^",self.lower(&args[0],b,d+1)?,L::U64(u64::MAX)),
+                Node::Op(n,args) if ["call:word_widen_u32_to_u64","call:word_narrow_u64_to_u32"].contains(&n.as_str()) && args.len()==1=>self.lower(&args[0],b,d+1)?,
+                Node::Op(n,args) if n.starts_with("binary:") && args.len()==2=>{
+                    let op=&n[7..];
+                    if !["+","-","*","&","|","^","==","!=","<",">","<=",">=","&&","||"].contains(&op){return Err("unsupported source bit circuit operator".into());}
+                    bin(op,self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
+                },
+                Node::Op(n,args) if (n=="call:wrapping_shl" || n=="call:wrapping_shr") && args.len()==2=>{
+                    let width=if t.sort==value(Type::U32){"word32"}else{"word64"};
+                    let op=format!("{width}.{}",if n.ends_with("shl"){"shl"}else{"shr"});
+                    bin(&op,self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
+                },
+                // A scalar observation may be abstracted to an unconstrained
+                // input. Proving the circuit for every input also proves it for
+                // the observation; no relationship between distinct atoms is
+                // presumed. Structural equality alone identifies repeated atoms.
+                Node::Free(_) | Node::Bound(_) | Node::Op(_,_)=>{
+                    let key=serde_json::to_string(t).map_err(|e|e.to_string())?;
+                    if key.len()>1_000_000 || (!self.atoms.contains_key(&key) && self.atoms.len()>=128){return Err("source bit circuit atom limit".into());}
+                    let count=self.atoms.len();let name=self.atoms.entry(key).or_insert_with(||format!("atom{count}")).clone();
+                    self.env.insert(name.clone(),kind);L::Var(name)
+                },
+                _=>return Err("unsupported source bit circuit term".into()),
+            };
+            Ok(if t.sort==value(Type::U32){bin("&",raw,L::U64(u32::MAX as u64))}else{raw})
+        }
+        fn equation(&mut self,e:&Equation,p:&Program,env:&Env,b:&mut Budget)->LangResult<E>{
+            validate(&e.from,env,p,b)?;validate(&e.to,env,p,b)?;
+            if e.from.sort!=e.to.sort{return Err("source bit circuit equality sort mismatch".into());}
+            let from=normal(&e.from,&[],p,b,0)?;let to=normal(&e.to,&[],p,b,0)?;
+            Ok(E{from:self.lower(&from,b,0)?,to:self.lower(&to,b,0)?})
+        }
+    }
+    if hyp.len()>128{return Err("bit proof hypothesis count limit".into());}
+    let mut lower=Lower{atoms:BTreeMap::new(),env:BTreeMap::new()};
+    let hypotheses=hyp.iter().map(|e|lower.equation(e,p,env,b)).collect::<LangResult<Vec<_>>>()?;
+    let goal=lower.equation(goal,p,env,b)?;
+    crate::bitproof::problem_with_work(&lower.env,&hypotheses,&goal,&mut b.bit_work)
 }
 #[derive(Clone)]
 struct InductionSchema {
@@ -428,6 +505,12 @@ impl CheckedCatalogue {
             }
         }
         match proof {
+            Proof::BitVector { hypotheses, certificate } => {
+                if hypotheses.len()>128{return Err("bit proof hypothesis count limit".into());}
+                let selected=hypotheses.iter().map(|i|hyp.get(*i).cloned().ok_or_else(||"unknown bit proof hypothesis".to_owned())).collect::<LangResult<Vec<_>>>()?;
+                let problem=bitvector_problem_with_budget(p,env,&selected,goal,b)?;
+                crate::bitproof::verify_with_work(&problem,certificate,&mut b.bit_work)
+            }
             Proof::Linear { premises } => linear(p, hyp, goal, premises, b),
             Proof::Word { hypotheses, certificate } => {
                 let problem = crate::semantic_word::problem(p, env, hyp, goal, hypotheses, certificate.encoding, b)?;
@@ -462,6 +545,10 @@ impl CheckedCatalogue {
                 let mut local = hyp.to_vec();
                 local.push(equality.clone());
                 self.prove_inner(p, env, &local, schemas, goal, body, b, d + 1)
+            }
+            Proof::Unfold => {
+                if unfold_head(&goal.from, p, b)?.as_ref() == Some(&goal.to) { Ok(()) }
+                else { Err("fixed computation does not establish exact goal".into()) }
             }
             Proof::Normalize => {
                 if equivalent(&goal.from, &goal.to, hyp, p, b, 0)? {
@@ -866,7 +953,7 @@ impl CheckedCatalogue {
                 }
                 let mut local = env.clone();
                 local.remove(variable);
-                let (zero, next, ih_arg) = match sort {
+                let (zero, next, ih_arg, guard) = match sort {
                     Sort::Nat if names.len() == 1 => {
                         let n = free(Sort::Nat, &names[0]);
                         local.insert(names[0].clone(), Sort::Nat);
@@ -874,6 +961,7 @@ impl CheckedCatalogue {
                             term(Sort::Nat, Node::Nat(0)),
                             op(Sort::Nat, "nat.succ", vec![n.clone()]),
                             n,
+                            None,
                         )
                     }
                     Sort::Value(Type::List(x)) if names.len() == 2 => {
@@ -888,11 +976,25 @@ impl CheckedCatalogue {
                                 Node::Cons(Box::new(h), Box::new(tail.clone())),
                             ),
                             tail,
+                            None,
                         )
+                    }
+                    Sort::Value(ty @ (Type::U32 | Type::U64)) if names.len() == 1 => {
+                        let previous = free(sort.clone(), &names[0]);
+                        local.insert(names[0].clone(), sort.clone());
+                        let maximum = if *ty == Type::U32 { u32::MAX as u64 } else { u64::MAX };
+                        let guard = Equation {
+                            from: op(value(Type::Bool), "binary:<",
+                                vec![previous.clone(), word(ty.clone(), maximum)]),
+                            to: term(value(Type::Bool), Node::Bool(true)),
+                        };
+                        (word(ty.clone(), 0),
+                         op(sort.clone(), "binary:+", vec![previous.clone(), word(ty.clone(), 1)]),
+                         previous, Some(guard))
                     }
                     _ => {
                         return Err(
-                            "induction requires natural or list sort and matching binders".into(),
+                            "induction requires natural, list or unsigned word sort and matching binders".into(),
                         )
                     }
                 };
@@ -915,6 +1017,11 @@ impl CheckedCatalogue {
                 } else {
                     hs.push(equation);
                 }
+                // Added only for the successor branch, after the IH, and never
+                // exported into the theorem or the zero branch. This premise
+                // excludes MAX -> 0; every positive unsigned value still has
+                // exactly one smaller unsigned predecessor.
+                if let Some(guard) = guard { hs.push(guard); }
                 if hs.len() + local_schemas.len() > 128 {
                     return Err("semantic hypothesis count limit".into());
                 }
@@ -931,6 +1038,53 @@ impl CheckedCatalogue {
             }
         }
     }
+}
+/// Fixed one-step meanings, distinct from recursive normalization and
+/// database rewrite selection. All arguments and endpoints are validated by
+/// the caller; substitution/beta reduction retains existing bounds.
+fn unfold_head(t: &Term, p: &Program, b: &mut Budget) -> LangResult<Option<Term>> {
+    b.step(0)?;
+    let Node::Op(name,args) = &t.node else { return Ok(None); };
+    Ok(match (name.as_str(),args.as_slice()) {
+        ("apply",[f,x]) => match &f.node {
+            Node::Lambda(body) => Some(beta(body,x,b)?),
+            _ => None,
+        },
+        ("call:choose",[condition,yes,no]) => match condition.node {
+            Node::Bool(true) => Some(yes.clone()),
+            Node::Bool(false) => Some(no.clone()),
+            _ => None,
+        },
+        (name,[receiver]) if name.starts_with("field:") => {
+            match &receiver.node {
+                Node::Op(constructor,fields) if constructor.starts_with("record:") =>
+                    p.records.get(&constructor[7..])
+                        .and_then(|schema|schema.iter().position(|(field,_)|field==&name[6..]))
+                        .and_then(|index|fields.get(index).cloned()),
+                _ => None,
+            }
+        },
+        ("call:repeat_until",[count,init,stop,step]) => Some(op(t.sort.clone(),"until.from",
+            vec![count.clone(),word(Type::U32,0),init.clone(),stop.clone(),step.clone()])),
+        ("until.from",[count,index,init,stop,step]) => {
+            let next=apply(apply(step.clone(),index.clone())?,init.clone())?;
+            Some(op(t.sort.clone(),"call:choose",vec![
+                op(value(Type::Bool),"binary:==",vec![count.clone(),word(Type::U32,0)]),
+                init.clone(),
+                op(t.sort.clone(),"call:choose",vec![apply(stop.clone(),init.clone())?,init.clone(),
+                    op(t.sort.clone(),"until.from",vec![
+                        op(value(Type::U32),"binary:-",vec![count.clone(),word(Type::U32,1)]),
+                        op(value(Type::U32),"binary:+",vec![index.clone(),word(Type::U32,1)]),
+                        next,stop.clone(),step.clone()])])]))
+        },
+        (name,args) if name.starts_with("call:") => {
+            if let Some(f)=p.functions.iter().find(|f|f.name==name[5..]) {
+                let body=s::elaborate(&f.body,&crate::check::params_env(&f.params)?,p,&f.result)?;
+                Some(substitute(&body,&f.params.iter().zip(args).map(|((n,_),arg)|(n.clone(),arg.clone())).collect(),b)?)
+            } else { None }
+        },
+        _ => None,
+    })
 }
 /// Type parameter names are plain identifiers, distinct from generated names.
 fn type_parameter_name(t: &str) -> LangResult<()> {
@@ -1102,6 +1256,61 @@ fn zero(t: &Sort) -> LangResult<Term> {
 fn check_word(t: &Type) -> bool {
     crate::check::is_word(t)
 }
+// Iterative fixed head eliminations keep a chain of source bindings from
+// consuming one native stack frame per reduction. Every step retains the
+// existing semantic work and depth accounting.
+fn normal_head(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize, recursive: &BTreeSet<&str>) -> LangResult<(Term, usize, Vec<Equation>)> {
+    let mut current = t.clone();
+    let mut depth = d;
+    let mut premises = hyp.to_vec();
+    loop {
+        b.step(depth)?;
+        let mut reduced = None;
+        // Remove only the applied premise. Other validated equations may
+        // carry an alias chain; retaining them cannot repeat this edge.
+        if let Some(index)=premises.iter().position(|h|current==h.from && h.from!=h.to) {
+            reduced=Some(premises.remove(index).to);
+        }
+        if reduced.is_none() {
+            if let Node::Op(name, args) = &current.node {
+                if name == "apply" && args.len() == 2 {
+                    if let Node::Lambda(body) = &args[0].node { reduced = Some(beta(body, &args[1], b)?); }
+                }
+                if let Some(field) = name.strip_prefix("field:") {
+                    if args.len() == 1 {
+                        if let Node::Op(receiver, values) = &args[0].node {
+                            if let Some(record) = receiver.strip_prefix("record:") {
+                                if let Some(fields) = p.records.get(record) {
+                                    if fields.len() == values.len() {
+                                        if let Some(index) = fields.iter().position(|(n, _)| n == field) { reduced = Some(values[index].clone()); }
+                                    }
+                                }
+                            }
+                            if receiver == "apply" && values.len() == 2 {
+                                if let Node::Lambda(body) = &values[0].node { reduced = Some(op(current.sort.clone(), name, vec![beta(body, &values[1], b)?])); }
+                            }
+                            if let Some(function) = receiver.strip_prefix("call:") {
+                                if let Some(f) = p.functions.iter().find(|f| f.name == function && !recursive.contains(function)) {
+                                    let body = s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result)?;
+                                    let arguments = f.params.iter().zip(values).map(|((n, _), v)| (n.clone(), v.clone())).collect();
+                                    reduced = Some(op(current.sort.clone(), name, vec![substitute(&body, &arguments, b)?]));
+                                }
+                            }
+                        }
+                    }
+                }
+                if let Some(function) = name.strip_prefix("call:") {
+                    if let Some(f) = p.functions.iter().find(|f| f.name == function && !recursive.contains(function)) {
+                        let body = s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result)?;
+                        let arguments = f.params.iter().zip(args).map(|((n, _), v)| (n.clone(), v.clone())).collect();
+                        reduced = Some(substitute(&body, &arguments, b)?);
+                    }
+                }
+            }
+        }
+        match reduced { Some(next) => { current = next; depth += 1; }, None => return Ok((current, depth, premises)), }
+    }
+}
 fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> LangResult<Term> {
     let recursive = recursive_definitions(p)?;
     normal_inner(t, hyp, p, b, d, &recursive)
@@ -1123,6 +1332,10 @@ fn concrete_arguments(args: &[Term]) -> bool {
 fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize,
     recursive: &BTreeSet<&str>) -> LangResult<Term> {
     b.step(d)?;
+    let (head, head_depth, premises) = normal_head(t, hyp, p, b, d, recursive)?;
+    let t = &head;
+    let hyp = premises.as_slice();
+    let d = head_depth;
     // Fixed lazy control semantics: do not spend proof work unfolding a branch
     // that cannot execute. This also keeps a stopping loop's bound independent
     // of proof work when its initial stop condition is already true.
@@ -1749,6 +1962,35 @@ fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usiz
         {
             Some(fallback.clone())
         }
+        (n, args) if n.starts_with("record:") => {
+            // A record value consists exactly of its declared fields. Rebuilding
+            // all of them from one stable lexical value preserves that value,
+            // including temporary collection contents. This checks the complete
+            // declaration, not an optimiser annotation or a selected theorem.
+            let fields=p.records.get(&n[7..]);
+            let root=args.first().and_then(|arg|match &arg.node {
+                Node::Op(field,receivers) if field.starts_with("field:") && receivers.len()==1=>Some(&receivers[0]),
+                _=>None,
+            });
+            let lexical=|root:&Term| {
+                let mut at=root;
+                for _ in 0..256 {
+                    match &at.node {
+                        Node::Free(_) | Node::Bound(_)=>return true,
+                        Node::Op(field,receivers) if field.starts_with("field:") && receivers.len()==1=>at=&receivers[0],
+                        _=>return false,
+                    }
+                }
+                false
+            };
+            match (fields,root) {
+                (Some(fields),Some(root)) if !fields.is_empty() && fields.len()==args.len()
+                    && out.sort==value(Type::Named(n[7..].into())) && root.sort==out.sort && lexical(root)
+                    && fields.iter().zip(args).all(|((field,_),arg)|matches!(&arg.node,
+                        Node::Op(name,receivers) if name==&format!("field:{field}") && receivers.len()==1 && receivers[0]==*root))=>Some(root.clone()),
+                _=>None,
+            }
+        }
         (n, [x]) if n.starts_with("field:") => {
             if let Node::Op(name, args) = &x.node {
                 let idx = if name.starts_with("record:") {
@@ -2222,6 +2464,13 @@ fn equivalent_inner(
             }
         }
     }
+    // Try exact, still-validated premises before expanding their complete
+    // source observations. A field premise may deliberately hide a large loop.
+    if !hyp.is_empty() {
+        let left = normal(a, hyp, p, b, 0)?;
+        let right = normal(c, hyp, p, b, 0)?;
+        if left == right { return Ok(true); }
+    }
     let mut facts = hyp
         .iter()
         .map(|h| {
@@ -2560,9 +2809,11 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
             })
         };
         Ok(match proof {
+            Proof::BitVector { hypotheses, certificate } => Proof::BitVector { hypotheses:hypotheses.clone(),certificate:certificate.clone() },
             Proof::Linear { premises } => Proof::Linear { premises: premises.clone() },
             Proof::Word { hypotheses, certificate } => Proof::Word { hypotheses: hypotheses.clone(), certificate: certificate.clone() },
             Proof::Normalize => Proof::Normalize,
+            Proof::Unfold => Proof::Unfold,
             Proof::Hypothesis(i) => Proof::Hypothesis(*i),
             Proof::Forall { parameter, body } => Proof::Forall {
                 parameter:parameter.clone(),body:Box::new(go(body,scope,b,d+1)?),
