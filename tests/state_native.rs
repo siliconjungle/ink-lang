@@ -185,3 +185,60 @@ fn unwrap_or_evaluates_fallback_effects_even_when_present_and_rolls_back_failure
     let runner=r#"use compiled_state::State;use serde_json::{Value,json};fn main(){let steps:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();let mut output=vec![];for step in steps{let outcome=state.invoke_json(step["call"].as_str().unwrap(),&step["args"]).unwrap();output.push(json!({"outcome":outcome,"snapshot":state.checkpoint().unwrap()}));}println!("{}",serde_json::to_string(&output).unwrap());}"#;
     assert_eq!(compile_and_run_with_runner(&root,&state_native::emit(&p).unwrap(),&script,runner),json!(expected));
 }
+
+/// Retained scalar keeps and parameterless queries return exactly what a fresh
+/// evaluation would, across writes to observed and unobserved tables, failed
+/// changes, nested query calls and host transactions.
+#[test]
+fn retained_keeps_and_queries_follow_every_observed_write_and_rollback() {
+    let _native = NATIVE_EXECUTION.lock().unwrap();
+    let source = "module retained;
+enum Error{Failed,}
+state Items:Table<u64,u64> = Table.empty();
+state Other:Table<u64,u64> = Table.empty();
+keep total:u64 = sum(Items.values());
+query size()->u64 reads(Items){return sum(Items.values().map(fn(v)=>1));}
+query doubled()->u64 reads(total){return total+total;}
+query nested()->u64 reads(Items){return size()+1;}
+query others()->u64 reads(Other){return sum(Other.values());}
+change put(k:u64,v:u64)->Result<Unit,Error> writes(Items){if Items.contains(k){Items.replace(k,v);}else{Items.insert(k,v);}return Ok(());}
+change other(k:u64,v:u64)->Result<Unit,Error> writes(Other){if Other.contains(k){Other.replace(k,v);}else{Other.insert(k,v);}return Ok(());}
+change failing(k:u64)->Result<Unit,Error> writes(Items){if Items.contains(k){Items.replace(k,1000);}else{Items.insert(k,1000);}return Err(Error.Failed);}
+change erase(k:u64)->Result<Unit,Error> writes(Items){Items.remove(k);return Ok(());}
+";
+    let p = parse(source).unwrap();
+    let reads = ["size", "doubled", "nested", "others"];
+    let mut script = vec![];
+    let mut read_all = |script: &mut Vec<Value>| for r in reads { script.push(json!({"call":r,"args":[]})); };
+    read_all(&mut script);
+    for (k, v) in [(1, 10), (2, 20), (3, 30)] {
+        script.push(json!({"call":"put","args":[k,v]}));
+        read_all(&mut script);
+    }
+    script.push(json!({"call":"other","args":[9,5]}));
+    read_all(&mut script);
+    script.push(json!({"call":"failing","args":[4]}));
+    read_all(&mut script);
+    script.push(json!({"call":"failing","args":[2]}));
+    read_all(&mut script);
+    script.push(json!({"call":"erase","args":[1]}));
+    read_all(&mut script);
+    let mut rt = Runtime::new(p.clone()).unwrap();
+    let expected: Vec<Value> = script
+        .iter()
+        .map(|r| rt.invoke_json(r["call"].as_str().unwrap(), &r["args"]).unwrap().json())
+        .collect();
+    let code = state_native::emit(&p).unwrap();
+    assert!(code.contains("retained_query_l_size") && code.contains("retained_keep_l_total"));
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/retained-derived-values");
+    let runner = r#"use compiled_state::State;use serde_json::Value;fn main(){let steps:Vec<Value>=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();let mut state=State::new();let mut output=vec![];for step in steps{output.push(serde_json::to_value(state.invoke_json(step["call"].as_str().unwrap(),&step["args"]).unwrap()).unwrap());}
+// A host transaction that is rolled back discards results retained inside it.
+state.begin_transaction().unwrap();state.invoke_json("put",&serde_json::json!([7,700])).unwrap();let inside=state.invoke_json("size",&serde_json::json!([])).unwrap();state.rollback_transaction();let after=state.invoke_json("size",&serde_json::json!([])).unwrap();output.push(serde_json::to_value(inside).unwrap());output.push(serde_json::to_value(after).unwrap());
+println!("{}",serde_json::to_string(&output).unwrap());}"#;
+    let actual = compile_and_run_with_runner(&root, &code, &script, runner);
+    let actual = actual.as_array().unwrap();
+    assert_eq!(&actual[..expected.len()], &expected[..]);
+    let last = &expected[expected.len() - 4]["result"];
+    assert_eq!(actual[expected.len()]["result"], json!(last.as_u64().unwrap() + 1));
+    assert_eq!(&actual[expected.len() + 1]["result"], last);
+}
