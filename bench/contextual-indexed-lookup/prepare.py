@@ -10,7 +10,8 @@ from ink_planner.corpus import clone_knowledge
 from ink_knowledge import Store,canonical,semantic_entry,identity
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--compiler',type=pathlib.Path,required=True);p.add_argument('--output',type=pathlib.Path,required=True);a=p.parse_args()
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--compiler',type=pathlib.Path,required=True);p.add_argument('--output',type=pathlib.Path,required=True);p.add_argument('--seed-offset',type=int,default=0);a=p.parse_args()
+ if not 0<=a.seed_offset<2**31:p.error('seed offset must be a nonnegative signed 32-bit integer')
  d=a.output.resolve();d.mkdir(parents=True,exist_ok=False)
  for name in ['source.ink','run.mjs','prepare.py']:shutil.copy2(pathlib.Path(__file__).with_name(name),d/name)
  shutil.copy2(ROOT/'bench/gpu/engine-profile-order.mjs',d/'order.mjs')
@@ -24,10 +25,10 @@ def main():
  files={str(p.relative_to(d)):hashlib.sha256(p.read_bytes()).hexdigest()for folder in ['knowledge/producers','knowledge/ink_knowledge','planner/ink_planner']for p in (d/folder).rglob('*.py')}
  files.update({f:hashlib.sha256((d/f).read_bytes()).hexdigest()for f in ['source.ink','ink','prepare.py','run.mjs','order.mjs']})
  bank=Store(d/'knowledge');initial=bank.snapshot_id
- registration=dict(schema=1,at=datetime.datetime.now(datetime.timezone.utc).isoformat(),files=files,knowledge_snapshot=initial,
+ registration=dict(schema=1,seed_offset=a.seed_offset,at=datetime.datetime.now(datetime.timezone.utc).isoformat(),files=files,knowledge_snapshot=initial,
   scope='Development fixture for contextual membership indexing; not an unseen library. Default registry and balanced planning; no forced producer or candidate. Complete call includes index construction, all query results and full consumption. Import, input generation and compilation excluded. Explicit indexed control is checked separately and never supplies selection authority. All held-out cells are reported, including losses outside a selected workload.',
   selection='Independent large and small workload plans, each with three timing processes and rejection-only validation; evaluation never selects or repairs a plan.',
-  evaluation=dict(sizes=[0,1,31,257,4097],queries=[0,1,17,257],shapes=['unique','repeated16'],processes=3,rounds=8,batch_ns=3000000,seed=733))
+  evaluation=dict(sizes=[0,1,31,257,4097],queries=[0,1,17,257],shapes=['unique','repeated16'],processes=3,rounds=8,batch_ns=3000000,seed=733+a.seed_offset))
  (d/'registration.json').write_text(json.dumps(registration,indent=2)+'\n')
  env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(d/'planner'),str(d/'knowledge')]))
  def run(command,log):
@@ -42,7 +43,7 @@ def main():
   return dict(schema=1,phases={name:[dict(function=name,args=args)]for name,args in calls.items()},profile={name:1 for name in calls},
    workload=dict(shape=dict(elements=n,queries=q),distribution='alternating membership',concurrency=1,residency='complete host call including index construction and output'))
  for label,n,q,seed in [('large-training',1536,128,37),('large-validation',2049,193,101),('small-training',3,1,41),('small-validation',5,2,103)]:
-  (d/(label+'.json')).write_text(json.dumps(workload(n,q,seed))+'\n')
+  (d/(label+'.json')).write_text(json.dumps(workload(n,q,seed+a.seed_offset))+'\n')
  for stage in ['core','semantic']:run([d/'ink','emit-'+stage,d/'source.ink','-o',d/(stage+'.json')],d/(stage+'.log'))
  # This separately checked counterfactual is a measurement control only.
  sys.path[:0]=[str(d/'planner'),str(d/'knowledge')]
