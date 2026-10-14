@@ -1,11 +1,10 @@
-use sha2::{Digest, Sha256};
 use std::{
     env, fs,
     io::Read,
     path::Path,
     process::{Command, ExitCode},
 };
-use verified_language::{check, core, eval, native, state_native, stateful, syntax, LangResult};
+use verified_language::{check, core, eval, state_native, stateful, syntax, LangResult};
 
 fn arg_value(args: &[String], flag: &str) -> LangResult<Option<String>> {
     if let Some(i) = args.iter().position(|a| a == flag) {
@@ -216,7 +215,6 @@ fn run() -> LangResult<()> {
         "--measurement-mode",
         "--planning-cache",
         "--cargo",
-        "--cc",
         "--compiler",
         "--core",
         "--help",
@@ -225,7 +223,6 @@ fn run() -> LangResult<()> {
         "--lean",
         "--library",
         "--circuit",
-        "--native-cpu",
         "--optimise",
         "--plan-cache",
         "--plan-cache-context",
@@ -258,7 +255,6 @@ fn run() -> LangResult<()> {
         "--version",
         "--view",
         "--wasm-abi",
-        "--zig",
     ];
     for arg in &args {
         if arg.starts_with("--") && !OPTIONS.contains(&arg.as_str()) {
@@ -797,7 +793,7 @@ fn run() -> LangResult<()> {
     }
 
     if cmd == "help" || cmd == "--help" {
-        println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|c|javascript|rust-wasm|c-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
+        println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|javascript|rust-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean");
         println!("ink emit-contract-obligations SOURCE -o OBLIGATIONS.json\nink check-contract-proof-stream SOURCE (bounded NDJSON authoring attempts)\nink check-contracts SOURCE [--contract-proofs EVIDENCE.json]\nAll source build/execution commands accept --contract-proofs EVIDENCE.json.");
         println!("ink emit-termination-obligations SOURCE -o GOALS.json\nink check-termination SOURCE --termination-proofs BUNDLE.json\nSource compilation/execution accepts --termination-proofs BUNDLE.json; measures grant no authority without checked evidence.");
@@ -805,7 +801,7 @@ fn run() -> LangResult<()> {
         println!("ink law-bitvector-obligation THEOREMS.ink LAW_NAME -o CNF.json\nExported scalar obligations remain unproved until emit-laws replays a hinted-RUP certificate.");
         println!("ink semantic-bitvector-obligation SOURCE GOAL.json [--core] -o CNF.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
-        println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|c|javascript|wasm32|c-wasm|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
+        println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|javascript|wasm32|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
         println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)");
         println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
         println!("ink check-action-values SOURCE --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json\nink emit-action-values SOURCE ACTION ARGS.json --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json -o IMAGE.json (typed value data only)");
@@ -813,8 +809,8 @@ fn run() -> LangResult<()> {
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
-        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build/emit-c ... --replacement PACKAGE.json");
-        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE [--target native|wasm32|c|rust|javascript|webgpu] [--lowering rust|c] -o OUTPUT (native and wasm32 use typed Rust unless --lowering c)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+        println!("ink emit-core SOURCE -o CORE.json\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
+        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json\nink build SOURCE [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -939,10 +935,7 @@ fn run() -> LangResult<()> {
         write(&output,&String::from_utf8(selected.bytes()?).map_err(|e|e.to_string())?)?;
         println!("{}",serde_json::json!({"status":"checked","input":module.identity()?,"core_sha256":selected.identity()?,"scope":"Conservative typed definitions; no source replacement authority"}));return Ok(());
     }
-    let source_program_sha256 = format!(
-        "{:x}",
-        Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
-    );
+
     let input_module = if cmd == "explain" {
         Some(core::CheckedModule::from_source(p.clone())?)
     } else {
@@ -1496,14 +1489,13 @@ fn run() -> LangResult<()> {
                 .collect::<LangResult<Vec<_>>>()?;
             println!("{}", eval::call(&p, name, vs, &mut 100_000_000)?.json());
         }
-        "build" | "emit-c" | "emit-c-project" | "emit-rust" => {
+        "build" | "emit-rust" => {
             let input_core = core::CheckedModule::from_source(p.clone())?;
 
             let input_core_sha256 = semantic_selection
                 .as_ref()
                 .map(|s| s.evidence().input_core_sha256.clone())
                 .unwrap_or(input_core.identity()?);
-            let input_program_sha256 = source_program_sha256.clone();
             let replacement = arg_value(&args, "--replacement")?
                 .map(|path| {
                     verified_language::implementation::apply_replacement(&mut p, Path::new(&path))
@@ -1516,12 +1508,6 @@ fn run() -> LangResult<()> {
                 .as_ref()
                 .map(|s| s.evidence().applied_laws.clone())
                 .unwrap_or_default();
-            let implementation_count = implementation
-                .as_ref()
-                .map_or(0, |e| e.checked_proposals.len())
-                + replacement
-                    .as_ref()
-                    .map_or(0, |e| e.equality.checked_proposals.len());
             check::check(&p)?;
             if let Some(selected) = &semantic_selection {
                 if core::CheckedModule::from_source(p.clone())?.identity()?
@@ -1549,46 +1535,17 @@ fn run() -> LangResult<()> {
             {
                 return Err("explicit routes require the GPU bundle target".into());
             }
-            if cmd == "build" && target != "object" && args.iter().any(|a| a == "--native-cpu") {
-                return Err("--native-cpu requires the object target".into());
-            }
-            if cmd == "emit-c-project" {
-                if let Some(selected) = &semantic_selection {
-                    verified_language::runtime::emit_c_program_selected(selected, Path::new(&out))?;
-                } else {
-                    verified_language::runtime::emit_c_program(
-                        &core::CheckedModule::from_source(p.clone())?,
-                        Path::new(&out),
-                    )?;
-                }
-                println!("wrote complete C program and primitive runtime to {out}");
-                return Ok(());
-            }
+
             if cmd == "emit-rust" {
                 let code = emit_state_rust(&p, semantic_selection.as_ref(), &args)?;
                 write(&out, &code)?;
                 return Ok(());
             }
-            if cmd == "build" && matches!(target.as_str(), "c" | "rust") {
+            if cmd == "build" && target == "rust" {
                 if arg_value(&args, "--route")?.is_some() {
                     return Err("explicit routes require the GPU bundle target".into());
                 }
-                let module = core::CheckedModule::from_source(p.clone())?;
-                if target == "c" {
-                    if let Some(selected) = &semantic_selection {
-                        verified_language::runtime::emit_c_program_selected(
-                            selected,
-                            Path::new(&out),
-                        )?;
-                    } else {
-                        verified_language::runtime::emit_c_program(&module, Path::new(&out))?;
-                    }
-                } else {
-                    verified_language::runtime::emit_rust_program(
-                        &emit_state_rust(&p, semantic_selection.as_ref(), &args)?,
-                        Path::new(&out),
-                    )?;
-                }
+                verified_language::runtime::emit_rust_program(&emit_state_rust(&p, semantic_selection.as_ref(), &args)?,Path::new(&out))?;
                 write(&format!("{out}/plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"table_storage":if target=="rust"{Some(arg_value(&args,"--table-storage")?.unwrap_or_else(||"ordered".into()))}else{None},"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal emission and target runtimes/toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
                 println!("wrote complete {target} project to {out}");
                 return Ok(());
@@ -1598,43 +1555,13 @@ fn run() -> LangResult<()> {
                     return Err("explicit routes require the GPU bundle target".into());
                 }
                 let project = std::path::PathBuf::from(format!("{out}.project"));
-                // Typed Rust is the default executable lowering. The complete C
-                // lowering routes every value through the shared dynamic primitive
-                // runtime and remains available for cross-lowering comparison.
-                let lowering = arg_value(&args, "--lowering")?.unwrap_or_else(|| "rust".into());
-                match lowering.as_str() {
-                    "rust" => verified_language::runtime::emit_rust_program(
-                        &emit_state_rust(&p, semantic_selection.as_ref(), &args)?,
-                        &project,
-                    )?,
-                    "c" => {
-                        if arg_value(&args, "--table-storage")?.is_some() {
-                            return Err("--table-storage requires the Rust lowering".into());
-                        }
-                        if let Some(selected) = &semantic_selection {
-                            verified_language::runtime::emit_c_program_selected(selected, &project)?;
-                        } else {
-                            verified_language::runtime::emit_c_program(
-                                &core::CheckedModule::from_source(p.clone())?,
-                                &project,
-                            )?;
-                        }
-                    }
-                    _ => return Err("--lowering must be rust or c".into()),
-                }
+                let lowering = arg_value(&args,"--lowering")?.unwrap_or_else(||"rust".into());
+                if lowering!="rust"{return Err("--lowering must be rust; the C backend has been removed".into());}
+                verified_language::runtime::emit_rust_program(&emit_state_rust(&p,semantic_selection.as_ref(),&args)?,&project)?;
                 let cargo = arg_value(&args, "--cargo")?
                     .or_else(|| std::env::var("INK_CARGO").ok())
                     .unwrap_or_else(|| "cargo".into());
-                if let Some(cc) = arg_value(&args, "--cc")? {
-                    std::env::set_var("INK_CC", cc);
-                }
-                verified_language::runtime::toolchain::complete_program(
-                    &project,
-                    target == "wasm32",
-                    Path::new(&out),
-                    &cargo,
-                    arg_value(&args, "--zig")?.as_deref(),
-                )?;
+                verified_language::runtime::toolchain::complete_program(&project,target == "wasm32",Path::new(&out),&cargo)?;
                 write(&format!("{out}.plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"abi":verified_language::abi::VALUE_ABI,"artifact_kind":if target=="native"{"executable"}else{"wasm_module"},"lowering":lowering,"table_storage":if lowering=="rust"{Some(arg_value(&args,"--table-storage")?.unwrap_or_else(||"ordered".into()))}else{None},"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":if lowering=="rust"{"literal typed Rust emission; Rust toolchain remains trusted"}else{"literal C emission and shared Rust primitive runtime; toolchains remain trusted"}})).map_err(|e|e.to_string())?)?;
                 println!("wrote complete program to {out}");
                 return Ok(());
@@ -1666,7 +1593,7 @@ fn run() -> LangResult<()> {
                 return Err("--route currently requires build --target webgpu or gpu".into());
             }
             if target == "javascript" {
-                if cmd != "build" || args.iter().any(|a| a == "--native-cpu") {
+                if cmd != "build" {
                     return Err("JavaScript requires build --target javascript".into());
                 }
                 let module = core::CheckedModule::from_source(p.clone())?;
@@ -1688,9 +1615,7 @@ fn run() -> LangResult<()> {
                 return Ok(());
             }
             if target == "webgpu" || target == "gpu" {
-                if args.iter().any(|a| a == "--native-cpu") {
-                    return Err("--native-cpu is not a GPU bundle option".into());
-                }
+
                 if let Some(route) = &route {
                     verified_language::runtime::emit_routed(route, Path::new(&out))?;
                 } else if let Some(selected) = &semantic_selection {
@@ -1698,7 +1623,7 @@ fn run() -> LangResult<()> {
                 } else {
                     verified_language::runtime::emit_gpu(&p, Path::new(&out))?;
                 }
-                let zig = arg_value(&args, "--zig")?.unwrap_or_else(|| "zig".into());
+
                 let manifest: serde_json::Value = serde_json::from_slice(
                     &fs::read(Path::new(&out).join("manifest.json")).map_err(|e| e.to_string())?,
                 )
@@ -1707,36 +1632,18 @@ fn run() -> LangResult<()> {
                     let cargo = arg_value(&args, "--cargo")?
                         .or_else(|| std::env::var("INK_CARGO").ok())
                         .unwrap_or_else(|| "cargo".into());
-                    verified_language::runtime::toolchain::complete_program(
-                        &Path::new(&out).join("cpu"),
-                        true,
-                        &Path::new(&out).join("cpu/compiled_state.wasm"),
-                        &cargo,
-                        Some(&zig),
-                    )?;
+                    verified_language::runtime::toolchain::complete_program(&Path::new(&out).join("cpu"),true,&Path::new(&out).join("cpu/compiled_state.wasm"),&cargo)?;
                     for f in manifest["functions"].as_array().unwrap() {
                         if let Some(folder) = f["bundle"].as_str() {
                             let dir = Path::new(&out).join(folder);
-                            let module = core::CheckedModule::from_bytes(
+                            let _module = core::CheckedModule::from_bytes(
                                 &fs::read(dir.join("core.json")).map_err(|e| e.to_string())?,
                             )?;
-                            verified_language::runtime::toolchain::wasm_with_abi(
-                                &module,
-                                &dir.join("cpu.c"),
-                                &dir.join("cpu.wasm"),
-                                &zig,
-                                verified_language::runtime::uses_packed_compute(module.program()),
-                            )?;
+                            verified_language::runtime::toolchain::gpu_cpu_wasm(&dir.join("cpu"),&dir.join("cpu.wasm"))?;
                         }
                     }
                 } else {
-                    verified_language::runtime::toolchain::wasm_with_abi(
-                        &core::CheckedModule::from_source(p.clone())?,
-                        &Path::new(&out).join("cpu.c"),
-                        &Path::new(&out).join("cpu.wasm"),
-                        &zig,
-                        verified_language::runtime::uses_packed_compute(&p),
-                    )?;
+                    verified_language::runtime::toolchain::gpu_cpu_wasm(&Path::new(&out).join("cpu"),&Path::new(&out).join("cpu.wasm"))?;
                 }
                 let plan = serde_json::json!({"source":path,"target":target,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"checked_source_route":route.as_ref().map(|r|r.package()),"source_route_equivalence":route.as_ref().and_then(|r|r.equivalence()),"trust":"GPU backend and physical routing remain trusted; see manifest.json"});
                 write(
@@ -1744,98 +1651,13 @@ fn run() -> LangResult<()> {
                     &serde_json::to_string_pretty(&plan).map_err(|e| e.to_string())?,
                 )?;
                 if route.is_some() {
-                    println!("wrote checked source graph, Wasm/WebGPU and native C/wgpu hosts to {out}; placements supplied externally, GPU failures retain compiled CPU fallback");
+                    println!("wrote checked source graph, Wasm/WebGPU and native Rust/wgpu hosts to {out}; placements supplied externally, GPU failures retain compiled CPU fallback");
                 } else {
                     println!("wrote WebGPU/Wasm bundle and native wgpu project to {out}; GPU selection is measured by the host runtime");
                 }
                 return Ok(());
             }
-            if !["native", "object", "wasm32"].contains(&target.as_str()) {
-                return Err(format!("unsupported target {target}"));
-            }
-            if target == "wasm32" && args.iter().any(|a| a == "--native-cpu") {
-                return Err("--native-cpu cannot be used with wasm32".into());
-            }
-            let cpath = if cmd == "emit-c" {
-                out.clone()
-            } else {
-                format!("{out}.c")
-            };
-            let generated_c = match native::emit(&p) {
-                Ok(c) => c,
-                Err(_) if cmd == "emit-c" => {
-                    let module = core::CheckedModule::from_source(p.clone())?;
-                    let project = std::path::PathBuf::from(format!("{out}.project"));
-                    verified_language::runtime::emit_c_program(&module, &project)?;
-                    let c =
-                        fs::read_to_string(project.join("program.c")).map_err(|e| e.to_string())?;
-                    write(&out, &c)?;
-                    println!(
-                        "wrote C source {out} and required primitive runtime to {}",
-                        project.display()
-                    );
-                    return Ok(());
-                }
-                Err(e) => return Err(e),
-            };
-            write(&cpath, &generated_c)?;
-            let generated_c_sha256 = format!("{:x}", Sha256::digest(generated_c.as_bytes()));
-            let selected_program_sha256 = format!(
-                "{:x}",
-                Sha256::digest(serde_json::to_vec(&p).map_err(|e| e.to_string())?)
-            );
-            let manifest = serde_json::json!({"source":path,"module":p.module,"target":target,"core_semantics":core::CheckedModule::from_source(p.clone())?.semantics(),"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"input_program_sha256":input_program_sha256,"selected_program_sha256":selected_program_sha256,"generated_c_sha256":generated_c_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"database_lock":serde_json::Value::Null,"database_closure":serde_json::Value::Null,"verified_fragment":"whole-function inductive collection equality; total-scalar equality proof terms","trusted":["Rust checker implementation","source semantics correspondence","literal collection lowering and allocation","generated C","Clang/LLVM backend","host ABI"],"unsupported_spec_features":"see PLAN.md and STATUS.md"});
-            write(
-                &format!("{out}.plan.json"),
-                &serde_json::to_string_pretty(&manifest).map_err(|e| e.to_string())?,
-            )?;
-            if cmd == "build" {
-                if target == "wasm32" {
-                    let zig = arg_value(&args, "--zig")?.unwrap_or_else(|| "zig".into());
-                    verified_language::runtime::toolchain::wasm(
-                        &core::CheckedModule::from_source(p.clone())?,
-                        Path::new(&cpath),
-                        Path::new(&out),
-                        &zig,
-                    )?;
-                    println!("wrote {out}; {} checked rule applications; {implementation_count} checked implementation replacements", used.len());
-                    return Ok(());
-                }
-                let cc = arg_value(&args, "--cc")?.unwrap_or_else(|| "clang".into());
-                for (mode, target) in [("object", out.clone()), ("llvm", format!("{out}.ll"))] {
-                    let mut c = Command::new(&cc);
-                    c.args([
-                        "-O3",
-                        "-std=c11",
-                        "-fno-math-errno",
-                        "-Wall",
-                        "-Wextra",
-                        "-Werror",
-                    ]);
-                    if args.iter().any(|a| a == "--native-cpu") {
-                        c.arg(if std::env::consts::ARCH == "aarch64" {
-                            "-mcpu=native"
-                        } else {
-                            "-march=native"
-                        });
-                    }
-                    if mode == "llvm" {
-                        c.args(["-S", "-emit-llvm"]);
-                    } else {
-                        c.arg("-c");
-                    }
-                    let result = c
-                        .arg(&cpath)
-                        .arg("-o")
-                        .arg(&target)
-                        .output()
-                        .map_err(|e| format!("{cc}: {e}"))?;
-                    if !result.status.success() {
-                        return Err(String::from_utf8_lossy(&result.stderr).into_owned());
-                    }
-                }
-            }
-            println!("wrote {out}; {} checked rule applications; {implementation_count} checked implementation replacements", used.len());
+            return Err(format!("unsupported target {target}"));
         }
         _ => return Err(format!("unknown command {cmd}")),
     }

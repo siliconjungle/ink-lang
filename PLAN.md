@@ -32,9 +32,9 @@ alternatives. [Design and ambitions](docs/vision.md) explains this separation;
 | --- | --- | --- |
 | 1 | Database-supplied table representation and query maintenance | Admit a candidate against an actual unchanged Ink application. Execute it through compiled backends; preserve arbitrary future updates, replies, errors, aborts, ordered events, checkpoints and restoration. Compose independently supplied candidates. Reject incorrect conditions/evidence. Preserve a baseline and replay the pinned selection. |
 | 2 | Competitive complete execution | Measure construction, execution, teardown, retained memory, compile time and proof-check cost against algorithm/layout-matched C/C++/Rust. Improve baseline primitives and admit database alternatives without new catalogue rules in the core. GPU selection includes transfer, setup and readback; bounded search/adaptation checks guards, migration and fallback. |
-| 3 | Permanent backend conformance gate | Generate bounded well-typed programs and action histories; compare reference, C, Rust, JavaScript and both Wasm paths. Exercise eligible WebGPU/wgpu separately, including resident empty/shrinking pipelines. Compare exact portable snapshots and preserve failing seeds. Unsupported GPU features use the compiled baseline. |
+| 3 | Permanent backend conformance gate | Generate bounded well-typed programs and action histories; compare reference, C, Rust, JavaScript and Wasm paths. Exercise eligible WebGPU/wgpu separately, including resident empty/shrinking pipelines. Compare exact portable snapshots and preserve failing seeds. Unsupported GPU features use the compiled baseline. |
 | 4 | Usable language and distribution | Modules/imports, a small standard library, actionable diagnostics, installation and debugging; consistent existing types across pure and stateful boundaries. Keep executable and draft features explicit. |
-| 5 | Durable deployment | Persist state and outbox before returning success; recover from interrupted writes and crashes. Persist acknowledgements; demonstrate at-least-once delivery with receiver deduplication and bounded request retry receipts. Declare single-writer and storage limits. Test native compiled C/Rust and browser storage, compiled JavaScript/Wasm continuation and corruption rejection. |
+| 5 | Durable deployment | Persist state and outbox before returning success; recover from interrupted writes and crashes. Persist acknowledgements; demonstrate at-least-once delivery with receiver deduplication and bounded request retry receipts. Declare single-writer and storage limits. Test native compiled Rust and browser storage, compiled JavaScript/Wasm continuation and corruption rejection. |
 | 6 | Trust-boundary hardening | Adversarial/fuzz and independent checking of admission and codecs; connect any external metatheory explicitly to the implemented checker before verification claims. Report concurrency and resource boundaries, raw measurements and remaining trusted components. |
 | 7 | Measured generalisation | On the frozen planning corpus, ordinary defaults improve held-out programs they were not written for, with bounded planning time and reported regressions. Every knowledge publication reports the corpus funnel, near misses and cross-program reuse. Selection needs comparable evidence acquired without per-program authoring: paired measurements under one target description, or a calibrated work model validated on held-out cells. |
 
@@ -65,7 +65,7 @@ controller; never benchmark an effectful action by executing it speculatively.
 Legacy aggregate certificates, bounded caches, typed-policy admission and their
 compatibility paths are removed. Canonical database representations check
 all-action observation and invariant preservation against the admitted fixed
-source projection. Standalone C/Rust/JavaScript and both Wasm emit the checked
+source projection. Standalone Rust/JavaScript and Wasm emit the checked
 definitions literally; recursive state executes on GPU hosts. Supported scalar,
 collection, vector and pure helper correspondence is documented in
 [the representation contract](docs/database-representations.md). Unsupported

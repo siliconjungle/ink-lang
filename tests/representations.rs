@@ -275,7 +275,7 @@ fn frozen_cli_replay_needs_no_live_catalogue_and_checks_before_writing() {
             .output()
             .unwrap()
     };
-    for target in ["c", "javascript", "c-wasm", "rust-wasm"] {
+    for target in ["javascript", "rust-wasm"] {
         let out=run(vec!["execute-representation".into(),
             root.join("app.ink").display().to_string(),
             root.join("request-0.json").display().to_string(),

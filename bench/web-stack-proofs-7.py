@@ -141,7 +141,7 @@ def prepare(args):
     gpu_manifest={}
     for kind in ['baseline','prior','checked']:
         extra=[] if kind=='baseline' else ['--selection',report/f'{kind}-selection.json']
-        run([compiler,'build',report/'kernels.ink','--target','webgpu','--zig',args.zig,*extra,'-o',report/kind],commands)
+        run([compiler, 'build', report / 'kernels.ink', '--target', 'webgpu', *extra, '-o', report / kind],commands)
         manifest=json.loads((report/kind/'manifest.json').read_text());gpu_manifest[kind]={f['name']:dict(shader=f.get('shader'),reason=f.get('fallback_reason',f.get('gpu_reason'))) for f in manifest['functions']}
         host=report/kind/'ink-gpu.mjs';text=host.read_text()
         if '    manifest,' not in text:raise ValueError('host accessor insertion changed')
@@ -266,7 +266,6 @@ def main():
     p.add_argument('--summarise',choices=['node','browser']);p.add_argument('--audit',choices=['node','browser']);a=p.parse_args();a.report=a.report.resolve();a.compiler=a.compiler.resolve();a.knowledge=a.knowledge.resolve();a.prior_snapshot=a.prior_snapshot.resolve()
     if not 3<=a.repeats<=128 or not 1<=a.warmup<=10 or not 0<a.seconds<=1 or any(not 0<n<=100000 for n in a.sizes):p.error('invalid parameters')
     if a.prepare:
-        if not a.zig:p.error('--prepare requires --zig')
         a.zig=a.zig.resolve();prepare(a)
     if a.node:
         if (a.report/'node-results.json').exists():raise ValueError('archive exists; use fresh report')

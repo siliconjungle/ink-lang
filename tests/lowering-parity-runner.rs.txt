@@ -1,5 +1,4 @@
-// Use the emitted package once, including its native C link directives.
-// Compiling lib.rs again here duplicates its exported ABI symbols on ELF.
+// Link the generated package once, preserving native directives and exported ABI symbols.
 use compiled_state::State;
 use serde_json::{Value,json};
 fn run()->Result<(),String>{

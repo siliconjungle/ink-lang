@@ -2,7 +2,7 @@
 //! Allocation identity/failure and fuel are outside the total-value domain.
 use crate::{
     core::{Program, Type},
-    semantic::{arrow, op, term, value, word, Node, Sort, Term},
+    semantic::{arrow, lambda as lam, op, term, value, word, Node, Sort, Term},
     LangResult,
 };
 
@@ -254,27 +254,21 @@ fn dec(n: Term) -> Term {
 fn empty_map(t: &Term) -> bool {
     matches!(&t.node,Node::Op(n,a) if n=="local:map-empty" && a.is_empty())
 }
-// Membership observes the finite key sequence, irrespective of the map's
-// construction history. Bind the query outside both fold parameters so captures
-// under existing lambdas are shifted by the ordinary checked beta machinery.
-fn map_membership(map: &Term, key: &Term) -> LangResult<Term> {
-    let Type::Map(key_type, _) = ty(&map.sort)? else { return Err("map membership receiver".into()); };
-    expect(key, value(*key_type.clone()))?;
+// Membership observes the same finite key domain as keys(), including for a
+// symbolic map. Bind the queried key with an application so ordinary beta
+// reduction handles captured de Bruijn indices under the two fold binders.
+fn map_membership(m: &Term, key: &Term) -> LangResult<Term> {
     let boolean = value(Type::Bool);
-    let key_sort = key.sort.clone();
-    let body = op(boolean.clone(), "binary:||", vec![
-        eq(term(key_sort.clone(), Node::Bound(2)), term(key_sort.clone(), Node::Bound(1))),
-        term(boolean.clone(), Node::Bound(0)),
-    ]);
-    let accumulated = term(arrow(boolean.clone(), boolean.clone()), Node::Lambda(Box::new(body)));
-    let step_sort = arrow(key_sort.clone(), accumulated.sort.clone());
-    let step = term(step_sort.clone(), Node::Lambda(Box::new(accumulated)));
-    let capture = term(arrow(key_sort, step_sort.clone()), Node::Lambda(Box::new(step)));
-    Ok(op(boolean.clone(), "call:foldr", vec![
-        op(value(Type::List(key_type.clone())), "method:keys", vec![map.clone()]),
-        term(boolean, Node::Bool(false)),
-        op(step_sort, "apply", vec![capture, key.clone()]),
-    ]))
+    let item = key.sort.clone();
+    let step = lam(item.clone(), lam(item.clone(), lam(boolean.clone(), op(
+        boolean.clone(), "binary:||", vec![
+            eq(term(item.clone(), Node::Bound(2)), term(item.clone(), Node::Bound(1))),
+            term(boolean.clone(), Node::Bound(0)),
+        ],
+    ))));
+    let step = op(arrow(item.clone(), arrow(boolean.clone(), boolean.clone())), "apply", vec![step, key.clone()]);
+    let keys = op(value(Type::List(Box::new(ty(&key.sort)?.clone()))), "method:keys", vec![m.clone()]);
+    Ok(op(boolean.clone(), "call:foldr", vec![keys, term(boolean, Node::Bool(false)), step]))
 }
 pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
     let Node::Op(n, a) = &t.node else {
@@ -618,9 +612,6 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
         ("method:get_or", [m, k, _])
         | ("method:contains", [m, k])
         | ("local:map-value", [m, k]) => {
-            let opaque = || -> LangResult<Option<Term>> {
-                if n == "method:contains" { Ok(Some(map_membership(m, k)?)) } else { Ok(None) }
-            };
             let fallback = if n == "method:contains" {
                 term(value(Type::Bool), Node::Bool(false))
             } else if n == "method:get_or" {
@@ -628,7 +619,7 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
             } else {
                 t.clone()
             };
-            if empty_map(m) {
+            let reduced = if empty_map(m) {
                 if n == "local:map-value" {
                     None
                 } else {
@@ -678,11 +669,12 @@ pub fn reduce(t: &Term) -> LangResult<Option<Term>> {
                             ))
                         }
                     }
-                    _ => opaque()?,
+                    _ => None,
                 }
             } else {
-                opaque()?
-            }
+                None
+            };
+            if reduced.is_none() && n == "method:contains" {Some(map_membership(m, k)?)} else {reduced}
         }
         ("method:keys", [m]) => {
             if empty_map(m) {

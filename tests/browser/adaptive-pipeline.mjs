@@ -21,7 +21,7 @@ async function fixture(fn,{workerFailure=false,gpuFailure=false,plannerSelection
  await writeFile(join(dir,'ink-device.mjs'),`export const createDevice=()=>({close(){},prepare(){},async run(p){globalThis.placementTrace.gpu++;if(globalThis.placementGpuFailure)throw Error('device lost');const vals=[];for(const s of p.steps){const args=s.args.map(a=>a.kind==='step'?vals[a.index]:Array.from(p.constants[a.index].words));vals.push(globalThis.placementOps[s.f.name](...args));}return {values:Object.fromEntries(p.outputs.map(id=>[id,vals[p.ids.get(id)]])),counters:{upload_bytes:p.constants.reduce((n,c)=>n+c.words.byteLength,0),readback_bytes:p.outputs.reduce((n,id)=>{const v=vals[p.ids.get(id)];return n+4*(Array.isArray(v)?v.length:1)},0),dispatches:p.steps.length}}}});`);
  globalThis.placementTrace=trace;globalThis.placementOps=operations;globalThis.placementGpuFailure=gpuFailure;
  Object.defineProperty(globalThis,'navigator',{configurable:true,value:{gpu:{}}});
- const manifest={schema:2,core_sha256:'compiled',cpu_c_sha256:'cpu',javascript_sha256:'js',shaders:{map:'hash'},functions};
+ const manifest={schema:2,core_sha256:'compiled',cpu_rust_sha256:'cpu',javascript_sha256:'js',shaders:{map:'hash'},functions};
  globalThis.fetch=async url=>String(url).endsWith('manifest.json')?{json:async()=>manifest}:{arrayBuffer:async()=>new ArrayBuffer(0)};
  WebAssembly.instantiate=async()=>{
   const memory=new WebAssembly.Memory({initial:1});let top=64;

@@ -83,7 +83,7 @@ def prepare(args):
             for proof in ['prior','checked']:
                 target=report/backend/proof/name;selected_core=selected_cores[proof]
                 # Neither proof selection nor expression is recomputed for new backend.
-                run([tool,'build',selected_core,'--core','--target','webgpu','--zig',args.zig,'-o',target],commands)
+                run([tool, 'build', selected_core, '--core', '--target', 'webgpu', '-o', target],commands)
                 manifest=json.loads((target/'manifest.json').read_text());fn=next(f for f in manifest['functions'] if f['name']==name)
                 if manifest['schema']==1:instrument(target)
                 host=target/'ink-gpu.mjs';text=host.read_text()
@@ -242,7 +242,6 @@ def main():
     for name in ['report','compiler','old_compiler','knowledge','prior_snapshot','input_preparation','cost_model','gpu_cost_model']:setattr(args,name,getattr(args,name).resolve())
     if not 3<=args.repeats<=128 or not 1<=args.warmup<=10 or not 0<args.seconds<=1 or any(not 0<n<=100000 for n in args.sizes):p.error('invalid parameters')
     if args.prepare:
-        if not args.zig:p.error('--zig required')
         args.zig=args.zig.resolve();prepare(args)
     if args.node:
         if (args.report/'node-results.json').exists():raise ValueError('archived results exist')

@@ -300,14 +300,12 @@ console.log('JSON and binary cross-language conformance passed');
     );
     // Compile the literal C and Rust native implementations and exercise their
     // binary APIs on the very same request and expected reply bytes.
-    for target in ["c", "rust"] {
+    for target in ["rust"] {
         let dir = root.join(target);
-        if target == "c" {
-            verified_language::runtime::emit_c_program(&module, &dir).unwrap();
-        } else {
+
             let code = verified_language::state_native::emit(&p).unwrap();
             verified_language::runtime::emit_rust_program(&code, &dir).unwrap();
-        }
+        
         fs::write(dir.join("src/main.rs"),r#"use compiled_state::{State,ValueWireLimits};fn main(){let request=std::fs::read(std::env::args().nth(1).unwrap()).unwrap();let mut state=State::new();let reply=state.call_binary("mark_received",&request,ValueWireLimits::default()).unwrap();std::fs::write(std::env::args().nth(2).unwrap(),reply).unwrap();let packet=std::fs::read(std::env::args().nth(3).unwrap()).unwrap();let reply=state.call_binary("echo_packet",&packet,ValueWireLimits::default()).unwrap();std::fs::write(std::env::args().nth(4).unwrap(),reply).unwrap();let bad=std::fs::read(std::env::args().nth(5).unwrap()).unwrap();assert!(state.call_binary("guarded",&bad,ValueWireLimits::default()).unwrap_err().contains("precondition"));}"#).unwrap();
         let build = Command::new(env!("CARGO"))
             .args(["build", "--offline", "--quiet", "--manifest-path"])
@@ -347,7 +345,7 @@ console.log('JSON and binary cross-language conformance passed');
             .arg(root.join("guard-bad.bin")).output().unwrap();
         assert!(host_run.status.success(), "{}", String::from_utf8_lossy(&host_run.stderr));
         assert_eq!(fs::read(host_reply).unwrap(), fs::read(root.join("js-object-reply.bin")).unwrap());
-        if let Ok(zig) = std::env::var("INK_TEST_ZIG") {
+        if std::env::var_os("INK_TEST_WASM").is_some() {
             let mut command = Command::new(env!("CARGO"));
             command
                 .args([
@@ -362,25 +360,7 @@ console.log('JSON and binary cross-language conformance passed');
                 .arg(dir.join("Cargo.toml"))
                 .arg("--target-dir")
                 .arg(dir.join("target"));
-            if target == "c" {
-                for (name, operation) in [("zig-cc", "cc"), ("zig-ar", "ar")] {
-                    let path = dir.join(name);
-                    fs::write(
-                        &path,
-                        format!(
-                            "#!/bin/sh\nexec '{}' {operation} \"$@\"\n",
-                            zig.replace('\'', "'\"'\"'")
-                        ),
-                    )
-                    .unwrap();
-                    use std::os::unix::fs::PermissionsExt;
-                    fs::set_permissions(&path, fs::Permissions::from_mode(0o755)).unwrap();
-                }
-                command
-                    .env("INK_CC", dir.join("zig-cc"))
-                    .env("INK_AR", dir.join("zig-ar"))
-                    .env("INK_CC_KIND", "zig");
-            }
+    
             let built = command.output().unwrap();
             assert!(
                 built.status.success(),
@@ -389,7 +369,7 @@ console.log('JSON and binary cross-language conformance passed');
             );
         }
     }
-    if std::env::var_os("INK_TEST_ZIG").is_some() {
+    if std::env::var_os("INK_TEST_WASM").is_some() {
         fs::write(
             root.join("state-wasm.mjs"),
             verified_language::runtime::STATE_WASM_HOST,
@@ -400,11 +380,11 @@ import fs from 'node:fs';import assert from 'node:assert/strict';import {Statefu
 const index=Object.keys(metadata.wire.functions).filter(n=>!metadata.wire.functions[n].unsupported).sort().indexOf('mark_received');
 const request=new Uint8Array(fs.readFileSync(new URL('./request.bin',import.meta.url))),expected=fs.readFileSync(new URL('./reply.bin',import.meta.url));
 const hostRequest=new Uint8Array(fs.readFileSync(new URL('./js-object-request.bin',import.meta.url))),hostExpected=fs.readFileSync(new URL('./js-object-reply.bin',import.meta.url));
-for(const backend of ['c','rust']){
+for(const backend of ['rust']){
  const module=await StatefulModule.instantiate(new Uint8Array(fs.readFileSync(new URL(`${backend}/target/wasm32-unknown-unknown/debug/compiled_state.wasm`,import.meta.url))));
  const state=module.create();assert.deepEqual(Buffer.from(state.pureBinary(index,hostRequest)),hostExpected);state.dispose();
 }
-for(const backend of ['c','rust']){const module=await StatefulModule.instantiate(new Uint8Array(fs.readFileSync(new URL(`${backend}/target/wasm32-unknown-unknown/debug/compiled_state.wasm`,import.meta.url))));const state=module.create();const before=state.snapshot();const guardIndex=Object.keys(metadata.wire.functions).filter(n=>!metadata.wire.functions[n].unsupported).sort().indexOf('guarded');assert.throws(()=>state.pureBinary(guardIndex,new Uint8Array(fs.readFileSync(new URL('./guard-bad.bin',import.meta.url)))),/precondition/);assert.deepEqual(Buffer.from(state.pureBinary(index,request)),expected);const packetIndex=Object.keys(metadata.wire.functions).filter(n=>!metadata.wire.functions[n].unsupported).sort().indexOf('echo_packet');assert.deepEqual(Buffer.from(state.pureBinary(packetIndex,new Uint8Array(fs.readFileSync(new URL('./packet-request.bin',import.meta.url))))),fs.readFileSync(new URL('./packet-expected.bin',import.meta.url)));const bad=request.slice();bad[8]^=1;assert.throws(()=>state.pureBinary(index,bad),/schema/);assert.deepEqual(state.snapshot(),before);assert.throws(()=>state.pureBinary(4294967295,request),/index/);state.dispose();console.log(`${backend} raw binary Wasm matched`);}
+for(const backend of ['rust']){const module=await StatefulModule.instantiate(new Uint8Array(fs.readFileSync(new URL(`${backend}/target/wasm32-unknown-unknown/debug/compiled_state.wasm`,import.meta.url))));const state=module.create();const before=state.snapshot();const guardIndex=Object.keys(metadata.wire.functions).filter(n=>!metadata.wire.functions[n].unsupported).sort().indexOf('guarded');assert.throws(()=>state.pureBinary(guardIndex,new Uint8Array(fs.readFileSync(new URL('./guard-bad.bin',import.meta.url)))),/precondition/);assert.deepEqual(Buffer.from(state.pureBinary(index,request)),expected);const packetIndex=Object.keys(metadata.wire.functions).filter(n=>!metadata.wire.functions[n].unsupported).sort().indexOf('echo_packet');assert.deepEqual(Buffer.from(state.pureBinary(packetIndex,new Uint8Array(fs.readFileSync(new URL('./packet-request.bin',import.meta.url))))),fs.readFileSync(new URL('./packet-expected.bin',import.meta.url)));const bad=request.slice();bad[8]^=1;assert.throws(()=>state.pureBinary(index,bad),/schema/);assert.deepEqual(state.snapshot(),before);assert.throws(()=>state.pureBinary(4294967295,request),/index/);state.dispose();console.log(`${backend} raw binary Wasm matched`);}
 "#).unwrap();
         let run = Command::new("node")
             .arg(root.join("binary-wasm.mjs"))

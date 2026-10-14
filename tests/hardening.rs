@@ -2162,3 +2162,23 @@ fn fuzz_evaluation_arguments() {
         },
     );
 }
+
+// Independent lowering fixtures run in the distribution's mandatory suite.
+#[path = "javascript_package.rs"]
+mod browser_javascript_package;
+#[path = "javascript_word_collections.rs"]
+mod browser_word_collections;
+#[path = "literal_collections_package.rs"]
+mod browser_literal_collections;
+
+#[test]
+fn checked_ordered_affine_producer_replays_and_rejects_tampering() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let result = std::process::Command::new("python3")
+        .args(["-m", "unittest", "knowledge.tests.test_ordered_affine_tiles", "knowledge.tests.test_capture_projection_search"])
+        .current_dir(root)
+        .env("PYTHONPATH", std::env::join_paths([root.join("knowledge"), root.join("planner")]).unwrap())
+        .env("INK_COMPILER", env!("CARGO_BIN_EXE_ink"))
+        .output().unwrap();
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+}

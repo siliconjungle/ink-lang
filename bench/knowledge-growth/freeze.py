@@ -81,7 +81,7 @@ for row in rows:
     path=OUT/'inputs'/split/row['name']/f'{n}-{regime}.json';save(path,args);fixtures.append(dict(program=row['name'],split=split,size=n,distribution=regime,path=str(path.relative_to(ROOT)),sha256=sha(path.read_bytes()),input_identity=sha(json.dumps(args,separators=(',',':')).encode())))
 save(OUT/'fixtures.json',fixtures)
 pins={'distribution':cmd('git','rev-parse','HEAD'),'core':'same repository as distribution'}
-for p in ['knowledge','planner','runtime','abi','native-support','lowerings/c','lowerings/rust','lowerings/js','lowerings/wasm','lowerings/gpu']:pins[p]=cmd('git','-C',p,'rev-parse','HEAD')
+for p in ['knowledge','planner','runtime','abi','native-support','lowerings/rust','lowerings/js','lowerings/wasm','lowerings/gpu']:pins[p]=cmd('git','-C',p,'rev-parse','HEAD')
 files={}
 for base in ['src','core','planner','runtime','abi','native-support','lowerings','knowledge/ink_knowledge','knowledge/producers']:
  for p in (ROOT/base).rglob('*'):
