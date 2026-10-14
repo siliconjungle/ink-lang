@@ -6,14 +6,15 @@ from analyse_engine_profile import analyse, LIFECYCLE, MODES
 def record(mode, process):
     names = MODES[:2] if mode == 'train' else MODES
     n, iterations = (2, 1) if mode == 'train' else (3, 2)
+    orders = [[0, 1], [1, 0]] * 4 if len(names) == 2 else [[0, 1, 3, 2], [1, 2, 0, 3], [2, 3, 1, 0], [3, 0, 2, 1]] * 2
     cases = []
     for family in ('ecs', 'physics'):
         samples = {}
         for order, name in enumerate(names):
             backend = 'gpu' if name in ('gpu', 'profile') else 'cpu'
             ns = {'cpu': 100, 'gpu': 80, 'auto': 105, 'profile': 120}[name]
-            samples[name] = [dict(round=r, order=order, elapsed_ns=ns, backend=backend, decision=None,
-                counters=dict(live_buffer_bytes=0, peak_buffer_bytes=64 if backend == 'gpu' else None, dispatches=1)) for r in range(5)]
+            samples[name] = [dict(round=r, order=orders[r].index(order), elapsed_ns=ns, backend=backend, decision=None,
+                counters=dict(live_buffer_bytes=0, peak_buffer_bytes=64 if backend == 'gpu' else None, dispatches=1)) for r in range(8)]
         cases.append(dict(family=family, n=n, iterations=iterations, validated=True, core_sha256='program',
             context=dict(scope='["ink-resident-engine-v1"]', boundary='captured-owned'), samples=samples,
             complete_engine_ns={k: [s['elapsed_ns'] for s in v] for k, v in samples.items()},
@@ -43,7 +44,29 @@ class EngineReportTests(unittest.TestCase):
         sample['backend'] = 'cpu'
         sample['counters']['peak_buffer_bytes'] = None
         result = analyse(self.training, self.evaluation, 'profile')
-        self.assertEqual(result['cases'][0]['processes'][0]['profile_backend_counts'], {'cpu': 1, 'gpu': 4})
+        self.assertEqual(result['cases'][0]['processes'][0]['profile_backend_counts'], {'cpu': 1, 'gpu': 7})
+
+    def test_rotating_positions_do_not_balance_preceding_backends(self):
+        for case in self.evaluation[0]['cases']:
+            for index, name in enumerate(MODES):
+                for r, sample in enumerate(case['samples'][name]):
+                    sample['order'] = (index - r) % len(MODES)
+        with self.assertRaisesRegex(ValueError, 'preceding backends'):
+            analyse(self.training, self.evaluation, 'profile')
+
+    def test_preparation_is_included_once_in_whole_workload_and_cannot_be_omitted(self):
+        for r in self.training + self.evaluation:
+            r['profile_mode'] = 'prepared'
+            r['profile_preparation_ns'] = 400 if r['mode'] == 'evaluation' else 0
+            r['common_setup_ns'] = 250
+        result = analyse(self.training, self.evaluation, 'profile')
+        total = result['workload_totals'][0]
+        self.assertEqual(total['profile_calls'], 16)
+        self.assertEqual(total['profile_complete_ns'], 250 + 400 + 16 * 120)
+        self.assertAlmostEqual(total['profile_speedup_including_preparation'], (250 + 16 * 100) / (250 + 400 + 16 * 120))
+        self.evaluation[0]['profile_preparation_ns'] = 0
+        with self.assertRaisesRegex(ValueError, 'setup cost missing'):
+            analyse(self.training, self.evaluation, 'profile')
 
     def test_rejects_omission_provenance_overlap_and_partial_samples(self):
         def change_sample(records, **changes):
