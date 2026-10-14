@@ -32,3 +32,31 @@ pub fn shadow(xs:List<Row>,row:Row)->u32{return foldr(xs,row.key,fn(row)=>fn(acc
         }
     }
 }
+
+#[test]
+fn variant_and_owned_callbacks_keep_exact_lexical_carriers() {
+    let source=r#"module TypedVariants;
+record Row{key:u32,values:List<u32>,}
+fn option(x:Option<Row>)->Option<List<u32>>{return x.map(fn(row)=>row.values.map(fn(value)=>value+row.key));}
+fn result(x:Result<Row,Row>)->Result<u32,Row>{return x.map(fn(row)=>row.key);}
+fn error(x:Result<u32,Row>)->Result<u32,u32>{return x.map_err(fn(row)=>row.key);}
+fn branches(x:Result<Row,Row>)->u32{return x.fold(fn(row)=>row.key,fn(row)=>row.key);}
+fn missing(x:Option<Row>)->u32{return x.fold(fn(row)=>row.key,fn(unit)=>0);}
+fn owned(xs:List<u32>)->List<u32>{return buffer(xs).map(fn(value)=>value+1).freeze();}
+"#;
+    let m=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    for f in &m.program().functions {
+        let mut observed=0;
+        analysis::typed_walk(m.program(),f,|e,env|{
+            if let syntax::Expr::Field(_,_) = e {
+                assert!(ink_core::check::infer(e,env,m.program()).is_ok(),"{} {e:?}",f.name);
+                observed+=1;
+            }
+            if let syntax::Expr::Var(name)=e {
+                if name=="unit" {assert_eq!(env.get(name),Some(&syntax::Type::Unit));}
+                if name=="value" {assert_eq!(env.get(name),Some(&syntax::Type::U32));}
+            }
+        }).unwrap();
+        assert!(observed>0 || f.name=="owned");
+    }
+}

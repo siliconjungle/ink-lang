@@ -1,0 +1,1 @@
+module zero_word_offset;fn offset(id:u64)->u32{return word_narrow_u64_to_u32(id-id);}

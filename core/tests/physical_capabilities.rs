@@ -39,6 +39,28 @@ fn republish(bundle: &mut registry::Bundle, old: &str, entry: registry::Entry) -
     id
 }
 #[test]
+fn paged_columns_keep_the_codec_gate_and_reject_invalid_or_unimplemented_layouts() {
+    let m = module();
+    let mut p = plan();
+    for column in &mut p.columns {
+        column.packing.clear();
+        column.page_size = Some(256);
+    }
+    physical::check(&m, None, &p).unwrap();
+    for size in [0, 15, 17, 8192] {
+        let mut invalid = p.clone();
+        invalid.columns[0].page_size = Some(size);
+        assert!(physical::check(&m, None, &invalid).is_err());
+    }
+    let mut missing = p;
+    missing.columns[0].roundtrip = "0".repeat(64);
+    assert!(physical::check(&m, None, &missing).is_err());
+    let mut packed = plan();
+    let column = packed.columns.iter_mut().find(|c| !c.packing.is_empty()).unwrap();
+    column.page_size = Some(256);
+    assert!(physical::check(&m, None, &packed).is_err());
+}
+#[test]
 fn bounds_are_source_bound_and_false_rehashed_certificates_cannot_authorise_reads() {
     let m = module();
     let p = plan();

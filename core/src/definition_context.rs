@@ -9,13 +9,66 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Clone, Debug)]
 pub struct Definition {
     pub params: Vec<(String, Type)>,
     pub result: Type,
     pub body: Term,
     pub callees: BTreeMap<String, String>,
+    /// Transport choice only. Inline contexts retain their existing identities.
+    pub compact_body: bool,
+}
+
+#[derive(Serialize)]
+#[serde(untagged)]
+enum BodyRef<'a> { Inline(&'a Term), Flat(&'a crate::flat_term::FlatTree) }
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum Body { Inline(Term), Flat(crate::flat_term::FlatTree) }
+#[derive(Serialize)]
+struct DefinitionRef<'a> {
+    params: &'a Vec<(String, Type)>, result: &'a Type,
+    body: BodyRef<'a>, callees: &'a BTreeMap<String, String>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct DefinitionWire {
+    params: Vec<(String, Type)>, result: Type, body: Body,
+    callees: BTreeMap<String, String>,
+}
+impl Serialize for Definition {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let flat = if self.compact_body {
+            Some(crate::flat_term::FlatTree::encode(&self.body).map_err(serde::ser::Error::custom)?)
+        } else { None };
+        DefinitionRef { params: &self.params, result: &self.result,
+            body: flat.as_ref().map(BodyRef::Flat).unwrap_or(BodyRef::Inline(&self.body)),
+            callees: &self.callees }.serialize(serializer)
+    }
+}
+impl<'de> Deserialize<'de> for Definition {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let wire = DefinitionWire::deserialize(deserializer)?;
+        let (body, compact_body) = match wire.body {
+            Body::Inline(body) => (body, false),
+            Body::Flat(flat) => (flat.decode().map_err(serde::de::Error::custom)?, true),
+        };
+        Ok(Self { params: wire.params, result: wire.result, body,
+            callees: wire.callees, compact_body })
+    }
+}
+fn compact_body(body: &Term) -> LangResult<bool> {
+    let value = serde_json::to_value(body).map_err(|e| e.to_string())?;
+    let mut pending = vec![(&value, 0usize)];
+    while let Some((value, depth)) = pending.pop() {
+        if depth > 80 { return Ok(true); }
+        match value {
+            serde_json::Value::Object(fields) => pending.extend(fields.values().map(|v| (v, depth + 1))),
+            serde_json::Value::Array(values) => pending.extend(values.iter().map(|v| (v, depth + 1))),
+            _ => {},
+        }
+    }
+    Ok(false)
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -98,6 +151,7 @@ impl DefinitionContext {
             bodies.insert(name, Definition {
                 params: f.params.clone(),
                 result: f.result.clone(),
+                compact_body: compact_body(&body)?,
                 body,
                 callees: deps.into_iter().map(|name| (name, String::new())).collect(),
             });

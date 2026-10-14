@@ -38,6 +38,9 @@ pub struct Layout {
     pub roundtrip: String,
     #[serde(default)]
     pub packing: BTreeMap<String, Packing>,
+    /// Physical copy-on-write page size; logical row/column meanings are unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub page_size: Option<u16>,
 }
 fn var(n: &str) -> Term {
     Term::Var(n.into())
@@ -304,6 +307,14 @@ pub fn guarded_word_goal(bits:u8)->LangResult<(Vec<(String,Sort)>,Vec<logic::Equ
     ))
 }
 pub fn check(p: &Program, layout: &Layout) -> LangResult<()> {
+    if let Some(size) = layout.page_size {
+        if !(16..=4096).contains(&size) || !size.is_power_of_two() {
+            return Err("column page size must be a power of two from 16 through 4096".into());
+        }
+        if !layout.packing.is_empty() {
+            return Err("paged packed columns are not supported".into());
+        }
+    }
     let schema = schema(p, &layout.record)?;
     let view = registry::CheckedBundle::check(&layout.knowledge)?;
     let context = view.first_order_context()?;

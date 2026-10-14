@@ -321,6 +321,20 @@ struct Uses {
     moved: BTreeSet<String>,
     next: usize,
 }
+/// Lexical callback loans preserve ownership: an affine formal can be borrowed
+/// only if the admitted callback does not consume it or any of its fields.
+/// This is an emission fact, not authority to replace a source computation.
+pub fn callback_parameter_loans(e:&Expr,env:&Env,p:&Program,params:&[Type],result:&Type)->LangResult<Vec<bool>>{
+    let mut uses=Uses::default();
+    for name in env.keys(){uses.bind(name);}
+    let mut ts=env.clone();let mut body=e;let mut ids=Vec::new();
+    for t in params {
+        let Expr::Lambda(name,nested)=body else{return Err("callback lambda".into());};
+        uses.bind(name);ids.push(uses.ids[name].clone());ts.insert(name.clone(),t.clone());body=nested;
+    }
+    uses.walk(body,&ts,p,Some(result),false)?;
+    Ok(ids.iter().map(|id|!uses.moved.iter().any(|m|m==id||m.starts_with(&format!("{id}.")))).collect())
+}
 impl Uses {
     fn bind(&mut self, n: &str) {
         let id = format!("b{}", self.next);
@@ -340,7 +354,7 @@ impl Uses {
                 || path.starts_with(&format!("{m}."))
                 || (consume && m.starts_with(&format!("{path}.")))
         }) {
-            return Err("owned temporary storage used after move".into());
+            return Err(format!("owned temporary storage used after move at {path}"));
         }
         if consume {
             self.moved.insert(path.into());
@@ -571,7 +585,9 @@ impl Uses {
                     p,
                     &[(*inner).clone(), t.clone()],
                     &Type::Bool,
-                    false,
+                    // The step still receives this owner after the stop
+                    // observation, including on the terminal item.
+                    true,
                 )?;
                 self.callback(&a[3], env, p, &[*inner, t.clone()], &t, false)?;
             }
@@ -712,7 +728,8 @@ pub fn check_ownership(p: &Program) -> LangResult<()> {
         for (n, _) in &f.params {
             uses.bind(n);
         }
-        uses.walk(&f.body, &env, p, Some(&f.result), false)?;
+        uses.walk(&f.body, &env, p, Some(&f.result), false)
+            .map_err(|error| format!("function {}: {error}", f.name))?;
     }
     for t in p
         .events

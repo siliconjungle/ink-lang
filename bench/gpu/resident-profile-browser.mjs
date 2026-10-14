@@ -2,7 +2,7 @@
 import {chromium} from 'playwright-core';
 import fs from 'node:fs/promises';import http from 'node:http';import path from 'node:path';import os from 'node:os';import crypto from 'node:crypto';
 const [mode,output,profilePath]=process.argv.slice(2);
-if(!['smoke','train','test','cold-train','cold-test'].includes(mode)||!output)throw Error('usage: resident-profile-browser.mjs smoke|train|test|cold-train|cold-test OUTPUT [PROFILE]');
+if(!['smoke','train','test',...['cold','cpu-warm','gpu-warm'].flatMap(r=>[r+'-train',r+'-test'])].includes(mode)||!output)throw Error('usage: resident-profile-browser.mjs smoke|[cold-|cpu-warm-|gpu-warm-]train|test OUTPUT [PROFILE]');
 const root=process.cwd(),bundle='build/resident-profile',profile=profilePath?JSON.parse(await fs.readFile(profilePath,'utf8')):null;
 const server=http.createServer(async(req,res)=>{res.setHeader('Cross-Origin-Opener-Policy','same-origin');res.setHeader('Cross-Origin-Embedder-Policy','require-corp');try{const file=path.resolve(root,'.'+new URL(req.url,'http://localhost').pathname);if(!file.startsWith(root+path.sep))throw Error('outside root');const data=await fs.readFile(file);res.setHeader('Content-Type',file.endsWith('.mjs')?'text/javascript':file.endsWith('.wasm')?'application/wasm':'application/json');res.end(data);}catch{res.statusCode=404;res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
@@ -21,7 +21,9 @@ try{
   const input=(kernel,n)=>Array.from({length:n},(_,i)=>kernel==='ecs'?{x:Math.imul(i,2654435761)>>>0,y:(0xffffffff-i)>>>0,vx:i%13,vy:i%7}:{x:Math.fround((i%101)/8),y:Math.fround((i%43)/16-.25),vx:Math.fround((i%17-8)/32),vy:Math.fround((i%11-5)/16)});
   const step=(kernel,rows)=>rows.map(b=>{if(kernel==='ecs')return {x:(b.x+b.vx)>>>0,y:(b.y+b.vy)>>>0,vx:b.vx,vy:b.vy};const vy=Math.fround(b.vy+Math.fround(Math.fround(-9.75)*Math.fround(1/64))),y=Math.fround(b.y+Math.fround(vy*Math.fround(1/64)));return{x:Math.fround(b.x+Math.fround(b.vx*Math.fround(1/64))),y:y<0?0:y,vx:b.vx,vy:y<0?Math.fround(0-vy):vy};});
   const check=(actual,wanted,label)=>{if(actual.length!==wanted.length)throw Error(label+' length');for(let i=0;i<wanted.length;i++)for(const f of ['x','y','vx','vy'])if(!Object.is(actual[i][f],wanted[i][f]))throw Error(`${label}/${i}/${f}`);};
-  const coldMode=mode.startsWith('cold-'),kind=mode.replace(/^cold-/,'');
+  const freshMode=mode.includes('-'),kind=mode.replace(/^(cold|cpu-warm|gpu-warm)-/,'');
+  const regime=mode.startsWith('cold-')?'cold':mode.startsWith('cpu-warm-')?'cpu-warm':mode.startsWith('gpu-warm-')?'gpu-warm':'warm';
+  const prepareBackends=regime==='cold'?[]:regime==='cpu-warm'?['cpu']:regime==='gpu-warm'?['gpu-required']:['cpu','gpu-required'];
   const sizes=kind==='smoke'?[0,1,257]:kind==='train'?[256,8192,262144]:[2048,40960,147456];
   const horizons=kind==='smoke'?[1,32]:kind==='train'?[1,16,64]:[4,20,52],count=kind==='smoke'?1:kind==='train'?5:8,receipts=[];
   try{for(const kernel of ['ecs','physics'])for(const n of sizes)for(const iterations of horizons){
@@ -30,23 +32,26 @@ try{
    const workload={iterations,readbacks:1};
    // Bind the preparation state actually measured. Backend and shader startup
    // are excluded here, so prepare both alternatives before recording scope.
-   const warm=async engine=>{for(const backend of ['cpu','gpu-required']){const session=await engine.open(plan,{backend});await session.step(1);await session.finish();await session.read({outputs:['next']});await session.close();}};
-   if(!coldMode)await warm(plain);
+   const warm=async engine=>{for(const backend of prepareBackends){const session=await engine.open(plan,{backend});await session.step(1);await session.finish();await session.read({outputs:['next']});await session.close();}};
+   await warm(plain);
    const context=await plain.describeSession(plan,workload);
    if(kind==='smoke'){
     await fitted?.close();const synthetic={schema:2,target_key:targetKey,models:{[context.scope]:{boundary:context.boundary,domains:{input_elements:[0,257],iterations:[1,32]},backends:{cpu:{intercept_ns:1,terms:{},products:[{features:['input_elements','iterations'],coefficient_ns:1e6}]},gpu:{intercept_ns:1e9,terms:{},products:[{features:['input_elements','iterations'],coefficient_ns:1}]}}}}};
     fitted=await loadInk(url,{targetKey,costProfile:synthetic});
     const cold=await fitted.open(plan,{workload});if(cold.backend!=='cpu')throw Error('warm profile reused for a cold engine');await cold.close();
    }
-   if(fitted&&!coldMode)await warm(fitted);
+   if(fitted&&!freshMode)await warm(fitted);
    const names=kind==='train'?['cpu','gpu']:['cpu','gpu','auto','profile'],samples=Object.fromEntries(names.map(n=>[n,[]])),steps=Object.fromEntries(names.map(n=>[n,[]])),backends={},counters={},decisions={};
-   for(let round=coldMode?0:-1;round<count;round++)for(let offset=0;offset<names.length;offset++){
-    const name=names[((round+1)+offset)%names.length],engine=coldMode?await loadInk(url,{targetKey,...(name==='profile'?{costProfile:profile}:{})}):name==='profile'?fitted:plain;if(!engine)throw Error('test mode requires a fitted profile');
+   for(let round=freshMode?0:-1;round<count;round++)for(let offset=0;offset<names.length;offset++){
+    const name=names[((round+1)+offset)%names.length],engine=freshMode?await loadInk(url,{targetKey,...(name==='profile'?{costProfile:profile}:{})}):name==='profile'?fitted:plain;if(!engine)throw Error('test mode requires a fitted profile');
+    if(freshMode)await warm(engine);
     const started=performance.now(),session=await engine.open(plan,{backend:name==='cpu'?'cpu':name==='gpu'?'gpu-required':'auto',workload});
     const before=performance.now(),advanced=await session.step(iterations);await session.finish();const stepNs=(performance.now()-before)*1e6;
     const result=await session.read({outputs:['next']});await session.close();const elapsed=(performance.now()-started)*1e6;
-    if(coldMode)await engine.close();
+    if(freshMode)await engine.close();
     check(result.values.next,wanted,`${kernel}/${n}/${iterations}/${name}`);
+    if(session.backend==='gpu'&&(!(session.counters.peak_buffer_bytes>0)||session.counters.live_buffer_bytes!==0))throw Error('resident GPU buffer lifecycle accounting');
+    if(session.backend==='cpu'&&session.counters.peak_buffer_bytes!==null)throw Error('CPU memory was not measured');
     if(name==='gpu'&&(session.backend!=='gpu'||(n>0&&!(advanced.counters?.dispatches>0))))throw Error('device dispatch required');
     if(name==='auto'&&session.backend!=='cpu')throw Error('unprofiled resident execution must retain CPU');
     if(kind==='smoke'&&name==='profile'&&session.backend!==(n===257&&iterations===32?'gpu':'cpu'))throw Error('lifecycle profile decision not honoured');
@@ -55,7 +60,7 @@ try{
    }
    receipts.push({kernel,n,iterations,scope:context.scope,features:context.features,boundary:context.boundary,core_sha256:plain.manifest.core_sha256,samples_ns:samples,step_finish_samples_ns:steps,backends,counters,decisions,validated:true});
   }}finally{await plain.close();await fitted?.close();}
-  return {mode,device,targetKey,receipts,scope:`${coldMode?'Cold backend and shaders (common loadInk import excluded)':'Warm backend and shaders'}; complete open, upload, steps, finish, full owned output read, close. Oracle outside timing. Smoke uses synthetic cost models only for decision conformance.`};
+  return {mode,device,targetKey,receipts,preparation_regime:regime,scope:`${regime} preparation; common loadInk import and explicit prewarming excluded; complete open, upload, steps, finish, full owned output read, close. Oracle outside timing. Smoke uses synthetic cost models only for decision conformance.`};
  },{base,bundle,mode,profile,environment});
  const source_hashes={};for(const file of ['bench/gpu/resident-profile-browser.mjs','bench/gpu/resident-profile.ink',`${bundle}/manifest.json`,`${bundle}/ink-gpu.mjs`,`${bundle}/backend-selection.mjs`,`${bundle}/ink-selection.wasm`,`${bundle}/cpu.wasm`])source_hashes[file]=crypto.createHash('sha256').update(await fs.readFile(file)).digest('hex');
  await fs.mkdir(path.dirname(output),{recursive:true});await fs.writeFile(output,JSON.stringify({schema:1,environment,source_hashes,...result},null,2)+'\n');console.log(JSON.stringify({mode,cases:result.receipts.length,device:result.device,output}));
