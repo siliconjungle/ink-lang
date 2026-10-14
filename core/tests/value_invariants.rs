@@ -92,8 +92,8 @@ fn value_invariants_preserve_transactions_and_validate_portable_restore() {
         serde_json::from_str(include_str!("fixtures/invariant-value-state-proofs.json")).unwrap(),
     )
     .unwrap();
-    CheckedModule::from_source(p.clone()).unwrap();
-    let mut runtime = Runtime::new(p.clone()).unwrap();
+    let checked = CheckedModule::from_source(p.clone()).unwrap();
+    let mut runtime = Runtime::from_checked(&checked).unwrap();
     runtime
         .invoke_json("set", &serde_json::json!([{"value":0}]))
         .unwrap();
@@ -114,6 +114,10 @@ fn value_invariants_preserve_transactions_and_validate_portable_restore() {
         ink_core::snapshot_wire::decode(&layout, &committed, Default::default()).unwrap();
     logical.tables[0] = vec![(serde_json::json!(0), serde_json::json!({"value":1}))];
     let forged = ink_core::snapshot_wire::encode(&layout, &logical, Default::default()).unwrap();
+    assert!(Runtime::restore_portable_checked(&checked, &forged)
+        .err()
+        .unwrap()
+        .contains("invariant"));
     assert!(Runtime::restore_portable(p, &forged)
         .err()
         .unwrap()
