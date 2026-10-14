@@ -85,3 +85,5 @@ pub mod input_demand;
 
 pub mod record_codec;
 pub mod sum_codec;
+
+pub mod protocol;
