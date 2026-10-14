@@ -27,6 +27,7 @@ def main():
     parser.add_argument('--groupings', choices=['all', 'default'], default='default')
     parser.add_argument('--depth', type=int, default=2)
     parser.add_argument('--limit', type=int, default=32)
+    parser.add_argument('--base-plan', type=Path, help='Checked starting plan; explore protocol choices over its other optimisation layers')
     args = parser.parse_args()
     if not 1 <= args.depth <= 8 or not 1 <= args.limit <= 128:
         raise ValueError('bounded preparation depth and candidate limit required')
@@ -47,6 +48,13 @@ def main():
     checked = invoke('emit-core', source, '-o', output / 'source.core.json')
     baseline = dict(schema=1, semantics='ink-compiled-plan-v1',
                     input_core_sha256=checked['core_sha256'], steps=[])
+    if args.base_plan:
+        baseline = json.loads(args.base_plan.read_bytes())
+        if baseline.get('input_core_sha256') != checked['core_sha256']:
+            raise ValueError('starting plan source mismatch')
+        # Validate all existing layers before acquiring any derived alternative.
+        invoke('check-plan', source, args.base_plan.resolve())
+    base_steps = len(baseline['steps'])
     registry, registry_hash = load()
     requested = set(args.recipe or [])
     recipes = [dict(r) for r in registry['recipes'] if r['id'] in requested or not requested and r['stage'] == 'protocol']
@@ -82,7 +90,7 @@ def main():
         controls.append(dict(index=index, plan=plan.name, module=module.name,
                              protocol=receipt['state'].get('protocol'), physical=receipt['state'].get('physical')))
         context = dict(receipt['state'], compiler=str(compiler), emit_target='javascript')
-        if len(packet['steps']) < args.depth:
+        if len(packet['steps']) - base_steps < args.depth:
             for recipe in recipes:
                 for proposal in execute(recipe, context):
                     if proposal['status'] == 'proposal':
@@ -90,6 +98,7 @@ def main():
     manifest = dict(schema=1, compiler_sha256=hashlib.sha256(compiler.read_bytes()).hexdigest(),
                     source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
                     registry_sha256=registry_hash, recipes=recipes, depth=args.depth, limit=args.limit,
+                    base_plan_sha256=hashlib.sha256(args.base_plan.read_bytes()).hexdigest() if args.base_plan else None,
                     controls=controls, commands=commands,
                     files={p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                            for p in output.iterdir() if p.is_file()},
