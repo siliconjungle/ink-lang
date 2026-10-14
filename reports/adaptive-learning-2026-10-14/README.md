@@ -34,7 +34,8 @@ three same-prefix replay timings per window/candidate and transition, and three
 complete executions per mode. Four fresh processes rotate the four JSON modes and
 four collection modes. Tables show medians of process medians where applicable;
 `summary.json` includes the process ranges. All samples, not selected best runs,
-are retained. Shared Apple ARM host, Node 22; other work, JIT and GC can affect
+are retained. The JSON rotation was rerun after hardening bounded path capture;
+those four final runs are the ones reported. Shared Apple ARM host, Node 22; other work, JIT and GC can affect
 measurements. Some compilation overlapped this acquisition, so small differences
 are not evidence of a stable gain. No confidence intervals or tail-latency claim.
 
@@ -131,18 +132,18 @@ native JavaScript object property access, which uses a different representation.
 
 | Scenario | Raw linear ms | Incremental ms | Eager ms |
 |---|---:|---:|---:|
-| Repeated reads, 1,024-member object | 40.78 | 22.16 | 20.11 |
-| Changing paths, 1,024-member object | 32.74 | 21.07 | 21.86 |
-| Eight reads only | 0.64 | 0.62 | 0.58 |
-| Eight-member object | 15.54 | 16.23 | 16.46 |
-| Frequent writes | 137.37 | 136.79 | 137.50 |
-| Nested object with local updates | 13.83 | 13.40 | 13.20 |
-| Replacing document shapes | 6.13 | 5.79 | 6.15 |
-| Repeated missing-key lookup | 33.92 | 2.25 | 1.71 |
+| Repeated reads, 1,024-member object | 39.97 | 22.78 | 21.08 |
+| Changing paths, 1,024-member object | 32.22 | 22.12 | 23.34 |
+| Eight reads only | 0.54 | 0.49 | 0.54 |
+| Eight-member object | 15.16 | 17.04 | 16.97 |
+| Frequent writes | 136.00 | 137.94 | 136.43 |
+| Nested object with local updates | 13.63 | 13.91 | 13.52 |
+| Replacing document shapes | 5.84 | 5.98 | 5.93 |
+| Repeated missing-key lookup | 33.98 | 2.87 | 2.34 |
 
-Incremental lookup saves **45.7%** on repeated wide-object reads and **35.6%** on
+Incremental lookup saves **43.0%** on repeated wide-object reads and **31.4%** on
 changing paths; completed indexes eliminate repeated full scans for absent keys.
-Small objects and write-heavy cases do not show a worthwhile gain. Eager indexing
+Small objects, changing shapes and write-heavy cases do not show a worthwhile gain. Eager indexing
 can be faster for a long stable session. Incremental construction primarily bounds
 upfront work: the eight-read case builds 80 entries versus 1,025 eagerly. Neither
 entry budgeting nor these timings prove a wall-clock pause bound or heap bound.
