@@ -84,7 +84,7 @@ fn dependencies(
             dependencies(premise, out, budget, depth + 1)?;
             dependencies(body, out, budget, depth + 1)?;
         }
-        Proof::Linear { .. } | Proof::Normalize | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => {}
+        Proof::Linear { .. } | Proof::Word { .. } | Proof::Normalize | Proof::Hypothesis(_) | Proof::GeneralizedHypothesis { .. } => {}
     }
     Ok(())
 }

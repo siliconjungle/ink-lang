@@ -55,13 +55,18 @@ fn cross_domain_kernels_match_independent_edge_oracles_and_all_targets(){
  // The exact same independent observations must survive checked unfolding on
  // every portable target. The physical direct-buffer choice is Rust-only.
  let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
- let output=root.join("build/cross-domain/conformance-plan");
- let prepare=std::process::Command::new("python3").arg(root.join("bench/cross-domain/prepare.py"))
+ for shared in [false,true] {
+ let label=if shared {"cross-domain-shared-scalars"}else{"cross-domain-unfolded"};
+ let output=root.join("build/cross-domain").join(label);
+ let mut command=std::process::Command::new("python3");command.arg(root.join("bench/cross-domain/prepare.py"));
+ if shared {command.arg("--share-arguments");}
+ let prepare=command
   .args(["--compiler",env!("CARGO_BIN_EXE_ink"),"--scalar-calls","--output"]).arg(&output).output().unwrap();
  assert!(prepare.status.success(),"{}",String::from_utf8_lossy(&prepare.stderr));
- let original=verified_language::core::CheckedModule::from_source(p).unwrap();
+ let original=verified_language::core::CheckedModule::from_source(p.clone()).unwrap();
  let package:verified_language::planning::Package=serde_json::from_slice(&std::fs::read(output.join("rewrite-plan.json")).unwrap()).unwrap();
  let checked=verified_language::planning::check(&original,&package).unwrap();
  assert!(!package.steps.is_empty());
- parity::conformance_planned("cross-domain-unfolded",&checked,include_str!("../../bench/cross-domain/main.ink"),steps,expected);
+ parity::conformance_planned(label,&checked,include_str!("../../bench/cross-domain/main.ink"),steps.clone(),expected.clone());
+ }
 }
