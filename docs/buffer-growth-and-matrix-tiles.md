@@ -55,3 +55,33 @@ The explicit algorithm is usable through an ordinary knowledge-library import.
 There is not yet a universal proof allowing automatic replacement of the original
 matrix algorithm. Timings do not supply that proof. See `bench/matmul-tiles` for
 the full experiment, provenance, sizes, truncated inputs and measured intervals.
+
+## Actual compiler measurements
+
+`bench/cross-domain/cold-buffer-results.json` compares the actual compiler
+from root `4c68c180` against the frozen scalar-sharing baseline, using eight
+fresh paired processes. These measurements supersede the generated-code
+diagnostics for this release. Ratios below one mean less time.
+
+| Kernel | Size | Ink µs | Rust control µs | Ink/control | New/previous Ink |
+|---|---:|---:|---:|---:|---:|
+| ecs | 16384 | 8.691 | 8.705 | 0.998 | 0.997 |
+| game_engine | 16384 | 18.751 | 19.052 | 0.984 | 0.543 |
+| compiler | 16384 | 26.777 | 10.412 | 2.572 | 1.023 |
+| database | 16384 | 9.790 | 9.865 | 0.992 | 0.996 |
+| rendering | 16384 | 12.193 | 15.590 | 0.782 | 0.729 |
+| physics | 16384 | 14.959 | 15.059 | 0.993 | 1.000 |
+| physics_finite_native | 16384 | 15.024 | 11.820 | 1.271 | 1.002 |
+| math | 64 | 128.350 | 127.620 | 1.006 | 0.995 |
+| pathfinding | 16384 | 47.595 | 56.536 | 0.842 | 0.996 |
+| pathfinding_vs_upstream_dijkstra_all | 16384 | 53.483 | 630.342 | 0.085 | 0.986 |
+| pathfinding_vs_upstream_bfs_reach | 16384 | 52.154 | 340.557 | 0.153 | 0.989 |
+
+At 4,096 cells, pathfinding takes 1.068x the previous time
+(95% interval 1.058–1.097). This regression remains open.
+
+Controls use matched semantics except the explicitly labeled finite-native
+physics control (without NaN canonicalization). Named upstream pathfinding
+comparisons pit a general library against a specialized unit-grid program.
+These are limited kernels, not whole engines or universal library rankings.
+Every measured output is checked; all sizes and intervals remain in the report.
