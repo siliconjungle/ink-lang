@@ -98,3 +98,16 @@ complete values, exact error names/messages, corrupted and truncated bytes,
 invalid invariants and raw float bits. The native/Wasm paths retain ordinary
 readers; unsupported boundary selections fail explicitly. The new full-call
 samples show no Set speedup from reader selection alone.
+
+The final merged package graph reran 313 standalone core tests, 37 JavaScript
+tests, seven locked runtime tests and all six Set integration tests. Fresh proof
+reuse rechecked 51 indexed Set pure obligations. In the new shared-machine
+measurements, complete construction at 256 inputs measured 20.72 us typed and
+55.74 us wire versus 18.15 us and 47.71 us for the strong control (1.14x and
+1.17x). Immutable-handle union measured 1.14x at 256 and 1.16x at 4096;
+intersection/difference remained about 1.65–1.74x. Membership at 4096 was
+4.35 us versus 0.033 us (134x), retaining the logical list-scan limitation.
+The final module hashes and all raw samples are in
+`docs/evidence/general-machinery/set-indexed-final-complete-performance.json`
+and `set-indexed-final-handle-performance.json`. These samples supersede no
+historical receipt and establish no native, memory or population-wide claim.
