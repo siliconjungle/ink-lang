@@ -72,7 +72,7 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
     let source = dir.join("source.ink");
     fs::write(&source, SOURCE).unwrap();
     let out = Command::new("python3")
-        .args(["-m", "producers.maintained_folds", "--guarded-update", "--guard-zero"])
+        .args(["-m", "producers.maintained_folds", "--guarded-update", "--guard-zero", "--predicate-update"])
         .arg(&source)
         .args([
             "--compiler",
@@ -82,7 +82,7 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
             "-o",
         ])
         .arg(&dir)
-        .env("PYTHONPATH", root.join("knowledge"))
+        .env("PYTHONPATH", std::env::join_paths(std::iter::once(root.join("knowledge")).chain(std::env::split_paths(&std::env::var_os("PYTHONPATH").unwrap_or_default()))).unwrap())
         .env("INK_PROOF_DEBUG", "1")
         .output()
         .unwrap();
@@ -101,6 +101,7 @@ fn arbitrary_schema_products_preserve_histories_rollback_and_portable_state_and_
         serde_json::from_slice(&fs::read(dir.join("plan.json")).unwrap()).unwrap();
     let plan = planning::check(&module, &packet).unwrap();
     assert_eq!(plan.maintained().unwrap().package().views.len(), 3);
+    assert_eq!(plan.maintained().unwrap().package().views.iter().filter(|v|v.row_update.is_some()).count(),1);
     // Rust executes maintained folds; dense prefixes remain JavaScript-only.
     assert!(verified_language::state_native::emit_planned(&plan)
         .unwrap_err()
@@ -380,7 +381,7 @@ query bottom()->u64 reads(lowest){return lowest;}
         .arg(&source)
         .args(["--compiler", env!("CARGO_BIN_EXE_ink"), "-o"])
         .arg(dir.join("plan"))
-        .env("PYTHONPATH", root.join("knowledge"))
+        .env("PYTHONPATH", std::env::join_paths(std::iter::once(root.join("knowledge")).chain(std::env::split_paths(&std::env::var_os("PYTHONPATH").unwrap_or_default()))).unwrap())
         .output()
         .unwrap();
     assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));

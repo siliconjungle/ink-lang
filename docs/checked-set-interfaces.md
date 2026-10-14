@@ -59,11 +59,16 @@ algorithms use the existing affine Map and Buffer primitives. Construction
 preserves first occurrence order without copying every prefix. Its checked loop
 predicate combines uniqueness of the buffer with index coverage; initialization,
 each map/buffer step, the complete fold and its final observation all replay.
-The query laws additionally prove complete ordered-list equivalence. Construction
-currently has a checked uniqueness postcondition and complete output controls;
-automatic replacement of the generic constructor still needs its functional
-equivalence proof. These are explicit source implementations, not automatic
-representation selection or persistent indexes.
+The query laws prove complete ordered-list equivalence. Construction now also
+has a complete ordered-value equivalence proof, using a source-bound loop
+relation between its buffer output, index coverage in both directions, and the
+generic logical fold. The map primitive meaning relates membership to its sorted
+keys; the relation preserves input order separately. A constructor that drops
+new items rejects even though its uniqueness postcondition still holds. The
+canonical closure has 14 objects (seven new), and replays both portably and
+against the actual source. These remain explicit source implementations;
+automatic replacement, representation selection and persistent indexes are
+unfinished.
 
 JavaScript `callCompiled` transports established value-interface guarantees on
 module-owned immutable handles. Checked source outputs establish those guarantees;

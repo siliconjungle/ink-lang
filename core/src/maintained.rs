@@ -55,6 +55,11 @@ pub struct View {
     /// group and answers the query by a lookup (`zero` when absent).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub group: Option<String>,
+    /// A row-aware replacement may preserve predicates instead of first
+    /// materialising two group contributions. The complete group equation is
+    /// checked for arbitrary totals, keys and rows.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub row_update: Option<Update>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -407,6 +412,9 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
         if let Some(choice) = &view.contribution_choice {
             exports.insert(choice.function.clone());
         }
+        if let Some(update) = &view.row_update {
+            exports.insert(update.function.clone());
+        }
         selected.push((s, id));
     }
     let (definition, context) = definition::check_registry_with_context(
@@ -485,6 +493,26 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
                 &combine(combine(var("total"), call(&v.inverse, vec![var("old")])), var("new")),
                 &call(&update.function, vec![var("total"),var("old"),var("new")]),
                 &update.proof).map_err(|e|format!("{}/update: {e}",v.keep))?;
+        }
+        if let Some(update) = &v.row_update {
+            let d: Declaration = serde_json::from_value(
+                package.knowledge.objects.get(&update.function)
+                    .ok_or("maintained row update definition missing")?.payload["declaration"].clone(),
+            ).map_err(|e| e.to_string())?;
+            if !matches!(d, Declaration::Function { params, result, .. }
+                if params.iter().map(|x|x.1.clone()).collect::<Vec<_>>()
+                    == vec![s.result.clone(),s.key.clone(),s.row.clone(),s.row.clone()]
+                    && result == s.result) {
+                return Err("maintained row update signature".into());
+            }
+            let contribution = |row| call(&v.contribution, vec![var("key"),row]);
+            context.check(&[
+                ("total".into(),s.result.clone()),("key".into(),s.key.clone()),
+                ("old".into(),s.row.clone()),("new".into(),s.row.clone()),
+            ], &[],
+                &combine(combine(var("total"),call(&v.inverse,vec![contribution(var("old"))])),contribution(var("new"))),
+                &call(&update.function,vec![var("total"),var("key"),var("old"),var("new")]),
+                &update.proof).map_err(|e|format!("{}/row update: {e}",v.keep))?;
         }
         let state: Declaration =
             serde_json::from_value(source.objects[&s.state].payload["declaration"].clone())
