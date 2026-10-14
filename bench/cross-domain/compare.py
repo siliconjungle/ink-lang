@@ -19,7 +19,7 @@ import methodology
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('variants', nargs='+', help='names previously built with run.py --build-only; baseline first')
-parser.add_argument('--rounds', type=int, default=9)
+parser.add_argument('--rounds', type=int, default=8)
 parser.add_argument('--output', type=pathlib.Path, default=ROOT / 'build/cross-domain/comparison.json')
 args = parser.parse_args()
 if len(args.variants) < 2 or args.rounds < 3:
@@ -41,7 +41,8 @@ samples, process_order = {}, []
 started = time.time()
 for round_index in range(args.rounds):
     order = args.variants[round_index % len(args.variants):] + args.variants[:round_index % len(args.variants)]
-    if round_index % 2:
+    # Reverse only after a full rotation cycle, preserving every position.
+    if (round_index // len(args.variants)) % 2:
         order = list(reversed(order))
     process_order.append(order)
     for name in order:
@@ -71,7 +72,8 @@ for name, binary in binaries.items():
     if hashlib.sha256(binary.read_bytes()).hexdigest() != builds[name]['binary_sha256']:
         raise ValueError('executable changed during measurement')
 report = dict(schema=1, method=__doc__, started_unix=started, finished_unix=time.time(),
-              rounds=args.rounds, process_order=process_order, builds=builds, results=results)
+              rounds=args.rounds, process_order=process_order, builds=builds, results=results,
+              orchestrator_sha256=hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest())
 args.output.parent.mkdir(parents=True, exist_ok=True)
 args.output.write_text(json.dumps(report, indent=2)+'\n')
 print('Saved', args.output)
