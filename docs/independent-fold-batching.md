@@ -1,0 +1,68 @@
+# Proved independent fold batching
+
+`knowledge/libraries/independent-fold-batching.ink` proves, for arbitrary item
+and state types and a total pure step:
+
+```ink
+states.map(fn(state) => foldl(xs, state, step))
+== foldl(xs, states, fn(item, current) =>
+     current.map(fn(state) => step(item, state)))
+```
+
+The proof is induction over the input list, generalising the states. It composes
+the ordinary map identity and map fusion laws. Every state sees the same input
+order and the same sequence of step applications. No associativity, commutativity,
+floating-point reassociation or fixed list length is assumed. A state may be a
+record containing an immutable column index and a changing accumulator.
+
+This permits one input traversal to advance several independent results. It is
+one ingredient of matrix blocking, but does not yet prove chunking, introduce
+fixed-width tiles, lift captured lane constants into records, or automatically
+replace the existing matrix multiplication library. A callback which captures
+the original outer seed is deliberately excluded when it cannot be expressed as
+a step shared by every lane.
+
+## Database authoring and discovery
+
+`ink_knowledge.law_templates.from_general(store, law_id)` creates an indexed
+template for a snapshot-owned polymorphic semantic law without assumptions or
+conditions. It preserves the type parameters, both endpoints and the law's
+parameters; an instantiated proof uses the original law. Assumption-bearing laws
+still need explicit premise synthesis and cannot pass through this factory.
+
+Templates can now declare `fixed_dependencies` alongside dependencies that are
+themselves type-instantiated templates. Fixed dependencies must be rewrite
+entries authenticated in the pinned snapshot. Their identities remain in the
+concrete proof closure. Limits on dependency count, template count and depth
+continue to apply. The same mechanism can expose other authored general laws;
+there is no batching-specific matcher or compiler rule.
+
+Publish the checked law bundle with `Store.extend`, create the template with
+`from_general`, and extend the same store with that template. The existing
+structural index and higher-order matcher infer the applicable types and callback
+arguments from ordinary source. They produce concrete laws and source adapters.
+Normal kernel replay checks the generic law, all supporting lemmas, type
+instantiation and the exact source endpoint. Template metadata grants no proof
+authority. Publication never makes supporting lemmas into search rules unless
+they too have an indexed template.
+
+## Validation and selection limits
+
+`knowledge/tests/test_general_templates.py` checks discovery for wrapping words,
+non-associative floating-point arithmetic and record states. It checks rejection
+of a captured-seed mismatch, a consistently rehashed dropped-input rewrite,
+missing snapshot dependencies, a dependency with the wrong role, and an attempt
+to erase a law's unproved conditions.
+
+`tests/independent_batches.rs` checks 55 cases against original reference
+evaluation and the selected reference, Rust, JavaScript and Rust-Wasm programs,
+including exact portable snapshots. Cases cover empty inputs and states,
+wrapping indices, missing matrix elements, signed zero, subnormal values,
+infinities and raw NaN inputs. These are conformance checks, not performance
+measurements or evidence of device GPU execution.
+
+The transformation can increase intermediate allocations or change locality in
+an unhelpful way. It remains an alternative for ordinary offline planning;
+selection requires comparable lifecycle evidence. There is no static dominance
+exception for batching and no claim of automatic matrix speedups from these
+checks.
