@@ -132,11 +132,22 @@ impl Walk<'_> {
                     .as_deref()
                     .cloned()
                     .map(Ok)
-                    .unwrap_or_else(|| check::infer(a, &Self::types(env), self.p))?;
+                    .unwrap_or_else(|| check::infer(a, &Self::types(env), self.p));
                 let value = self.image(a, env, d + 1)?;
                 let mut local = env.clone();
-                local.insert(n.clone(), (ty.clone(), Self::alias(&ty, value)?));
-                self.image(b, &local, d + 1)?
+                if let Ok(ty) = ty {
+                    local.insert(n.clone(), (ty.clone(), Self::alias(&ty, value)?));
+                    self.image(b, &local, d + 1)?
+                } else {
+                    // An opaque callback has deliberately unknown parameter
+                    // types. Preserve its untyped let instead of trying to
+                    // infer a record projection under the placeholder Unit.
+                    // Rename the binder so captured outer aliases cannot be
+                    // captured here. This image stays opaque to scalar proofs.
+                    let binder = format!("let_{}", registry::identity(&(e, env))?);
+                    local.insert(n.clone(), (Type::Unit, Expr::Var(binder.clone())));
+                    Expr::Let(binder, t.clone(), Box::new(value), Box::new(self.image(b, &local, d + 1)?))
+                }
             }
             Expr::Record(n, fields) => Expr::Record(
                 n.clone(),
@@ -280,7 +291,10 @@ impl Walk<'_> {
         d: usize,
     ) -> LangResult<()> {
         path.push(child);
-        let result = self.visit(e, env, facts, path, want, d + 1);
+        let result = self.visit(e, env, facts, path, want, d + 1).map_err(|error| {
+            if error.starts_with("bounds at ") { error }
+            else { format!("bounds at {} {:?}: {error}", self.function, path) }
+        });
         path.pop();
         result
     }
@@ -551,7 +565,12 @@ impl Walk<'_> {
                         };
                         self.lambda(arg, env, facts, path, &types, None, output.as_ref(), d + 1)?;
                     } else {
-                        self.visit(arg, env, facts, path, None, d + 1)?;
+                        // Fixed collection signatures supply the value context
+                        // to nested folds. Without it a literal accumulator can
+                        // default to U64 before meeting a U32 element read.
+                        let expected = rt.as_ref().and_then(|t|
+                            crate::analysis::collection_argument_context(t,name,i));
+                        self.visit(arg, env, facts, path, expected.as_ref(), d + 1)?;
                     }
                     path.pop();
                 }
@@ -619,7 +638,8 @@ fn derive(
                 facts.push(eq(condition, Term::Bool(true)));
             }
         }
-        w.visit(&f.body, &env, &facts, &mut vec![], Some(&f.result), 0)?;
+        w.visit(&f.body, &env, &facts, &mut vec![], Some(&f.result), 0)
+            .map_err(|error| format!("bounds function {}: {error}", f.name))?;
         out.extend(w.out);
         maps.extend(w.map_out);
         if out.len() + maps.len() > 4096 {
@@ -701,4 +721,55 @@ pub fn check(module: &CheckedModule, p: &Package) -> LangResult<CheckedBounds> {
         bitproof::verify(&problem, &c.proof)?;
     }
     Ok(CheckedBounds { sites })
+}
+
+#[cfg(test)]
+mod callback_image_tests {
+    use super::*;
+
+    #[test]
+    fn opaque_fold_images_preserve_record_local_bindings() {
+        let source = r#"module callback_images;
+record Row { value:u32, }
+fn scan(xs:List<Row>,index:u32)->u32 {
+    var values:Buffer<u32>=Buffer.empty();
+    for row in xs { let value=row.value; values=values.push(value); }
+    let result=values.freeze();
+    return result.at_or(index,0);
+}
+"#;
+        let module=CheckedModule::from_source(crate::syntax::parse(source).unwrap()).unwrap();
+        let goals=obligations(&module).unwrap();
+        assert_eq!(goals.len(),1);
+        assert_eq!(goals[0].site.function,"scan");
+        // No bounds authority is created merely by succeeding at projection.
+        assert!(matches!(goals[0].from,Term::Binary{ref op,..} if op=="<"));
+    }
+
+    #[test]
+    fn opaque_callback_images_do_not_merge_distinct_captures() {
+        let p=crate::syntax::parse("module image; record R { x:u32, }").unwrap();
+        let w=Walk {p:&p,function:"test".into(),next:0,params:BTreeMap::new(),types:BTreeMap::new(),opaque:BTreeMap::new(),word_bounds:vec![],out:vec![],map_out:vec![],nodes:0,measure:None};
+        let var=|n:&str|Expr::Var(n.into());
+        let body=Expr::Lambda("row".into(),Box::new(Expr::Let("local".into(),None,Box::new(Expr::Field(Box::new(var("row")),"x".into())),Box::new(Expr::Binary("+".into(),Box::new(var("local")),Box::new(var("outer")))))));
+        let env=|n|BTreeMap::from([("outer".into(),(Type::U32,Expr::Num(n)))]);
+        assert_ne!(w.image(&body,&env(1),0).unwrap(),w.image(&body,&env(2),0).unwrap());
+        assert_eq!(w.image(&body,&env(1),0).unwrap(),w.image(&body,&env(1),0).unwrap());
+    }
+
+    #[test]
+    fn buffer_element_context_reaches_nested_unsigned_folds() {
+        let p=crate::syntax::parse(r#"module nested_context;
+fn collect(xs:List<u32>,n:u32)->List<u32>{
+ let out:Buffer<u32>=Buffer.empty();
+ return out.push(repeat_until(n,0,fn(s)=>false,fn(i)=>fn(s)=>s+xs.at_or(i,0))).freeze();
+}
+"#).unwrap();
+        crate::analysis::typed_walk_context(&p,&p.functions[0],|e,_,want| {
+            if matches!(e,Expr::Call(n,_)if n=="repeat_until") {assert_eq!(want,Some(&Type::U32));}
+        }).unwrap();
+        let goals=obligations(&CheckedModule::from_source(p).unwrap()).unwrap();
+        assert_eq!(goals.len(),1);
+        assert_eq!(goals[0].site.function,"collect");
+    }
 }
