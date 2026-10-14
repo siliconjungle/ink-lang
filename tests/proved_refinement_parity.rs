@@ -146,7 +146,11 @@ fn v8_database_laws_preserve_modular_counts_and_branch_values_on_cpu_targets() {
         fn expanded(seed:u32,extra:u32)->u32{return repeat(4,seed,fn(i)=>fn(a)=>a+extra+i);}
         fn expanded_list(seed:List<u32>)->List<u32>{return repeat(2,seed,fn(i)=>fn(a)=>a.concat([i]));}
         fn expanded_record(seed:Acc,extra:u32)->Acc{return repeat(4,seed,fn(i)=>fn(a)=>Acc{value:a.value+extra+i,items:a.items.concat([i])});}
-        fn expanded_nested(xs:List<u32>,seed:u32)->List<u32>{return xs.map(fn(extra)=>repeat(2,seed,fn(i)=>fn(a)=>a+extra+i));}";
+        fn expanded_nested(xs:List<u32>,seed:u32)->List<u32>{return xs.map(fn(extra)=>repeat(2,seed,fn(i)=>fn(a)=>a+extra+i));}
+        fn shared_scalar(x:u64)->u64{return (x*7)+(x*7);}
+        fn shared_scan(xs:List<u32>)->u32{return foldl(xs,0,fn(x)=>fn(a)=>a+x*x)+foldl(xs,0,fn(x)=>fn(a)=>a+x*x);}
+        fn shared_nested(xs:List<u32>,outer:u32)->List<u32>{return xs.map(fn(x)=>(x+outer)*(x+outer));}
+        fn shared_float(x:f32)->f32{return (x*2.0)+(x*2.0);}";
     let input = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
     std::fs::write(output.join("source.ink"), source).unwrap();
     let result = Command::new("python3")
@@ -179,6 +183,16 @@ for label,raw in specialize(subject,model):
             arguments={}
             if match(law['from'],t,law['params'],arguments):
                 applications.append(dict(function=function,path=list(path),law=identity(obj),arguments=arguments,premises=[]))
+from producers.common_subexpressions import specialize as sharing
+shared_subject=dict(subject,functions={n:b for n,b in subject['functions'].items() if n.startswith('shared_')})
+shared_functions=set()
+for label,raw in sharing(shared_subject,model):
+    function=label.split('/')[1]
+    if function in shared_functions:continue
+    shared_functions.add(function)
+    law=bind(raw,model,subject);obj=semantic_entry(law);objects.append(obj)
+    applications.append(dict(function=function,path=[],law=identity(obj),arguments={n:dict(sort=s,node={'Free':n})for n,s in law['params'].items()},premises=[]))
+assert shared_functions=={'shared_scalar','shared_scan','shared_nested','shared_float'}
 store=Store.publish(d/'knowledge',objects)
 packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['input_core_sha256'],knowledge=store.bundle([identity(o) for o in objects]),applications=applications)
 (d/'selection.json').write_bytes(canonical(packet))
@@ -199,7 +213,7 @@ packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['inpu
         steps.push(json!({"pure":function,"args":args.iter().map(|v|v.json()).collect::<Vec<_>>(),"cpu_only":true}));
         expected.push(json!({"reply":{"value":value.json()},"snapshot":snapshot}));
     };
-    use verified_language::eval::Value::{U32,U64,Bool,List,Record};
+    use verified_language::eval::Value::{U32,U64,F32,Bool,List,Record};
     for k in [0,1,7,31,32,33,63,64,65,127,u32::MAX] {
         for (a,b) in [(0,0),(1,32),(u32::MAX,u32::MAX-1)] {
             push("distribute",vec![U32(a),U32(b),U32(k)]);
@@ -223,6 +237,14 @@ packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['inpu
         push("expanded_list",vec![List(vec![U32(a as u32)])]);
         push("expanded_record",vec![Record("Acc".into(),BTreeMap::from([("value".into(),U32(a as u32)),("items".into(),List(vec![U32(7)]))])),U32(b as u32)]);
         push("expanded_nested",vec![List(vec![U32(0),U32(1),U32(u32::MAX)]),U32(a as u32)]);
+    }
+    for x in [0,1,u64::MAX] {push("shared_scalar",vec![U64(x)]);}
+    for xs in [vec![],vec![U32(0),U32(1),U32(u32::MAX)]] {
+        push("shared_scan",vec![List(xs.clone())]);
+        push("shared_nested",vec![List(xs),U32(u32::MAX)]);
+    }
+    for bits in [0,0x8000_0000,0x3fa0_0000,0x7f80_0000,0xff80_0000,0x7fc0_1234] {
+        push("shared_float",vec![F32(bits)]);
     }
     parity::conformance_selected("v8-word-parity", &selected, source, steps, expected);
 }

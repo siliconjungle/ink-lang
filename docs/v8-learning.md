@@ -69,7 +69,7 @@ source-identity binding and incorrect shift-mask rejection. Seeded value checks
 exercise all proposal templates, including proposals without admitted proofs;
 these examples do not substitute for proof.
 
-`proved_refinement_parity` also replays word/conversion laws and literal loop expansions on 141 requests, including
+`proved_refinement_parity` also replays word/conversion laws and literal loop expansions and exact scalar sharing on 154 requests, including
 wrapping overflow, oversized counts, both branch directions and overlapping
 bitfields. The shared harness compares original reference outcomes and exact
 snapshots against generated native, JavaScript and Rust-Wasm execution. CPU
@@ -110,3 +110,30 @@ host Rust/JavaScript/Wasm compilers. Such delegation needs an explicit assessmen
 it cannot be inferred from a passing scalar test. Runtime specialization needs
 checked guards and exact fallback; speculative V8 observations alone cannot
 create unconditional database laws.
+
+## Exact repeated expressions
+
+`producers.common_subexpressions` supplies bounded proposals for explicit sharing
+of exact repeated pure scalar terms. Each callback scope is handled separately;
+new binders shift surrounding references before replacing occurrences. The
+proposal uses existing lambda/application syntax, which emits an ordinary lexical
+binding. A whole-function `Normalize` certificate and normal source binding are
+required. No hash, occurrence count or savings estimate grants proof authority.
+Mutable state reads, allocation identity and alias epochs are not inferred from
+V8's representation.
+
+A repeated list-fold workload measured about 1.97 times lower complete JavaScript
+call time after sharing. Three fresh Node processes used each of two disjoint
+training/holdout input sets, with list lengths 256, 2,048 and 8,192. The existing
+measurement adapter validates outcomes and unchanged inputs before and after
+timing and consumes complete outputs. The retained source, proof packet, emitted
+modules, workload packets and samples are in `bench/v8-learning/sharing`. This
+result concerns that workload on Node 26.1.0 on the shared arm64 host; it does not
+establish memory costs, other-backend gains or universal profitability.
+
+The second ten-program corpus evaluation compiled all programs and admitted
+alternatives; three were selected under existing gates. Only the earlier
+`u32/branch_condition_value` word law was attributable to this V8 library, on
+`ast-ancestor`; no literal-loop law was observed. All programs exhausted the
+quick search budget. It used newer planner/knowledge inputs than the first pair
+and cannot isolate their effects. See `bench/v8-learning/corpus-second-summary.json`.
