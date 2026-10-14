@@ -223,3 +223,8 @@ query read(k:u32)->Result<Batch,Error> reads(Groups){return Groups.get(k).ok_or(
         String::from_utf8_lossy(&out.stderr)
     );
 }
+
+// The cross-domain kernels exercise the same checked bounds and ownership
+// machinery; keep them in the mandatory physical-capability CI suite.
+#[path = "support/cross_domain_workloads.rs"]
+mod cross_domain_workloads;
