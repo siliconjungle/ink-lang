@@ -41,6 +41,8 @@ pub fn obligations(p: &Program) -> LangResult<Vec<bounds::Obligation>> {
         return Err("termination measure count limit".into());
     }
     let mut out = vec![];
+    let recursive = crate::analysis::recursive_function_groups(p)?.into_iter().flatten()
+        .map(|index| p.functions[index].name.as_str()).collect::<BTreeSet<_>>();
     for (name, measure) in &p.termination.measures {
         let f = p
             .functions
@@ -59,7 +61,7 @@ pub fn obligations(p: &Program) -> LangResult<Vec<bounds::Obligation>> {
             }
             if let Expr::Call(callee, _) = expression {
                 if let Some(helper) = p.functions.iter().find(|f| &f.name == callee) {
-                    if callee == name || crate::recursion::recursive(helper) {
+                    if callee == name || recursive.contains(callee.as_str()) {
                         return Err("termination measure depends on recursive execution".into());
                     }
                     if visited.insert(callee) {

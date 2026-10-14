@@ -1096,23 +1096,38 @@ fn check_word(t: &Type) -> bool {
     crate::check::is_word(t)
 }
 fn normal(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize) -> LangResult<Term> {
-    normal_inner(t, hyp, p, b, d, &mut BTreeSet::new())
+    let recursive = recursive_definitions(p)?;
+    normal_inner(t, hyp, p, b, d, &recursive)
+}
+fn recursive_definitions(p: &Program) -> LangResult<BTreeSet<&str>> {
+    Ok(crate::analysis::recursive_function_groups(p)?.into_iter().flatten()
+        .map(|index| p.functions[index].name.as_str()).collect())
+}
+fn concrete_arguments(args: &[Term]) -> bool {
+    let mut pending = args.iter().collect::<Vec<_>>();
+    while let Some(argument) = pending.pop() {
+        if matches!(argument.node, Node::Free(_) | Node::Bound(_) | Node::Lambda(_)) {
+            return false;
+        }
+        pending.extend(children(argument));
+    }
+    true
 }
 fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usize,
-    unfolding: &mut BTreeSet<String>) -> LangResult<Term> {
+    recursive: &BTreeSet<&str>) -> LangResult<Term> {
     b.step(d)?;
     // Fixed lazy control semantics: do not spend proof work unfolding a branch
     // that cannot execute. This also keeps a stopping loop's bound independent
     // of proof work when its initial stop condition is already true.
     if let Node::Op(name, args) = &t.node {
         if name == "call:choose" && args.len() == 3 {
-            let condition = normal_inner(&args[0], hyp, p, b, d + 1, unfolding)?;
+            let condition = normal_inner(&args[0], hyp, p, b, d + 1, recursive)?;
             if let Node::Bool(flag) = condition.node {
-                return normal_inner(&args[if flag { 1 } else { 2 }], hyp, p, b, d + 1, unfolding);
+                return normal_inner(&args[if flag { 1 } else { 2 }], hyp, p, b, d + 1, recursive);
             }
         }
     }
-    let out = try_map_children(t, |c| normal_inner(c, hyp, p, b, d + 1, unfolding))?;
+    let out = try_map_children(t, |c| normal_inner(c, hyp, p, b, d + 1, recursive))?;
     // Equality premises are oriented local facts. Match only exact typed terms.
     for (index, h) in hyp.iter().enumerate() {
         if out == h.from && h.from != h.to {
@@ -1124,14 +1139,14 @@ fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usiz
             let remaining = hyp.iter().enumerate()
                 .filter(|(i, _)| *i != index)
                 .map(|(_, equation)| equation.clone()).collect::<Vec<_>>();
-            return normal_inner(&h.to, &remaining, p, b, d + 1, unfolding);
+            return normal_inner(&h.to, &remaining, p, b, d + 1, recursive);
         }
     }
     let Node::Op(n, a) = &out.node else {
         return Ok(out);
     };
     if let Some(reduced) = crate::owned_semantic::reduce(&out)? {
-        return normal_inner(&reduced, hyp, p, b, d + 1, unfolding);
+        return normal_inner(&reduced, hyp, p, b, d + 1, recursive);
     }
     let reduced = match (n.as_str(), a.as_slice()) {
         ("call:Int", [x]) if x.sort == value(Type::Int) => Some(x.clone()),
@@ -1242,7 +1257,7 @@ fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usiz
         },
         ("call:repeat", [count, init, f]) => {
             let previous = match &count.node {
-                Node::Nat(0) => return normal_inner(init, hyp, p, b, d + 1, unfolding),
+                Node::Nat(0) => return normal_inner(init, hyp, p, b, d + 1, recursive),
                 Node::Nat(n) => Some(term(Sort::Nat, Node::Nat(n - 1))),
                 Node::Op(n, a) if n == "nat.succ" => Some(a[0].clone()),
                 _ => None,
@@ -1732,18 +1747,11 @@ fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usiz
         }
         (n, args) if n.starts_with("call:") => {
             if let Some(f) = p.functions.iter().find(|f| f.name == n[5..]) {
-                // Symbolic recursive calls retain their exact meaning. Unfold
-                // a definition once along this normalization path rather than
-                // inventing an infinite expansion of an unknown finite value.
-                let entered = unfolding.insert(f.name.clone());
-                if !entered {
-                    let mut pending = args.iter().collect::<Vec<_>>();
-                    while let Some(argument) = pending.pop() {
-                        if matches!(argument.node, Node::Free(_) | Node::Bound(_) | Node::Lambda(_)) {
-                            return Ok(out);
-                        }
-                        pending.extend(children(argument));
-                    }
+                // An unknown finite value cannot be exhaustively unfolded.
+                // Keep the actual call as an atom; concrete execution remains
+                // bounded by the ordinary semantic work/depth budget.
+                if recursive.contains(f.name.as_str()) && !concrete_arguments(args) {
+                    return Ok(out);
                 }
                 let body =
                     s::elaborate(&f.body, &crate::check::params_env(&f.params)?, p, &f.result)?;
@@ -1756,9 +1764,7 @@ fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usiz
                         .collect(),
                     b,
                 )?;
-                let result = normal_inner(&expanded, hyp, p, b, d + 1, unfolding);
-                if entered { unfolding.remove(&f.name); }
-                return result;
+                return normal_inner(&expanded, hyp, p, b, d + 1, recursive);
             } else {
                 None
             }
@@ -1766,7 +1772,7 @@ fn normal_inner(t: &Term, hyp: &[Equation], p: &Program, b: &mut Budget, d: usiz
         _ => None,
     };
     if let Some(t) = reduced {
-        return normal_inner(&t, hyp, p, b, d + 1, unfolding);
+        return normal_inner(&t, hyp, p, b, d + 1, recursive);
     }
     if let Some(t) = literal_primitive(&out, p, b)? {
         return Ok(t);
@@ -2142,6 +2148,13 @@ fn equivalent(
     b: &mut Budget,
     d: usize,
 ) -> LangResult<bool> {
+    let recursive = recursive_definitions(p)?;
+    equivalent_inner(a, c, hyp, p, b, d, &recursive)
+}
+fn equivalent_inner(
+    a: &Term, c: &Term, hyp: &[Equation], p: &Program,
+    b: &mut Budget, d: usize, recursive: &BTreeSet<&str>,
+) -> LangResult<bool> {
     b.step(d)?;
     if a == c {
         return Ok(true);
@@ -2149,10 +2162,13 @@ fn equivalent(
     if a.sort != c.sort {
         return Ok(false);
     }
+    if hyp.iter().any(|h| (h.from == *a && h.to == *c) || (h.from == *c && h.to == *a)) {
+        return Ok(true);
+    }
     if same_head(a, c) {
         let mut same = true;
         for (x, y) in children(a).into_iter().zip(children(c)) {
-            if !equivalent(x, y, hyp, p, b, d + 1)? {
+            if !equivalent_inner(x, y, hyp, p, b, d + 1, recursive)? {
                 same = false;
                 break;
             }
@@ -2176,7 +2192,8 @@ fn equivalent(
                         .map(|((n, _), v)| (n.clone(), v.clone()))
                         .collect();
                     let expanded = substitute(&body, &args, b)?;
-                    if equivalent(&expanded, right, hyp, p, b, d + 1)? {
+                    if expanded == *right || (!recursive.contains(name)
+                        && equivalent_inner(&expanded, right, hyp, p, b, d + 1, recursive)?) {
                         return Ok(true);
                     }
                 }
@@ -2187,8 +2204,8 @@ fn equivalent(
         .iter()
         .map(|h| {
             Ok(Equation {
-                from: normal(&h.from, &[], p, b, 0)?,
-                to: normal(&h.to, &[], p, b, 0)?,
+                from: normal_inner(&h.from, &[], p, b, 0, recursive)?,
+                to: normal_inner(&h.to, &[], p, b, 0, recursive)?,
             })
         })
         .collect::<LangResult<Vec<_>>>()?;
@@ -2225,8 +2242,8 @@ fn equivalent(
             for i in 0..previous.len() {
                 let others=previous.iter().enumerate().filter(|(j,_)|*j!=i)
                     .map(|(_,e)|e.clone()).collect::<Vec<_>>();
-                let derived=Equation {from:normal(&previous[i].from,&others,p,b,0)?,
-                    to:normal(&previous[i].to,&others,p,b,0)?};
+                let derived=Equation {from:normal_inner(&previous[i].from,&others,p,b,0,recursive)?,
+                    to:normal_inner(&previous[i].to,&others,p,b,0,recursive)?};
                 if derived.from!=derived.to && !facts.contains(&derived) {
                     if facts.len()>=1024{return Err("semantic derived fact count limit".into())}
                     facts.push(derived);
@@ -2236,8 +2253,8 @@ fn equivalent(
             if facts==previous {break}
         }
     }
-    let a = normal(a, &facts, p, b, 0)?;
-    let c = normal(c, &facts, p, b, 0)?;
+    let a = normal_inner(a, &facts, p, b, 0, recursive)?;
+    let c = normal_inner(c, &facts, p, b, 0, recursive)?;
     if a == c {
         return Ok(true);
     }
@@ -2251,7 +2268,7 @@ fn equivalent(
         return Ok(false);
     }
     for (a, c) in children(&a).into_iter().zip(children(&c)) {
-        if !equivalent(a, c, &facts, p, b, d + 1)? {
+        if !equivalent_inner(a, c, &facts, p, b, d + 1, recursive)? {
             return Ok(false);
         }
     }
