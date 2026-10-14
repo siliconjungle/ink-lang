@@ -1,0 +1,32 @@
+{
+  "change": "Generic fold source-cost analysis",
+  "planner_revision": "96184b9609bbf5120879a5786075d1150a3a831e",
+  "scope": "Untrusted logical source estimates; no proof, runtime adaptation, or measured performance authority",
+  "improvements": [
+    "Preserve initial accumulator type, shape and ownership",
+    "Use input element type independently of accumulator type",
+    "Track accumulator shape through bounded abstract transitions; scale only at an abstract fixed point",
+    "Handle foldl and foldr; mark unresolved growth incomplete",
+    "Skip unreachable callbacks for known empty folds and maps"
+  ],
+  "validation": {
+    "target_component_tests": 17,
+    "mandatory_hardening_python_tests": 92,
+    "before_after_regressions": 3
+  },
+  "generalisation_example": {
+    "input_type": "List<Bool>",
+    "accumulator_type": "List<U32>",
+    "input_length": 4,
+    "initial_accumulator_length": 3,
+    "unchanged_accumulator_owned_copy_bytes": 12,
+    "concat_two_items_per_step": {
+      "allocation_events": 4,
+      "allocation_bytes": 128,
+      "copy_bytes": 128,
+      "traversal_elements": 36
+    }
+  },
+  "performance": "No application speedup measured for this change",
+  "ci": "Full distribution verification pending"
+}
