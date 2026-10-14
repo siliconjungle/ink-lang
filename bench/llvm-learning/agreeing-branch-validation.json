@@ -1,0 +1,2291 @@
+{
+  "finding": "F068",
+  "status": "Locally validated; publication and all-green remote CI separate.",
+  "principle": "Unknown control-flow joins may retain agreeing exact scalar literal payloads while preserving the cost of evaluating condition and branch arms. No equality or profitability authority follows from the model.",
+  "actual_before": {
+    "estimate": {
+      "score_ns": 7,
+      "completeness_scope": "bounded source-component analysis, never exact physical lowering",
+      "components": {
+        "invocations": 1,
+        "traversal_elements": 7,
+        "allocation_events": 1,
+        "allocation_bytes": 28,
+        "copy_bytes": 0,
+        "scalar_ops": 7,
+        "div_rem": 0,
+        "branches": 2,
+        "loop_body_pressure": 7,
+        "gpu_dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "unknown_work": 0
+      },
+      "target": "javascript",
+      "boundary": "owned",
+      "complete": true,
+      "unknown_reasons": [],
+      "definitions_consumed": [
+        "run:caa866d51d97550e118d8541cd639028a125a4ce9c26b7112c5696e0cf73fc46"
+      ],
+      "assumptions": [
+        "Allocation/copy bytes are logical flat-carrier estimates; target representation and reuse may differ",
+        "Input cardinalities are user-supplied hypotheses, not validated runtime facts",
+        "Unknown branches use componentwise maximum; no branch frequency or independence assumed",
+        "loop_body_pressure is extent \u00d7 expanded callback work squared; not measured register pressure"
+      ]
+    },
+    "subject": {
+      "run": {
+        "sort": {
+          "Value": {
+            "List": "U32"
+          }
+        },
+        "node": {
+          "Op": [
+            "call:choose",
+            [
+              {
+                "sort": {
+                  "Value": "Bool"
+                },
+                "node": {
+                  "Op": [
+                    "call:choose",
+                    [
+                      {
+                        "sort": {
+                          "Value": "Bool"
+                        },
+                        "node": {
+                          "Free": "gate"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "Bool"
+                        },
+                        "node": {
+                          "Bool": true
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "Bool"
+                        },
+                        "node": {
+                          "Bool": true
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": {
+                    "List": "U32"
+                  }
+                },
+                "node": {
+                  "Op": [
+                    "method:map",
+                    [
+                      {
+                        "sort": {
+                          "Value": {
+                            "List": "U32"
+                          }
+                        },
+                        "node": {
+                          "Free": "ys"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Arrow": [
+                            {
+                              "Value": "U32"
+                            },
+                            {
+                              "Value": "U32"
+                            }
+                          ]
+                        },
+                        "node": {
+                          "Lambda": {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "binary:+",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Bound": 0
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 1
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": {
+                    "List": "U32"
+                  }
+                },
+                "node": {
+                  "Op": [
+                    "method:map",
+                    [
+                      {
+                        "sort": {
+                          "Value": {
+                            "List": "U32"
+                          }
+                        },
+                        "node": {
+                          "Free": "xs"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Arrow": [
+                            {
+                              "Value": "U32"
+                            },
+                            {
+                              "Value": "U32"
+                            }
+                          ]
+                        },
+                        "node": {
+                          "Lambda": {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "binary:+",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Bound": 0
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 1
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "core": {
+      "schema": 1,
+      "semantics": "ink-executable-core-v1",
+      "program": {
+        "module": "AgreeingBranch",
+        "functions": [
+          {
+            "name": "run",
+            "params": [
+              [
+                "gate",
+                "Bool"
+              ],
+              [
+                "xs",
+                {
+                  "List": "U32"
+                }
+              ],
+              [
+                "ys",
+                {
+                  "List": "U32"
+                }
+              ]
+            ],
+            "result": {
+              "List": "U32"
+            },
+            "body": {
+              "Call": [
+                "choose",
+                [
+                  {
+                    "Call": [
+                      "choose",
+                      [
+                        {
+                          "Var": "gate"
+                        },
+                        {
+                          "Bool": true
+                        },
+                        {
+                          "Bool": true
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "Method": [
+                      {
+                        "Var": "ys"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "x",
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Num": 1
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "Method": [
+                      {
+                        "Var": "xs"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "x",
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Num": 1
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        "rules": [],
+        "ids": [],
+        "records": {},
+        "enums": {},
+        "states": [],
+        "keeps": [],
+        "events": {},
+        "actions": []
+      }
+    },
+    "expected_traversal": 3,
+    "scope": "Actual checked source; unknown outer gate selects the same Bool value on both branches, so outer choose executes only ys traversal."
+  },
+  "actual_after": {
+    "estimate": {
+      "score_ns": 3,
+      "completeness_scope": "bounded source-component analysis, never exact physical lowering",
+      "components": {
+        "invocations": 1,
+        "traversal_elements": 3,
+        "allocation_events": 1,
+        "allocation_bytes": 12,
+        "copy_bytes": 0,
+        "scalar_ops": 3,
+        "div_rem": 0,
+        "branches": 2,
+        "loop_body_pressure": 3,
+        "gpu_dispatches": 0,
+        "upload_bytes": 0,
+        "readback_bytes": 0,
+        "unknown_work": 0
+      },
+      "target": "javascript",
+      "boundary": "owned",
+      "complete": true,
+      "unknown_reasons": [],
+      "definitions_consumed": [
+        "run:caa866d51d97550e118d8541cd639028a125a4ce9c26b7112c5696e0cf73fc46"
+      ],
+      "assumptions": [
+        "Allocation/copy bytes are logical flat-carrier estimates; target representation and reuse may differ",
+        "Input cardinalities are user-supplied hypotheses, not validated runtime facts",
+        "Unknown branches use componentwise maximum; no branch frequency or independence assumed",
+        "loop_body_pressure is extent \u00d7 expanded callback work squared; not measured register pressure"
+      ]
+    },
+    "subject": {
+      "run": {
+        "sort": {
+          "Value": {
+            "List": "U32"
+          }
+        },
+        "node": {
+          "Op": [
+            "call:choose",
+            [
+              {
+                "sort": {
+                  "Value": "Bool"
+                },
+                "node": {
+                  "Op": [
+                    "call:choose",
+                    [
+                      {
+                        "sort": {
+                          "Value": "Bool"
+                        },
+                        "node": {
+                          "Free": "gate"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "Bool"
+                        },
+                        "node": {
+                          "Bool": true
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "Bool"
+                        },
+                        "node": {
+                          "Bool": true
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": {
+                    "List": "U32"
+                  }
+                },
+                "node": {
+                  "Op": [
+                    "method:map",
+                    [
+                      {
+                        "sort": {
+                          "Value": {
+                            "List": "U32"
+                          }
+                        },
+                        "node": {
+                          "Free": "ys"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Arrow": [
+                            {
+                              "Value": "U32"
+                            },
+                            {
+                              "Value": "U32"
+                            }
+                          ]
+                        },
+                        "node": {
+                          "Lambda": {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "binary:+",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Bound": 0
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 1
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": {
+                    "List": "U32"
+                  }
+                },
+                "node": {
+                  "Op": [
+                    "method:map",
+                    [
+                      {
+                        "sort": {
+                          "Value": {
+                            "List": "U32"
+                          }
+                        },
+                        "node": {
+                          "Free": "xs"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Arrow": [
+                            {
+                              "Value": "U32"
+                            },
+                            {
+                              "Value": "U32"
+                            }
+                          ]
+                        },
+                        "node": {
+                          "Lambda": {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "binary:+",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Bound": 0
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 1
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "core": {
+      "schema": 1,
+      "semantics": "ink-executable-core-v1",
+      "program": {
+        "module": "AgreeingBranch",
+        "functions": [
+          {
+            "name": "run",
+            "params": [
+              [
+                "gate",
+                "Bool"
+              ],
+              [
+                "xs",
+                {
+                  "List": "U32"
+                }
+              ],
+              [
+                "ys",
+                {
+                  "List": "U32"
+                }
+              ]
+            ],
+            "result": {
+              "List": "U32"
+            },
+            "body": {
+              "Call": [
+                "choose",
+                [
+                  {
+                    "Call": [
+                      "choose",
+                      [
+                        {
+                          "Var": "gate"
+                        },
+                        {
+                          "Bool": true
+                        },
+                        {
+                          "Bool": true
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "Method": [
+                      {
+                        "Var": "ys"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "x",
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Num": 1
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "Method": [
+                      {
+                        "Var": "xs"
+                      },
+                      "map",
+                      [
+                        {
+                          "Lambda": [
+                            "x",
+                            {
+                              "Binary": [
+                                "+",
+                                {
+                                  "Var": "x"
+                                },
+                                {
+                                  "Num": 1
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        "rules": [],
+        "ids": [],
+        "records": {},
+        "enums": {},
+        "states": [],
+        "keeps": [],
+        "events": {},
+        "actions": []
+      }
+    },
+    "expected_traversal": 3,
+    "scope": "Actual checked source; unknown outer gate selects the same Bool value on both branches, so outer choose executes only ys traversal."
+  },
+  "proof_replay": {
+    "checked": 24,
+    "status": "pass",
+    "valid_stdout": "{\"entries\":[\"05d7e35423a485981b0fdfd72db88412f4b7bd2f968a2c64c8b9ce99b0b83799\",\"29b4865f4e54f4de5175dc47ac7f7250e713ac4e51cd6cc33c7807b46e531ab2\",\"29edb1ba306e61d3c1ae9a2551c6b6c958b87f0456d4486b9f15300d0423f53c\",\"3fb599d5ee4680317ac70d9924fbe81324381448bf9c7f79d26b43cf45b0d03a\",\"40b92c8668b8818bf1cf31fc4459052446d9dea4275a25f5bcf56963f86c9b43\",\"6908f5da8324f00de1b7cd494f61ba1970e52c6ba976802fc4c9e658b639f1c9\",\"6dba1ba8cbf9a818846b45697de6ab26e1271b727ef0723056aeac88b2fc95dd\",\"73ebcf7d768415b48cdcfa1db3354c21af227ad26323f2d22d60e1fa92092ef3\",\"78cd20aa322cb55c085c008e45e50a3a368649142b9a64af68f9b53e119c84d6\",\"83f2a07c19a5c12928cdae969138095e5237a890bfe6f2862ed34391d99bdbaf\",\"8d895dfaf7a94281620d344c26fbb0307fef4af5fa4c08fe20664bbe2c7d5efc\",\"a16cbe7a01e7f1ad0699ba468379b6eb2a2bb93dcd08867a3f1d697d65e7b1ef\",\"b13867796e1c77cf5b871362d728bf4faea9e6d762223dd716bce5bce2e23e85\",\"b186d50641efeaf10a0bc64524d12a09e80c92090b06c0f0ddcbd619ba944247\",\"b1a4a8c9d53cdc7adc0bf8d53213df9ae22ee7634e8ad1fc06d0efdf4f982bd5\",\"c5c78ed3f7ca5b7228f5f5912eb50f7fccf8b671526ab567dcd6ac6b43a69580\",\"caf4922f0a86939063d2fa50b091b6db3b91972bb848b41020559aced7504bb5\",\"da518eeba9737bdb92f560cc7261dea963d1a6e9bf5946d3b6c79c0ce2d08820\",\"da6232384caf2a985aa02b4748ebd5b19db20154bc8dafd8e686c57716357bf6\",\"dce35e2049e36d4f0680242f798d9e856c8d47e2b8df37f4444afc5fc2bd5782\",\"e9a5478bccc35f0eccaf14f87d8c162aac94774498d92a1f05e51b73996055a2\",\"fbe32d75c762b0423a3146f909b726fd45593ed14baabd74a63b6fea33a08c85\",\"fc2442f879d1a1adacc026edef0ddb061817ea0b19170577f14abcb18bd53ca6\",\"fc9be696fedc5ee7294ee1d2f4d1b5d8ae009fc3baa2e5a4cf60abd1b964d1a0\"],\"snapshot_sha256\":\"a13f0339f85f996b17104fb98b96c272bb3316825d5799f3efb75cb261e5f6ec\",\"status\":\"checked\"}\n",
+    "false_rehashed_rejected": true,
+    "rejection": "error: case false: semantic normal forms differ\n",
+    "scope": "Actual independent kernel replay of existing24generic concrete control laws; no new laws or runtime speed claim."
+  },
+  "tests": {
+    "before": "Four of five new regressions fail on published model; unresolved-closure negative test already passes.",
+    "focused": "30 tests pass0.126s",
+    "mandatory": "llvm_learning_and_incremental_knowledge_remain_checked pass38.03s",
+    "reference_execution": "Both Boolean gate values produce [11,21,31] from3-element ys, not7-element xs; maintained actual compiler test verifies source/subject shape and traversal count."
+  },
+  "source_sha256": {
+    "planner/ink_planner/target_costs.py": "c31e9d2f2e15e13d044e7b2529392683ed38985d43078c7b76b567fb4158ac8e",
+    "planner/tests/test_target_components.py": "75a45e962ce43fd5dbcaf46d66716b7203e5944b4897f71b3e4f3d8bfab59916",
+    "knowledge/tests/test_control_choice_templates.py": "845d7ac6eb18329a8937293f2cb6f17d347c4525e97b5fc41a8b981bfc63d930",
+    "tests/hardening.rs": "e17a68b703a8bc86513874f5e77eb9baaebaea87a6ce7d2498dc92752ba3fd86",
+    "docs/database-planning.md": "30d730dfa1e5dc6dcee2df43021a5214e9d9179051de2ed35ddf1ee0495b4e92"
+  },
+  "logs_sha256": {
+    "agreeing-branch-before-regressions.log": "9c6c0c09b671cf4202ce7a7fbbf7e84ffacba4d0d50cd2a2635909801e0f0100",
+    "agreeing-branch-final-focused.log": "3677ce6ea731ca4a210cfa02854947b22e3ed6747cfcb2d8635ad11c44152822",
+    "agreeing-branch-final-hardening.log": "c7617288e5be962eab98f5a351a739cac74141b95e89f314c082c80fa0e4b9e0",
+    "agreeing-branch-corpus.log": "f19417888310dd06b4fcde6f0729000ca3dc073fe14c2f53550dcb85f921c28b"
+  },
+  "corpus": {
+    "before_context": {
+      "target": "javascript",
+      "planning_effort": "quick",
+      "environment": {
+        "controls": {
+          "CARGO_HOME": "b8d9aeaafae487937fc06739976f4e724369a5136c17f9a1b2071dae98d91dba",
+          "RUSTUP_HOME": "9a70dc38f0a6a4c16066435c5ada5c76d738902825e2be9912314e04a7780484"
+        },
+        "host": {
+          "machine": "arm64",
+          "node": "Jamess-MacBook-Pro.local",
+          "processor": "arm",
+          "release": "24.6.0",
+          "system": "Darwin"
+        },
+        "python": {
+          "base_prefix": "/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14",
+          "cache_tag": "cpython-314",
+          "distributions": {
+            "hnswlib": {
+              "available": false
+            },
+            "numpy": {
+              "available": false
+            },
+            "python-sat": {
+              "available": true,
+              "content": {
+                "files": 52,
+                "sha256": "ee61fe8d6dabfea5edd6c4769d7375ca0a90ee026ba3678d4c6c3ade4e85ecef"
+              },
+              "files_recorded": true,
+              "version": "1.9.dev5"
+            },
+            "six": {
+              "available": true,
+              "content": {
+                "files": 7,
+                "sha256": "2e0f340f0212ba60dd674fabfeccf9a6bdbd6e54dbee23f1211b9510fde25eeb"
+              },
+              "files_recorded": true,
+              "version": "1.17.0"
+            }
+          },
+          "executable": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/bin/python3",
+          "implementation": "cpython",
+          "modules": {
+            "hnswlib": {
+              "available": false
+            },
+            "numpy": {
+              "available": false
+            },
+            "pysat": {
+              "available": true,
+              "content": {
+                "files": 28,
+                "sha256": "636f1bab10e979179fd3f9d618ab9b0fffb1bae35f9aa53b5f3345934c21391e"
+              },
+              "locations": [
+                "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/lib/python3.14/site-packages/pysat"
+              ],
+              "origin": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/lib/python3.14/site-packages/pysat/__init__.py"
+            },
+            "pysolvers": {
+              "available": true,
+              "content": {
+                "files": 1,
+                "sha256": "ac1704960d286ec602a8288405b87396ea18ec5d3c66ad61de7a1d350dd7b135"
+              },
+              "locations": [],
+              "origin": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/lib/python3.14/site-packages/pysolvers.cpython-314-darwin.so"
+            },
+            "six": {
+              "available": true,
+              "content": {
+                "files": 1,
+                "sha256": "999328593826ab9930b88e4287b8baf4c72bf6bae5278fb7eb90eae71b0f477d"
+              },
+              "locations": [],
+              "origin": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/lib/python3.14/site-packages/six.py"
+            }
+          },
+          "prefix": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv",
+          "resolved": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+          "sha256": "d8f1d508de5acfd500f20d1949528375ff4a1f470efb267f00d1770941cdeee3",
+          "soabi": "cpython-314-darwin",
+          "sqlite": "3.53.4",
+          "version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 17.0.0 (clang-1700.6.4.2)]"
+        },
+        "schema": 1,
+        "tools": {
+          "node": {
+            "available": true,
+            "executable": "/Users/jamesaddison/.nvm/versions/node/v22.22.1/bin/node",
+            "resolved": "/Users/jamesaddison/.nvm/versions/node/v22.22.1/bin/node",
+            "sha256": "245e0321af97d3c21dd4e7104457334dfe3c3ba7982d0db75363e354565f8cbb",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_sha256": "d757d43c53951704e32c04b9b1e6b4cc65713b659e72fcdbb02f5200675c7fd8",
+            "version_status": 0
+          }
+        }
+      },
+      "timeout": 600,
+      "planner_source_sha256": "f5fc86d00439757f1fdb00f4b4ef0a6e129e05906c123adf6e934828c5069579",
+      "compiler_sha256": "b59a73a11a57237cbfb735499f52df78c322dfe58dfdc2e4b166aeb911019115",
+      "snapshot": "dfa5febf2e6fcae26dcac09ba0636c31ecd79389994925262a704de867d7f5f7",
+      "registry_sha256": "25b50931a4194162918da4da116436aded2bb56579398708fdd3170720a3adef",
+      "producer_source_sha256": "a47008450126060082f05a89a067bb6dbedc36122eebea9f8d6177fbcd6c5323",
+      "manifest_sha256": "7e543f59af019ad96719bc4bc858b8da98d4dfbc41be12f6cc09317e5aaa4288",
+      "corpus_inputs": {
+        "sequence-every": {
+          "core_sha256": "44dc64a74456ff85189fc9d8969a5d23ca8b1fdfc43db8a28b18656980a840b3",
+          "capture_sha256": "ddb7fb7ebbafc7dd3b9038ea11fb2bcbd214b39de5b1aa49d0d7d2ca1a9184af"
+        },
+        "ast-ancestor": {
+          "core_sha256": "c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a",
+          "capture_sha256": "7cd472f65d531907041619421f6396fa30530e52c8587a3f1e07e0736e96f216"
+        },
+        "text-lines": {
+          "core_sha256": "0634958705c7abf328f46a587248b142ecc0b787c8f6adc86e7caaec25e98971",
+          "capture_sha256": "67976e27635a5b8a4294c884c12c21410f29f46bdbd30ffeb3cb747bbd60aa95"
+        },
+        "drawing-hit": {
+          "core_sha256": "4353976cdb705e415e24e54597fcc71b87812fcff845d5d66e13aa13c678fc12",
+          "capture_sha256": "7c9be22aa8236a412e2e17ba32a6f1635a5f7f3e241aee497ca9198485763e03"
+        },
+        "particle-step": {
+          "core_sha256": "de0b37ddb9679078d9aa6030d4faabfee76e27d389ab1952329aefb2be9a0ea8",
+          "capture_sha256": "5fe06246345af1351458cc32ed04fd2f197c1855d2e10d95ff0657688ed7678d"
+        },
+        "spatial-collision": {
+          "core_sha256": "d7ec714b376b0d6ef96de74d4c82a11f2e5fe1f69741e3a16c3769994167c14f",
+          "capture_sha256": "6edbb71faea863acc1993e508af38fc125cc94dbd05c21674e6f9b1fcd5afa5b"
+        },
+        "index-membership": {
+          "core_sha256": "3dd1622462455584f5c70eac19f035c668ceedb440472462a006ff6070959693",
+          "capture_sha256": "b6f5decda97f172c8b05981d82e59179257350e654ae48c62a840c5268a45f07"
+        },
+        "incremental-distinct": {
+          "core_sha256": "57abb3fd09d2310f001759da691b0514a45611ddadc5c11d7a0f0f9094d2b29b",
+          "capture_sha256": "6bf2be0114e461cd4ac07a14930090472cf99cec4b7cd0669f5efca3c2064a32"
+        },
+        "bulk-update": {
+          "core_sha256": "4974307099a2517e44d06e4cb6b5e2e8e64aefde0157c06cff2934fc58d01a37",
+          "capture_sha256": "e2a91c6effbb36398d3319efe3a0008f84a2400998fef8bf772be0863416b7a5"
+        },
+        "compact-set": {
+          "core_sha256": "eddeb5f9ed8754afd2bb466ff9eab47821ae3aaa79ecaf776f85d6db593a65db",
+          "capture_sha256": "ac06bf34619e1a8463d92a4eb9efe55995c6b991af16b6d9ea2bddf44df515d5"
+        }
+      }
+    },
+    "after_context": {
+      "target": "javascript",
+      "planning_effort": "quick",
+      "environment": {
+        "controls": {
+          "CARGO_HOME": "b8d9aeaafae487937fc06739976f4e724369a5136c17f9a1b2071dae98d91dba",
+          "RUSTUP_HOME": "9a70dc38f0a6a4c16066435c5ada5c76d738902825e2be9912314e04a7780484"
+        },
+        "host": {
+          "machine": "arm64",
+          "node": "Jamess-MacBook-Pro.local",
+          "processor": "arm",
+          "release": "24.6.0",
+          "system": "Darwin"
+        },
+        "python": {
+          "base_prefix": "/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14",
+          "cache_tag": "cpython-314",
+          "distributions": {
+            "hnswlib": {
+              "available": false
+            },
+            "numpy": {
+              "available": false
+            },
+            "python-sat": {
+              "available": true,
+              "content": {
+                "files": 52,
+                "sha256": "ee61fe8d6dabfea5edd6c4769d7375ca0a90ee026ba3678d4c6c3ade4e85ecef"
+              },
+              "files_recorded": true,
+              "version": "1.9.dev5"
+            },
+            "six": {
+              "available": true,
+              "content": {
+                "files": 7,
+                "sha256": "2e0f340f0212ba60dd674fabfeccf9a6bdbd6e54dbee23f1211b9510fde25eeb"
+              },
+              "files_recorded": true,
+              "version": "1.17.0"
+            }
+          },
+          "executable": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/bin/python3",
+          "implementation": "cpython",
+          "modules": {
+            "hnswlib": {
+              "available": false
+            },
+            "numpy": {
+              "available": false
+            },
+            "pysat": {
+              "available": true,
+              "content": {
+                "files": 28,
+                "sha256": "636f1bab10e979179fd3f9d618ab9b0fffb1bae35f9aa53b5f3345934c21391e"
+              },
+              "locations": [
+                "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/lib/python3.14/site-packages/pysat"
+              ],
+              "origin": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/lib/python3.14/site-packages/pysat/__init__.py"
+            },
+            "pysolvers": {
+              "available": true,
+              "content": {
+                "files": 1,
+                "sha256": "ac1704960d286ec602a8288405b87396ea18ec5d3c66ad61de7a1d350dd7b135"
+              },
+              "locations": [],
+              "origin": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/lib/python3.14/site-packages/pysolvers.cpython-314-darwin.so"
+            },
+            "six": {
+              "available": true,
+              "content": {
+                "files": 1,
+                "sha256": "999328593826ab9930b88e4287b8baf4c72bf6bae5278fb7eb90eae71b0f477d"
+              },
+              "locations": [],
+              "origin": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv/lib/python3.14/site-packages/six.py"
+            }
+          },
+          "prefix": "/Users/jamesaddison/Documents/Codex/2026-10-14/can-3/work/pyenv",
+          "resolved": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+          "sha256": "d8f1d508de5acfd500f20d1949528375ff4a1f470efb267f00d1770941cdeee3",
+          "soabi": "cpython-314-darwin",
+          "sqlite": "3.53.4",
+          "version": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 17.0.0 (clang-1700.6.4.2)]"
+        },
+        "schema": 1,
+        "tools": {
+          "node": {
+            "available": true,
+            "executable": "/Users/jamesaddison/.nvm/versions/node/v22.22.1/bin/node",
+            "resolved": "/Users/jamesaddison/.nvm/versions/node/v22.22.1/bin/node",
+            "sha256": "245e0321af97d3c21dd4e7104457334dfe3c3ba7982d0db75363e354565f8cbb",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_sha256": "d757d43c53951704e32c04b9b1e6b4cc65713b659e72fcdbb02f5200675c7fd8",
+            "version_status": 0
+          }
+        }
+      },
+      "timeout": 600,
+      "planner_source_sha256": "83de7b1d9635e5fc8c2496482199ff968078c9a9fd64ccf9590502139a695a44",
+      "compiler_sha256": "b59a73a11a57237cbfb735499f52df78c322dfe58dfdc2e4b166aeb911019115",
+      "snapshot": "dfa5febf2e6fcae26dcac09ba0636c31ecd79389994925262a704de867d7f5f7",
+      "registry_sha256": "25b50931a4194162918da4da116436aded2bb56579398708fdd3170720a3adef",
+      "producer_source_sha256": "a47008450126060082f05a89a067bb6dbedc36122eebea9f8d6177fbcd6c5323",
+      "manifest_sha256": "7e543f59af019ad96719bc4bc858b8da98d4dfbc41be12f6cc09317e5aaa4288",
+      "corpus_inputs": {
+        "sequence-every": {
+          "core_sha256": "44dc64a74456ff85189fc9d8969a5d23ca8b1fdfc43db8a28b18656980a840b3",
+          "capture_sha256": "ddb7fb7ebbafc7dd3b9038ea11fb2bcbd214b39de5b1aa49d0d7d2ca1a9184af"
+        },
+        "ast-ancestor": {
+          "core_sha256": "c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a",
+          "capture_sha256": "7cd472f65d531907041619421f6396fa30530e52c8587a3f1e07e0736e96f216"
+        },
+        "text-lines": {
+          "core_sha256": "0634958705c7abf328f46a587248b142ecc0b787c8f6adc86e7caaec25e98971",
+          "capture_sha256": "67976e27635a5b8a4294c884c12c21410f29f46bdbd30ffeb3cb747bbd60aa95"
+        },
+        "drawing-hit": {
+          "core_sha256": "4353976cdb705e415e24e54597fcc71b87812fcff845d5d66e13aa13c678fc12",
+          "capture_sha256": "7c9be22aa8236a412e2e17ba32a6f1635a5f7f3e241aee497ca9198485763e03"
+        },
+        "particle-step": {
+          "core_sha256": "de0b37ddb9679078d9aa6030d4faabfee76e27d389ab1952329aefb2be9a0ea8",
+          "capture_sha256": "5fe06246345af1351458cc32ed04fd2f197c1855d2e10d95ff0657688ed7678d"
+        },
+        "spatial-collision": {
+          "core_sha256": "d7ec714b376b0d6ef96de74d4c82a11f2e5fe1f69741e3a16c3769994167c14f",
+          "capture_sha256": "6edbb71faea863acc1993e508af38fc125cc94dbd05c21674e6f9b1fcd5afa5b"
+        },
+        "index-membership": {
+          "core_sha256": "3dd1622462455584f5c70eac19f035c668ceedb440472462a006ff6070959693",
+          "capture_sha256": "b6f5decda97f172c8b05981d82e59179257350e654ae48c62a840c5268a45f07"
+        },
+        "incremental-distinct": {
+          "core_sha256": "57abb3fd09d2310f001759da691b0514a45611ddadc5c11d7a0f0f9094d2b29b",
+          "capture_sha256": "6bf2be0114e461cd4ac07a14930090472cf99cec4b7cd0669f5efca3c2064a32"
+        },
+        "bulk-update": {
+          "core_sha256": "4974307099a2517e44d06e4cb6b5e2e8e64aefde0157c06cff2934fc58d01a37",
+          "capture_sha256": "e2a91c6effbb36398d3319efe3a0008f84a2400998fef8bf772be0863416b7a5"
+        },
+        "compact-set": {
+          "core_sha256": "eddeb5f9ed8754afd2bb466ff9eab47821ae3aaa79ecaf776f85d6db593a65db",
+          "capture_sha256": "ac06bf34619e1a8463d92a4eb9efe55995c6b991af16b6d9ea2bddf44df515d5"
+        }
+      }
+    },
+    "changed_context_keys": [
+      "planner_source_sha256"
+    ],
+    "before": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 15.288499999999999,
+      "stopped_by_time": 2,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 6
+      }
+    },
+    "after": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 15.7935,
+      "stopped_by_time": 4,
+      "laws_admitted": 43,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_budget": 6,
+        "selected_alternative": 4
+      }
+    },
+    "before_programs": [
+      {
+        "name": "sequence-every",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 12.946,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 27,
+          "properties": 5
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 27,
+        "rewrite_alternatives": 27,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "ast-ancestor",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 13.853,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "text-lines",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 11.722,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "drawing-hit",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 16.607,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "particle-step",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 16.307,
+        "stop_reason": "time",
+        "admitted_states": 6,
+        "candidates": 6,
+        "admitted_edges": {
+          "rewrite": 4,
+          "physical": 17
+        },
+        "semantic": {
+          "matched": 3,
+          "checked": 3,
+          "admitted": 3,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 1,
+        "rewrite_alternatives": 1,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "spatial-collision",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 15.477,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "index-membership",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 16.856,
+        "stop_reason": "time",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 29,
+          "properties": 2
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 29,
+        "rewrite_alternatives": 29,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "incremental-distinct",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 13.604,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "bulk-update",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 15.1,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "compact-set",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 40.333,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      }
+    ],
+    "after_programs": [
+      {
+        "name": "sequence-every",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 14.643,
+        "stop_reason": "time",
+        "admitted_states": 27,
+        "candidates": 27,
+        "admitted_edges": {
+          "rewrite": 25,
+          "properties": 1
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 25,
+        "rewrite_alternatives": 25,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "ast-ancestor",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 15.361,
+        "stop_reason": "time",
+        "admitted_states": 23,
+        "candidates": 23,
+        "admitted_edges": {
+          "rewrite": 22
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 22,
+        "rewrite_alternatives": 22,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "text-lines",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 12.733,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "drawing-hit",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 18.849,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32,
+          "extension": 1
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "particle-step",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 17.775,
+        "stop_reason": "time",
+        "admitted_states": 6,
+        "candidates": 6,
+        "admitted_edges": {
+          "rewrite": 3,
+          "physical": 12
+        },
+        "semantic": {
+          "matched": 3,
+          "checked": 3,
+          "admitted": 3,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 1,
+        "rewrite_alternatives": 1,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "spatial-collision",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 16.226,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "index-membership",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 15.338,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 30,
+          "properties": 2
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 29,
+        "rewrite_alternatives": 29,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      },
+      {
+        "name": "incremental-distinct",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 16.796,
+        "stop_reason": "time",
+        "admitted_states": 22,
+        "candidates": 22,
+        "admitted_edges": {
+          "rewrite": 21
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 21,
+        "rewrite_alternatives": 21,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "bulk-update",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 15.223,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": false,
+        "last_gate": "measurement_budget",
+        "selection_reason": "baseline retained; no robust measured lifecycle improvement"
+      },
+      {
+        "name": "compact-set",
+        "split": "heldout",
+        "status": 0,
+        "seconds": 34.403,
+        "stop_reason": "states",
+        "admitted_states": 32,
+        "candidates": 32,
+        "admitted_edges": {
+          "rewrite": 32
+        },
+        "semantic": {
+          "matched": 0,
+          "checked": 0,
+          "admitted": 0,
+          "rejected": 0,
+          "unchecked": 0
+        },
+        "alternatives_with_knowledge": 31,
+        "rewrite_alternatives": 31,
+        "selected_alternative": true,
+        "last_gate": "selected_alternative",
+        "selection_reason": "paired complete-lifecycle improvement on selection inputs"
+      }
+    ],
+    "references": [
+      {
+        "name": "sequence-every",
+        "before": 31,
+        "after": 26,
+        "equal": false,
+        "shorter_is_prefix": true
+      },
+      {
+        "name": "ast-ancestor",
+        "before": 31,
+        "after": 22,
+        "equal": false,
+        "shorter_is_prefix": true
+      },
+      {
+        "name": "text-lines",
+        "before": 31,
+        "after": 31,
+        "equal": true,
+        "shorter_is_prefix": true
+      },
+      {
+        "name": "drawing-hit",
+        "before": 31,
+        "after": 31,
+        "equal": false,
+        "shorter_is_prefix": false
+      },
+      {
+        "name": "particle-step",
+        "before": 5,
+        "after": 5,
+        "equal": true,
+        "shorter_is_prefix": true
+      },
+      {
+        "name": "spatial-collision",
+        "before": 31,
+        "after": 31,
+        "equal": true,
+        "shorter_is_prefix": true
+      },
+      {
+        "name": "index-membership",
+        "before": 31,
+        "after": 31,
+        "equal": true,
+        "shorter_is_prefix": true
+      },
+      {
+        "name": "incremental-distinct",
+        "before": 31,
+        "after": 21,
+        "equal": false,
+        "shorter_is_prefix": true
+      },
+      {
+        "name": "bulk-update",
+        "before": 31,
+        "after": 31,
+        "equal": true,
+        "shorter_is_prefix": true
+      },
+      {
+        "name": "compact-set",
+        "before": 31,
+        "after": 31,
+        "equal": true,
+        "shorter_is_prefix": true
+      }
+    ],
+    "attribution_equal": false,
+    "before_attribution": {
+      "67945ed9ba849de3e6619f9ed933b30ef0f147d406b173d1c024f3dda2d2d845": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "7069b2b125e492c9b2f2d90d080ebad213dd2a0b5f63f58e2eea34054deaf5e3": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor",
+          "bulk-update",
+          "compact-set",
+          "drawing-hit",
+          "incremental-distinct",
+          "index-membership",
+          "sequence-every",
+          "spatial-collision",
+          "text-lines"
+        ]
+      },
+      "8aadb841ec7a269ee99da4d0133fc94669bf0cb41c12cd339b5c5076b604654c": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "328a77c62a310366d5fb5940eb002a3a72a26348437dae69fc4c403e4c2ccd75": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "73a2a5e50087631bb0711f9d42f7adaafc3315c28c44113a84c7fd31ba28b5f2": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "89cb065defbc893a45be051f6bb6c7de3868bfd4795dd464acd135406ab650a9": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "9fbee22804912f69d16f26d490cb16cfc07cb3110b8d4083886645ba32922eab": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "8c2dc4e9d4ed881c25334035c007745be5b390e074102773e898c99871fb243c": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor",
+          "bulk-update",
+          "incremental-distinct",
+          "index-membership",
+          "sequence-every",
+          "spatial-collision",
+          "text-lines"
+        ]
+      },
+      "1e53f054cb56ba87a6306ca4ae4776866ae531506bc60e8d6e63258f68f0a40d": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "2b9c7f4bd2041189dc881dfa01b5d3f7058bccf185bd1012a1b4674252ac343c": {
+        "kind": "law",
+        "name": "sets.indexed-construction.u32.word_equal_symmetric",
+        "programs": [
+          "ast-ancestor",
+          "bulk-update",
+          "compact-set",
+          "index-membership",
+          "text-lines"
+        ]
+      },
+      "b4bdd6f06eb1fac4cf44a28ba312b73c2fd5c9b1ddb2c4c5648e88c5a823ccf1": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "d772b42ab196c50768f0387df7eadeee8769e139fa65515ce6ff07b2e815ca93": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "4be4887089b90e119a43007cf2bb4448e4777d01557a7162c360a66d3765923e": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "6830ed35ef507665879728e25d4fc8116d2571de7e5b4955176d6947a248ee38": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "08ff52b0bb3c83b52a9b9040dfa6fb2730f76bc3d8e286b1e656aa2627e8d798": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "c220b4afd1d5f778bc51bc21b7c44bd5f0bbec3e36ffb6aab3cb11367d2c737f": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "b3696a807a9bdbb2338267cd3e5477d2c8b299f8c9a227a289261233acd86e37": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "b912e8d070f87a106987dd93f68d3314429b086515285e997c6efc185016f317": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "text-lines"
+        ]
+      },
+      "85e3e0c622235b10f7c2bf2263c6fdd9e861feb5bebfa59d8f23bcef586d0ee0": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "text-lines"
+        ]
+      },
+      "992709f96310f41860c7959f949666093d8af25ff2accf2d6d636cae70d507e0": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "b25eacd1251bfc294131cd67c0b69c3f27a5cba944a356655baab3d56e6dc9ac": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set",
+          "drawing-hit",
+          "index-membership",
+          "spatial-collision"
+        ]
+      },
+      "4d4c3f18bc3fa9485734cf403edcb929a95958b6851872c85331b8ad2a809340": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "7990f49602301b4cb2e2202e958dfaaaa79172e5dd9020b9f36d33118cc09930": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit",
+          "spatial-collision"
+        ]
+      },
+      "fca76009acdf87006abf6cc033edc450a66c60ce51c8b05f3e2aae0622888019": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "03db601184a24ab1804142131fe42480bf82dd6b772230e154d7a88d27c22c97": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "8d3853b50ae780767d5508ae611cdad8ff0ed919d32b095030f2712c655f8345": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "88fa261371c671bedc8660d948d477013d6e5e41d464ab83dc5bc966dfd199c1": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "0ed2e74a78dff510c2a6bec6c9b8afb112c0e731a456eaa7fb88b356f4ef83d9": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "particle-step"
+        ]
+      },
+      "c194e5ffa5252e0e791b5fd514a751d8a6a439c3baba8dc8ba54ed0667a0b29e": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "spatial-collision"
+        ]
+      },
+      "9a1c004facfdae29c7bb6c5da6b7696bd558297b45ff10d3d0cd9705be017869": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "spatial-collision"
+        ]
+      },
+      "84ebd27c020770e9ee8cdf5246a2d35adf35208f8e3598add98619102fb525c2": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "index-membership"
+        ]
+      },
+      "a9cd775b6b2b99129e1e32952bcd3667f497d3a5f83aed73b3e064879fa5fd14": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set",
+          "index-membership"
+        ]
+      },
+      "4d8433ee77b0d2e1ad6a0d0fea4a32fc47b38a16a28641e451afe3f6972c01a9": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set",
+          "index-membership"
+        ]
+      },
+      "1c8d58e0d65c5f8d1fb1a1339b276b60fda22ed62990ddd791201e5431d12ca2": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "index-membership"
+        ]
+      },
+      "dbadd511948f0a8f23aae59b81ca628290b29c821578e189d72b37cae2d77ee4": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "index-membership"
+        ]
+      },
+      "0b47a3a116f625c5d5b495c8f0f867e64fdbf676f52fb9dd37532a6d6e824376": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "index-membership"
+        ]
+      },
+      "8e2c50472eec5ace05a118f6fe774f293ff89294605724946281b7aacf44523e": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "f5a2171264a0873c06a24d0550a13774ed0b52e4574f25531ad914e0b947d823": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "40b92c8668b8818bf1cf31fc4459052446d9dea4275a25f5bcf56963f86c9b43": {
+        "kind": "law",
+        "name": "real-software-control/instance/shared-inner-choice/U32",
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "30cd417196536b83b65ced7830bc1886772e84cf2c0f423037be8082ef4396bd": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "c38efe5cc01b505eb4476b3086bc04067b7e181fe38c3775959d9b9eb354f1ad": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "2b207c2185c96fe0506c3248edcdb02b6cd959cc3825d0f6449b9a63777bddcf": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set"
+        ]
+      },
+      "6da09dd3640fe64ef572f1eab17ea56c71dc4f43c4d809319b80711c2796969f": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set"
+        ]
+      }
+    },
+    "after_attribution": {
+      "67945ed9ba849de3e6619f9ed933b30ef0f147d406b173d1c024f3dda2d2d845": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "7069b2b125e492c9b2f2d90d080ebad213dd2a0b5f63f58e2eea34054deaf5e3": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor",
+          "bulk-update",
+          "compact-set",
+          "drawing-hit",
+          "incremental-distinct",
+          "index-membership",
+          "sequence-every",
+          "spatial-collision",
+          "text-lines"
+        ]
+      },
+      "8aadb841ec7a269ee99da4d0133fc94669bf0cb41c12cd339b5c5076b604654c": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "328a77c62a310366d5fb5940eb002a3a72a26348437dae69fc4c403e4c2ccd75": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "73a2a5e50087631bb0711f9d42f7adaafc3315c28c44113a84c7fd31ba28b5f2": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "89cb065defbc893a45be051f6bb6c7de3868bfd4795dd464acd135406ab650a9": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "9fbee22804912f69d16f26d490cb16cfc07cb3110b8d4083886645ba32922eab": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "sequence-every"
+        ]
+      },
+      "8c2dc4e9d4ed881c25334035c007745be5b390e074102773e898c99871fb243c": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor",
+          "bulk-update",
+          "incremental-distinct",
+          "index-membership",
+          "sequence-every",
+          "spatial-collision",
+          "text-lines"
+        ]
+      },
+      "2b9c7f4bd2041189dc881dfa01b5d3f7058bccf185bd1012a1b4674252ac343c": {
+        "kind": "law",
+        "name": "sets.indexed-construction.u32.word_equal_symmetric",
+        "programs": [
+          "ast-ancestor",
+          "bulk-update",
+          "compact-set",
+          "index-membership",
+          "text-lines"
+        ]
+      },
+      "b4bdd6f06eb1fac4cf44a28ba312b73c2fd5c9b1ddb2c4c5648e88c5a823ccf1": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "b0de50753ae48f24acd69477735b842c38f99e4469b92f0ce19a37e7ebf8b166": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "d772b42ab196c50768f0387df7eadeee8769e139fa65515ce6ff07b2e815ca93": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "4be4887089b90e119a43007cf2bb4448e4777d01557a7162c360a66d3765923e": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "6830ed35ef507665879728e25d4fc8116d2571de7e5b4955176d6947a248ee38": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "08ff52b0bb3c83b52a9b9040dfa6fb2730f76bc3d8e286b1e656aa2627e8d798": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "c220b4afd1d5f778bc51bc21b7c44bd5f0bbec3e36ffb6aab3cb11367d2c737f": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "ast-ancestor"
+        ]
+      },
+      "b912e8d070f87a106987dd93f68d3314429b086515285e997c6efc185016f317": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "text-lines"
+        ]
+      },
+      "85e3e0c622235b10f7c2bf2263c6fdd9e861feb5bebfa59d8f23bcef586d0ee0": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "text-lines"
+        ]
+      },
+      "992709f96310f41860c7959f949666093d8af25ff2accf2d6d636cae70d507e0": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "b25eacd1251bfc294131cd67c0b69c3f27a5cba944a356655baab3d56e6dc9ac": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set",
+          "drawing-hit",
+          "index-membership",
+          "spatial-collision"
+        ]
+      },
+      "4d4c3f18bc3fa9485734cf403edcb929a95958b6851872c85331b8ad2a809340": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "7990f49602301b4cb2e2202e958dfaaaa79172e5dd9020b9f36d33118cc09930": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit",
+          "spatial-collision"
+        ]
+      },
+      "fca76009acdf87006abf6cc033edc450a66c60ce51c8b05f3e2aae0622888019": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "03db601184a24ab1804142131fe42480bf82dd6b772230e154d7a88d27c22c97": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "8d3853b50ae780767d5508ae611cdad8ff0ed919d32b095030f2712c655f8345": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "5a0cf328fbe55589eb3af1e392423ec02252a0db3a418ae47c3f3eca7efdc52c": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "88fa261371c671bedc8660d948d477013d6e5e41d464ab83dc5bc966dfd199c1": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "drawing-hit"
+        ]
+      },
+      "0ed2e74a78dff510c2a6bec6c9b8afb112c0e731a456eaa7fb88b356f4ef83d9": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "particle-step"
+        ]
+      },
+      "c194e5ffa5252e0e791b5fd514a751d8a6a439c3baba8dc8ba54ed0667a0b29e": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "spatial-collision"
+        ]
+      },
+      "9a1c004facfdae29c7bb6c5da6b7696bd558297b45ff10d3d0cd9705be017869": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "spatial-collision"
+        ]
+      },
+      "84ebd27c020770e9ee8cdf5246a2d35adf35208f8e3598add98619102fb525c2": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "index-membership"
+        ]
+      },
+      "a9cd775b6b2b99129e1e32952bcd3667f497d3a5f83aed73b3e064879fa5fd14": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set",
+          "index-membership"
+        ]
+      },
+      "4d8433ee77b0d2e1ad6a0d0fea4a32fc47b38a16a28641e451afe3f6972c01a9": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set",
+          "index-membership"
+        ]
+      },
+      "1c8d58e0d65c5f8d1fb1a1339b276b60fda22ed62990ddd791201e5431d12ca2": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "index-membership"
+        ]
+      },
+      "dbadd511948f0a8f23aae59b81ca628290b29c821578e189d72b37cae2d77ee4": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "index-membership"
+        ]
+      },
+      "0b47a3a116f625c5d5b495c8f0f867e64fdbf676f52fb9dd37532a6d6e824376": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "index-membership"
+        ]
+      },
+      "8e2c50472eec5ace05a118f6fe774f293ff89294605724946281b7aacf44523e": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "f5a2171264a0873c06a24d0550a13774ed0b52e4574f25531ad914e0b947d823": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "40b92c8668b8818bf1cf31fc4459052446d9dea4275a25f5bcf56963f86c9b43": {
+        "kind": "law",
+        "name": "real-software-control/instance/shared-inner-choice/U32",
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "30cd417196536b83b65ced7830bc1886772e84cf2c0f423037be8082ef4396bd": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "c38efe5cc01b505eb4476b3086bc04067b7e181fe38c3775959d9b9eb354f1ad": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "bulk-update"
+        ]
+      },
+      "2b207c2185c96fe0506c3248edcdb02b6cd959cc3825d0f6449b9a63777bddcf": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set"
+        ]
+      },
+      "6da09dd3640fe64ef572f1eab17ea56c71dc4f43c4d809319b80711c2796969f": {
+        "kind": "law",
+        "name": null,
+        "programs": [
+          "compact-set"
+        ]
+      }
+    },
+    "before_near_misses": {
+      "reasons": {},
+      "premise_shapes": [],
+      "instance_shapes": [],
+      "laws": []
+    },
+    "after_near_misses": {
+      "reasons": {},
+      "premise_shapes": [],
+      "instance_shapes": [],
+      "laws": []
+    }
+  },
+  "limits": [
+    "Source-component hypotheses are not exact physical instructions or runtime timings.",
+    "Default corpus uses its default cost policy; it does not demonstrate a runtime gain from the optional schema2 component model.",
+    "Existing generic control laws reused; no new canonical laws or snapshots.",
+    "Shared machine search variation is not causal performance evidence.",
+    "Closures and disagreeing values remain unknown. Float-number equality is not used: exact Bool/integer payload identity is type-sensitive."
+  ]
+}

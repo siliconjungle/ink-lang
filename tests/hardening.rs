@@ -2191,7 +2191,7 @@ fn llvm_learning_and_incremental_knowledge_remain_checked() {
             "planner.tests.test_learning_provenance", "planner.tests.test_target_components",
             "planner.tests.test_physical_features", "planner.tests.test_physical_selection",
             "planner.tests.test_cost_profiles", "planner.tests.test_joint_domain",
-            "knowledge.tests.test_word_identities", "knowledge.tests.test_v8_word_laws", "knowledge.tests.test_frozen_laws", "knowledge.tests.test_word_facts", "knowledge.tests.test_word_fact_queries",
+            "knowledge.tests.test_control_choice_templates", "knowledge.tests.test_word_identities", "knowledge.tests.test_v8_word_laws", "knowledge.tests.test_frozen_laws", "knowledge.tests.test_word_facts", "knowledge.tests.test_word_fact_queries",
             "knowledge.tests.test_target_work40_acquisition",
             "knowledge.tests.test_proof_authoring_deadline",
             "knowledge.tests.test_source_algorithms",
