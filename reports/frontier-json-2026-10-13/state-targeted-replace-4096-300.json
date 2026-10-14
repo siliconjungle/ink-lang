@@ -1,0 +1,1209 @@
+{
+  "schema": 1,
+  "control_javascript_module": "build/frontier-json/protocol-controls-final-3a184663/control-0.mjs",
+  "javascript_module": "build/frontier-json/protocol-controls-final-3a184663/control-2.mjs",
+  "provenance": {
+    "captured_at": "2026-10-14T04:12:25.318Z",
+    "hashes": {
+      "bench/frontier-json/state.ink": "f98f971b59e11d0983af3cbbd9a472f2d55b4e5720556de1f31b19b12ae866a4",
+      "bench/frontier-json/prepare.py": "d4040dee385095446525ece11523b5dec6cb5eb269937b4836d8fc439cc05713",
+      "bench/frontier-json/run.mjs": "72b74f144dc6db0c56688ae000be9f7a9dbcadc3efc1f4023964d441c570dc68",
+      "bench/frontier-json/state-adapters.mjs": "2a7c24ff7778690f0ff6090d31afc45e26f7f6bd2909c3ae619c8e055ea79694",
+      "bench/frontier-json/json-kernels.mjs": "66985f5be207c4f170c0ccd3822f91f8f7f2c257b1b6abc9f3e5ab5e566f67c5",
+      "bench/frontier-json/src/main.rs": "295a467a214ce257f5d41e5fa8304649d2b21cb1beabefc19565d763856b597d",
+      "bench/frontier-json/package-lock.json": "3cc5c3e6c05c279b921df5c2b1a232d2b5f6a114f0a674d2d5d1946840d75a52",
+      "bench/frontier-json/Cargo.lock": "66cecb01a676b2fef9d944feab7ce7d7876e9133c7095f4c0eba566e6ae125f9",
+      "bench/frontier-json/provenance.mjs": "bf3bd3f4d032a6074a4c989b3eade0811434a9a295a89e716b0b352e85ffc63a",
+      "build/frontier-json/fixtures.json": "f03846851a92e4968589f0daa0ae4bb1768f323a3cf90486017e89c58cf62145",
+      "build/frontier-json/preparation.json": "f7f1026340f517eecc8577606399b65ed9591c342bbfabc1fce6e4f9d428e71b",
+      "build/frontier-json/ink.mjs": "b1cf1ae74943580304ee82294fdc9c466852ca1df4a1543bddfd3a6b6f3b1d82",
+      "target/debug/ink": "3363577e221abca927ad4672a9e0ca4105c21f9b8ea3efe8d907258eb5326e11",
+      "build/frontier-json/ink-indexed.mjs": "1a0c5773c955596d87a10e2416a39fae081844e12d1c8c6c9682eb70039467b8",
+      "build/frontier-json/indexed.plan.json": "7b839d1a79a3660ad2c4ba66e426c9de57482ed1acd9eb440bfe1e50c7ebb4dd",
+      "build/frontier-json/protocol-controls-final-3a184663/control-2.mjs": "84ec98c1c38d163b3374af6b47932fc379e559aa64740f9594ea0f5a9d3c8dc3",
+      "build/frontier-json/protocol-controls-final-3a184663/control-0.mjs": "fe21e67a72947c97792603e7d69c4ea7600057baf03f92a0c1d2f1823a8bb2e6"
+    },
+    "revisions": {
+      ".": "3a184663cd591e6e95eed50f9b49fe97f03cac6c",
+      "abi": "8ad066eaca7ed7d7876bb3ff88414b071013b554",
+      "core": "3a184663cd591e6e95eed50f9b49fe97f03cac6c",
+      "native-support": "ca9bc59f119db62c2c1ea5000b6baf390f94705a",
+      "runtime": "85735bfbab33a0d02092f38993a48958ac1fc3ff",
+      "knowledge": "00e0d893f8734e7550a6ba3f2b1f6b804376c666",
+      "planner": "bd00dc3053f05839aad9f794e79abda81c638456",
+      "lowerings/c": "a52c85e88267204330fb06ebabfee0e903422556",
+      "lowerings/rust": "2a1c2b04edcc55c3465bc7bdf03386861e3ec867",
+      "lowerings/js": "5766277bc03be5526282bde100c108de8d62baf7",
+      "lowerings/wasm": "29dec0577d71cb5e50376534c94352b2be3149fb",
+      "lowerings/gpu": "2011f68c3061614e6279822f37d31fffd6f453a7",
+      "build/frontier": "2c72dbb4030e2695b682d3e49ec82d8c5c8ffec2",
+      "build/frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa",
+      "build/frontier-engine": "1fdd01b67367ccd2b1088b0148b558896935856e",
+      "build/frontier-codec": "7835c68e60ecb400f82d26436bd8e8855a7ba9b9"
+    },
+    "native_artifact_included": false,
+    "node": "v26.1.0",
+    "target": {
+      "cpu": "Apple M2",
+      "platform": "darwin",
+      "arch": "arm64",
+      "release": "25.5.0"
+    },
+    "host_isolation": "Shared development host; no exclusive CPU reservation. Repeated process cohorts and rotated lane order, not a controlled laboratory."
+  },
+  "instrumented": false,
+  "node": "v26.1.0",
+  "target": {
+    "cpu": "Apple M2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "25.5.0"
+  },
+  "process": 300,
+  "rounds": 9,
+  "selected_lanes": [
+    "ink-js",
+    "ink-js-prepared",
+    "frontier-state-main-patch",
+    "frontier-state-main-prepared-patch",
+    "ink-js-control",
+    "ink-js-control-prepared"
+  ],
+  "benchmark_sha256": "72b74f144dc6db0c56688ae000be9f7a9dbcadc3efc1f4023964d441c570dc68",
+  "state_api": "watcher-free; full transactions, rollback, versions, events and acknowledgement supplied in adapter where Frontier omits them",
+  "timing_boundary": "retained compiled data; actual in-process calls; native IPC/checkpoints/capture/setup excluded; input capture/output replies included",
+  "measurements": [
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 0,
+      "repeats": 220,
+      "calls": 14080,
+      "elapsed_ns": "10706209",
+      "checksum": 1864009088
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 0,
+      "repeats": 219,
+      "calls": 14016,
+      "elapsed_ns": "10658416",
+      "checksum": 516426720
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 0,
+      "repeats": 70,
+      "calls": 4480,
+      "elapsed_ns": "11413458",
+      "checksum": 233849280
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 0,
+      "repeats": 146,
+      "calls": 9344,
+      "elapsed_ns": "6383875",
+      "checksum": 3248905536
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 0,
+      "repeats": 140,
+      "calls": 8960,
+      "elapsed_ns": "29530208",
+      "checksum": 3581707136
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 0,
+      "repeats": 256,
+      "calls": 16384,
+      "elapsed_ns": "18401625",
+      "checksum": 3321470976
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 1,
+      "repeats": 219,
+      "calls": 14016,
+      "elapsed_ns": "12597625",
+      "checksum": 516426720
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 1,
+      "repeats": 70,
+      "calls": 4480,
+      "elapsed_ns": "18010042",
+      "checksum": 233849280
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 1,
+      "repeats": 146,
+      "calls": 9344,
+      "elapsed_ns": "7839958",
+      "checksum": 3248905536
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 1,
+      "repeats": 220,
+      "calls": 14080,
+      "elapsed_ns": "11448042",
+      "checksum": 1864009088
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 1,
+      "repeats": 256,
+      "calls": 16384,
+      "elapsed_ns": "16947000",
+      "checksum": 3321470976
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 1,
+      "repeats": 140,
+      "calls": 8960,
+      "elapsed_ns": "26318333",
+      "checksum": 3581707136
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 2,
+      "repeats": 70,
+      "calls": 4480,
+      "elapsed_ns": "12368417",
+      "checksum": 233849280
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 2,
+      "repeats": 146,
+      "calls": 9344,
+      "elapsed_ns": "5488792",
+      "checksum": 3248905536
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 2,
+      "repeats": 220,
+      "calls": 14080,
+      "elapsed_ns": "13169833",
+      "checksum": 1864009088
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 2,
+      "repeats": 219,
+      "calls": 14016,
+      "elapsed_ns": "12001542",
+      "checksum": 516426720
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 2,
+      "repeats": 140,
+      "calls": 8960,
+      "elapsed_ns": "23064750",
+      "checksum": 3581707136
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 2,
+      "repeats": 256,
+      "calls": 16384,
+      "elapsed_ns": "17141792",
+      "checksum": 3321470976
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 3,
+      "repeats": 219,
+      "calls": 14016,
+      "elapsed_ns": "10119583",
+      "checksum": 516426720
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 3,
+      "repeats": 256,
+      "calls": 16384,
+      "elapsed_ns": "13944125",
+      "checksum": 3321470976
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 3,
+      "repeats": 146,
+      "calls": 9344,
+      "elapsed_ns": "6526208",
+      "checksum": 3248905536
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 3,
+      "repeats": 140,
+      "calls": 8960,
+      "elapsed_ns": "23754417",
+      "checksum": 3581707136
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 3,
+      "repeats": 70,
+      "calls": 4480,
+      "elapsed_ns": "14660583",
+      "checksum": 233849280
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 3,
+      "repeats": 220,
+      "calls": 14080,
+      "elapsed_ns": "10857000",
+      "checksum": 1864009088
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 4,
+      "repeats": 140,
+      "calls": 8960,
+      "elapsed_ns": "17956500",
+      "checksum": 3581707136
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 4,
+      "repeats": 220,
+      "calls": 14080,
+      "elapsed_ns": "12887875",
+      "checksum": 1864009088
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 4,
+      "repeats": 70,
+      "calls": 4480,
+      "elapsed_ns": "16105959",
+      "checksum": 233849280
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 4,
+      "repeats": 256,
+      "calls": 16384,
+      "elapsed_ns": "14641625",
+      "checksum": 3321470976
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 4,
+      "repeats": 219,
+      "calls": 14016,
+      "elapsed_ns": "9224750",
+      "checksum": 516426720
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 4,
+      "repeats": 146,
+      "calls": 9344,
+      "elapsed_ns": "6486042",
+      "checksum": 3248905536
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 5,
+      "repeats": 146,
+      "calls": 9344,
+      "elapsed_ns": "5268083",
+      "checksum": 3248905536
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 5,
+      "repeats": 140,
+      "calls": 8960,
+      "elapsed_ns": "25960875",
+      "checksum": 3581707136
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 5,
+      "repeats": 219,
+      "calls": 14016,
+      "elapsed_ns": "10651750",
+      "checksum": 516426720
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 5,
+      "repeats": 256,
+      "calls": 16384,
+      "elapsed_ns": "14413875",
+      "checksum": 3321470976
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 5,
+      "repeats": 220,
+      "calls": 14080,
+      "elapsed_ns": "13165167",
+      "checksum": 1864009088
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 5,
+      "repeats": 70,
+      "calls": 4480,
+      "elapsed_ns": "16972167",
+      "checksum": 233849280
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 6,
+      "repeats": 220,
+      "calls": 14080,
+      "elapsed_ns": "13436458",
+      "checksum": 1864009088
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 6,
+      "repeats": 70,
+      "calls": 4480,
+      "elapsed_ns": "13119875",
+      "checksum": 233849280
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 6,
+      "repeats": 140,
+      "calls": 8960,
+      "elapsed_ns": "26094000",
+      "checksum": 3581707136
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 6,
+      "repeats": 219,
+      "calls": 14016,
+      "elapsed_ns": "10741500",
+      "checksum": 516426720
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 6,
+      "repeats": 256,
+      "calls": 16384,
+      "elapsed_ns": "12756875",
+      "checksum": 3321470976
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 6,
+      "repeats": 146,
+      "calls": 9344,
+      "elapsed_ns": "6316000",
+      "checksum": 3248905536
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 7,
+      "repeats": 219,
+      "calls": 14016,
+      "elapsed_ns": "8493750",
+      "checksum": 516426720
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 7,
+      "repeats": 70,
+      "calls": 4480,
+      "elapsed_ns": "15926042",
+      "checksum": 233849280
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 7,
+      "repeats": 220,
+      "calls": 14080,
+      "elapsed_ns": "12443292",
+      "checksum": 1864009088
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 7,
+      "repeats": 256,
+      "calls": 16384,
+      "elapsed_ns": "15257708",
+      "checksum": 3321470976
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 7,
+      "repeats": 146,
+      "calls": 9344,
+      "elapsed_ns": "6193334",
+      "checksum": 3248905536
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 7,
+      "repeats": 140,
+      "calls": 8960,
+      "elapsed_ns": "25463791",
+      "checksum": 3581707136
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 8,
+      "repeats": 140,
+      "calls": 8960,
+      "elapsed_ns": "23754500",
+      "checksum": 3581707136
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 8,
+      "repeats": 70,
+      "calls": 4480,
+      "elapsed_ns": "12613166",
+      "checksum": 233849280
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 8,
+      "repeats": 256,
+      "calls": 16384,
+      "elapsed_ns": "15090250",
+      "checksum": 3321470976
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 8,
+      "repeats": 146,
+      "calls": 9344,
+      "elapsed_ns": "6918292",
+      "checksum": 3248905536
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 8,
+      "repeats": 220,
+      "calls": 14080,
+      "elapsed_ns": "10662875",
+      "checksum": 1864009088
+    },
+    {
+      "fixture": "replace-4096",
+      "rows": 4096,
+      "workload": "replace",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 8,
+      "repeats": 219,
+      "calls": 14016,
+      "elapsed_ns": "10497417",
+      "checksum": 516426720
+    }
+  ],
+  "setup": [
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 0,
+      "initialise_ns": "1772041",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 0,
+      "initialise_ns": "25834250",
+      "prepare_ns": "123166"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 0,
+      "initialise_ns": "24390458",
+      "prepare_ns": "291"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 0,
+      "initialise_ns": "1888375",
+      "prepare_ns": "24959"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 0,
+      "initialise_ns": "36083750",
+      "prepare_ns": "584"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 0,
+      "initialise_ns": "43729417",
+      "prepare_ns": "179833"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 1,
+      "initialise_ns": "27219292",
+      "prepare_ns": "154833"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 1,
+      "initialise_ns": "36406000",
+      "prepare_ns": "917"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 1,
+      "initialise_ns": "1964667",
+      "prepare_ns": "25250"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 1,
+      "initialise_ns": "1701833",
+      "prepare_ns": "334"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 1,
+      "initialise_ns": "30025209",
+      "prepare_ns": "148583"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 1,
+      "initialise_ns": "33428459",
+      "prepare_ns": "375"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 2,
+      "initialise_ns": "22785416",
+      "prepare_ns": "375"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 2,
+      "initialise_ns": "1797750",
+      "prepare_ns": "24208"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 2,
+      "initialise_ns": "1693083",
+      "prepare_ns": "291"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 2,
+      "initialise_ns": "38266084",
+      "prepare_ns": "157208"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 2,
+      "initialise_ns": "25217875",
+      "prepare_ns": "916"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 2,
+      "initialise_ns": "37434916",
+      "prepare_ns": "174541"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 3,
+      "initialise_ns": "35292209",
+      "prepare_ns": "169875"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 3,
+      "initialise_ns": "43033042",
+      "prepare_ns": "272875"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 3,
+      "initialise_ns": "1947125",
+      "prepare_ns": "25000"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 3,
+      "initialise_ns": "23515625",
+      "prepare_ns": "250"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 3,
+      "initialise_ns": "31767583",
+      "prepare_ns": "334"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 3,
+      "initialise_ns": "1772292",
+      "prepare_ns": "167"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 4,
+      "initialise_ns": "21742875",
+      "prepare_ns": "416"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 4,
+      "initialise_ns": "1704291",
+      "prepare_ns": "125"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 4,
+      "initialise_ns": "35120875",
+      "prepare_ns": "292"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 4,
+      "initialise_ns": "28443125",
+      "prepare_ns": "170417"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 4,
+      "initialise_ns": "38133792",
+      "prepare_ns": "255625"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 4,
+      "initialise_ns": "1778667",
+      "prepare_ns": "24292"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 5,
+      "initialise_ns": "1740625",
+      "prepare_ns": "35333"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 5,
+      "initialise_ns": "40415000",
+      "prepare_ns": "792"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 5,
+      "initialise_ns": "24666500",
+      "prepare_ns": "116583"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 5,
+      "initialise_ns": "41467666",
+      "prepare_ns": "284041"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 5,
+      "initialise_ns": "1710250",
+      "prepare_ns": "208"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 5,
+      "initialise_ns": "33730833",
+      "prepare_ns": "209"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 6,
+      "initialise_ns": "1888583",
+      "prepare_ns": "83"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 6,
+      "initialise_ns": "27074167",
+      "prepare_ns": "208"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 6,
+      "initialise_ns": "35492709",
+      "prepare_ns": "417"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 6,
+      "initialise_ns": "24268500",
+      "prepare_ns": "265875"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 6,
+      "initialise_ns": "27991292",
+      "prepare_ns": "114584"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 6,
+      "initialise_ns": "1841709",
+      "prepare_ns": "24458"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 7,
+      "initialise_ns": "41662334",
+      "prepare_ns": "305750"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 7,
+      "initialise_ns": "40164083",
+      "prepare_ns": "667"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 7,
+      "initialise_ns": "1798792",
+      "prepare_ns": "166"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 7,
+      "initialise_ns": "34651583",
+      "prepare_ns": "176416"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 7,
+      "initialise_ns": "1899834",
+      "prepare_ns": "25916"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 7,
+      "initialise_ns": "33672459",
+      "prepare_ns": "208"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "process": 300,
+      "round": 8,
+      "initialise_ns": "24411917",
+      "prepare_ns": "500"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "process": 300,
+      "round": 8,
+      "initialise_ns": "40665625",
+      "prepare_ns": "500"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "process": 300,
+      "round": 8,
+      "initialise_ns": "27614416",
+      "prepare_ns": "147959"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "process": 300,
+      "round": 8,
+      "initialise_ns": "1819209",
+      "prepare_ns": "24292"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "process": 300,
+      "round": 8,
+      "initialise_ns": "1735584",
+      "prepare_ns": "334"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "process": 300,
+      "round": 8,
+      "initialise_ns": "39953584",
+      "prepare_ns": "323167"
+    }
+  ],
+  "validation": [
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-prepared",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": true,
+      "snapshot_sha256": "1d799e7b6c2768383b0bca3c0e1fa5a6f0b9b0b9cd13c6201e4d7224c2540490"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control-prepared",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": true,
+      "snapshot_sha256": "1d799e7b6c2768383b0bca3c0e1fa5a6f0b9b0b9cd13c6201e4d7224c2540490"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-prepared-patch",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js-control",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": true,
+      "snapshot_sha256": "1d799e7b6c2768383b0bca3c0e1fa5a6f0b9b0b9cd13c6201e4d7224c2540490"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "ink-js",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": true,
+      "snapshot_sha256": "1d799e7b6c2768383b0bca3c0e1fa5a6f0b9b0b9cd13c6201e4d7224c2540490"
+    },
+    {
+      "fixture": "replace-4096",
+      "lane": "frontier-state-main-patch",
+      "full_replies": true,
+      "logical_state": true,
+      "exact_portable_snapshot": false,
+      "snapshot_sha256": null
+    }
+  ]
+}
