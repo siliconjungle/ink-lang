@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def audit(catalog, scope):
-    cpu = ["c", "rust", "javascript", "c-wasm", "rust-wasm"]
+    cpu = ["rust", "javascript", "rust-wasm"]
     gpu = ["webgpu", "wgpu"]
     if catalog["schema"] != 1 or catalog["complete_cpu_targets"] != cpu or catalog["gpu_targets"] != gpu:
         raise ValueError("parity target inventory changed or omits a required target")
@@ -26,7 +26,7 @@ def audit(catalog, scope):
         "lowering_parity", "generated_parity", "durability", "modules",
         "selected_checkpoint", "action_optimisation", "action_transitions",
         "numerical_state", "mixed_durability", "bend_features", "feature_parity",
-        "temporary_lowering", "composed_storage_parity", "storage_destination_parity",
+        "rust_cpu_adapters", "composed_storage_parity", "storage_destination_parity",
         "checked_physical_selection_parity", "representation_parity", "database_planning",
         "bulk_collection_optimisation", "packed_tables", "incremental_selection",
         "standalone_representation", "representations", "point_delta", "language_foundations", "generic_libraries", "law_author", "literal_collection_optimisation",
@@ -173,8 +173,8 @@ def main():
             from pysat.solvers import Glucose3
         except ImportError as error:
             raise ValueError("--run requires the knowledge dependency python-sat==1.9.dev5") from error
-        if not os.environ.get("INK_TEST_ZIG"):
-            raise ValueError("--run requires INK_TEST_ZIG; skipping Wasm is forbidden")
+        if not os.environ.get("INK_TEST_WASM"):
+            raise ValueError("--run requires INK_TEST_WASM; skipping Wasm is forbidden")
         if {"bend_features", "standalone_representation", "point_delta"}.intersection(suites) and not os.environ.get("INK_TEST_LEAN"):
             raise ValueError("--run requires INK_TEST_LEAN for independent lifecycle proof checking")
         env = {**os.environ, "INK_PARITY_REQUIRE_ALL": "1", "INK_THREADS": "4"}
@@ -191,7 +191,7 @@ def main():
             status = subprocess.run(command + ["--", "--nocapture", "--test-threads=1"], cwd=ROOT, env=env).returncode
         receipt["conformance"] = ("passed" if args.shard == "all" else "shard-passed") if status == 0 else "failed"
         if status == 0 and args.scope in ("all", "contract"):
-            status = subprocess.run(["python3", "bench/gpu/prepare-lowering-parity-browser.py", env["INK_TEST_ZIG"]], cwd=ROOT, env=env).returncode
+            status = subprocess.run(["python3", "bench/gpu/prepare-lowering-parity-browser.py"], cwd=ROOT, env=env).returncode
             if status == 0:
                 status = subprocess.run(["node", "bench/gpu/lowering-parity-browser.mjs", env["INK_TEST_CHROME"]], cwd=ROOT, env=env).returncode
             receipt["conformance"] = "passed" if status == 0 else "failed"

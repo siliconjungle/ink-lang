@@ -121,7 +121,7 @@ def prepare(args):
     (REPORT/'selection-check.json').write_text(json.dumps(checked,indent=2)+'\n')
     for kind in ['baseline','checked']:
         extra=['--selection',REPORT/'selection.json'] if kind=='checked' else []
-        run([compiler,'build',REPORT/'kernels.ink','--target','webgpu','--zig',args.zig,*extra,'-o',REPORT/kind],commands)
+        run([compiler, 'build', REPORT / 'kernels.ink', '--target', 'webgpu', *extra, '-o', REPORT / kind],commands)
         manifest=json.loads((REPORT/kind/'manifest.json').read_text())
         for f in manifest['functions']:
             if f['name']=='gpu_repeat_subtract' and not f.get('shader'):raise ValueError(f'GPU workload ineligible: {f}')
@@ -322,7 +322,7 @@ def preparation_costs():
                 target,kind=name.split('_');target='wasm32' if target=='wasm' else target
                 command=[compiler,'build',REPORT/'kernels.ink','--target',target,'-o',out/(name+('.wasm' if target=='wasm32' else '.mjs'))]
                 if kind=='checked':command+=['--selection',REPORT/'selection.json']
-                if target=='wasm32':command+=['--zig',metadata['parameters']['zig']]
+                if target=='wasm32':command+=[]
             run(command,commands);rows.append(dict(mode=name,repeat=repeat,seconds=commands[-1]['seconds']))
     costs=dict(samples=rows,median_seconds={name:statistics.median(r['seconds'] for r in rows if r['mode']==name) for name in names},commands=commands,
         scope='Fresh child processes, warm filesystem and toolchain cache. Includes process startup, parsing/checking/I/O. Planner search includes independent candidate replay; compilation does not include proof production or browser/Node JIT startup. Three shuffled rounds; descriptive medians, no compiler ranking.')

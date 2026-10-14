@@ -10,7 +10,7 @@ fn fixture() -> (CheckedModule, Package, Plan) {
     let stage = |id: &str, function: &str, arg| Stage {
         id: id.into(),
         function: function.into(),
-        backend: "c".into(),
+        backend: "rust".into(),
         domain: "cpu".into(),
         arguments: vec![arg],
     };

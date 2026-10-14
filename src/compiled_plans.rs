@@ -48,7 +48,6 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
             "rust-wasm" => crate::representations::project(
                 output,
                 &ink_lowering_rust::representation_program::lower_planned(plan)?,
-                None,
                 target,
             )?,
             _ => crate::representations::emit(representation, target, output)?,
@@ -63,7 +62,6 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
                     output,
                 )?;
             }
-            "c" | "c-wasm" => crate::runtime::emit_c_program_planned(plan, output)?,
             "javascript" => write(output, ink_lowering_js::lower_planned(plan)?.javascript)?,
             "wgpu" | "webgpu" => {
                 if plan.route().is_some() {
@@ -137,7 +135,7 @@ export async function loadInk(base,options={{}}){{
 "#
         ),
     )?;
-    crate::representations::emit(representation, "c", &output.join("state"))?;
+    crate::representations::emit(representation, "wgpu", &output.join("state"))?;
     write(&output.join("Cargo.toml"),"[package]\nname=\"ink-composed-plan\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[workspace]\nexclude=[\"state\",\"route/native\"]\n[dependencies]\nmaintained={package=\"ink-compiled-representation\",path=\"state\"}\nrouted={package=\"ink-gpu-program\",path=\"route/native\"}\nnum-bigint=\"0.4\"\nsha2=\"0.10\"\nserde_json={version=\"1\",features=[\"float_roundtrip\"]}\n")?;
     write(
         &output.join("src/pure.rs"),

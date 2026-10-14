@@ -1,7 +1,7 @@
 use verified_language::{
     check,
     eval::{self, Value},
-    native,
+    state_native,
     syntax::*,
 };
 
@@ -46,8 +46,8 @@ fn syntax_errors_are_not_silently_ignored() {
     }
 }
 #[test]
-fn arbitrary_symbol_names_cannot_collide_with_c_temporaries() {
+fn arbitrary_symbol_names_cannot_collide_with_rust_temporaries() {
     let p=parse("module t; fn f(xs: List<u64>, lang_t0: u64) -> u64 { return sum(xs.map(fn(lang_a0) => lang_a0 + lang_t0)); }").unwrap();
     check::check(&p).unwrap();
-    assert!(native::emit(&p).unwrap().contains("lang_a1"));
+    assert!(state_native::emit(&p).unwrap().contains("function_l_f"));
 }

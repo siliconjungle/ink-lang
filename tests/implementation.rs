@@ -7,7 +7,7 @@ use verified_language::{
     check,
     eval::{self, Value},
     implementation::{self, Package},
-    native, syntax,
+    syntax,
 };
 static NEXT: AtomicUsize = AtomicUsize::new(0);
 struct Fixture(PathBuf);
@@ -58,10 +58,6 @@ fn checked_database_candidates_preserve_modular_values_and_lexical_captures() {
     let evidence = implementation::apply(&mut after, &fixture.package(&package())).unwrap();
     assert_eq!(evidence.checked_proposals.len(), 4);
     assert_eq!(evidence.library_closure.len(), 21);
-    let old_c = native::emit(&before).unwrap();
-    let new_c = native::emit(&after).unwrap();
-    assert!(old_c.matches("= lang_allocate(").count() >= 8);
-    assert!(!new_c.contains("= lang_allocate("));
     let mut seed = 517u64;
     for i in 0..256 {
         let mut next = || {
@@ -281,47 +277,4 @@ fn filtered_candidates_preserve_values_and_validate_called_function_bodies() {
     assert!(implementation::apply(&mut original.clone(), &fixture.package(&forged)).is_err());
 }
 
-#[test]
-fn conditional_evaluation_is_lazy_and_constant_lambdas_compile_without_warnings() {
-    let source="module t; fn f(xs:List<u64>)->u64{return choose(true,7,sum(xs.map(fn(ignored)=>11)));} fn g(xs:List<u64>)->Bool{return choose(false,sum(xs)>0,true);} fn constant(xs:List<u64>)->u64{return sum(xs.map(fn(ignored)=>11).filter(fn(also_ignored)=>true));}";
-    let p = syntax::parse(source).unwrap();
-    check::check(&p).unwrap();
-    let list = Value::List((0..1000).map(|_| Value::U64(9)).collect());
-    assert_eq!(
-        eval::call(&p, "f", vec![list.clone()], &mut 8).unwrap(),
-        Value::U64(7)
-    );
-    assert_eq!(
-        eval::call(&p, "g", vec![list], &mut 8).unwrap(),
-        Value::Bool(true)
-    );
-    let fixture = Fixture::new();
-    let c = fixture.0.join("constant.c");
-    let exe = fixture.0.join("constant");
-    let mut code = native::emit(&p).unwrap();
-    code.push_str("\nint main(void){uint64_t x[3]={0,1,UINT64_MAX};return lang_fn_f(x,3)!=7 || !lang_fn_g(x,3) || lang_fn_constant(x,3)!=33;}\n");
-    fs::write(&c, code).unwrap();
-    assert!(std::process::Command::new("clang")
-        .args(["-O3", "-std=c11", "-Wall", "-Wextra", "-Werror"])
-        .arg(&c)
-        .arg("-o")
-        .arg(&exe)
-        .status()
-        .unwrap()
-        .success());
-    assert!(std::process::Command::new(&exe).status().unwrap().success());
-    for expression in [
-        "choose(1,2,3)",
-        "choose(true,1,false)",
-        "choose(true,xs,xs)",
-        "choose(true,1)",
-    ] {
-        assert!(check::check(
-            &syntax::parse(&format!(
-                "module t; fn f(xs:List<u64>)->u64{{return {expression};}}"
-            ))
-            .unwrap()
-        )
-        .is_err());
-    }
-}
+

@@ -85,7 +85,7 @@ database. See [semantic selection](docs/semantic-optimisation.md),
 | --- | --- |
 | Pure computation | Wrapping words, signed arithmetic, binary32, vectors, records, collections, bounded loops, owned local buffers/maps and [checked recursion/ordered parallel work](docs/parallel-execution.md) |
 | Application state | Typed tables, queries, atomic changes, rollback, ordered events, maintained results and portable snapshots |
-| Targets | Native C/Rust, JavaScript ES modules, C/Rust WebAssembly and eligible WGSL through WebGPU/wgpu |
+| Targets | Native Rust, JavaScript ES modules, Rust WebAssembly and eligible WGSL through WebGPU/wgpu |
 | Checked optimisation | Composable expression rewrites, eligible pure action regions and complete action replacements in a documented subset |
 | Physical representations | Database-defined layouts, cached-query implementations and checked transaction-boundary migrations; source/action preservation proofs and standalone CPU/Wasm execution, with target-specific physical capabilities |
 | Incremental work and selection | Fixed-key query delta maintenance with refresh fallback; external selection that charges checking, setup, calls, memory and migration |
@@ -99,8 +99,7 @@ now run under explicit target limits. The optional independent Lean verdict chec
 a limited Boolean equality calculus; it does not verify the complete compiler.
 
 The [target parity contract](docs/lowering-parity.md) records exact coverage and
-limits. Native and Wasm builds default to typed Rust; complete C emission
-(`--lowering c`) uses a shared dynamic Rust primitive runtime. JavaScript scalar
+limits. Native and Wasm builds use typed Rust, including CPU fallbacks in GPU bundles. JavaScript scalar
 keeps retain results until a checked source dependency changes; composite keeps
 retain their existing ownership path. F32 arithmetic uses canonical NaNs and source-order binary32
 operations; the packed GPU emitter implements these through integer lanes.
@@ -182,7 +181,7 @@ that Ink is universally fastest.
 | [ink-runtime](https://github.com/siliconjungle/ink-runtime) | Execution, scheduling, common decision application, fallback, persistence and delivery |
 | [ink-abi](https://github.com/siliconjungle/ink-abi) | Shared value descriptors, transport, layouts and Rust/Wasm execution decisions |
 | [ink-native-support](https://github.com/siliconjungle/ink-native-support) | Generated typed/dynamic value primitives, owned collections and state exports |
-| [C](https://github.com/siliconjungle/ink-lowering-c), [Rust](https://github.com/siliconjungle/ink-lowering-rust), [Wasm](https://github.com/siliconjungle/ink-lowering-wasm), [JavaScript](https://github.com/siliconjungle/ink-lowering-js), [GPU](https://github.com/siliconjungle/ink-lowering-gpu) | Literal target emission and device operations |
+| [Rust](https://github.com/siliconjungle/ink-lowering-rust), [Wasm](https://github.com/siliconjungle/ink-lowering-wasm), [JavaScript](https://github.com/siliconjungle/ink-lowering-js), [GPU](https://github.com/siliconjungle/ink-lowering-gpu) | Literal target emission and device operations |
 
 Proof authors and search need not be trusted to choose correct transformations:
 the core rechecks supplied evidence. The Rust checker, source correspondence,

@@ -13,7 +13,7 @@ run(['python3','dev.py','build','--bin','ink'])
 run(['python3','knowledge/producers/filter_proofs.py','knowledge/research/filtered'])
 for name in ['staged','checked','semantics']:
     source='bench/filtered/semantics.ink' if name=='semantics' else 'knowledge/research/filtered/kernels.lang'
-    command=['target/debug/ink','build',source,'--target','wasm32','--zig',zig,'-o',out/f'{name}.wasm']
+    command=['target/debug/ink', 'build', source, '--target', 'wasm32', '-o', out / f'{name}.wasm']
     if name=='checked':command+=['--implementation','knowledge/research/filtered/proposal.json']
     run(command)
 run(['node','bench/filtered/wasm.mjs',*[out/f'{name}.wasm' for name in ['staged','checked','semantics']],out/'validation.json'])

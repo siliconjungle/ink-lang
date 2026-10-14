@@ -2,7 +2,7 @@ from pathlib import Path
 import subprocess,json
 r=Path(__file__).resolve().parents[2];b=r/'build/numeric-text-primitives';work=b/'wasm-bench';(work/'src').mkdir(parents=True,exist_ok=True)
 (work/'src/lib.rs').write_text((r/'bench/numeric-text-primitives/wasm-bench.rs').read_text())
-(work/'Cargo.toml').write_text('[package]\nname="ink-numeric-wasm-bench"\nversion="0.1.0"\nedition="2021"\n[lib]\ncrate-type=["cdylib"]\n[dependencies]\ncompiled-state={path='+json.dumps(str(b/'rust'))+'}\nserde_json={version="=1.0.151",features=["float_roundtrip"]}\n[workspace]\n')
+(work/'Cargo.toml').write_text('[package]\nname="ink-numerirust-packed-wasm-bench"\nversion="0.1.0"\nedition="2021"\n[lib]\ncrate-type=["cdylib"]\n[dependencies]\ncompiled-state={path='+json.dumps(str(b/'rust'))+'}\nserde_json={version="=1.0.151",features=["float_roundtrip"]}\n[workspace]\n')
 subprocess.run(['cargo','build','--release','--offline','--target','wasm32-unknown-unknown','--manifest-path',str(work/'Cargo.toml')],check=True)
 out=r/'reports/numeric-text-primitives-2026-10-13';import shutil;shutil.copyfile(work/'target/wasm32-unknown-unknown/release/ink_numeric_wasm_bench.wasm',out/'rust-bench.wasm')
 for part,name,width in [(0,'float_ops',8),(6,'word_stats',3),(2,'from_wide',1)]:

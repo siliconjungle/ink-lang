@@ -192,42 +192,4 @@ fn bulk_and_shared_keys_preserve_utf8_identity_and_signed_order() {
     );
 }
 
-#[test]
-fn compiled_c_direct_scan_does_not_retain_each_rows_temporary_values() {
-    use std::{fs, path::Path, process::Command};
-    let source = include_str!("../bench/scalable-state/transactions.ink");
-    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
-    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/scalable-c-scratch");
-    verified_language::runtime::emit_c_program(&module, &dir).unwrap();
-    let mut library = fs::read_to_string(dir.join("src/lib.rs")).unwrap();
-    library.push_str(r#"
-pub fn check_scan_scratch(){
- let mut state=State::new();
- for batch in 0..40u64{let keys=(batch*10000..(batch+1)*10000).collect::<Vec<_>>();let values=keys.iter().map(|k|k+1).collect::<Vec<_>>();let result=state.invoke_json("batch",&json!([keys,values])).unwrap();assert_eq!(result["committed"],true);}
- let result=state.invoke_json("scan",&json!([])).unwrap();assert_eq!(result["result"],json!(80_000_200_000u64));
- // Inspect the generated call before the host clears its transient handles.
- state.ctx.values.clear();state.ctx.arena_bytes=0;state.ctx.error=None;state.ctx.fuel=100000000;
- let index=state.ctx.meta["actions"].as_array().unwrap().iter().position(|d|d["name"]=="scan").unwrap();
- let handle=unsafe{ink_program_call((&mut *state.ctx as *mut InkContext).cast(),1,index as u32,std::ptr::null(),0)};
- assert!(state.ctx.error.is_none());assert_eq!(state.ctx.value(handle).unwrap().json(),json!(80_000_200_000u64));
- // The ordered key carrier is retained, while row/operation scratch is reused.
- assert!(state.ctx.values.len()<16);assert!(state.ctx.arena_bytes<30*1024*1024);
-}
-"#);
-    fs::write(dir.join("src/lib.rs"), library).unwrap();
-    fs::write(
-        dir.join("src/main.rs"),
-        "fn main(){compiled_state::check_scan_scratch();}",
-    )
-    .unwrap();
-    let output = Command::new(env!("CARGO"))
-        .args(["run", "--offline", "--quiet", "--manifest-path"])
-        .arg(dir.join("Cargo.toml"))
-        .output()
-        .unwrap();
-    assert!(
-        output.status.success(),
-        "{}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
+

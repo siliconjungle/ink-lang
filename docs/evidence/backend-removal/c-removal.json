@@ -1,0 +1,801 @@
+{
+  "schema": 1,
+  "scope": "Remove C backend and C-dependent emission, primitive runtime, toolchains, lanes and registration; retain JavaScript, WGSL/WebGPU, Rust/native, Rust/Wasm and wgpu.",
+  "published_package_revisions": {
+    "abi": "b794d162b3e3770640d96516f9b640c11448cfbe",
+    "native-support": "bb6ea23cc95b978f043004256296ac6ea7c4ed73",
+    "knowledge": "b70c02ebff146be565e783cd40c70637f91fe2cf",
+    "planner": "3f6b90c6da8238a7018dcec6752ad929a4b1123a",
+    "runtime": "538b08040105b5e30873b435cdcd36954498f19a",
+    "lowerings/rust": "a75fa9ab45f3e2b7b6269859a9fab8e692e19090",
+    "lowerings/js": "478c42a460e68b0e18414f54643f9aba9608f38d",
+    "lowerings/wasm": "746d9f1f8ed9a1dbf782c58930ea0bd1d5ae87fc",
+    "lowerings/gpu": "fdcdb9b73755d97476bc987e6f155e4379319c46"
+  },
+  "rust_main_revision": "a75fa9ab45f3e2b7b6269859a9fab8e692e19090",
+  "checks": {
+    "all-final-build.log": {
+      "sha256": "f9ef8c774e418ca87f72c125c3b481e0b2dcb4a6328e616c1ff5b70664ea7a7e",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "core-backends-final.log": {
+      "sha256": "b42f0ea42037c61cbe81f6750a2a80d93a2499efe37e39779b7a291d451d9602",
+      "test_results": [
+        [
+          "ok",
+          "5",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "integration.log": {
+      "sha256": "eb72a0c6aac55ed7fbb4138eda1ee18bff5247d79282aa0e1e7dbe07d4c0db11",
+      "test_results": [
+        [
+          "ok",
+          "6",
+          "0"
+        ],
+        [
+          "FAILED",
+          "1",
+          "1"
+        ]
+      ],
+      "contains_prior_failure": true,
+      "note": "Contains earlier failures corrected by later validation; use the passing suite results and final dedicated logs."
+    },
+    "retained-targets.log": {
+      "sha256": "254355c3904f05b4f10e9bbcd0b18c837365a3527d6caee8dafb434f403f269d",
+      "test_results": [
+        [
+          "ok",
+          "6",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "FAILED",
+          "1",
+          "1"
+        ]
+      ],
+      "contains_prior_failure": true,
+      "note": "Contains earlier failures corrected by later validation; use the passing suite results and final dedicated logs."
+    },
+    "final-adapters.log": {
+      "sha256": "d3d909fab76e4f4e8d9c29dd2814524dc1ca89d33fdda2f8c6b956dcf97bf84f",
+      "test_results": [
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "adapters-final.log": {
+      "sha256": "b1709e6077f55a8a743edcfff1f5f9aa7003447f30c5688c2cd826bd2bd16cd5",
+      "test_results": [
+        [
+          "ok",
+          "2",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "packed-domain.log": {
+      "sha256": "29f1ca7cbde4365f1e20e0b9ba6d288782de786fa7471e0d77c759dce49bd4f8",
+      "test_results": [
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "rust-package.log": {
+      "sha256": "b7e32100dfda8eb81c2c54ac4b6db491999d5e90739f0ace49627b8c0ce9d88f",
+      "test_results": [
+        [
+          "ok",
+          "18",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "rust-main-tests.log": {
+      "sha256": "ad92060572f393eff2749d6f4cc0dd02415429c15784189065cb2ba9ee59ddfe",
+      "test_results": [
+        [
+          "ok",
+          "18",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "rust-main-domain.log": {
+      "sha256": "4bc82e18c23af2f7eb880c8e4df37199b323ac0e689286ec306c2180dd9ebf58",
+      "test_results": [
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "abi-tests.log": {
+      "sha256": "2114ee306740ea1a62e295dfc7372845a2bc8a1d8a19067d32a590a3e2dfdc13",
+      "test_results": [
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "native-support-tests.log": {
+      "sha256": "9cb79a90a1792e2d2c3bb09fb0121ae604895d14268e92c8f1ec87e799b33d97",
+      "test_results": [
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "gpu-package.log": {
+      "sha256": "9458f786cbc2ab4c253334effd9550bb4e7013399b9f72acf13b11e954e13f6f",
+      "test_results": [
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "wasm-package.log": {
+      "sha256": "8b70b09c998f92c982cc8b04c5787e1c41e225320de59c78426996b9e0216a83",
+      "test_results": [
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "runtime-final.log": {
+      "sha256": "7d1811f04ba6cd54cac2c6f10414098e57d161cc1b59cd221416cb30273078ef",
+      "test_results": [
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "planner-final.log": {
+      "sha256": "a74201c7628815c982dbd4178d4970400dd6b83c3cc82e6c124e38bd73802c3d",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "knowledge-tests.log": {
+      "sha256": "eb799608e2cba76d78dd7cbdcbd6b0253e92e77526532b0eccc9244529b5aeeb",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "capture-producer.log": {
+      "sha256": "d798df94bc21d138a8102e74db7a034d712598ea2ec9a0baf6cb3eba4b3135b2",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "sequence-final.log": {
+      "sha256": "85fda56bbca47455840b9428fc7f977319c3492dcb49e7dcba72cdb3ca8c5f0b",
+      "test_results": [
+        [
+          "ok",
+          "1",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "proof-source-final.log": {
+      "sha256": "9efd0e61543d47ab5d2e301f8b0f44a29a247117a7a1231f4d11fc870ffe8e14",
+      "test_results": [
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "18",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "source-regressions.log": {
+      "sha256": "84da511db2bea98686994279432d0ee3d236e039f4ab3ce76ab0ceb7688e8108",
+      "test_results": [
+        [
+          "ok",
+          "5",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "FAILED",
+          "3",
+          "1"
+        ]
+      ],
+      "contains_prior_failure": true,
+      "note": "Contains earlier failures corrected by later validation; use the passing suite results and final dedicated logs."
+    },
+    "web-bundle.log": {
+      "sha256": "4a0486007f530646ce26a8f695c6440bbcb0562ddd749c6cbca9d7ba0ea6fc7b",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "web-host.log": {
+      "sha256": "c913ee69eea60f902bd9400bc0612bbe91c51bd5e7b75677e1b4d574fa75aca8",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "merged-build.log": {
+      "sha256": "d0042a60147374fbdfbe0bd47c6ce6c0f7efc63cd6fb9f797a4b07c80702f8f3",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "merged-rust.log": {
+      "sha256": "bfe0cab6850f97f8cdb9fc348eecad2475df72568cdf6dcf91fec90727db6ad3",
+      "test_results": [
+        [
+          "ok",
+          "19",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "js-final.log": {
+      "sha256": "f5fca92c9efe6ef8e0f483993e7e48d8cff8dbb9d54346ada86c118cf277f1e2",
+      "test_results": [
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "grouped-final.log": {
+      "sha256": "e0181aa7c2b0e1904e4d25962537c56ad7dc07db9f9dbb450f331fde7ca929b8",
+      "test_results": [
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "gpu-closure-final.log": {
+      "sha256": "c6b91c918b0ad2dc29862081bd01fa1f05f0c81e658a27a8886d9ac65cc57fcb",
+      "test_results": [
+        [
+          "ok",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "runtime-closure-final.log": {
+      "sha256": "7b1f8a86c57448ca4796eb938f3165068ba2e9c56f688e2c0180384f9f0bd40a",
+      "test_results": [
+        [
+          "ok",
+          "2",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "closure-device-final.log": {
+      "sha256": "b3a7c21b03d5f9c0463bf0727bbbd95ce9894b4fe7b7ef8745488988a874705e",
+      "test_results": [
+        [
+          "ok",
+          "6",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    },
+    "closure-all-build-final.log": {
+      "sha256": "ac34e87f1c1047638837f837adf38b310e40d21f7bf086661b9c571d3f4ea2c5",
+      "test_results": [],
+      "contains_prior_failure": false
+    },
+    "merged-publication-final.log": {
+      "sha256": "c0e8e7e3b61c60e20bfbc969d8801f1372c06743dfbeb857dd7d284dbc4747d5",
+      "test_results": [
+        [
+          "ok",
+          "41",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0"
+        ]
+      ],
+      "contains_prior_failure": false
+    }
+  },
+  "dependency_audit": {
+    "root": "C-free",
+    "runtime": "C-free",
+    "generated_gpu_host": "C-free",
+    "independent_package_graphs": "Runtime, GPU, JS and Wasm metadata contain no C package; all ink-core revisions use the published C-free checkpoint."
+  },
+  "actual_device_evidence": {
+    "feature_parity": 106,
+    "lowering_parity": 34,
+    "selected_checkpoint": 1
+  },
+  "preserved": "CRDT work, grouped folds, typed restore reconstruction, typed word collections, GPU ordered tiling, portable proof fixtures and immutable historical receipts.",
+  "performance_claim": "None; this is backend removal and correctness validation.",
+  "remote_repository_deletion": "Pending final root publication.",
+  "ci": "Not yet run for final root commit.",
+  "c_free_core_checkpoint": "3ce90453f57e6e2639f93ef6d1a66ba1ad13921b"
+}

@@ -56,7 +56,7 @@ def prepare(a):
   rows.update(input_core_sha256=receipt['check']['input_core_sha256'],literal_core_file_sha256=sha(core),source_sha256=sha(src),fresh_laws=sorted(used),prior_equals_literal=prior==body,checked_changes_prior=checked!=prior,fresh_proof_required=t.get('fresh_proof_required',True))
   rows['literal']=dict(core_sha256=sha(core))
   for version in ['literal','prior','checked']:
-   target=td/version;run([a.compiler,'build',td/f'{version}.core.json','--core','--target','webgpu','--zig',a.zig,'-o',target],commands)
+   target=td/version;run([a.compiler, 'build', td / f'{version}.core.json', '--core', '--target', 'webgpu', '-o', target],commands)
    # Benchmark-only accessor; source/position and resulting bytes are bound.
    host=target/'ink-gpu.mjs';text=host.read_text();anchor='    manifest,'
    if text.count(anchor)!=1:raise ValueError('memory instrumentation anchor')
@@ -222,7 +222,7 @@ def summarize(a):
  (p/(a.host+'-summary.json')).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(status='passed',comparisons=len(rows))))
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('mode',choices=['prepare','node','serve','audit','summarize','native-prepare','native','native-audit']);parser.add_argument('--report',type=Path,default=REPORT);parser.add_argument('--compiler',type=Path,default=ROOT/'reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish');parser.add_argument('--zig',type=Path,default=ROOT.parent/'toolchain/zig-aarch64-macos-0.15.2/zig');parser.add_argument('--prior',type=Path);parser.add_argument('--knowledge',type=Path,default=ROOT/'knowledge');parser.add_argument('--model',type=Path);parser.add_argument('--host',choices=['node','browser'],default='node');parser.add_argument('--port',type=int,default=8877);parser.add_argument('--validate-only',action='store_true');a=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('mode',choices=['prepare','node','serve','audit','summarize']);parser.add_argument('--report',type=Path,default=REPORT);parser.add_argument('--compiler',type=Path,default=ROOT/'reports/web-stack-proofs-32-2026-10-11/main-integration/ink-main-publish');parser.add_argument('--zig',type=Path,default=ROOT.parent/'toolchain/zig-aarch64-macos-0.15.2/zig');parser.add_argument('--prior',type=Path);parser.add_argument('--knowledge',type=Path,default=ROOT/'knowledge');parser.add_argument('--model',type=Path);parser.add_argument('--host',choices=['node','browser'],default='node');parser.add_argument('--port',type=int,default=8877);parser.add_argument('--validate-only',action='store_true');a=parser.parse_args()
  if a.mode=='prepare':
   if a.prior is None or a.model is None:parser.error('prepare requires frozen --prior and --model')
   prepare(a)
@@ -230,8 +230,4 @@ def main():
  elif a.mode=='serve':serve(a)
  elif a.mode=='audit':validation_audit(a) if a.validate_only else audit(a)
  elif a.mode=='summarize':summarize(a)
- elif a.mode=='native-audit':
-  sys.path.insert(0,str(ASSETS));spec=importlib.util.spec_from_file_location('batch37_native_audit',ASSETS/'native-audit.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);print(json.dumps(module.audit(a.report)))
- elif a.mode in ['native-prepare','native']:
-  spec=importlib.util.spec_from_file_location('batch37_native',ASSETS/'native.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);result=module.prepare(a.report) if a.mode=='native-prepare' else module.measure(a.report);print(json.dumps(dict(status=result['status'],samples=len(result.get('samples',[])))))
 if __name__=='__main__':main()

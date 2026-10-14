@@ -11,7 +11,7 @@ use verified_language::{
     implementation::{self, Package},
     library::{self, Object},
     logic::{Branch, Case, Context, Declaration, Equation, Proof, Sort, Term},
-    native, syntax,
+    state_native, syntax,
 };
 
 static NEXT: AtomicUsize = AtomicUsize::new(0);
@@ -100,26 +100,16 @@ fn real_database_proofs_authorise_exact_source_and_preserve_full_width_values() 
     assert_eq!(evidence.library_closure.len(), 10);
     assert_eq!(evidence.checked_proposals.len(), 8);
     assert_ne!(
-        native::emit(&before).unwrap(),
-        native::emit(&after).unwrap()
+        state_native::emit(&before).unwrap(),
+        state_native::emit(&after).unwrap()
     );
     // Both baseline and checked implementations must compile under the normal
     // strict backend diagnostics; valid x <= x needs no optimisation database.
     for (name, program) in [("baseline", &before), ("checked", &after)] {
-        let source = fixture.0.join(format!("{name}.c"));
-        fs::write(&source, native::emit(program).unwrap()).unwrap();
-        let result = std::process::Command::new("clang")
-            .args(["-O3", "-std=c11", "-Wall", "-Wextra", "-Werror", "-c"])
-            .arg(&source)
-            .arg("-o")
-            .arg(fixture.0.join(format!("{name}.o")))
-            .output()
-            .unwrap();
-        assert!(
-            result.status.success(),
-            "{name}: {}",
-            String::from_utf8_lossy(&result.stderr)
-        );
+        let project=fixture.0.join(name);
+        verified_language::runtime::emit_rust_program(&state_native::emit(program).unwrap(),&project).unwrap();
+        let result=std::process::Command::new("cargo").args(["check","--quiet","--manifest-path"]).arg(project.join("Cargo.toml")).output().unwrap();
+        assert!(result.status.success(),"{}",String::from_utf8_lossy(&result.stderr));
     }
     let boundary = [0, 1, 2, u64::MAX, u64::MAX - 1, 1 << 63, (1 << 63) - 1];
     let mut seed = 7319u64;

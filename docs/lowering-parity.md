@@ -1,34 +1,29 @@
 # Lowering parity
 
-The complete C, Rust, JavaScript and Wasm paths implement the currently executable
+The complete Rust, JavaScript and Wasm paths implement the currently executable
 Ink language. The design draft also describes features that the checker does not
 yet admit; this is not a claim that those features are implemented.
 
-| Executable feature | C | Rust | JavaScript | Wasm | WebGPU / wgpu |
-| --- | --- | --- | --- | --- | --- |
-| Wrapping u32/i32, f32, numeric vectors and flat records | Yes | Yes | Yes | Yes | Eligible kernels; exact binary32 arithmetic |
-| Full-width u64 | Yes | Yes | Yes | Yes | Exact two-lane arithmetic in eligible kernels |
-| Exact Int, strings, IDs, enums, Unit, Option/Result | Yes | Yes | Yes | Yes | CPU host, except eligible optional scalar reads |
-| Lists, nested/recursive record values, lexical bindings and acyclic calls | Yes | Yes | Yes | Yes | Flat numeric/Bool arrays and acyclic helpers |
-| Map, filter, indexed map, truncating zip, safe indexed reads | Yes | Yes | Yes | Yes | Eligible array compositions |
-| Ordered reductions, integer scan/sort, bounded repeat, lazy branches | Yes | Yes | Yes | Yes | Eligible array kernels; resource limits can select CPU |
-| Owned buffers/maps, consuming split/append and stopping loops | Yes | Yes | Yes | Yes | Bounded scalar private buffers; dynamic/unsupported cases use CPU |
-| Ordered parallel map and buffer map | Native threads | Native threads | Workers | Host workers for both emitters | Eligible output kernels; private-buffer map is sequential per invocation |
-| Guarded self recursion and list drop/take | Yes | Yes | Yes | Yes | CPU host |
-| Tables, queries, changes, checked arithmetic and Result propagation | Yes | Yes | Yes | Yes | CPU host |
-| Keeps, rollback, ordered events and counter exhaustion | Yes | Yes | Yes | Yes | CPU host |
-| Portable checkpoint/restore, outbox acknowledgement | Yes | Yes | Yes | Yes | CPU host |
+| Executable feature | Rust | JavaScript | Wasm | WebGPU / wgpu |
+| --- | --- | --- | --- | --- |
+| Wrapping u32/i32, f32, numeric vectors and flat records | Yes | Yes | Yes | Eligible kernels; exact binary32 arithmetic |
+| Full-width u64 | Yes | Yes | Yes | Exact two-lane arithmetic in eligible kernels |
+| Exact Int, strings, IDs, enums, Unit, Option/Result | Yes | Yes | Yes | CPU host, except eligible optional scalar reads |
+| Lists, nested/recursive record values, lexical bindings and acyclic calls | Yes | Yes | Yes | Flat numeric/Bool arrays and acyclic helpers |
+| Map, filter, indexed map, truncating zip, safe indexed reads | Yes | Yes | Yes | Eligible array compositions |
+| Ordered reductions, integer scan/sort, bounded repeat, lazy branches | Yes | Yes | Yes | Eligible array kernels; resource limits can select CPU |
+| Owned buffers/maps, consuming split/append and stopping loops | Yes | Yes | Yes | Bounded scalar private buffers; dynamic/unsupported cases use CPU |
+| Ordered parallel map and buffer map | Native threads | Workers | Host workers | Eligible output kernels; private-buffer map is sequential per invocation |
+| Guarded self recursion and list drop/take | Yes | Yes | Yes | CPU host |
+| Tables, queries, changes, checked arithmetic and Result propagation | Yes | Yes | Yes | CPU host |
+| Keeps, rollback, ordered events and counter exhaustion | Yes | Yes | Yes | CPU host |
+| Portable checkpoint/restore, outbox acknowledgement | Yes | Yes | Yes | CPU host |
 
 The same Ink syntax and observable values apply to every complete backend.
-Scheduling uses bounded native threads for complete C/Rust and module workers for
-JavaScript, C-Wasm and Rust-Wasm. A regression check requires distinct worker IDs;
+Scheduling uses bounded native threads for complete Rust and module workers for
+JavaScript and Rust-Wasm. A regression check requires distinct worker IDs;
 matching values alone cannot demonstrate parallel execution. Grain, small inputs
-and nested work can select sequential execution. Packed pure C objects retain
-their smaller sequential ABI. Split/append preserve ownership and partition-local
-indices; allocation strategies differ. Browser hosts need cross-origin isolation
-and asynchronous entry points. See [ordered work and target limits](parallel-execution.md).
-
-GPU-compatible functions can coexist with stateful declarations and unsupported
+and nested work can select sequential execution. GPU-compatible functions can coexist with stateful declarations and unsupported
 value types in one module. The runtime extracts each eligible pure dependency
 closure; unrelated declarations no longer prevent GPU execution. Transactions
 execute once on the host, without speculative profiling or replay.
@@ -41,39 +36,17 @@ wire encoding and the exact binary32 contract.
 
 ```sh
 ink build program.ink -o build/program
-ink build program.ink --target c -o build/c-project
 ink build program.ink --target rust -o build/rust-project
 ink build program.ink --target javascript -o build/program.mjs
 ink build program.ink --target wasm32 -o build/program.wasm
-ink build program.ink --lowering c --target wasm32 --zig /path/to/zig -o build/program.wasm
-ink build program.ink --target webgpu --zig /path/to/zig -o build/web
+ink build program.ink --target webgpu -o build/web
 ```
 
 Native builds produce an executable accepting a JSON array of requests:
 `[{"pure":"name","args":[...]},{"call":"action","args":[...]}]`.
 Native and `wasm32` builds use the typed Rust lowering by default; pass
-`--lowering c` to build the same artifact from the complete C project instead.
-The complete C project contains literal C function/action code and a shared Rust
-primitive runtime for values, exact integers, transactions and snapshot codecs.
-Every C operation calls that runtime through a dynamically typed value handle,
-and intermediates live in a bounded per-call arena, so it is a conformance
-lowering rather than a performance one: a scalar loop runs roughly 300–10,000×
-slower than typed Rust and exhausts the arena after about a million steps.
-Rust projects contain literal typed Rust; JavaScript modules contain literal ES code.
-`--target object` retains the small packed pure C object interface explicitly.
-
-The runtime emits the same handle/buffer lifecycle ABI for native libraries and
-Wasm (`state-abi.h`, `state-wasm.mjs`). The Wasm host exposes `pure`/`pureAsync`, `invoke`/`invokeAsync`, action
-invocation, snapshot/restore, events, acknowledgement and disposal. Rust-emitted
-projects can also compile to `wasm32-unknown-unknown` with this ABI.
-
-JavaScript exports `functions`, `call`, `metadata` and `createState`. The state
-object provides `invoke`, `invokeAsync`, `invoke_json`, `version`, `outbox`,
-`acknowledge_through`, and asynchronous `checkpoint`/`restore`. WebCrypto hashes
-snapshots in browsers and Node. Snapshots preserve the reference binary format
-and are interchangeable between these targets for the exact same checked program.
-State schemas rejected by the reference portable codec remain rejected here.
-A host supplies persistence, external I/O and event delivery.
+Native and Wasm projects use the same typed Rust lowering.
+Native and Wasm projects emit typed Rust functions and state. GPU bundles use the same Rust emission for CPU fallback, with scalar and packed adapters for browser Wasm and native wgpu hosts. JavaScript and WGSL/WebGPU remain primary execution paths. No C emitter, C primitive runtime, C compiler or Zig cross compiler is required.
 
 ## Semantic and resource boundaries
 
@@ -110,11 +83,11 @@ that admission boundary. See [checked representations](database-representations.
 
 ## Validation and trust
 
-`tests/lowering_parity.rs` compares complete native C, native Rust, JavaScript,
+`tests/lowering_parity.rs` compares complete native Rust, JavaScript,
 C/Wasm and Rust/Wasm with the reference evaluator. It covers 68 mixed-module
 requests plus 10 query/Result-keep boundary requests, including snapshots after
 every result, rollback, near-u64-max versions, events, full-width values, Unicode
-and recursive records. A compiled C host checks the native ABI lifecycle.
+and recursive records. Compiled Rust hosts check the native ABI lifecycle.
 
 ```sh
 cargo test --test lowering_parity
@@ -137,7 +110,7 @@ The source, seeds, script and expected results remain under
 `build/generated-parity/`, including after failures. This supplements the fixed
 feature inventory; it is not exhaustive enumeration of the language.
 
-The `Executable conformance` GitHub workflow runs C, Rust, JavaScript and both
+The `Executable conformance` GitHub workflow runs Rust, JavaScript and
 Wasm lowerings, durable-host failure tests, and a separate actual wgpu dispatch
 job on Vulkan's software adapter, including resident feedback. It adds a seed
 from the commit identity and retains reproduction artifacts. Hardware/browser
@@ -180,20 +153,20 @@ dispatch and explicit `gpu-required` errors without fallback. Stateful transacti
 arbitrary-size Int, general dynamic maps and recursive physical state execute on
 CPU hosts. The unrestricted all-GPU audit remains available with the default
 `tools/check_feature_parity.py` command and fails on its disclosed coverage gaps.
-Run `--scope contract --run` with Zig and Chrome to enforce the supported contract
+Run `--scope contract --run` with the Rust Wasm target and Chrome to enforce the supported contract
 through compiled CPU, native GPU and browser GPU execution.
 
 ## Standalone physical representations
 
 Proof-selected physical representations now use standalone compiled code on
-all targets, including C/Rust Wasm and native/browser GPU host lanes. Proofs,
+all targets, including Rust Wasm and native/browser GPU host lanes. Proofs,
 source ASTs and checker packages remain at compile time. All targets use the
 same checked snapshot namespace and transaction contract. GPU device eligibility
 is unchanged; recursive state executes on the host. The narrower fixed source
 representation model is described in [database representations](database-representations.md).
 
 `tests/representation_parity.rs` supplies the shared replies/errors/events/exact
-snapshot gate. It runs both Wasm lanes when INK_TEST_ZIG is set, including in CI.
+snapshot gate. It runs Wasm lanes when INK_TEST_ZIG is set, including in CI.
 No backend emitter is mechanically verified by that differential gate.
 
 Resident stage-graph feedback now captures source buffers before simultaneous

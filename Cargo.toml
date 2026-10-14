@@ -18,13 +18,12 @@ path = "src/bin/ink.rs"
 
 [workspace]
 members = []
-exclude = ["abi", "native-support", "runtime", "planner", "core", "lowerings/c", "lowerings/rust", "lowerings/wasm", "lowerings/gpu", "lowerings/js", "build", "build/**", "reports", "reports/**"]
+exclude = ["abi", "native-support", "runtime", "planner", "core", "lowerings/rust", "lowerings/wasm", "lowerings/gpu", "lowerings/js", "build", "build/**", "reports", "reports/**"]
 
 [dependencies]
 ink-abi = { path = "abi" }
 ink-runtime = { path = "runtime" }
 ink-core = { path = "core" }
-ink-lowering-c = { path = "lowerings/c" }
 ink-lowering-rust = { path = "lowerings/rust" }
 ink-lowering-wasm = { path = "lowerings/wasm" }
 ink-lowering-gpu = { path = "lowerings/gpu" }
@@ -41,9 +40,6 @@ codegen-units = 1
 
 [patch."https://github.com/siliconjungle/ink-lang"]
 ink-core = { path = "core" }
-
-[patch."https://github.com/siliconjungle/ink-lowering-c"]
-ink-lowering-c = { path = "lowerings/c" }
 
 [patch."https://github.com/siliconjungle/ink-lowering-gpu"]
 ink-lowering-gpu = { path = "lowerings/gpu" }
