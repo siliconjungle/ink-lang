@@ -5,6 +5,7 @@ use crate::{
     source_routing, resources, LangResult,
 };
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 pub const SEMANTICS: &str = "ink-compiled-plan-v1";
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -50,8 +51,8 @@ pub struct CheckedPlan {
     definitions: Vec<Vec<Replacement>>,
     route: Option<source_routing::CheckedRouting>,
     resources: Option<resources::CheckedResources>,
-    maintained: Option<crate::maintained::CheckedViews>,
-    package: Package,
+    maintained: Option<Arc<crate::maintained::CheckedViews>>,
+    package: Arc<Package>,
 }
 impl CheckedPlan {
     pub fn original(&self) -> &CheckedModule {
@@ -73,7 +74,7 @@ impl CheckedPlan {
         self.route.as_ref()
     }
     pub fn resources(&self) -> Option<&resources::CheckedResources> { self.resources.as_ref() }
-    pub fn maintained(&self) -> Option<&crate::maintained::CheckedViews> { self.maintained.as_ref() }
+    pub fn maintained(&self) -> Option<&crate::maintained::CheckedViews> { self.maintained.as_deref() }
     /// Emitters declare support explicitly; an admitted choice cannot disappear.
     pub fn require_source_storage_capability(&self,folds:bool,dense:bool)->LangResult<()>{
         self.require_source_storage_capabilities(folds,dense,false)
@@ -157,6 +158,7 @@ fn check_from(
         return Err("compiled plan byte limit".into());
     }
     let done = seed.as_ref().map_or(0, |s| s.package.steps.len());
+    let packet = Arc::new(package.clone());
     let mut checked = seed.unwrap_or_else(|| CheckedPlan {
         original: original.clone(),
         module: original.clone(),
@@ -167,9 +169,9 @@ fn check_from(
         route: None,
         resources: None,
         maintained: None,
-        package: package.clone(),
+        package: packet.clone(),
     });
-    checked.package = package.clone();
+    checked.package = packet;
     for step in &package.steps[done..] {
         match step {
             Step::Extension(p) => {
@@ -238,7 +240,7 @@ fn check_from(
             }
             Step::Maintained(p) => {
                 if checked.representation.is_some(){return Err("maintained folds require source tables".into());}
-                checked.maintained=Some(crate::maintained::check(&checked.module,p)?);
+                checked.maintained=Some(Arc::new(crate::maintained::check(&checked.module,p)?));
             }
             Step::Routing(p) => {
                 checked.resources = None;
@@ -298,7 +300,10 @@ impl Checker {
         }
         let checked = check_from(&self.original, package, seed)?;
         let bytes = crate::registry::canonical(package)?;
-        const LIMIT: usize = 16_000_000;
+        // Large admitted mathematical closures must remain eligible for prefix
+        // reuse. Keep the same finite byte bound as admission. Sealed maintained
+        // witnesses and packets are shared, not deep-cloned for each cache hit.
+        const LIMIT: usize = crate::registry::MAX_VIEW_BYTES;
         if bytes.len() <= LIMIT {
             while self.prefixes.len() >= 8 || self.bytes + bytes.len() > LIMIT {
                 if let Some((old, _)) = self.prefixes.pop_front() {
