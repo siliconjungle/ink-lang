@@ -68,6 +68,7 @@ mod owned_semantic;
 pub mod value_limits;
 
 pub mod field_projection;
+pub mod frozen;
 pub mod property;
 pub mod contracts;
 mod approximation;
@@ -90,3 +91,7 @@ pub mod record_codec;
 pub mod sum_codec;
 
 pub mod protocol;
+
+pub mod learning;
+
+mod differentiation;

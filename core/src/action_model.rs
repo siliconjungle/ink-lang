@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 mod collections;
+mod frozen_values;
 mod bulk;
 mod equality;
 mod keys;
@@ -224,6 +225,8 @@ pub struct Projection {
     pub source_preconditions: BTreeMap<String, String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub source_domain: Vec<crate::logic::Equation>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub initial_state: Option<Term>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -271,7 +274,7 @@ pub struct ValueCarrier {
     pub objects: BTreeMap<String, Entry>,
 }
 pub fn value_carrier(module: &CheckedModule, ty: &Type) -> LangResult<ValueCarrier> {
-    let typed = CheckedActions::elaborate(module)?;
+    let typed = CheckedActions::elaborate_with_frozen_roots(module)?;
     let mut lower = Lower::new(module.program(), &typed);
     lower.reserve_recursive_records()?;
     let sort = lower.sort(ty)?;
@@ -976,7 +979,7 @@ impl Projection {
         module: &CheckedModule,
         observations: &[SiteObservation],
     ) -> LangResult<(Self, Vec<ObservationFunction>)> {
-        let actions = CheckedActions::elaborate(module)?;
+        let actions = CheckedActions::elaborate_with_frozen_roots(module)?;
         let mut nodes = 0usize;
         for i in 0..module.program().actions.len() {
             nodes = nodes
@@ -1115,6 +1118,7 @@ impl Projection {
         for observation in observations {
             observed.push(l.site_observation(&actions, observation)?);
         }
+        let initial_state=l.fixed_initial_state()?;
         let mut out = Self {
             schema: 1,
             semantics: SEMANTICS.into(),
@@ -1131,9 +1135,21 @@ impl Projection {
                 .filter(|(name, _)| p.actions.iter().any(|a| &a.name == *name))
                 .map(|(n, g)| (n.clone(), g.clone())).collect(),
             source_domain: vec![],
+            initial_state,
         };
         let (domain_objects,domain)=crate::contracts::state::source_domain(p)?;
         out.objects.extend(domain_objects);out.source_domain=domain;
+        // These equalities follow from fixed source bindings, the absence of
+        // writer capabilities and checked restore. They are not producer hints.
+        if let Some(Term::Construct{arguments,..})=&out.initial_state {
+            let bindings=(0..out.tables.len()).map(|i|format!("__frozen_root_{i}")).collect::<Vec<_>>();
+            for (index,_) in p.states.iter().enumerate().filter(|(_,s)|p.frozen.contains_key(&s.name)) {
+                out.source_domain.push(crate::logic::Equation {
+                    from:Term::Match {scrutinee:Box::new(v("initial")),branches:vec![Branch{bindings:bindings.clone(),body:v(&bindings[index])}]},
+                    to:arguments[index].clone(),
+                });
+            }
+        }
         if registry::canonical(&out)?.len() > crate::core::MAX_BYTES {
             return Err("action model byte limit".into());
         }

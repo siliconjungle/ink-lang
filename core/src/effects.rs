@@ -741,7 +741,7 @@ mod tests {
             crate::syntax::parse("module test; query plain()->u32{return 3;}").unwrap(),
         )
         .unwrap();
-        let actions = CheckedActions::elaborate(&module).unwrap();
+        let actions = CheckedActions::elaborate_with_frozen_roots(&module).unwrap();
         let mut checker = Checker {
             actions: &actions,
             remaining: 0,

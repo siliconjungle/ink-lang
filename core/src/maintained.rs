@@ -174,7 +174,7 @@ pub fn subjects(module: &CheckedModule) -> LangResult<Subjects> {
     }
     let m = CheckedModule::from_source(p)?;
     let projection = Projection::derive(&m)?;
-    let ir = crate::action_ir::CheckedActions::elaborate(module)?;
+    let ir = crate::action_ir::CheckedActions::elaborate_with_frozen_roots(module)?;
     let effects = crate::effects::CheckedEffects::derive(&ir)?;
     let mut out = vec![];
     for (i, k) in module.program().keeps.iter().enumerate() {

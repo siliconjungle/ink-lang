@@ -144,6 +144,10 @@ impl SurfaceProgram {
                     .iter()
                     .any(|(_, t)| matches!(t,Type::Named(n) if e.callback_types.contains_key(n)))
         });
+        e.output.contracts.learning.adaptive.retain(|n| {
+            !e.parameters.contains_key(n) && !e.templates.functions.iter().any(|f| &f.name == n &&
+                f.params.iter().any(|(_,t)|matches!(t,Type::Named(n) if e.callback_types.contains_key(n))))
+        });
         e.output.contracts.specifications.retain(|s|!e.parameters.contains_key(&s.name) && !s.params.iter().any(|(_,t)|matches!(t,Type::Named(n) if e.callback_types.contains_key(n))));
         e.output.contracts.implementations.retain(|i| e.output.contracts.specifications.iter().any(|s|s.name==i.specification));
         e.output
@@ -259,9 +263,13 @@ impl SurfaceProgram {
                 e.measure(&mut measure,&function,&bindings,0)?;
                 e.output.termination.measures.insert(instance.clone(),measure);
             }
+            if e.templates.contracts.learning.adaptive.contains(&base) && !e.output.contracts.learning.adaptive.contains(&instance) {
+                e.output.contracts.learning.adaptive.push(instance.clone());
+            }
             e.output.functions[index] = function;
             e.instance_contract(&base, &instance, &bindings, &args, 0)?;
         }
+        p.contracts.learning.adaptive.extend(e.output.contracts.learning.adaptive);
         p.contracts.specifications.extend(e.output.contracts.specifications);
         p.contracts.implementations.extend(e.output.contracts.implementations);
         p.contracts.value_invariants.extend(e.output.contracts.value_invariants);
@@ -278,6 +286,7 @@ impl SurfaceProgram {
             }
         }
         for implementation in &mut p.contracts.implementations { implementation.body.clear(); }
+        crate::differentiation::expand(&mut p,&e.abstract_records)?;
         crate::abstraction::check_and_strip(&mut p, &e.abstract_records, &e.access_origins)?;
         crate::contracts::values::install(&mut p)?;
         crate::contracts::install_guards(&mut p)?;
@@ -598,8 +607,12 @@ impl Elaborator {
                         "generic function {n} requires explicit type arguments"
                     ));
                 }
-                for a in args {
-                    self.expr(a, env, depth + 1)?;
+                if !self.templates.functions.iter().any(|f| &f.name == n)
+                    && self.collection_callbacks(n, args, env, depth + 1)? {
+                    // Callback binders receive their fixed collection types
+                    // before surface matches or callback specialization inspect them.
+                } else {
+                    for a in args { self.expr(a, env, depth + 1)?; }
                 }
             }
             Expr::Record(n, fs) => {
@@ -754,8 +767,8 @@ impl Elaborator {
                     }
                 }
                 self.expr(x, env, depth + 1)?;
-                for a in args.iter_mut() {
-                    self.expr(a, env, depth + 1)?;
+                if !self.method_callbacks(x, variant, args, env, depth + 1)? {
+                    for a in args.iter_mut() { self.expr(a, env, depth + 1)?; }
                 }
                 if let Ok(Type::Named(target)) =
                     crate::check::infer(x, &self.local_types, &self.program_context())
@@ -795,10 +808,75 @@ impl Elaborator {
         }
         Ok(())
     }
+    fn scoped_callback(&mut self, e:&mut Expr, inputs:&[Type], env:&BTreeMap<String,Type>, depth:usize)->LangResult<()> {
+        self.step(depth)?;
+        let (Some((input,rest)), Expr::Lambda(name,body)) = (inputs.split_first(), &mut *e) else {
+            return self.expr(e,env,depth+1);
+        };
+        let newly_bound=self.locals.insert(name.clone());
+        let old=self.local_types.insert(name.clone(),input.clone());
+        let result=self.scoped_callback(body,rest,env,depth+1);
+        if newly_bound {self.locals.remove(name);}
+        if let Some(t)=old {self.local_types.insert(name.clone(),t);}else{self.local_types.remove(name);}
+        result
+    }
+    fn collection_callbacks(&mut self,name:&str,args:&mut [Expr],env:&BTreeMap<String,Type>,depth:usize)->LangResult<bool> {
+        let callbacks=match (name,args.len()) {
+            ("foldl"|"foldr"|"repeat"|"parallel_map",3)=>vec![2],
+            ("repeat_until"|"fold_until",4)=>vec![2,3],
+            _=>return Ok(false),
+        };
+        for (i,arg) in args.iter_mut().enumerate() {if !callbacks.contains(&i) {self.expr(arg,env,depth+1)?;}}
+        let p=self.program_context();
+        let first=self.value_hint(&args[0],&p);
+        // Unsuffixed literals and polymorphic constructors may receive their
+        // accumulator type from the enclosing result. Do not pre-empt that
+        // later contextual check with their standalone default carrier.
+        let mut seed=&args[1];
+        while let Expr::Let(n,_,_,body)=seed {
+            if !self.access_origins.contains_key(n) {break;} seed=body;
+        }
+        let definite=matches!(seed,Expr::Var(_)|Expr::Record(..)|Expr::Float(_)|Expr::Bool(_)|Expr::String(_)|Expr::Unit)
+            || matches!(seed,Expr::Call(n,_) if p.functions.iter().any(|f|&f.name==n));
+        let initial=if definite {self.value_hint(seed,&p)}else{None};
+        for i in callbacks {
+            let inputs=match (name,i,&first,&initial) {
+                ("foldl"|"foldr"|"fold_until",_,Some(Type::List(item)),Some(acc))=>Some(vec![*item.clone(),acc.clone()]),
+                ("repeat",_,_,Some(acc)) | ("repeat_until",3,_,Some(acc))=>Some(vec![Type::U32,acc.clone()]),
+                ("repeat_until",2,_,Some(acc))=>Some(vec![acc.clone()]),
+                ("parallel_map",_,Some(Type::List(item)),_)=>Some(vec![Type::U32,*item.clone()]),
+                _=>None,
+            };
+            if let Some(inputs)=inputs {self.scoped_callback(&mut args[i],&inputs,env,depth+1)?;}
+            else {self.expr(&mut args[i],env,depth+1)?;}
+        }
+        Ok(true)
+    }
+    fn method_callbacks(&mut self,receiver:&Expr,name:&str,args:&mut [Expr],env:&BTreeMap<String,Type>,depth:usize)->LangResult<bool> {
+        let Some(input)=self.value_hint(receiver,&self.program_context()) else {return Ok(false)};
+        let scopes=match (&input,name,args.len()) {
+            (Type::List(t)|Type::Buffer(t),"map"|"filter",1)=>vec![(0,vec![*t.clone()])],
+            (Type::List(t)|Type::Buffer(t),"map_parallel",2)=>vec![(1,vec![Type::U32,*t.clone()])],
+            (Type::List(t)|Type::Buffer(t),"map_indexed",1)=>vec![(0,vec![Type::U32,*t.clone()])],
+            (Type::List(t),"zip",2)=>match self.value_hint(&args[0],&self.program_context()) {
+                Some(Type::List(other))=>vec![(1,vec![*t.clone(),*other])],_=>return Ok(false),
+            },
+            (Type::Buffer(t),"borrow_range",3)=>vec![(2,vec![Type::Buffer(t.clone())])],
+            (Type::Buffer(t),"split_at",2)=>vec![(1,vec![Type::Buffer(t.clone()),Type::Buffer(t.clone())])],
+            (Type::Option(t),"map",1)|(Type::Result(t,_),"map",1)=>vec![(0,vec![*t.clone()])],
+            (Type::Result(_,t),"map_err",1)=>vec![(0,vec![*t.clone()])],
+            (Type::Option(t),"fold",2)=>vec![(0,vec![*t.clone()]),(1,vec![Type::Unit])],
+            (Type::Result(a,b),"fold",2)=>vec![(0,vec![*a.clone()]),(1,vec![*b.clone()])],
+            _=>return Ok(false),
+        };
+        for (i,arg) in args.iter_mut().enumerate() {if !scopes.iter().any(|(j,_)|*j==i) {self.expr(arg,env,depth+1)?;}}
+        for (i,inputs) in scopes {self.scoped_callback(&mut args[i],&inputs,env,depth+1)?;}
+        Ok(true)
+    }
     /// Hints only select generated helper signatures. Whole-module action
     /// checking still establishes argument types, capabilities and effects.
     fn value_hint(&self, e:&Expr, p:&Program)->Option<Type> {
-        crate::check::infer(e,&self.local_types,p).ok()
+        crate::differentiation::hint(e,p).or_else(||crate::check::infer(e,&self.local_types,p).ok())
             .or_else(||crate::statecheck::expression_type(p,e,&self.local_types).ok())
             .or_else(||if let Expr::Call(n,_) = e {
                 p.actions.iter().find(|a|&a.name==n).map(|a|a.result.clone())
@@ -1286,12 +1364,15 @@ impl Elaborator {
                     let lambda = match arg {
                         Expr::Lambda(n, b) => {
                             for capture in free_variables(b, &[n.clone()].into_iter().collect()) {
-                                if self.local_types.get(&capture).is_some_and(|t| {
-                                    crate::local_collections::owned(t, &self.templates)
-                                }) {
-                                    return Err(
-                                        "callbacks cannot capture owned temporary storage".into()
-                                    );
+                                if let Some(t)=self.local_types.get(&capture).filter(|t|crate::local_collections::owned(t,&self.templates)) {
+                                    // Specialization is nonescaping. Admit a captured
+                                    // owner only when the general affine walk proves
+                                    // this callback borrows it without consuming fields.
+                                    let wrapped=Expr::Lambda(capture.clone(),Box::new(arg.clone()));
+                                    let mut parameters=vec![t.clone()];parameters.extend(inputs.clone());
+                                    let mut scope=self.local_types.clone();scope.remove(&capture);
+                                    let loans=crate::local_collections::callback_parameter_loans(&wrapped,&scope,&self.program_context(),&parameters,&output)?;
+                                    if !loans[0] {return Err("callbacks cannot consume captured owned temporary storage".into());}
                                 }
                             }
                             arg.clone()

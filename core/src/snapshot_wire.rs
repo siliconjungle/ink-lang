@@ -433,6 +433,27 @@ fn event_order(e: &Event, version: u64, prior: Option<(u64, u64)>) -> R<()> {
     }
     Ok(())
 }
+fn table_rows(kt:&Schema,vt:&Schema,rows:&[(Value,Value)],out:&mut Vec<u8>,left:&mut usize,limits:Limits)->R<()> {
+    if rows.len()>*left/2{return Err("snapshot row limit exceeded".into());}
+    count(out,rows.len());
+    let mut prior=None;
+    for (k,v) in rows {
+        if let Some(before)=prior {
+            if compare(kt,before,k)?!=Ordering::Less {return Err("snapshot keys must be strictly ordered".into());}
+        }
+        encode_value(kt,k,out,left,0,limits,&mut vec![])?;
+        encode_value(vt,v,out,left,0,limits,&mut vec![])?;
+        prior=Some(k);
+    }
+    Ok(())
+}
+/// Canonical raw table identity, including float payloads and signed zero.
+pub fn table_bytes(kt:&Schema,vt:&Schema,rows:&[(Value,Value)],limits:Limits)->R<Vec<u8>> {
+    let mut out=vec![];let mut left=limits.values;
+    table_rows(kt,vt,rows,&mut out,&mut left,limits)?;
+    if out.len()>limits.bytes{return Err("snapshot byte limit exceeded".into());}
+    Ok(out)
+}
 pub fn encode(layout: &Layout, s: &Logical, limits: Limits) -> R<Vec<u8>> {
     if s.tables.len() != layout.roots.len() {
         return Err("snapshot root count mismatch".into());
@@ -441,21 +462,7 @@ pub fn encode(layout: &Layout, s: &Logical, limits: Limits) -> R<Vec<u8>> {
     let mut left = limits.values;
     u64_bytes(&mut out, s.version);
     for (rows, (_, kt, vt)) in s.tables.iter().zip(&layout.roots) {
-        if rows.len() > left / 2 {
-            return Err("snapshot row limit exceeded".into());
-        }
-        count(&mut out, rows.len());
-        let mut prior = None;
-        for (k, v) in rows {
-            if let Some(p) = prior {
-                if compare(kt, p, k)? != Ordering::Less {
-                    return Err("snapshot keys must be strictly ordered".into());
-                }
-            }
-            encode_value(kt, k, &mut out, &mut left, 0, limits,&mut vec![])?;
-            encode_value(vt, v, &mut out, &mut left, 0, limits,&mut vec![])?;
-            prior = Some(k);
-        }
+        table_rows(kt,vt,rows,&mut out,&mut left,limits)?;
     }
     count(&mut out, s.outbox.len());
     let mut prior = None;

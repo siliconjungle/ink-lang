@@ -423,7 +423,7 @@ fn pure_callbacks_specialise_with_immutable_captures_and_checked_signatures() {
     assert_eq!(pure(source, "scopes", json!([7])), json!(17));
     for source in [
       "module bad;fn apply(x:u32,f:fn(u32)->u32)->u32{return f(x);}fn f()->u32{return apply(1,fn(x)=>true);}",
-      "module bad;fn apply(x:u32,f:fn(u32)->u32)->u32{return f(x);}fn f()->u32{let b:Buffer<u32>=buffer([1]);return apply(1,fn(x)=>b.len());}",
+      "module bad;fn apply(x:u32,f:fn(u32)->u32)->u32{return f(x);}fn f()->u32{let b:Buffer<u32>=buffer([1]);return apply(1,fn(x)=>b.push(2).len());}",
       "module bad;fn f(x:fn(u32)->u32)->fn(u32)->u32{return x;}",
       "module bad;state x:fn(u32)->u32=1;",
       "module bad;fn recursive(x:u32,f:fn(u32)->u32)->u32{return recursive(x,f);}fn root()->u32{return recursive(1,fn(x)=>x);}",

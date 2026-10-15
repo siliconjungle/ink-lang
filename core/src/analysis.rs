@@ -301,6 +301,15 @@ pub fn typed_walk_context(
                 callback(&args[2],&[Type::U32,*input],Some(*output),&env,depth+1,&mut pending);
                 pending.push((&args[1],env.clone(),Some(Type::U32),depth+1));pending.push((&args[0],env,None,depth+1));
             }
+            Expr::Method(receiver,name,args) if name=="borrow_range" && args.len()==3 => {
+                let input=crate::check::infer(receiver,&env,program)?;
+                if !matches!(input,Type::Buffer(_)){return Err("typed borrowed receiver".into())}
+                let result=crate::check::infer_context(e,&env,program,want.as_ref())?;
+                callback(&args[2],&[input],Some(result),&env,depth+1,&mut pending);
+                pending.push((&args[1],env.clone(),Some(Type::U32),depth+1));
+                pending.push((&args[0],env.clone(),Some(Type::U32),depth+1));
+                pending.push((receiver,env,None,depth+1));
+            }
             Expr::Method(receiver,name,args) if name=="split_at" && args.len()==2 => {
                 let input=crate::check::infer(receiver,&env,program)?;
                 if !matches!(input,Type::Buffer(_)){return Err("typed split receiver".into())}

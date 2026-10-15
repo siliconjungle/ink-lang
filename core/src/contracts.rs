@@ -1,4 +1,5 @@
-//! Source contracts are proof obligations, never trusted annotations.
+//! Source contracts carry proof obligations and checked capability declarations.
+//! They never grant unchecked rewrite or approximation authority.
 //! Specifications describe admitted behaviour. Implementations and database laws
 //! remain untrusted until the existing semantic/inductive kernels check them.
 use crate::{
@@ -25,6 +26,8 @@ pub const SEMANTICS: &str = "ink-contracts-v1";
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Contracts {
+    #[serde(default, skip_serializing_if = "crate::learning::Declarations::is_empty")]
+    pub learning: crate::learning::Declarations,
     #[serde(default, skip_serializing_if="BTreeMap::is_empty")]
     pub action_protocols: BTreeMap<String, crate::protocol::Execution>,
     /// Predicates on immutable nominal values, in the single `value` binder.
@@ -61,7 +64,8 @@ pub struct Contracts {
 }
 impl Contracts {
     pub fn is_empty(&self) -> bool {
-        self.action_protocols.is_empty()
+        self.learning.is_empty()
+            && self.action_protocols.is_empty()
             && self.value_invariants.is_empty()
             && self.value_constructors.is_empty()
             && self.value_validators.is_empty()
