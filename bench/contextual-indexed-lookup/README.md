@@ -46,3 +46,11 @@ operation/shape is a separate equally weighted measurement phase, so constructio
 costs on low-query workloads remain visible. The small-workload plan and all
 registered evaluation cells remain in the report. Choose an offset before running;
 evaluation results must not fit the guarded cutoffs or choose a plan.
+
+Grid phase IDs identify ordinal strata and keep identical objective weights across
+training and validation. The empty-key/empty-query corner is evaluation-only:
+`predicate([],[],[])` and `nested([],[])` cannot provide distinct logical inputs
+in both sets. All crossed empty/nonempty training cases remain, and every empty
+corner still appears in evaluation. The two grids therefore have 33 equally
+weighted phases each. Preflight validates their full input disjointness before
+any planning or timing process starts.
