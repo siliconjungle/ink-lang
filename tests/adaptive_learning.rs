@@ -53,7 +53,7 @@ fn offline_training_learns_interactions_and_restores_exactly() {
 
 #[test]
 fn online_learning_preserves_values_errors_events_and_snapshots_across_targets() {
-    let source=format!("{SOURCE}\nlearn change rejected()->Result<Unit,String> writes(Model) emits(learned) {{Model.put(0,Weights{{bias:7.0,width:7.0,length:7.0,interaction:7.0}});emit learned(7.0);return Err(\"reject\");}}");
+    let source=format!("{SOURCE}\nlearn change rejected()->Result<Unit,String> writes(Model) emits(learned) {{Model=Weights{{bias:7.0,width:7.0,length:7.0,interaction:7.0}};emit learned(7.0);return Err(\"reject\");}}");
     let p=syntax::parse(&source).unwrap();let mut rt=Runtime::new(p.clone()).unwrap();
     let mut steps=vec![];let mut expected=vec![];
     let mut calls=vec![("suggest",json!([{"width":0.2,"length":0.8}])),("authored",json!([42]))];

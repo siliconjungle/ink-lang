@@ -3,7 +3,7 @@
 Ink now accepts three declaration modifiers:
 
 ```ink
-trainable state Model:Table<u32,Weights> = Table.empty();
+trainable state Model:Weights = initial();
 adaptive fn score(context:Context,weights:Weights)->f32 { /* ordinary pure code */ }
 adaptive query suggest(context:Context)->f32 reads(Model) { /* readonly code */ }
 learn change observe(context:Context,target:f32,rate:f32)
@@ -18,6 +18,10 @@ happens only when a `learn change` is invoked, using explicit observations and a
 explicit objective/update rule. Neural networks, search, discrete policies and
 other update algorithms can also be ordinary Ink code; these modifiers do not
 choose one implicitly.
+
+Value state uses normal reads and assignments (`let w=Model; Model=next;`),
+elaborating to the existing transactional cell mechanism. Trainable tables are also
+supported when parameters are keyed by model or user.
 
 The checker enforces a write boundary: learning actions may write only designated
 trainable states; ordinary changes may not write those states. Existing action
