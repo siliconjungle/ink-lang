@@ -1120,49 +1120,27 @@ pub fn check(p: &Program) -> LangResult<()> {
             return Err(format!("{} can fall through without returning", a.name));
         }
     }
-    // Name dependencies are deliberately conservative, including lambda-local names.
-    // This can reject a shadowed name but cannot hide a cycle in a keep or action.
-    fn deps(e: &Expr, out: &mut BTreeSet<String>) {
-        match e {
-            Expr::Var(n) => {
-                out.insert(n.clone());
-            }
-            Expr::Call(n, args) => {
-                out.insert(n.clone());
-                for a in args {
-                    deps(a, out);
-                }
-            }
-            Expr::Binary(_, a, b) => {
-                deps(a, out);
-                deps(b, out);
-            }
-            Expr::Method(a, _, xs) => {
-                deps(a, out);
-                for x in xs {
-                    deps(x, out);
-                }
-            }
-            Expr::Field(e, _) | Expr::Try(e) | Expr::Lambda(_, e) => deps(e, out),
-            Expr::Record(_, fs) => {
-                for (_, e) in fs {
-                    deps(e, out);
-                }
-            }
-            _ => {}
-        }
+    // Value references obey lexical scope. Named calls have their own global
+    // namespace, so a same-named local must never hide an actual action edge.
+    fn deps(e: &Expr, scope: &BTreeSet<String>, out: &mut BTreeSet<String>) {
+        out.extend(crate::analysis::free_variables(e).difference(scope).cloned());
+        crate::analysis::walk(e, |node| {
+            if let Expr::Call(name, _) = node { out.insert(name.clone()); }
+        });
     }
-    fn bodydeps(body: &[Statement], out: &mut BTreeSet<String>) {
-        for s in body {
-            match s {
-                Statement::Let(_, _, e)
-                | Statement::Return(e)
-                | Statement::Expr(e)
-                | Statement::Emit(_, e) => deps(e, out),
-                Statement::If(e, a, b) => {
-                    deps(e, out);
-                    bodydeps(a, out);
-                    bodydeps(b, out);
+    fn bodydeps(body: &[Statement], outer: &BTreeSet<String>, out: &mut BTreeSet<String>) {
+        let mut scope=outer.clone();
+        for statement in body {
+            match statement {
+                Statement::Let(name, _, value) => {
+                    deps(value, &scope, out);
+                    scope.insert(name.clone());
+                }
+                Statement::Return(value) | Statement::Expr(value) | Statement::Emit(_, value) => deps(value, &scope, out),
+                Statement::If(condition, yes, no) => {
+                    deps(condition, &scope, out);
+                    bodydeps(yes, &scope, out);
+                    bodydeps(no, &scope, out);
                 }
             }
         }
@@ -1170,12 +1148,12 @@ pub fn check(p: &Program) -> LangResult<()> {
     let mut graph = BTreeMap::new();
     for k in &p.keeps {
         let mut ds = BTreeSet::new();
-        deps(&k.value, &mut ds);
+        deps(&k.value, &BTreeSet::new(), &mut ds);
         graph.insert(k.name.clone(), ds);
     }
     for a in &p.actions {
         let mut ds = BTreeSet::new();
-        bodydeps(&a.body, &mut ds);
+        bodydeps(&a.body, &a.params.iter().map(|(n,_)|n.clone()).collect(), &mut ds);
         graph.insert(a.name.clone(), ds);
     }
     fn visit(
