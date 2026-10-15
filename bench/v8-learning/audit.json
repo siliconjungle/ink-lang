@@ -193,6 +193,30 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read. Nonescaping concat graphs, backwards propagation and loop-Phi revisits; only length/deopt-frame uses permit elision, reconstruct parent frame states and deduplicate dematerialized strings, bail out on frame-input growth. Ink String is UTF-8 with a U32 byte-length boundary and concat overflow failure; unconditional wrapping length arithmetic would not preserve that boundary. Generic unused-value/observed-representation work requires checked domain/outcome correspondence; no string law admitted from this review."
+    },
+    {
+      "path": "src/execution/tiering-manager.cc",
+      "sha256": "d59fc28f257747d55d5372f559edeffc7579dadbfa0e0c4b67161eec011e732f",
+      "inclusive_lines": [
+        [
+          1,
+          690
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Tier/OSR requests, concurrent compilation deduplication, urgency saturation, bytecode-size and battery/efficiency gates, allocation of feedback on demand, PGO cached decisions and delayed optimization after IC changes. Candidate scheduling/hotness feedback supplies no correctness premise. Compare Ink bounded offline planning, cache provenance and lifecycle costs; dynamic OSR/feedback-vector applicability remains open."
+    },
+    {
+      "path": "src/execution/tiering-manager.h",
+      "sha256": "7bb2baf828355f54acd7490e7a65847a6bc3dc915fd62a787e89ddbe95e10217",
+      "inclusive_lines": [
+        [
+          1,
+          73
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Tier/OSR requests, concurrent compilation deduplication, urgency saturation, bytecode-size and battery/efficiency gates, allocation of feedback on demand, PGO cached decisions and delayed optimization after IC changes. Candidate scheduling/hotness feedback supplies no correctness premise. Compare Ink bounded offline planning, cache provenance and lifecycle costs; dynamic OSR/feedback-vector applicability remains open."
     }
   ],
   "families": [
@@ -264,9 +288,9 @@
     },
     {
       "name": "feedback-tiering",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/execution/tiering-manager.cc",
-      "note": "Assess guarded feedback use and offline lifecycle amortization; preserve exact fallback"
+      "note": "TieringManager implementation/header read in full. Request deduplication, hot/stable delay, saturating budgets, large-function/resource gates identified; compare generic offline scheduling and cost provenance. No speculative premise admitted."
     },
     {
       "name": "maglev",
