@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "status": "local checks passed; publication CI pending",
+  "base_revision": "72b6d270ed66a8f2a95d03cb1d149d7a504d3bdc",
+  "submodule_pins": [
+    " 5c74c999f0852fe9f582311401f0d51905044356 abi (heads/main)",
+    " 93bfb02c16d7ea7f382a7c3b680b36bc8e0bcd4d knowledge (remotes/origin/HEAD)",
+    " 3f1080b94e3b570d3f541bc4a261f1c1f73561d2 lowerings/gpu (remotes/origin/codex/checked-boundary-dependency-closure-2026-10-14-26-g3f1080b)",
+    " 6a4a2bee6d30c8b733d71e3f0ec3b0f5605c7f91 lowerings/js (remotes/origin/codex/final-release-core-scope)",
+    " b7024687d1d2bb0f2ba4e7ae01d3f69871db3b31 lowerings/rust (remotes/origin/codex/remove-c-backend-18-gb702468)",
+    " 1ac20047cb95fb042d45303b2a93997a89ecc06e lowerings/wasm (remotes/origin/codex/checked-boundary-dependency-closure-2026-10-14-23-g1ac2004)",
+    " bb6ea23cc95b978f043004256296ac6ea7c4ed73 native-support (heads/main)",
+    " dcf97faa2512f5baba48413bd306634802acd957 planner (remotes/origin/HEAD)",
+    " f65b54bddfc7941cbe2654e83585dd3e4d909099 runtime (remotes/origin/codex/checked-boundary-dependency-closure-2026-10-14-36-gf65b54b)"
+  ],
+  "source_sha256": {
+    "core/src/syntax.rs": "c7c939e30ae364e53305c44d7dcd13b59890f40d2d4b9280a0c32c0afe8705b1",
+    "core/src/syntax/query.rs": "0751dd6468bccdc80f9e3ae22180b293420512f74f9bd990ff91faae24e8712a",
+    "core/src/surface.rs": "3abbf72c2f5f55ee19b52dc64541123b04f1cc14c0f65fe23be9fbf4fc83f502",
+    "core/src/local_collections.rs": "8d38c714e87811a98920a102d326985ed965cd9e35b751bcfb19b8c834c2527f",
+    "core/tests/query_expressions.rs": "a5b7b932a1b6dcdc09859751e2ff1dd500c8dbbc91ca11ac4731a093d2fff8d0",
+    "tests/support/query_expressions.rs": "95097f5fc6eb5eb05c9c7b7c7fcfcd0fe8912ff50f379198cfca0178ce374e86",
+    "tests/support/parity.rs": "0462e69ce39af9ab1c418ba27398d46f5e4b108d5cfbace7587bebc685a793fe",
+    "tools/bench_queries.py": "315fd1d452c7cbb8694ac4627c7ed5875260f9c8736102ec2989dfaf47030a08",
+    "tools/bench_queries.mjs": "d29ef416d8005bec04429970bd1056efcb26c921191c2f09904c1922daefa429",
+    "tools/bench_queries.rs.txt": "935cfd249557f15ede1d856d653ad6b1aa3adc52e18b42ef8e0c3d85f48383f3"
+  },
+  "commands": [
+    {
+      "command": "cargo test --manifest-path core/Cargo.toml --offline",
+      "exit": 0,
+      "passed": 385,
+      "suites_including_doctests": 67,
+      "log": "query-core-tests-final.log"
+    },
+    {
+      "command": "cargo test --test modules --test language_foundations --test law_source --test source_syntax --offline",
+      "exit": 0,
+      "passed": 25,
+      "log": "query-foundations-final.log"
+    },
+    {
+      "command": "INK_TEST_WASM=1 INK_PARITY_REQUIRE_ALL=1 INK_TEST_WGPU=1 cargo test --test generic_libraries --test modules --test language_foundations --test law_source --test source_syntax typed_queries_match_host_oracles_and_preserve_transaction_observations --offline -- --nocapture",
+      "exit": 0,
+      "passed": 1,
+      "note": "Name filter ran only the query fixture. The other four suites were run separately above.",
+      "values_outcomes_snapshots": 113,
+      "actual_wgpu_calls": 19,
+      "log": "query-upstream-validation.log"
+    },
+    {
+      "command": "python3 tools/test_ci_partitions.py",
+      "exit": 0,
+      "passed": 4
+    },
+    {
+      "command": "python3 tools/check_feature_parity.py --scope contract --receipt build/query-feature-audit.json",
+      "exit": 0,
+      "inventory_gaps": 0,
+      "conformance": "not-run by this inventory command"
+    },
+    {
+      "command": "python3 tools/bench_queries.py --compiler target/debug/ink --output build/query-benchmark-main --processes 3",
+      "exit": 0,
+      "report": "report.json"
+    }
+  ],
+  "limits": [
+    "No new relational optimization selection, Bag/Set, grouping or external storage.",
+    "GPU conformance is actual device execution for eligible functions, not GPU profitability evidence.",
+    "Benchmarks are owning native typed calls and JS trusted-value exports; handwritten controls use different documented call boundaries.",
+    "Proof replay checks the query/pipeline equality and rejects rehashed false equality; tests do not prove compiler or backend correctness."
+  ]
+}
