@@ -11,6 +11,63 @@ use verified_language::{
 };
 #[path = "support/parity.rs"]
 mod parity;
+
+#[test]
+fn inferred_conditional_word_facts_replay_before_cross_target_execution() {
+    use std::{fs,process::Command,path::Path};
+    let source=include_str!("../examples/conditional-facts.ink");
+    let root=Path::new(env!("CARGO_MANIFEST_DIR"));
+    let output=root.join("build/conditional-fact-parity");fs::create_dir_all(&output).unwrap();
+    fs::write(output.join("source.ink"),source).unwrap();
+    let result=Command::new("python3").args(["-c",r#"
+import json,sys,subprocess
+from pathlib import Path
+from ink_knowledge import Store,canonical,identity,semantic_entry
+from ink_planner.llvm_learning import discover_facts,parameters
+from producers.author_word_identities import checked_law
+compiler,d=Path(sys.argv[1]),Path(sys.argv[2])
+for args in [('emit-core',d/'source.ink','-o',d/'core.json'),('emit-semantic',d/'core.json','--core','-o',d/'semantic.json')]:
+ subprocess.run([str(compiler),*map(str,args)],check=True,capture_output=True)
+from producers.conditional_facts import acquire
+import tempfile
+with tempfile.TemporaryDirectory(prefix='ink-fact-integration-')as scratch:
+ packet,receipt=acquire(d/'source.ink',compiler,Path(scratch),seconds=60)
+ assert receipt['checked_laws']==4 and receipt['applications']==4,receipt
+ (d/'selection.json').write_bytes(canonical(packet));(d/'proof-receipts.json').write_bytes(canonical(receipt))
+subject=json.loads((d/'semantic.json').read_bytes())
+original=subject['functions']['collision'];assert not discover_facts(original)[0]
+try:
+ checked_law(compiler,d/'core.json',dict(params=parameters(original),conditions=[],**{'from':original,'to':dict(sort={'Value':'Bool'},node={'Bool':True})}),d,seconds=60)
+except ValueError as error:
+ assert 'counterexample' in str(error),str(error)
+else:raise AssertionError('noninjective replacement admitted')
+"#]).arg(env!("CARGO_BIN_EXE_ink")).arg(&output)
+        .env("PYTHONPATH",std::env::join_paths([root.join("knowledge"),root.join("planner")]).unwrap())
+        .current_dir(root).output().unwrap();
+    assert!(result.status.success(),"{}",String::from_utf8_lossy(&result.stderr));
+    let input=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let packet:optimisation::Package=serde_json::from_slice(&fs::read(output.join("selection.json")).unwrap()).unwrap();
+    let selected=optimisation::check(&input,&packet).unwrap();
+    let snapshot=Runtime::new_selected(&selected).unwrap().checkpoint_portable().unwrap();
+    let mut steps=vec![];let mut expected=vec![];
+    use verified_language::eval::Value::{U32,U64,List};
+    let mut add=|name:&str,args:Vec<verified_language::eval::Value>,gpu:bool|{
+        let value=verified_language::eval::call(input.program(),name,args.clone(),&mut 1_000_000).unwrap().json();
+        steps.push(json!({"pure":name,"args":args.iter().map(|v|v.json()).collect::<Vec<_>>(),"cpu_only":!gpu,"expect_gpu":gpu}));
+        expected.push(json!({"reply":{"value":value},"snapshot":snapshot}));
+    };
+    for x in [0,1,4,255,256,257,u32::MAX-1,u32::MAX,(1<<31)+4] {
+        for y in [0,1,255,256,257,u32::MAX] {add("bounded",vec![U32(x),U32(y)],false);}
+        add("excluded",vec![U32(x)],false);add("collision",vec![U32(x)],false);
+    }
+    for x in [0,1,4,u64::MAX-3,u64::MAX-2,u64::MAX-1,u64::MAX] {
+        add("wrap64",vec![U64(x)],false);add("reversed",vec![U64(x)],false);
+    }
+    add("mapped",vec![List(vec![])],false);
+    add("mapped",vec![List(vec![U32(0),U32(255),U32(256),U32(u32::MAX)])],true);
+    parity::conformance_selected("conditional-word-fact-parity",&selected,source,steps,expected);
+}
+
 #[test]
 fn proved_bound_erases_runtime_work_on_all_targets() {
     let source="module bounds;fn bounded(xs:List<u32>)->Bool{let selected:Int=count(xs.filter(fn(x)=>x>3));let original:Int=count(xs);return selected<=original;}";

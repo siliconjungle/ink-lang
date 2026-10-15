@@ -13,6 +13,15 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Conditional unsigned facts](docs/conditional-word-facts.md) extend the existing
+word analyser with excluded values and comparisons between ranges. Offline
+acquisition replays whole-function proofs and publishes four new reusable laws
+through the ordinary database catalogue. Independent value oracles and compiled
+reference/Rust/JS/Wasm tests include an eligible GPU call. The
+[designed-workload report](reports/conditional-facts-2026-10-15/README.md) retains
+small gains, distribution sensitivity and unchanged controls. General backward
+requirements, call summaries and floating-point inference remain open.
+
 [Packed bit-state algorithms](docs/bit-automata.md) add ordinary
 `std:bit_automata` source, eight checked scalar component laws and independent
 CPU/Wasm/eligible-GPU conformance. Literal-count experiments show search-focused
