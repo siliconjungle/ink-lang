@@ -27,6 +27,11 @@ call these ordinary actions. This demonstrates a programmable application target
 the compiler planner's general admission, measurement and runtime decision
 contracts have not acquired arbitrary learned objectives.
 
+A learner that changes objectives needs its own authored outer goal and bounds
+on permitted reconfiguration. A lower score under a different objective does not
+establish an improvement under the old one. Objective updates change ranking;
+they do not manufacture correctness or approximation permissions.
+
 ## Build the learned structure
 
 ```sh

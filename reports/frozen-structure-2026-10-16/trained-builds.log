@@ -1,0 +1,54 @@
+   Compiling ink-lowering-rust v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/lowerings/rust)
+   Compiling ink-lowering-gpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/lowerings/gpu)
+   Compiling ink-lowering-wasm v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/lowerings/wasm)
+   Compiling ink-runtime v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/runtime)
+   Compiling ink v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang)
+    Finished `test` profile [unoptimized] target(s) in 5.02s
+     Running tests/frozen_state.rs (target/debug/deps/frozen_state-f8280290ae73baf5)
+
+running 7 tests
+test authored_objective_changes_reset_scores_and_reject_stale_feedback ... ok
+test frozen_initial_data_and_restore_boundaries_match_all_targets ... wgpu: 9 results matched; 1 GPU calls
+rust Wasm: 9 values/outcomes and exact snapshots matched
+
+ok
+test frozen_learned_structure_has_checked_complete_transitions_on_all_targets ... wgpu: 31 results matched; 1 GPU calls
+rust Wasm: 31 values/outcomes and exact snapshots matched
+
+ok
+test neural_and_reward_models_freeze_complete_optimizer_and_control_state ... ok
+test restricting_one_learner_preserves_other_training_and_the_complete_state_payload ... ok
+test specialized_training_build_rechecks_proofs_even_after_inventory_rehashing ... ok
+test trained_frozen_packages_start_and_preserve_remaining_capabilities_across_targets ... javascript: frozen startup, live application updates, withdrawn writer and exact restore matched
+
+native: frozen startup, ordinary application updates and exact checkpoint matched
+rust: frozen startup, ordinary application updates and exact checkpoint matched
+wasm32: frozen startup, live application updates, withdrawn writer and exact restore matched
+
+webgpu: frozen startup, ordinary application updates and exact checkpoint matched
+ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 90.31s
+
+     Running tests/trained_build.rs (target/debug/deps/trained_build-918938fbb4ddfc7e)
+
+running 5 tests
+test build_stage_candidate_continues_in_the_programmable_continuous_service ... javascript: Build-stage unfinished candidate -> compiled continuous service -> durable final checkpoint matched exactly.
+
+wasm32: Build-stage unfinished candidate -> compiled continuous service -> durable final checkpoint matched exactly.
+
+ok
+test build_stage_packages_trained_state_and_continues_across_cpu_targets ... javascript: compiled startup, continued learning, exact snapshots, fresh instances and durable recovery matched.
+
+native: seeded startup, learning, application state and exact checkpoint matched
+rust: seeded startup, learning, application state and exact checkpoint matched
+wasm32: compiled startup, continued learning, exact snapshots, fresh instances and durable recovery matched.
+
+ok
+test failed_training_and_tampered_artifacts_fail_without_replacing_publication ... ok
+test trained_adam_build_resumes_all_moments_and_control_state ... ok
+test trained_gpu_module_initializes_the_same_state_and_dispatches_numeric_work ... trained GPU module: seeded query, exact full snapshot and one required GPU dispatch matched
+ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 87.68s
+

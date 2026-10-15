@@ -1,0 +1,1255 @@
+{
+  "applied_rule_ids": [],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v14",
+    "core_sha256": "58736db3b042b1a8b5df70e367592cf6d1df7098116eff088c7308d61edb5b5b",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "exact-u32-bits",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "expanded",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 1,
+        "internal": false,
+        "name": "evaluate",
+        "parallel": false,
+        "params": [
+          {
+            "name": "representation",
+            "type": {
+              "kind": "enum",
+              "name": "Representation",
+              "variants": [
+                "Representation.Expanded",
+                "Representation.Packed"
+              ]
+            }
+          },
+          {
+            "name": "x",
+            "type": {
+              "kind": "u64"
+            }
+          },
+          {
+            "name": "offset",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 2,
+        "internal": false,
+        "name": "objective",
+        "parallel": false,
+        "params": [
+          {
+            "name": "observation",
+            "type": {
+              "fields": [
+                {
+                  "name": "latency",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "energy",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "memory",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Metrics"
+            }
+          },
+          {
+            "name": "weights",
+            "type": {
+              "fields": [
+                {
+                  "name": "latency",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "energy",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "memory",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "GoalWeights"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 3,
+        "internal": false,
+        "name": "valid_metrics",
+        "parallel": false,
+        "params": [
+          {
+            "name": "m",
+            "type": {
+              "fields": [
+                {
+                  "name": "latency",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "energy",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "memory",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Metrics"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "bool"
+        }
+      },
+      {
+        "destination": null,
+        "index": 4,
+        "internal": false,
+        "name": "valid_weights",
+        "parallel": false,
+        "params": [
+          {
+            "name": "w",
+            "type": {
+              "fields": [
+                {
+                  "name": "latency",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "energy",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "memory",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "GoalWeights"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "bool"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 5,
+        "internal": false,
+        "name": "batch",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "javascript_sha256": "94fb3e91f9f270c74578bb625b86b60a12b5b4455e450f41680ba5b5c1c58310",
+    "named_types": {
+      "Costs": {
+        "fields": [
+          {
+            "name": "expanded",
+            "type": {
+              "kind": "u64"
+            }
+          },
+          {
+            "name": "packed",
+            "type": {
+              "kind": "u64"
+            }
+          },
+          {
+            "name": "observations",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Costs"
+      },
+      "Goal": {
+        "fields": [
+          {
+            "name": "weights",
+            "type": {
+              "fields": [
+                {
+                  "name": "latency",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "energy",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "memory",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "GoalWeights"
+            }
+          },
+          {
+            "name": "version",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Goal"
+      },
+      "GoalWeights": {
+        "fields": [
+          {
+            "name": "latency",
+            "type": {
+              "kind": "u64"
+            }
+          },
+          {
+            "name": "energy",
+            "type": {
+              "kind": "u64"
+            }
+          },
+          {
+            "name": "memory",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "GoalWeights"
+      },
+      "Metrics": {
+        "fields": [
+          {
+            "name": "latency",
+            "type": {
+              "kind": "u64"
+            }
+          },
+          {
+            "name": "energy",
+            "type": {
+              "kind": "u64"
+            }
+          },
+          {
+            "name": "memory",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Metrics"
+      }
+    },
+    "owned_result_contract": {
+      "functions": 6,
+      "inputs": "same trusted caller contract",
+      "results": "canonical detached values with ABI byte/node/depth limits",
+      "unsupported": []
+    },
+    "prepared_compiled": {
+      "evaluation": "lazy source-order; successful bindings only",
+      "functions": [
+        {
+          "factory": false,
+          "function": "expanded",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "evaluate",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "objective",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "valid_metrics",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "valid_weights",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "batch",
+          "reason": "no reusable lexical bindings"
+        }
+      ],
+      "lifetime": "prepared token",
+      "semantics": "sealed-value-residual-v1"
+    },
+    "private_record_elisions": [],
+    "private_sum_spines": [],
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": {
+      "actions": [
+        {
+          "change": false,
+          "directKeep": null,
+          "fallible": false,
+          "flatFailure": false,
+          "freshResult": true,
+          "index": 0,
+          "name": "serve",
+          "params": [
+            {
+              "name": "key",
+              "type": {
+                "kind": "u64"
+              }
+            },
+            {
+              "name": "x",
+              "type": {
+                "kind": "u64"
+              }
+            }
+          ],
+          "precondition": null,
+          "result": {
+            "kind": "u64"
+          },
+          "roots": [
+            0,
+            3
+          ],
+          "singleCell": true
+        },
+        {
+          "change": false,
+          "directKeep": null,
+          "fallible": false,
+          "flatFailure": false,
+          "freshResult": true,
+          "index": 1,
+          "name": "choice",
+          "params": [],
+          "precondition": null,
+          "result": {
+            "kind": "enum",
+            "name": "Representation",
+            "variants": [
+              "Representation.Expanded",
+              "Representation.Packed"
+            ]
+          },
+          "roots": [
+            0
+          ],
+          "singleCell": true
+        },
+        {
+          "change": false,
+          "directKeep": null,
+          "fallible": false,
+          "flatFailure": false,
+          "freshResult": false,
+          "index": 2,
+          "name": "costs",
+          "params": [],
+          "precondition": null,
+          "result": {
+            "fields": [
+              {
+                "name": "expanded",
+                "type": {
+                  "kind": "u64"
+                }
+              },
+              {
+                "name": "packed",
+                "type": {
+                  "kind": "u64"
+                }
+              },
+              {
+                "name": "observations",
+                "type": {
+                  "kind": "u64"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Costs"
+          },
+          "roots": [
+            1
+          ],
+          "singleCell": true
+        },
+        {
+          "change": false,
+          "directKeep": null,
+          "fallible": false,
+          "flatFailure": false,
+          "freshResult": false,
+          "index": 3,
+          "name": "target",
+          "params": [],
+          "precondition": null,
+          "result": {
+            "fields": [
+              {
+                "name": "weights",
+                "type": {
+                  "fields": [
+                    {
+                      "name": "latency",
+                      "type": {
+                        "kind": "u64"
+                      }
+                    },
+                    {
+                      "name": "energy",
+                      "type": {
+                        "kind": "u64"
+                      }
+                    },
+                    {
+                      "name": "memory",
+                      "type": {
+                        "kind": "u64"
+                      }
+                    }
+                  ],
+                  "kind": "record",
+                  "name": "GoalWeights"
+                }
+              },
+              {
+                "name": "version",
+                "type": {
+                  "kind": "u64"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Goal"
+          },
+          "roots": [
+            2
+          ],
+          "singleCell": true
+        },
+        {
+          "change": true,
+          "directKeep": null,
+          "fallible": true,
+          "flatFailure": false,
+          "freshResult": true,
+          "index": 4,
+          "name": "retarget",
+          "params": [
+            {
+              "name": "weights",
+              "type": {
+                "fields": [
+                  {
+                    "name": "latency",
+                    "type": {
+                      "kind": "u64"
+                    }
+                  },
+                  {
+                    "name": "energy",
+                    "type": {
+                      "kind": "u64"
+                    }
+                  },
+                  {
+                    "name": "memory",
+                    "type": {
+                      "kind": "u64"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "GoalWeights"
+              }
+            },
+            {
+              "name": "expected",
+              "type": {
+                "kind": "u64"
+              }
+            }
+          ],
+          "precondition": null,
+          "result": {
+            "error": {
+              "kind": "enum",
+              "name": "Error",
+              "variants": [
+                "Error.Domain"
+              ]
+            },
+            "kind": "result",
+            "ok": {
+              "kind": "u64"
+            }
+          },
+          "roots": [
+            1,
+            2
+          ],
+          "singleCell": false
+        },
+        {
+          "change": true,
+          "directKeep": null,
+          "fallible": true,
+          "flatFailure": false,
+          "freshResult": true,
+          "index": 5,
+          "name": "put",
+          "params": [
+            {
+              "name": "key",
+              "type": {
+                "kind": "u64"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "kind": "u64"
+              }
+            },
+            {
+              "name": "fail",
+              "type": {
+                "kind": "bool"
+              }
+            }
+          ],
+          "precondition": null,
+          "result": {
+            "error": {
+              "kind": "enum",
+              "name": "Error",
+              "variants": [
+                "Error.Domain"
+              ]
+            },
+            "kind": "result",
+            "ok": {
+              "kind": "unit"
+            }
+          },
+          "roots": [
+            3
+          ],
+          "singleCell": true
+        }
+      ],
+      "compactCommits": false,
+      "eventColumns": false,
+      "eventRuns": false,
+      "events": [
+        {
+          "name": "changed",
+          "snapshotType": {
+            "kind": "u64"
+          },
+          "type": {
+            "kind": "u64"
+          }
+        }
+      ],
+      "invariantChecks": [],
+      "keepInvalidations": [
+        [],
+        [],
+        [],
+        []
+      ],
+      "keeps": [],
+      "lazyMaintenance": true,
+      "outputPublication": false,
+      "roots": [
+        {
+          "key": {
+            "kind": "u32"
+          },
+          "name": "Choice",
+          "snapshotKey": {
+            "kind": "u32"
+          },
+          "snapshotValue": {
+            "kind": "enum",
+            "variants": [
+              "Representation.Expanded",
+              "Representation.Packed"
+            ]
+          },
+          "value": {
+            "kind": "enum",
+            "name": "Representation",
+            "variants": [
+              "Representation.Expanded",
+              "Representation.Packed"
+            ]
+          }
+        },
+        {
+          "key": {
+            "kind": "u32"
+          },
+          "name": "History",
+          "snapshotKey": {
+            "kind": "u32"
+          },
+          "snapshotValue": {
+            "fields": [
+              {
+                "name": "expanded",
+                "type": {
+                  "kind": "u64"
+                }
+              },
+              {
+                "name": "packed",
+                "type": {
+                  "kind": "u64"
+                }
+              },
+              {
+                "name": "observations",
+                "type": {
+                  "kind": "u64"
+                }
+              }
+            ],
+            "kind": "record"
+          },
+          "value": {
+            "fields": [
+              {
+                "name": "expanded",
+                "type": {
+                  "kind": "u64"
+                }
+              },
+              {
+                "name": "packed",
+                "type": {
+                  "kind": "u64"
+                }
+              },
+              {
+                "name": "observations",
+                "type": {
+                  "kind": "u64"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Costs"
+          }
+        },
+        {
+          "key": {
+            "kind": "u32"
+          },
+          "name": "Target",
+          "snapshotKey": {
+            "kind": "u32"
+          },
+          "snapshotValue": {
+            "fields": [
+              {
+                "name": "weights",
+                "type": {
+                  "fields": [
+                    {
+                      "name": "latency",
+                      "type": {
+                        "kind": "u64"
+                      }
+                    },
+                    {
+                      "name": "energy",
+                      "type": {
+                        "kind": "u64"
+                      }
+                    },
+                    {
+                      "name": "memory",
+                      "type": {
+                        "kind": "u64"
+                      }
+                    }
+                  ],
+                  "kind": "record"
+                }
+              },
+              {
+                "name": "version",
+                "type": {
+                  "kind": "u64"
+                }
+              }
+            ],
+            "kind": "record"
+          },
+          "value": {
+            "fields": [
+              {
+                "name": "weights",
+                "type": {
+                  "fields": [
+                    {
+                      "name": "latency",
+                      "type": {
+                        "kind": "u64"
+                      }
+                    },
+                    {
+                      "name": "energy",
+                      "type": {
+                        "kind": "u64"
+                      }
+                    },
+                    {
+                      "name": "memory",
+                      "type": {
+                        "kind": "u64"
+                      }
+                    }
+                  ],
+                  "kind": "record",
+                  "name": "GoalWeights"
+                }
+              },
+              {
+                "name": "version",
+                "type": {
+                  "kind": "u64"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Goal"
+          }
+        },
+        {
+          "key": {
+            "kind": "u64"
+          },
+          "name": "Rows",
+          "snapshotKey": {
+            "kind": "u64"
+          },
+          "snapshotValue": {
+            "kind": "u64"
+          },
+          "value": {
+            "kind": "u64"
+          }
+        }
+      ],
+      "snapshot": {
+        "program": [
+          27,
+          56,
+          36,
+          97,
+          78,
+          136,
+          247,
+          246,
+          142,
+          180,
+          185,
+          64,
+          214,
+          73,
+          216,
+          189,
+          81,
+          172,
+          199,
+          98,
+          45,
+          69,
+          136,
+          66,
+          199,
+          79,
+          38,
+          141,
+          249,
+          13,
+          78,
+          63
+        ],
+        "schema": [
+          50,
+          170,
+          244,
+          65,
+          56,
+          91,
+          7,
+          15,
+          228,
+          158,
+          96,
+          7,
+          203,
+          23,
+          186,
+          97,
+          230,
+          200,
+          121,
+          54,
+          16,
+          250,
+          48,
+          119,
+          99,
+          84,
+          156,
+          40,
+          116,
+          84,
+          82,
+          18
+        ]
+      },
+      "snapshotRows": false
+    },
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "batch": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "7d522496fa90814f2f1e12091142cca8648a00e9c787d158636f57940650d4e4",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "0cbb9d1ff6b72318080ea11a6297b384d97178624f821e3901cca51ec8ad4477",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "evaluate": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "55947ecf9959b53ddf536cc78bd2d236d303c6652341db539bdcbe1905ded198",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "representation",
+                  "type": {
+                    "kind": "enum",
+                    "name": "Representation",
+                    "variants": [
+                      "Representation.Expanded",
+                      "Representation.Packed"
+                    ]
+                  }
+                },
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "offset",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "expanded": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "2f49badaf8d383057bffd360aec0fee334901d2adf83089b589ef69b2a638e1b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "objective": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "d4131b22c961b6dac3de08d2306461a71e89fa54b09444d17b8ecee2740dd2f2",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "observation",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "latency",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      },
+                      {
+                        "name": "energy",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      },
+                      {
+                        "name": "memory",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "Metrics"
+                  }
+                },
+                {
+                  "name": "weights",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "latency",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      },
+                      {
+                        "name": "energy",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      },
+                      {
+                        "name": "memory",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "GoalWeights"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "valid_metrics": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "d1a058b4a296200dc487ac6c756f9e4e9943da4a301ec56ed81471b7b505f24d",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "m",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "latency",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      },
+                      {
+                        "name": "energy",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      },
+                      {
+                        "name": "memory",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "Metrics"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "32f3d3b2f14a1a5d5ed940c0f1126e8a0b1b1f76ff20ac48fac23528d7033176",
+            "named": {},
+            "root": {
+              "kind": "bool"
+            }
+          }
+        },
+        "valid_weights": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "6974653d053019baf9aa7eac59b75333f28818e64aeb3d9c6ff9997ef6916f09",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "w",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "latency",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      },
+                      {
+                        "name": "energy",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      },
+                      {
+                        "name": "memory",
+                        "type": {
+                          "kind": "u64"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "GoalWeights"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "32f3d3b2f14a1a5d5ed940c0f1126e8a0b1b1f76ff20ac48fac23528d7033176",
+            "named": {},
+            "root": {
+              "kind": "bool"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "initial_state": {
+    "bytes": 200,
+    "factory": "await createState()",
+    "mode": "adaptive",
+    "schema": 1,
+    "scope": "Complete initial logical state; runtime learning and explicit restore remain available. Not frozen specialization.",
+    "snapshot_sha256": "5a7ce30eadb07bda4ab79b753c41170e8e4e782af434bc91cb2dada1d94c92ae",
+    "source_core_sha256": "58736db3b042b1a8b5df70e367592cf6d1df7098116eff088c7308d61edb5b5b"
+  },
+  "input_core_sha256": "58736db3b042b1a8b5df70e367592cf6d1df7098116eff088c7308d61edb5b5b",
+  "selected_core_sha256": "58736db3b042b1a8b5df70e367592cf6d1df7098116eff088c7308d61edb5b5b",
+  "semantic_package": null,
+  "semantic_selection": null,
+  "source": "compiled.core.json",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}
