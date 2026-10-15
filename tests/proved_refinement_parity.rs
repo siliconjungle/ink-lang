@@ -150,7 +150,15 @@ fn v8_database_laws_preserve_modular_counts_and_branch_values_on_cpu_targets() {
         fn shared_scalar(x:u64)->u64{return (x*7)+(x*7);}
         fn shared_scan(xs:List<u32>)->u32{return foldl(xs,0,fn(x)=>fn(a)=>a+x*x)+foldl(xs,0,fn(x)=>fn(a)=>a+x*x);}
         fn shared_nested(xs:List<u32>,outer:u32)->List<u32>{return xs.map(fn(x)=>(x+outer)*(x+outer));}
-        fn shared_float(x:f32)->f32{return (x*2.0)+(x*2.0);}";
+        fn shared_float(x:f32)->f32{return (x*2.0)+(x*2.0);}
+        fn shared_guarded(c:Bool,x:u64)->u64{return choose(c,(x*7)+(x*7),0);}
+        fn rotate32(a:u32,k:u32)->u32{return word_or(wrapping_shl(a,k),wrapping_shr(a,32-k));}
+        fn rotate64(a:u64,k:u32)->u64{return word_or(wrapping_shr(a,k),wrapping_shl(a,64-k));}
+        fn xor32(a:u32,k:u32)->u32{return choose(word_and(k,31)!=0,word_xor(wrapping_shl(a,k),wrapping_shr(a,32-k)),0);}
+        fn xor64(a:u64,k:u32)->u64{return choose(word_and(k,63)!=0,word_xor(wrapping_shr(a,k),wrapping_shl(a,64-k)),0);}
+        fn combined32(a:u32,k:u32,j:u32)->u32{return choose(word_and(k,31)+word_and(j,31)<32,wrapping_shl(wrapping_shl(a,k),j),0);}
+        fn widened(a:u32,b:u32)->Bool{return word_widen_u32_to_u64(a)<word_widen_u32_to_u64(b);}
+        fn low_product(a:u64,b:u64)->u32{return word_narrow_u64_to_u32(a*b);}";
     let input = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
     std::fs::write(output.join("source.ink"), source).unwrap();
     let result = Command::new("python3")
@@ -165,13 +173,21 @@ for args in [('emit-core',d/'source.ink','-o',d/'core.json'),('emit-semantic',d/
     subprocess.run([str(compiler),*map(str,args)],check=True,capture_output=True)
 subject=json.loads((d/'semantic.json').read_bytes())
 rows={r['name']:r['law'] for r in read(Path('knowledge/producers/data/v8-word-laws'))}
-requests={'distribute':'u32/shift_left_or','rounded':'u64/right_left_mask','cancel':'u64/equal_same_add','nested':'u32/nested_true_branch','counted':'u64/shift_right_count_mask','fields':'u32/bitfield_checks','low_sum':'conversion/narrow_add','converted':'conversion/widen_narrow_mask'}
+requests={'distribute':'u32/shift_left_or','rounded':'u64/right_left_mask','cancel':'u64/equal_same_add','nested':'u32/nested_true_branch','counted':'u64/shift_right_count_mask','fields':'u32/bitfield_checks','low_sum':'conversion/narrow_add','converted':'conversion/widen_narrow_mask','rotate32':'u32/rotate_left_or','rotate64':'u64/rotate_right_or','widened':'conversion/widen_lt','low_product':'conversion/narrow_mul'}
 objects=[];applications=[]
 for function,name in requests.items():
     law=rows[name];arguments={}
     assert match(law['from'],subject['functions'][function],law['params'],arguments),(function,subject['functions'][function])
     obj=semantic_entry(law);objects.append(obj)
     applications.append(dict(function=function,path=[],law=identity(obj),arguments=arguments,premises=['Normalize']*len(law['conditions'])))
+for function,name in {'xor32':'u32/rotate_left_xor','xor64':'u64/rotate_right_xor','combined32':'u32/shift_left_combine'}.items():
+    law=rows[name];obj=semantic_entry(law);objects.append(obj);found=0
+    for path,body in positions(subject['functions'][function]):
+        arguments={}
+        if match(law['from'],body,law['params'],arguments):
+            applications.append(dict(function=function,path=list(path),law=identity(obj),arguments=arguments,premises=['Normalize']*len(law['conditions'])))
+            found+=1
+    assert found==1,(function,found)
 from producers.literal_loop_laws import specialize
 from producers.definition_context28 import bind
 model=json.loads((d/'core.json').read_bytes())
@@ -192,7 +208,7 @@ for label,raw in sharing(shared_subject,model):
     shared_functions.add(function)
     law=bind(raw,model,subject);obj=semantic_entry(law);objects.append(obj)
     applications.append(dict(function=function,path=[],law=identity(obj),arguments={n:dict(sort=s,node={'Free':n})for n,s in law['params'].items()},premises=[]))
-assert shared_functions=={'shared_scalar','shared_scan','shared_nested','shared_float'}
+assert shared_functions=={'shared_scalar','shared_scan','shared_nested','shared_float','shared_guarded'}
 store=Store.publish(d/'knowledge',objects)
 packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['input_core_sha256'],knowledge=store.bundle([identity(o) for o in objects]),applications=applications)
 (d/'selection.json').write_bytes(canonical(packet))
@@ -219,6 +235,11 @@ packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['inpu
             push("distribute",vec![U32(a),U32(b),U32(k)]);
             push("rounded",vec![U64((a as u64)<<32 | b as u64),U32(k)]);
             push("counted",vec![U64(u64::MAX-a as u64),U32(k)]);
+            push("rotate32",vec![U32(a),U32(k)]);
+            push("rotate64",vec![U64(u64::MAX-a as u64),U32(k)]);
+            push("xor32",vec![U32(a),U32(k)]);
+            push("xor64",vec![U64(u64::MAX-a as u64),U32(k)]);
+            push("combined32",vec![U32(a),U32(k),U32(7)]);
         }
     }
     for offset in [0,1,u64::MAX] {
@@ -232,13 +253,18 @@ packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['inpu
     for a in [0,3,32,35,51,255,u32::MAX] {push("fields",vec![U32(a)]);}
     for (a,b) in [(0,0),(1,u64::MAX),(u64::MAX,u64::MAX),(1<<32,(1<<32)+7)] {
         push("low_sum",vec![U64(a),U64(b)]);
+        push("low_product",vec![U64(a),U64(b)]);
+        push("widened",vec![U32(a as u32),U32(b as u32)]);
         push("converted",vec![U64(a)]);
         push("expanded",vec![U32(a as u32),U32(b as u32)]);
         push("expanded_list",vec![List(vec![U32(a as u32)])]);
         push("expanded_record",vec![Record("Acc".into(),BTreeMap::from([("value".into(),U32(a as u32)),("items".into(),List(vec![U32(7)]))])),U32(b as u32)]);
         push("expanded_nested",vec![List(vec![U32(0),U32(1),U32(u32::MAX)]),U32(a as u32)]);
     }
-    for x in [0,1,u64::MAX] {push("shared_scalar",vec![U64(x)]);}
+    for x in [0,1,u64::MAX] {
+        push("shared_scalar",vec![U64(x)]);
+        for c in [false,true] {push("shared_guarded",vec![Bool(c),U64(x)]);}
+    }
     for xs in [vec![],vec![U32(0),U32(1),U32(u32::MAX)]] {
         push("shared_scan",vec![List(xs.clone())]);
         push("shared_nested",vec![List(xs),U32(u32::MAX)]);

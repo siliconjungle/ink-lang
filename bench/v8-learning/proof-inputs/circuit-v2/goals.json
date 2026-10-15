@@ -1,0 +1,2956 @@
+[
+  {
+    "name": "u32/rotate_left_or",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U32"
+        },
+        "k": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:word_or",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "binary:-",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 32
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:rotate_left",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "k"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u32/rotate_left_xor",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U32"
+        },
+        "k": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [
+        {
+          "from": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "binary:!=",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Op": [
+                        "call:word_and",
+                        [
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Free": "k"
+                            }
+                          },
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Word": 31
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Bool": true
+            }
+          }
+        }
+      ],
+      "from": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:word_xor",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "binary:-",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 32
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:rotate_left",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "k"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u32/rotate_right_or",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U32"
+        },
+        "k": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:word_or",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "binary:-",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 32
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:rotate_right",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "k"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u32/rotate_right_xor",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U32"
+        },
+        "k": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [
+        {
+          "from": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "binary:!=",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Op": [
+                        "call:word_and",
+                        [
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Free": "k"
+                            }
+                          },
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Word": 31
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Bool": true
+            }
+          }
+        }
+      ],
+      "from": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:word_xor",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "binary:-",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 32
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:rotate_right",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "k"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u64/rotate_left_or",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U64"
+        },
+        "k": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:word_or",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "binary:-",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 64
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:rotate_left",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "k"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u64/rotate_left_xor",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U64"
+        },
+        "k": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [
+        {
+          "from": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "binary:!=",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Op": [
+                        "call:word_and",
+                        [
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Free": "k"
+                            }
+                          },
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Word": 63
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Bool": true
+            }
+          }
+        }
+      ],
+      "from": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:word_xor",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "binary:-",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 64
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:rotate_left",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "k"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u64/rotate_right_or",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U64"
+        },
+        "k": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:word_or",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "binary:-",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 64
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:rotate_right",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "k"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u64/rotate_right_xor",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U64"
+        },
+        "k": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [
+        {
+          "from": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "binary:!=",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Op": [
+                        "call:word_and",
+                        [
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Free": "k"
+                            }
+                          },
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Word": 63
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Bool": true
+            }
+          }
+        }
+      ],
+      "from": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:word_xor",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "binary:-",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 64
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:rotate_right",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "k"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "conversion/widen_eq",
+    "goal": {
+      "params": {
+        "small_x": {
+          "Value": "U32"
+        },
+        "small_y": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:==",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_x"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_y"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:==",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_y"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "conversion/widen_ne",
+    "goal": {
+      "params": {
+        "small_x": {
+          "Value": "U32"
+        },
+        "small_y": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:!=",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_x"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_y"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:!=",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_y"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "conversion/widen_lt",
+    "goal": {
+      "params": {
+        "small_x": {
+          "Value": "U32"
+        },
+        "small_y": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:<",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_x"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_y"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:<",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_y"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "conversion/widen_le",
+    "goal": {
+      "params": {
+        "small_x": {
+          "Value": "U32"
+        },
+        "small_y": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:<=",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_x"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_y"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:<=",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_y"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "conversion/widen_gt",
+    "goal": {
+      "params": {
+        "small_x": {
+          "Value": "U32"
+        },
+        "small_y": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:>",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_x"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_y"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:>",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_y"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "conversion/widen_ge",
+    "goal": {
+      "params": {
+        "small_x": {
+          "Value": "U32"
+        },
+        "small_y": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:>=",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_x"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_widen_u32_to_u64",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "small_y"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "Bool"
+        },
+        "node": {
+          "Op": [
+            "binary:>=",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "small_y"
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u32/shift_left_combine",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U32"
+        },
+        "k": {
+          "Value": "U32"
+        },
+        "j": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [
+        {
+          "from": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "binary:<",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Op": [
+                        "binary:+",
+                        [
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "call:word_and",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Free": "k"
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 31
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          },
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "call:word_and",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Free": "j"
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 31
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 32
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Bool": true
+            }
+          }
+        }
+      ],
+      "from": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:wrapping_shl",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "j"
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:wrapping_shl",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "binary:+",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "call:word_and",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 31
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "call:word_and",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "j"
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 31
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u32/shift_right_combine",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U32"
+        },
+        "k": {
+          "Value": "U32"
+        },
+        "j": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [
+        {
+          "from": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "binary:<",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Op": [
+                        "binary:+",
+                        [
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "call:word_and",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Free": "k"
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 31
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          },
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "call:word_and",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Free": "j"
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 31
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 32
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Bool": true
+            }
+          }
+        }
+      ],
+      "from": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:wrapping_shr",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "j"
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:wrapping_shr",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "binary:+",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "call:word_and",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 31
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "call:word_and",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "j"
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 31
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u64/shift_left_combine",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U64"
+        },
+        "k": {
+          "Value": "U32"
+        },
+        "j": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [
+        {
+          "from": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "binary:<",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Op": [
+                        "binary:+",
+                        [
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "call:word_and",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Free": "k"
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 63
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          },
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "call:word_and",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Free": "j"
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 63
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 64
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Bool": true
+            }
+          }
+        }
+      ],
+      "from": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:wrapping_shl",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shl",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "j"
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:wrapping_shl",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "binary:+",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "call:word_and",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 63
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "call:word_and",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "j"
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 63
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "u64/shift_right_combine",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U64"
+        },
+        "k": {
+          "Value": "U32"
+        },
+        "j": {
+          "Value": "U32"
+        }
+      },
+      "conditions": [
+        {
+          "from": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Op": [
+                "binary:<",
+                [
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Op": [
+                        "binary:+",
+                        [
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "call:word_and",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Free": "k"
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 63
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          },
+                          {
+                            "sort": {
+                              "Value": "U32"
+                            },
+                            "node": {
+                              "Op": [
+                                "call:word_and",
+                                [
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Free": "j"
+                                    }
+                                  },
+                                  {
+                                    "sort": {
+                                      "Value": "U32"
+                                    },
+                                    "node": {
+                                      "Word": 63
+                                    }
+                                  }
+                                ]
+                              ]
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "sort": {
+                      "Value": "U32"
+                    },
+                    "node": {
+                      "Word": 64
+                    }
+                  }
+                ]
+              ]
+            }
+          },
+          "to": {
+            "sort": {
+              "Value": "Bool"
+            },
+            "node": {
+              "Bool": true
+            }
+          }
+        }
+      ],
+      "from": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:wrapping_shr",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "call:wrapping_shr",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Free": "k"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Free": "j"
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U64"
+        },
+        "node": {
+          "Op": [
+            "call:wrapping_shr",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Free": "x"
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "binary:+",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "call:word_and",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "k"
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 63
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U32"
+                        },
+                        "node": {
+                          "Op": [
+                            "call:word_and",
+                            [
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Free": "j"
+                                }
+                              },
+                              {
+                                "sort": {
+                                  "Value": "U32"
+                                },
+                                "node": {
+                                  "Word": 63
+                                }
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "conversion/narrow_mul",
+    "goal": {
+      "params": {
+        "x": {
+          "Value": "U64"
+        },
+        "y": {
+          "Value": "U64"
+        }
+      },
+      "conditions": [],
+      "from": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "call:word_narrow_u64_to_u32",
+            [
+              {
+                "sort": {
+                  "Value": "U64"
+                },
+                "node": {
+                  "Op": [
+                    "binary:*",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      },
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "y"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      },
+      "to": {
+        "sort": {
+          "Value": "U32"
+        },
+        "node": {
+          "Op": [
+            "binary:*",
+            [
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_narrow_u64_to_u32",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "x"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              },
+              {
+                "sort": {
+                  "Value": "U32"
+                },
+                "node": {
+                  "Op": [
+                    "call:word_narrow_u64_to_u32",
+                    [
+                      {
+                        "sort": {
+                          "Value": "U64"
+                        },
+                        "node": {
+                          "Free": "y"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          ]
+        }
+      }
+    }
+  }
+]

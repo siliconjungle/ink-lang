@@ -26,9 +26,10 @@ The first family covers compatible bitfield tests, complementary masks,
 wrapped-add/subtract/xor comparison cancellation, redundant shift-count masks,
 shift distribution over bitwise operations, lossy shift round trips, overflowing
 consecutive shifts, repeated branch conditions and shared-condition selects.
-There are 63 admitted word/conversion laws. Four variable-count combination
-proposals exhausted the initial proof budget; a multiplication-narrowing proposal
-exhausted its time/conflict budget. Those five proposals remain unadmitted. A
+There are 80 admitted word/conversion laws out of 82 proposals. The two U64
+variable-count combination proposals still exhaust the 15-second authoring
+budget. The U32 combinations and multiplication narrowing now replay through
+shared circuits. Those two U64 proposals remain unadmitted. A
 budget failure does not establish that an equality is false.
 
 Every frozen word law is a normal `ink-conditional-laws-v1` object with a hinted-RUP
@@ -45,7 +46,8 @@ Authoring runs offline:
 PYTHONPATH=knowledge:planner python3 -m producers.author_word_identities \
   --family v8 --library --compiler target/debug/ink \
   --output-store build/v8-authoring \
-  --data knowledge/producers/data/v8-word-laws --seconds 15
+  --data knowledge/producers/data/v8-word-laws --seconds 15 \
+  --semantics fixed-words-v2 --encoding shared-v2
 ```
 
 Partial acquisitions preserve previously checked laws. The indexed frozen-library
@@ -69,7 +71,7 @@ source-identity binding and incorrect shift-mask rejection. Seeded value checks
 exercise all proposal templates, including proposals without admitted proofs;
 these examples do not substitute for proof.
 
-`proved_refinement_parity` also replays word/conversion laws and literal loop expansions and exact scalar sharing on 154 requests, including
+`proved_refinement_parity` also replays word/conversion laws and literal loop expansions and exact scalar sharing on 333 requests, including
 wrapping overflow, oversized counts, both branch directions and overlapping
 bitfields. The shared harness compares original reference outcomes and exact
 snapshots against generated native, JavaScript and Rust-Wasm execution. CPU
@@ -137,3 +139,38 @@ alternatives; three were selected under existing gates. Only the earlier
 `ast-ancestor`; no literal-loop law was observed. All programs exhausted the
 quick search budget. It used newer planner/knowledge inputs than the first pair
 and cannot isolate their effects. See `bench/v8-learning/corpus-second-summary.json`.
+
+## Versioned scalar proof circuits
+
+The source `BitVector` proof has an optional `semantics` field. Its omitted
+default, `opaque-v1`, reconstructs historical source circuits unchanged. The
+explicit `fixed-words-v2` mode additionally interprets existing U32/U64 rotate
+primitives as fixed modular Boolean circuits. Unknown observations remain
+unconstrained atoms. This adds primitive meaning to a general proof procedure;
+rotation-recognition patterns remain database objects.
+
+Gate encoding is a separate certificate field. Source circuit replay now honors
+the existing `shared-v2` encoding, and the offline certificate producer preserves
+it. Defaults still use `literal-v1`. Tests retain legacy wire omission and exact
+legacy problem identities, reject substituted source/gate modes, validate rotate
+circuits against Rust word operations, and replay all frozen laws independently.
+No proof, entry, circuit or resource limit was raised.
+
+Eight shift-to-rotate laws and six widened-comparison contractions now have
+independent certificates. OR rotation handles zero effective counts; XOR rotation
+requires a checked nonzero effective count. Source-bound compiled checks include
+that guard's zero-count branch, counts exceeding word width, multiplication
+narrowing and U32 shift combination under its exact fit condition.
+
+Scalar sharing treats each lazy choice/Boolean region separately, as well as
+each callback scope. It can share an entire repeated choice in a strict context,
+but does not lift a branch's internal work outside its control region. This
+keeps optional work inside the source region that demands it.
+
+The broad local check completed all 370 core tests and all 42 hardening tests.
+The initial sparse checkout omitted legacy first-order hardening inputs; only
+the required 2,537 committed lock/object files (15.2 MB) were restored. Earlier
+corpus runs retain their original sparse scope in
+`bench/v8-learning/corpus-sparse-scope.json`; they should not be described as full
+source-checkout evaluations. Remote CI is tracked separately from these local
+results.
