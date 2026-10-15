@@ -98,6 +98,7 @@ impl CheckedRouting {
         }
         program.functions.retain(|f| names.contains(&f.name));
         program.states.clear();
+        program.frozen.clear();
         program.keeps.clear();
         program.actions.clear();
         program.events.clear();

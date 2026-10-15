@@ -99,7 +99,7 @@ fn preflight(b:&Body)->bool {
     Walk{writes:0,events:0,work:0}.block(b,&b.instructions)
 }
 pub fn capabilities(module:&CheckedModule)->LangResult<Vec<Capability>> {
-    let p=module.program();let ir=CheckedActions::elaborate(module)?;
+    let p=module.program();let ir=CheckedActions::elaborate_with_frozen_roots(module)?;
     p.actions.iter().enumerate().map(|(i,a)|{
         let b=ir.action(i).ok_or("missing action")?;
         let direct_keep=if a.kind==ActionKind::Query&&a.params.is_empty()&&scalar(p,&a.result)&&!p.contracts.precondition_checks.contains_key(&a.name) {
@@ -179,7 +179,7 @@ pub struct ActionGraph {
 #[derive(Clone,Debug,Serialize)]
 pub struct Graph {pub semantics:&'static str,pub source:String,pub actions:Vec<ActionGraph>}
 pub fn graph(module:&CheckedModule)->LangResult<Graph>{
-    let ir=CheckedActions::elaborate(module)?;
+    let ir=CheckedActions::elaborate_with_frozen_roots(module)?;
     let actions=module.program().actions.iter().enumerate().map(|(i,a)|{
         let body=ir.action(i).ok_or("missing action graph")?;
         let values=body.nodes.iter().enumerate().map(|(node,n)|{

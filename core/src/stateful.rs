@@ -307,7 +307,7 @@ impl Runtime {
     /// invocation fuel and transactional state checks still apply normally.
     pub fn from_checked(module: &crate::core::CheckedModule) -> LangResult<Self> {
         let program = module.program().clone();
-        let action_ir = crate::action_ir::CheckedActions::elaborate(module)?;
+        let action_ir = crate::action_ir::CheckedActions::elaborate_with_frozen_roots(module)?;
         let action_bodies = (0..program.actions.len())
             .map(|i| std::sync::Arc::new(action_ir.action(i).expect("checked action").clone()))
             .collect();
@@ -315,11 +315,12 @@ impl Runtime {
             .map(|i| std::sync::Arc::new(action_ir.keep(i).expect("checked keep").clone()))
             .collect();
         let effects = crate::effects::CheckedEffects::derive(&action_ir)?;
-        let tables = program
+        let mut tables: BTreeMap<String, Table> = program
             .states
             .iter()
             .map(|d| (d.name.clone(), Table::new()))
             .collect();
+        tables.extend(crate::frozen::tables(&program)?);
         Ok(Self {
             program,
             selected_layout: None,
@@ -964,6 +965,11 @@ impl Runtime {
         Ok(rt)
     }
     fn validate_invariants(&mut self)->LangResult<()> {
+        for (name,expected) in crate::frozen::tables(&self.program)? {
+            if self.tables.get(&name) != Some(&expected) {
+                return Err(format!("snapshot changes frozen state: {name}"));
+            }
+        }
         for name in self.program.contracts.invariant_checks.clone(){
             if self.invoke(&name,vec![])?.result!=Value::Bool(true){return Err(format!("snapshot violates invariant {name}"));}
         }
