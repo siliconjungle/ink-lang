@@ -688,10 +688,11 @@ impl Uses {
     ) -> LangResult<()> {
         self.callback_mode(e,env,p,params,result,borrow_acc,false)
     }
-    /// Variant folds select exactly one arm and invoke it once. Their captures
-    /// may be consumed, but a move in either arm invalidates the outer owner.
+    /// Variant folds select exactly one arm and invoke it once. Owned result
+    /// carriers may consume captures; plain observations remain readonly,
+    /// including the callbacks used by source pre/postcondition checks.
     fn once_callback(&mut self,e:&Expr,env:&Env,p:&Program,params:&[Type],result:&Type)->LangResult<()> {
-        self.callback_mode(e,env,p,params,result,false,true)
+        self.callback_mode(e,env,p,params,result,false,owned(result,p))
     }
     fn callback_mode(&mut self,e:&Expr,env:&Env,p:&Program,params:&[Type],result:&Type,borrow_acc:bool,consume_captures:bool)->LangResult<()> {
         let captured = self.ids.values().cloned().collect::<Vec<_>>();

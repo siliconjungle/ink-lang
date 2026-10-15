@@ -52,3 +52,15 @@ fn branch_capture_moves_remain_affine_and_do_not_escape_loops_or_loans() {
         );
     }
 }
+
+#[test]
+fn readonly_contract_callbacks_cannot_consume_owners() {
+    for source in [
+        "module bad;fn run(b:Buffer<u32>)->Result<u32,String> requires(b.push(1).len()==1,\"guard\"){return Ok(0);}",
+        "module bad;fn run(b:Buffer<u32>)->Result<u32,String> ensures(result=>length(b.freeze())==0,\"guard\"){return Ok(0);}",
+        "module bad;fn run(x:Option<u32>)->u32{let b:Buffer<u32>=buffer([1]);return x.fold(fn(v)=>length(b.freeze()),fn(u)=>0);}",
+    ] {
+        let error=syntax::parse(source).and_then(CheckedModule::from_source).unwrap_err();
+        assert!(error.contains("callback cannot consume"),"{source}: {error}");
+    }
+}
