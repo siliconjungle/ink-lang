@@ -124,9 +124,13 @@ of general inferred facts, automatic staging, projection-sensitive lowering or
 external-storage placement.
 
 The first retained [matched report](../reports/handwired-packed-circuits-2026-10-15/README.md)
-shows search gains, with separate CPU losses and first-call limitations. No
-Freerange-derived compiler optimisation, Pretext-compatible Ink layout engine or
-new cross-domain performance gain is claimed by this design document.
+shows search gains, with separate CPU losses and first-call limitations.
+[Conditional unsigned facts](conditional-word-facts.md) now extend the existing
+analyser with excluded points and relational range refinement. Offline
+acquisition independently checks complete equations, and four new laws enter the
+ordinary database proposal catalogue. The [mechanism report](../reports/conditional-facts-2026-10-15/README.md)
+retains cross-target conformance, scope limits and designed-workload measurements.
+A Pretext-compatible layout engine and broad application gains remain open.
 
 ## Delivery checklist
 
@@ -138,7 +142,7 @@ GitHub conformance run was still queued when this checklist was recorded.
 | Work package | Remaining delivery | Current status |
 | --- | --- | --- |
 | Source and experiment coverage | Map upstream modules, examples, research decisions and failed experiments to an Ink mechanism, an existing equivalent or an explicit reason not to transfer it. Retain revision, evidence and acceptance condition. | Initial mechanism inventory exists; exhaustive coverage audit remains open |
-| Inferred facts and requirements | Forward numeric/branch facts, backward missing premises, source-bound call summaries and useful diagnostics; replay evidence before facts authorize optimisations. Start with existing integer domains as well as floats. | Existing checked bounds/refinement foundations; general Freerange-inspired inference remains open |
+| Inferred facts and requirements | Forward numeric/branch facts, backward missing premises, source-bound call summaries and useful diagnostics; replay evidence before facts authorize optimisations. Start with existing integer domains as well as floats. | Excluded unsigned values, relational ranges, checked acquisition and catalogue reuse implemented; general requirements, summaries, diagnostics and additional domains remain open |
 | Precision | Faithful F64 semantics across reference/CPU/JS/Wasm and their ABI, followed by checked narrowing and whole-region guarded fallback with rounding/error propagation. | Design only; does not block integer, ownership or preparation work |
 | Fact-driven compact execution | General checked bit/grid/exclusivity transport; integer and packed representations; one-hot selection to gathers; reject fractional bits, multiple active choices and invalid nonfinite premises. | Authored bit-state algorithms and eight scalar laws delivered; automatic general consumption remains open |
 | Circuit and loop scheduling | Pure-term sharing, liveness, sparse versus dense execution, bounded reusable loops, checked associative scans and transition composition; retain simultaneous assignment and rounding points. | Existing loops/scans/last-use foundations; general proposals and comparison remain open |
