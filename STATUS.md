@@ -13,11 +13,25 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Whole-computation differentiation](docs/differentiable-computation.md) adds source
+`gradient`, `jvp` and `linearize`, including explicit piecewise policies, structured
+numeric data and bounded authored rollouts. Existing learning contracts enforce
+legal committed outcomes. Generated computation has independent numerical/analytic
+oracles and complete CPU/Wasm/eligible-GPU coverage; the AD translation remains
+trusted. [Context preparation measurements](bench/differentiable-preparation/README.md)
+retain small-input losses and a much faster handwritten derivative control.
+
+[Source-bound call facts](docs/interprocedural-word-facts.md) extend offline
+unsigned analysis through bounded acyclic helper definitions. Two new laws replay
+ordinary source normalization and bit-vector evidence; changed callees invalidate
+summaries even if source metadata is rehashed.
+
 [Explicit adaptive learning](docs/adaptive-learning.md) adds checked `trainable
 state`, `adaptive fn` / `adaptive query` and `learn change` declarations, offline
 training traces with portable model snapshots, and explicit online learning events.
 The contextual example fits interacting inputs with an authored update rule;
-automatic differentiation and frozen-weight specialization remain open. Learning
+automatic gradients now extend through the admitted pure computation; reverse
+mode and frozen-weight specialization remain open. Learning
 capabilities, rollback and exact snapshots are validated across CPU targets and
 GPU-host execution, with a separate eligible device call.
 

@@ -286,6 +286,7 @@ impl SurfaceProgram {
             }
         }
         for implementation in &mut p.contracts.implementations { implementation.body.clear(); }
+        crate::differentiation::expand(&mut p,&e.abstract_records)?;
         crate::abstraction::check_and_strip(&mut p, &e.abstract_records, &e.access_origins)?;
         crate::contracts::values::install(&mut p)?;
         crate::contracts::install_guards(&mut p)?;
@@ -806,7 +807,7 @@ impl Elaborator {
     /// Hints only select generated helper signatures. Whole-module action
     /// checking still establishes argument types, capabilities and effects.
     fn value_hint(&self, e:&Expr, p:&Program)->Option<Type> {
-        crate::check::infer(e,&self.local_types,p).ok()
+        crate::differentiation::hint(e,p).or_else(||crate::check::infer(e,&self.local_types,p).ok())
             .or_else(||crate::statecheck::expression_type(p,e,&self.local_types).ok())
             .or_else(||if let Expr::Call(n,_) = e {
                 p.actions.iter().find(|a|&a.name==n).map(|a|a.result.clone())

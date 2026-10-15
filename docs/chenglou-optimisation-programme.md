@@ -163,7 +163,7 @@ GitHub conformance run was still queued when this checklist was recorded.
 | Incremental work and placement | Maintain item/paragraph/batch changes, share derived state, upload changed regions and keep intermediate values resident. Compose query/ordinary code/device plans and price I/O. | Partial maintained-state and GPU foundations; broader composition, transfer planning and external storage remain open |
 | Ownership and execution overhead | Remove measured helper/capture clones, reuse searchers/prepared inputs, compare layouts and allocation behavior across target engines. | UTF-8 and primitive borrowing improvements delivered; native whole-workload ownership gap remains open |
 | Behavioral contracts | Explicit permitted staleness, capacity, first/any/tie selection and fallback; preserve transaction and observation meaning. | Partial specification foundations; relevant source contracts and consumers remain open |
-| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Research design only |
+| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Checked source gradient/JVP elaboration through pure helpers, structured state and bounded loops delivered; reverse mode, broader domains and performance parity remain open |
 | Cross-domain and lifecycle acceptance | Real layout/prepared computation, JSON/structured data, relational/bitset and sparse numeric workloads; matched first-call, steady-state, edits, memory and adverse cases against strong controls. | Complete-count search evidence delivered; broader parity/performance and comparable first-call evidence remain open |
 
 The next implementation priorities are reusable checked facts and their consumers,
@@ -203,6 +203,23 @@ remaining roadmap acceptance criteria remain open; an inventory is not a port.
 learning may change and provide offline replay plus explicit online updates. A
 contextual interaction model, held-out predictions, failed-update rollback, module
 transport and complete-target conformance establish this initial path. Updates and
-objectives are authored Ink code. General AD, richer neural libraries, discrete
+objectives are authored Ink code. Broader AD, richer neural libraries, discrete
 training policies and frozen-model specialization remain open; this does not close
 the broader Handwired or eight-package programme.
+
+## Whole-computation training and further reuse
+
+[Differentiable computation](differentiable-computation.md) now propagates automatic
+derivatives through the complete admitted objective, including a twelve-step
+authored world/controller rollout. Existing `requires`/`ensures` clauses constrain
+learning's degrees of freedom and preserve rollback. Cross-target checks include
+actual GPU dispatch of a batched trajectory-gradient computation. The AD transform
+remains trusted; unsupported domains and hard-decision policies are explicit.
+
+[Call summaries](interprocedural-word-facts.md) extend checked unsigned inference
+across exact helper definitions, with two new laws, stale-context rejection and
+bounded acquisition. Preparation also seeds immutable AD context once per request.
+The [retained comparison](../bench/differentiable-preparation/README.md) includes
+small-input regressions and a substantially faster handwritten derivative control.
+These are further deliveries across all three investigations, not completion of
+the larger programme or a claim of Handwired training-performance parity.

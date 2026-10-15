@@ -18,7 +18,8 @@ adaptive query suggest(c:Context)->f32 reads(Model) {
     return legal(score(c,Model));
 }
 // Squared-error SGD, with an explicit authored update and learning event.
-// The derivative is authored here; automatic differentiation is separate work.
+// This small example authors the derivative. See differentiable-world.ink for
+// generated gradients through the complete objective and authored rollout.
 learn change observe(c:Context,target:f32,rate:f32)->Result<f32,String> reads(Model) writes(Model) emits(learned) {
     if !(c.width>=0.0 && c.width<=1.0 && c.length>=0.0 && c.length<=1.0 && target>=0.1 && target<=0.8 && rate>0.0 && rate<=0.25) { return Err("training domain"); }
     let w=Model;
