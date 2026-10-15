@@ -114,3 +114,65 @@ assert len([s for s in steps if s['kind']=='rewrite'])==4
     let (steps,expected)=execution_cases(&module,plan.module());
     parity::conformance_planned("captured-fold-batching-parity",&plan,source,steps,expected);
 }
+
+#[test]
+fn ordered_vector_product_fusion_preserves_scalar_order_across_cpu_hosts() {
+    let source=include_str!("../knowledge/libraries/examples/ordered-vector-products.ink");
+    let module=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/ordered-vector-product-parity");
+    fs::create_dir_all(&root).unwrap();fs::write(root.join("core.json"),module.bytes().unwrap()).unwrap();
+    let script=r#"
+import json,subprocess,sys
+from pathlib import Path
+from ink_knowledge import Store,canonical,identity,semantic_entry
+from ink_planner.semantic_search import match
+from producers.product_fusion import specialize
+root=Path(sys.argv[1]);compiler=sys.argv[2];source_id=sys.argv[3]
+subprocess.run([compiler,'emit-semantic',str(root/'core.json'),'--core','-o',str(root/'subject.json')],check=True,capture_output=True)
+core=json.loads((root/'core.json').read_text());subject=json.loads((root/'subject.json').read_text())
+rows=specialize(subject,core);objects=[semantic_entry(law)for _,law in rows]
+assert len(rows)==4,[(name,law['from'])for name,law in rows]
+bank=Store.publish(root/'knowledge',objects);applications=[]
+for function,body in subject['functions'].items():
+ for name,law in rows:
+  if name.endswith('_induction'):continue
+  args={}
+  if match(law['from'],body,law['params'],args)and set(args)==set(law['params']):
+   applications.append(dict(function=function,path=[],law=identity(semantic_entry(law)),arguments=args,premises=[]))
+assert {a['function']for a in applications}=={'words','floating','matrix_tile'}
+(root/'package.json').write_bytes(canonical(dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=source_id,
+ knowledge=bank.bundle([a['law']for a in applications]),applications=applications)))
+"#;
+    let output=Command::new("python3").env("PYTHONPATH","planner:knowledge").args(["-c",script])
+        .arg(&root).arg(env!("CARGO_BIN_EXE_ink")).arg(module.identity().unwrap()).output().unwrap();
+    assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+    let package=serde_json::from_slice(&fs::read(root.join("package.json")).unwrap()).unwrap();
+    let selected=optimisation::check(&module,&package).unwrap();
+    let mut cases=vec![];
+    for xs in [json!([]),json!([0]),json!([u32::MAX,1,7,3]),json!((0..257).collect::<Vec<_>>())] {
+        for seed in [json!([0,1]),json!([u32::MAX,u32::MAX-1])] {cases.push(("words",json!([xs,seed])));}
+    }
+    let specials=json!([{"F32Bits":0x80000000u32},{"F32Bits":1},{"F32Bits":0x7fc12345u32},{"F32Bits":0x7f800000u32}]);
+    for xs in [json!([]),json!([1.0e20,-1.0e20,3.0]),specials] {
+        for seed in [json!(0.0),json!({"F32Bits":0x80000000u32}),json!(1.25),json!({"F32Bits":0x7f812345u32}),json!({"F32Bits":0xff800000u32})] {
+            cases.push(("floating",json!([xs,seed,seed])));
+        }
+    }
+    for side in [0u32,1,2,3,4,5,7] {
+        for (row,col) in [(0,0),(1,3),(u32::MAX,u32::MAX)] {
+            cases.push(("matrix_tile",json!([[1,3,7,11,13,17],[2,5,7,9,11,13],side,row,col])));
+        }
+    }
+    let snapshot=Runtime::new(module.program().clone()).unwrap().checkpoint_portable().unwrap();
+    let mut steps=vec![];let mut expected=vec![];
+    for (name,args) in cases {
+        let function=module.program().functions.iter().find(|f|f.name==name).unwrap();
+        let input:Vec<_>=args.as_array().unwrap().iter().zip(&function.params)
+            .map(|(v,(_,t))|eval::Value::from_program_json(v,t,module.program()).unwrap()).collect();
+        let value=eval::call(module.program(),name,input.clone(),&mut 10_000_000).unwrap().json();
+        assert_eq!(eval::call(selected.module().program(),name,input,&mut 10_000_000).unwrap().json(),value);
+        steps.push(json!({"pure":name,"args":args}));expected.push(json!({"reply":{"value":value},"snapshot":snapshot}));
+    }
+    assert_eq!(steps.len(),44);
+    parity::conformance_selected("ordered-vector-product-parity",&selected,source,steps,expected);
+}
