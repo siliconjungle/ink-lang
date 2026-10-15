@@ -108,7 +108,7 @@ impl<'p> Lower<'p> {
                 Kind::Builtin { name, arguments } => {
                     [
                         "Ok", "Err", "Some", "choose", "count", "sum", "vec2", "vec3", "vec4",
-                        "quot_or", "rem_or", "list",
+                        "quot_or", "rem_or", "list", "word_and",
                     ]
                     .contains(&name.as_str())
                         && arguments.iter().all(|n| child(*n))
@@ -764,7 +764,7 @@ impl<'p> Lower<'p> {
                     calls,
                 )
             }
-            Kind::Builtin{name,arguments} if ["list","count","sum","vec2","vec3","vec4","quot_or","rem_or"].contains(&name.as_str()) => {
+            Kind::Builtin{name,arguments} if ["list","count","sum","vec2","vec3","vec4","quot_or","rem_or","word_and"].contains(&name.as_str()) => {
                 // Reuse the fixed value meaning after ordered child evaluation.
                 // Only the primitive and typed local arguments are reconstructed;
                 // source effects are not evaluated again or moved into a lambda.
