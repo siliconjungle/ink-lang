@@ -13,6 +13,15 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Prepared binary64 text geometry](docs/prepared-text.md) ports Pretext's simple
+counter and line-range walkers into ordinary Ink source. Separate count/height
+and complete geometry paths match 232 upstream oracle cases; an additional
+182-observation history checks compiled targets, cursor continuation, edits,
+rollback and restore. Shape/budget validation rejects unsupported complex kinds.
+The retained diagnostic still shows a substantial gap to Pretext's direct loop.
+Full complex layout, segmentation/measurement preparation and speed parity remain
+open; this does not complete the three-project programme.
+
 [Explicit binary64](docs/binary64.md) adds suffixed literals, typed computation,
 exact state/snapshots and shared native/JavaScript transport. The 65-case history
 and a separate frozen-state history compare complete CPU/Wasm/native-GPU-host

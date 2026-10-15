@@ -144,3 +144,6 @@ mod query_expressions;
 
 #[path = "support/bit_automata.rs"]
 mod bit_automata;
+
+#[path = "support/prepared_text.rs"]
+mod prepared_text;

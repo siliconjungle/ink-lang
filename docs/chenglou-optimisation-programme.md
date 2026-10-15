@@ -160,7 +160,7 @@ GitHub conformance run was still queued when this checklist was recorded.
 | --- | --- | --- |
 | Source and experiment coverage | Map upstream modules, examples, research decisions and failed experiments to an Ink mechanism, an existing equivalent or an explicit reason not to transfer it. Retain revision, evidence and acceptance condition. | Initial mechanism inventory exists; exhaustive coverage audit remains open |
 | Inferred facts and requirements | Forward numeric/branch facts, backward missing premises, source-bound call summaries and useful diagnostics; replay evidence before facts authorize optimisations. Start with existing integer domains as well as floats. | Excluded unsigned values, relational ranges, checked acquisition and catalogue reuse implemented; general requirements, summaries, diagnostics and additional domains remain open |
-| Precision | Faithful F64 semantics across reference/CPU/JS/Wasm and their ABI, followed by checked narrowing and whole-region guarded fallback with rounding/error propagation. | Design only; does not block integer, ownership or preparation work |
+| Precision | Faithful F64 semantics across reference/CPU/JS/Wasm and their ABI, followed by checked narrowing and whole-region guarded fallback with rounding/error propagation. | Binary64 source/transport/CPU conformance delivered; narrowing and guarded fallback remain open |
 | Fact-driven compact execution | General checked bit/grid/exclusivity transport; integer and packed representations; one-hot selection to gathers; reject fractional bits, multiple active choices and invalid nonfinite premises. | Authored bit-state algorithms and eight scalar laws delivered; automatic general consumption remains open |
 | Circuit and loop scheduling | Pure-term sharing, liveness, sparse versus dense execution, bounded reusable loops, checked associative scans and transition composition; retain simultaneous assignment and rounding points. | Existing loops/scans/last-use foundations; general proposals and comparison remain open |
 | Preparation and specialisation | Separate stable inputs from varying inputs, reuse kernels with parameters as data, compare staged and direct execution, bound caches and bind all invalidation dependencies. | Invariant numeric-table preparation with checked whole-function equality delivered; broader staging, caches and environment binding remain open |
@@ -319,3 +319,15 @@ retains gains and ordinary/setup regressions, plus faster Handwired and dense
 controls. This explicit pure-call capability does not automatically stage mutable
 learning sessions or complete graph specialization, broader target support or
 Pretext fidelity.
+
+## Prepared binary64 line geometry
+
+[`std:prepared_text`](prepared-text.md) now ports the simple prepared counter and
+geometry walkers as ordinary Ink algorithms. Counts/heights avoid constructing
+line ranges; complete observations preserve binary64 widths and both cursors.
+The 232-case pinned upstream oracle and transactional multi-target history cover
+this admitted domain. Complex break kinds reject explicitly. A first diagnostic
+still leaves a substantial gap to the upstream direct loop; this is a fidelity
+baseline, not full Pretext preparation/layout or performance parity. The complex
+walker, segmentation/shaping oracle integration, incremental preparation and the
+rest of this delivery checklist remain required work.

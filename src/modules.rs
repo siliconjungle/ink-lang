@@ -499,6 +499,7 @@ impl Loader {
             Some("std:policy_gradient") => include_str!("../knowledge/libraries/policy_gradient.ink").into(),
             Some("std:learning_session") => include_str!("../knowledge/libraries/learning_session.ink").into(),
             Some("std:autodiff") => include_str!("../knowledge/libraries/autodiff.ink").into(),
+            Some("std:prepared_text") => include_str!("../knowledge/libraries/prepared_text.ink").into(),
             Some("std:bit_automata") => include_str!("../knowledge/libraries/bit_automata.ink").into(),
             Some("std:json") => include_str!("../knowledge/libraries/json.ink").into(),
             Some(s) if s.starts_with("std:") => return Err(format!("unknown standard module {s}")),
