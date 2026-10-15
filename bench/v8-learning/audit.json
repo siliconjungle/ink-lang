@@ -266,6 +266,30 @@
       ],
       "review_status": "file-read; addressed by selected host machine lowering",
       "note": "Full file read. Target-dependent displacement/scaled-index bounds, tagged-base adjustment, atomic addressing restrictions and raw base+index hoisting. Ink has no source pointer/addressing-mode primitive. Selected native/Rust-Wasm code is lowered by the Rust host toolchain; JavaScript is lowered by its host engine. Such instruction legalization remains the host responsibility, subject to selected target/optimization flags; no source algebraic fact follows and debug builds promise no optimized addressing. Packed-layout codecs and bounds stay independently checked."
+    },
+    {
+      "path": "src/maglev/maglev-graph-optimizer.h",
+      "sha256": "88cd3462bd9613786851a26bed8e907dbbd43e5b996f3522782d688a6c1a9b2e",
+      "inclusive_lines": [
+        [
+          1,
+          263
+        ]
+      ],
+      "review_status": "partial Maglev family review",
+      "note": "Header complete; implementation review through line 300. Known-node facts are cloned/scoped around synthesized subgraphs, can-allocate/deopt/throw clear allocation-folding blocks including reducer-created nodes, eager deopt requires a reconstructible frame, and range comparisons distinguish signed/unsigned validity. No V8 type/range/profile premise imported into Ink; guarded source proof and exact reconstruction remain mandatory. Remaining implementation not yet read."
+    },
+    {
+      "path": "src/maglev/maglev-graph-optimizer.cc",
+      "sha256": "7ae23d4e2ec6407b622babe93944410ca775fa7473459c62826d361953c25d85",
+      "inclusive_lines": [
+        [
+          1,
+          300
+        ]
+      ],
+      "review_status": "partial Maglev family review",
+      "note": "Header complete; implementation review through line 300. Known-node facts are cloned/scoped around synthesized subgraphs, can-allocate/deopt/throw clear allocation-folding blocks including reducer-created nodes, eager deopt requires a reconstructible frame, and range comparisons distinguish signed/unsigned validity. No V8 type/range/profile premise imported into Ink; guarded source proof and exact reconstruction remain mandatory. Remaining implementation not yet read."
     }
   ],
   "families": [
@@ -343,9 +367,9 @@
     },
     {
       "name": "maglev",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/maglev/maglev-graph-builder.cc",
-      "note": "Audit graph construction, known-node facts, inlining and representation selection"
+      "note": "Optimizer header read in full and implementation lines 1..300 read; facts/scoping, deopt use accounting, subgraph splicing and signed/unsigned range guards assessed. Remaining optimizer, graph builder, known-node aspects and representation/inlining passes remain open."
     },
     {
       "name": "pipeline-infrastructure",

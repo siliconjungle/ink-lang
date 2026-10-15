@@ -226,3 +226,11 @@ These database alternatives reach compiled programs through a checked selected
 plan: `ink compile --optimise KNOWLEDGE ...` searches and applies its normal gates,
 while `ink build --selection PACKET ...` can replay an explicit selected equality.
 A plain literal `ink build` does not automatically search the new law catalogue.
+
+
+The fifth frozen corpus run, after guarded parameter-cache authoring, again
+compiled ten programs, selected three alternatives, admitted 37 laws and reused
+seven across programs. No representation was admitted, and all ten exhausted the
+quick search budget. It supplies no broad parameter-cache generalization or V8
+runtime speedup claim; the workload-specific cache evidence remains separate.
+See `bench/v8-learning/corpus-parameter-summary.json`.
