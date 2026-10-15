@@ -8,6 +8,11 @@ fn sealed_residual_calls_preserve_reference_and_complete_cpu_values(){
  let snapshot=Runtime::new(p.clone()).unwrap().checkpoint_portable().unwrap();
  let mut steps=vec![];let mut expected=vec![];
  let cases:Vec<(&str,Value)>=vec![
+ ("wrapped",json!([[1,2,3],[0,1,2,7]])),
+ ("paired",json!([[1,2,3],[2,7],[0,1,2,7]])),("paired",json!([[1,2,3],[2,7],[]])),
+ ("lifted",json!([[1,2,3],[0,1,2,7]])),("lifted",json!([[2,3],[0,1,2,7]])),
+ ("delayed",json!([[1,2,3],[0,1,2,7],false])),("delayed",json!([[1,2,3],[0,1,2,7],true])),
+ ("varying",json!([[1,2,3],[7]])),("varying",json!([[1,2,3],[7,8]])),
  ("indexed",json!([[1,2,3],[0,1,2,7]])),("guarded",json!([[1,2,3],[]])),
  ("guarded",json!([[1,2,3],[7]])),("guarded",json!([[1,2,3],[0,1,2,7]])),
  ("edited",json!([[1,2,3],[7,2,9]])),("edited",json!([[1,2,3],[9,7,11]])),

@@ -200,3 +200,15 @@ source identity; it grants no automatic selection. The next frozen staging input
 is retained with real checked row bindings. General proof-backed partial evaluation
 and observation-directed/borrowed execution must close the remaining large gap to
 the dense numeric control; this milestone does not complete the programme.
+
+
+[Preparation through pure helpers](docs/prepared-helpers.md) now carries sealed
+stable-input masks through lazy JavaScript helper factories and caches successful
+stable checks. Fresh neural primal/reverse values, forged graph rejection and
+ordinary fallback are validated. Heldout complete predictions improve 1.11× and
+gradients 1.025× over prior prepared execution; ordinary calls and setup regress in
+the same study. The range-specialized Handwired and dense controls still lead.
+Next work must reduce remaining dispatch/temporary/output costs, avoid paying for
+unused preparation, compose profitable staging with live state and other targets,
+and establish ordinary proof-backed graph/arithmetic specialization. This is not
+source reverse AD, an automatic cost policy or completion of the programme.

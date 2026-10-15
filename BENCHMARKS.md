@@ -236,3 +236,16 @@ The separate dense kernel remains about 28× faster with a narrower boundary.
 Source identities differ; independent training, exact payloads, complete results,
 private-core validation, fresh emission and compiled frozen startup are retained.
 These are authored staging results, without automatic selection or upstream parity.
+
+
+## Pure helper preparation
+
+[The complete-result study](reports/prepared-helpers-2026-10-16/README.md) compares
+prior/current emission of the same checked neural source using one artifact per
+fresh process. Capturing the graph across pure helpers reduces heldout prediction
+from 10.23 to 9.20 µs and full gradients from 24.08 to 23.51 µs. Ordinary calls are
+4.8% / 5.9% slower; import, cold call, setup and module bytes also increase.
+Handwired's own range-specialized executor remains faster (4.12 / 22.29 µs), as do
+independent graph and dense-forward controls. Complete detached F32 results,
+capture, raw samples, hashes and explicit trust limits are retained. These numbers
+have a different boundary from earlier trusted-number or stateful studies.

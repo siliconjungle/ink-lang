@@ -736,3 +736,44 @@ fn prepared_model_parity(path: &str, source: &str, tag: &str, fixture: &str) {
     );
     println!("{}", String::from_utf8_lossy(&out.stdout));
 }
+
+#[test]
+fn sealed_helper_preparation_preserves_fresh_neural_values_and_rejects_forged_graphs() {
+    let module = load("examples/prepared-network.ink");
+    let model = evaluate(&module, "network", json!([]))["Ok"].clone();
+    let weights = initial();
+    let mut cases = vec![];
+    for i in 0..4 {
+        let context: Vec<f64> = (0..10).map(|j| ((i * 7 + j * 3) as f64 - 14.0) / 25.0).collect();
+        let weights: Vec<f64> = weights.iter().map(|w| w + i as f64 / 1000.0).collect();
+        cases.push(("predict", json!([model, weights, context])));
+        cases.push(("derivatives", json!([model, weights, context, [0.1, -0.2, 0.3, -0.4]])));
+    }
+    cases.push(("predict", json!([model, [], []])));
+    cases.push(("derivatives", json!([model, weights, features(), []])));
+    for field in ["inputs", "roots", "edge"] {
+        let mut forged = model.clone();
+        match field {
+            "inputs" => forged["graph"]["inputs"] = json!(253),
+            "roots" => forged["graph"]["roots"] = json!([u32::MAX]),
+            _ => forged["graph"]["nodes"][0]["a"] = json!(u32::MAX),
+        }
+        cases.push(("predict", json!([forged, weights, features()])));
+        cases.push(("derivatives", json!([forged, weights, features(), [0.0,0.0,0.0,0.0]])));
+    }
+    let mut special: Vec<Value> = vec![json!(0.0); 10];
+    special[0] = json!({"F32Bits":0x7fc12345u32});special[1] = json!({"F32Bits":0x80000000u32});
+    cases.push(("predict", json!([model, weights, special])));
+    cases.push(("derivatives", json!([model, weights, special, [0.0,0.0,0.0,0.0]])));
+    let cases: Vec<Value> = cases.into_iter().map(|(name,args)| {
+        let expected = evaluate(&module,name,args.clone());
+        json!({"name":name,"args":args,"expected":expected})
+    }).collect();
+    let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("build/prepared-network-parity");
+    std::fs::create_dir_all(&directory).unwrap();
+    std::fs::write(directory.join("program.mjs"), verified_language::javascript::lower(&module).unwrap().javascript).unwrap();
+    std::fs::write(directory.join("cases.json"),serde_json::to_vec(&cases).unwrap()).unwrap();
+    let out=std::process::Command::new("node").arg("tests/fixtures/prepared-network.mjs").arg(&directory).output().unwrap();
+    assert!(out.status.success(),"{}\n{}",String::from_utf8_lossy(&out.stdout),String::from_utf8_lossy(&out.stderr));
+    println!("{}",String::from_utf8_lossy(&out.stdout));
+}

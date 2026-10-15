@@ -504,3 +504,14 @@ cold prediction and higher observed heap use. Private standalone core validation
 exact training replay and frozen-source composition strengthen specific evidence.
 Automatic stage selection, native performance ranking, source reverse AD,
 graph/arithmetic specialization, F64/Pretext fidelity and upstream parity remain open.
+
+
+[Pure helper preparation](docs/prepared-helpers.md) now retains stable checks and
+readonly work through bounded, lazily created JavaScript helper calls. Graph-bound
+prediction/derivative tokens validate topology once while changing weights/context
+still compute fresh values; source errors, forged records, ownership and fallback
+are checked. All 48 standalone JavaScript and 23 integration tests passed locally.
+The [isolated-process study](reports/prepared-helpers-2026-10-16/README.md) retains
+1.11× / 1.025× heldout gains, ordinary-call/setup losses and faster Handwired/dense
+controls. Stateful training does not silently adopt this pure-call lane. Broader
+specialization, device/native preparation and the full programme remain open.

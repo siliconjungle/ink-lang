@@ -203,3 +203,13 @@ reject frozen modules until they explicitly support initialization and restore.
 Freezing is an authored API restriction with a new source identity; arithmetic
 specialization still requires ordinary database proofs and measured selection.
 See docs/frozen-state.md.
+
+Sealed JavaScript pure-call preparation may carry transitive bound parameter masks
+through lazily created per-call-site helpers and cache successful stable checks.
+Retain argument/source order, lazy branches, preconditions, retry of thrown
+failures and ordinary fallback at sixteen helper levels/body/source limits.
+Owned inputs/retained values never acquire unique storage. Every changing model
+input requires fresh primals; opaque graph records remain untrusted ABI data.
+This is literal execution support, separate from proof-backed graph rewriting
+and profitability. Keep complete-result controls and ordinary/setup regressions
+visible; stateful learning does not silently acquire this pure-call lane.
