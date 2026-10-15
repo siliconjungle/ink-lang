@@ -33,8 +33,18 @@
     "admission": "Each proof independently replayed by knowledge-check with existing limits"
   },
   "corpus": {
-    "status": "running",
-    "effort": "quick",
-    "scope": "Unmodified ten-program held-out corpus; isolated baseline and current knowledge; no speedup claim"
+    "status": "complete",
+    "summary": "corpus-summary.json",
+    "scope": "Observed quick-effort planning on the unchanged ten-program corpus with a frozen compiler and planner; not performance evidence"
+  },
+  "publication": {
+    "distribution": "c3315ae88f5b797997ef4c2ac0d8419152491f9d",
+    "knowledge": "da53d335642c939fea1bcd6495ba4a4afa274d42",
+    "ci": "queued; not yet verified"
+  },
+  "hardening": {
+    "status": "passed",
+    "test": "llvm_learning_and_incremental_knowledge_remain_checked",
+    "notes": "Initial isolated run lacked pinned Acorn 8.15.0; installed the declared instrumentation dependency, rerun passed"
   }
 }

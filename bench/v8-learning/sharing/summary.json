@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "scope": "Independent proof; complete trusted JavaScript calls, full result consumption; three fresh Node processes per disjoint training/holdout workload; shared machine, no other-backend claim",
+  "node": "v26.1.0",
+  "machine": "arm64",
+  "compiler_sha256": "9d7057b5c0b1978df2cda56f61a4d1894142ff49d70a41102e296bb96bae0d6a",
+  "ratios": {
+    "training": {
+      "baseline_median_ns": 4553,
+      "shared_median_ns": 2311,
+      "baseline_over_shared": 1.9701427953266983
+    },
+    "holdout": {
+      "baseline_median_ns": 4526,
+      "shared_median_ns": 2297,
+      "baseline_over_shared": 1.9703961689159775
+    }
+  },
+  "artifact_sha256": {
+    "shared.mjs": "dcd443b359d5ff84f7dcb69fc5ee0198fac01e54c5f3e1a89b4f195e6c28750e",
+    "baseline.mjs": "ba78a1653528b70843a788b87e54ed50f7e3ac1a2e5e49e78da39b4e5e728c0b"
+  },
+  "runner_sha256": "328e00c1a83850bd273dd1b0b35981789133577df6320ad8b0a1feaba1a666d3",
+  "producer_sha256": "f9b7440c185730195b68781126f2db9fd549036b47a4136a60a55472d11ab9a0",
+  "workloads": {
+    "training": {
+      "sha256": "07cd94b132159f62a538aa9ff0ffeb478a304f6b0c5c62959b70cce6263c5d94",
+      "list_lengths": [
+        256,
+        2048,
+        8192
+      ],
+      "process_ratios": [
+        1.9730902777777777,
+        1.955793991416309,
+        1.9679376083188909
+      ]
+    },
+    "holdout": {
+      "sha256": "b523632c7f06e9e036764871f2e6093ceafd429fbeff0cb3ee3913b7cb3e8e88",
+      "list_lengths": [
+        256,
+        2048,
+        8192
+      ],
+      "process_ratios": [
+        1.9695254680017413,
+        1.9465583582727661,
+        1.9964333481943826
+      ]
+    }
+  }
+}

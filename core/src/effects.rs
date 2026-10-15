@@ -296,17 +296,20 @@ impl Checker<'_> {
         if self.active.len() >= 128 || !self.active.insert(key) {
             return Err("effect dependency cycle/depth limit".into());
         }
+        // The checked IR is immutable for this derivation. Copy its shared
+        // reference before borrowing a body so analysis can mutate its own
+        // budgets and summaries without cloning the source graph.
+        let actions = self.actions;
         let body = if action {
-            self.actions.action(index)
+            actions.action(index)
         } else {
-            self.actions.keep(index)
+            actions.keep(index)
         }
-        .ok_or("missing checked effect body")?
-        .clone();
+        .ok_or("missing checked effect body")?;
         let mut out = if action {
-            self.block(&body, &body.instructions)?
+            self.block(body, &body.instructions)?
         } else {
-            self.expr(&body, body.value.ok_or("missing keep root")?, 0)?
+            self.expr(body, body.value.ok_or("missing keep root")?, 0)?
         };
         // Domain propagation exits a read-only declaration locally as Err.
         // Its caller sees that Result value, and chooses whether to propagate.
