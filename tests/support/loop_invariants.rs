@@ -18,7 +18,7 @@ fn guarded_loop_invariants_preserve_all_cpu_values() {
     let input=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
     let packet:optimisation::Package=serde_json::from_slice(&fs::read(output.join("selection.json")).unwrap()).unwrap();
     let selected=optimisation::check(&input,&packet).unwrap();
-    assert_eq!(packet.applications.len(),11);
+    assert_eq!(packet.applications.len(),13);
     let snapshot=Runtime::new_selected(&selected).unwrap().checkpoint_portable().unwrap();
     let mut steps=vec![];let mut expected=vec![];
     use verified_language::eval::Value::{U32,U64,I32,F32,Bool,List};
@@ -30,7 +30,7 @@ fn guarded_loop_invariants_preserve_all_cpu_values() {
     for xs in [vec![],vec![0,1,7,u32::MAX]] {
         for ys in [vec![],vec![u32::MAX,3,19]] {
             let base=vec![List(xs.iter().map(|x|U32(*x)).collect()),List(ys.iter().map(|x|U32(*x)).collect())];
-            for name in ["mapped","filtered","booleans","captured"] {push(name,base.clone());}
+            for name in ["mapped","filtered","booleans","captured","prepared","prepared_dependent"] {push(name,base.clone());}
             for name in ["folded","right","nested"] {let mut args=base.clone();args.push(U32(u32::MAX));push(name,args);}
             for c in [false,true] {let mut args=base.clone();args.push(Bool(c));push("whole_choice",args);}
             push("wide",vec![List(xs.iter().map(|x|U64(u64::MAX-*x as u64)).collect()),List(ys.iter().map(|x|U64(*x as u64)).collect())]);
@@ -38,6 +38,9 @@ fn guarded_loop_invariants_preserve_all_cpu_values() {
         }
     }
     for bits in [0,0x8000_0000,0x3fa0_0000,0x7f80_0000,0xff80_0000,0x7fc0_1234,0x7fa0_4321] {
+        for indices in [vec![],vec![U32(0),U32(1),U32(2),U32(u32::MAX)]] {
+            push("prepared_float",vec![List(indices),List(vec![F32(bits),F32(0x8000_0000),F32(0x3f80_0000)])]);
+        }
         for xs in [vec![],vec![F32(bits),F32(0x8000_0000),F32(0x3f80_0000)]] {
             for ys in [vec![],vec![F32(bits),F32(0x3f80_0000)]] {
                 push("floats",vec![List(xs.clone()),List(ys),F32(bits)]);
