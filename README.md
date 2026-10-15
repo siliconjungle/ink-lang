@@ -58,6 +58,11 @@ Three questions stay separate:
 3. **Is it worth choosing?** Cost estimates and comparable measurements guide
    selection. A correct transformation can still run more slowly.
 
+[Checked approximation contracts](docs/approximation-contracts.md) explicitly
+permit integer absolute/rational-relative error or finite-f32 ULP error. Ordinary
+equality remains exact. The database supplies reusable error-budget proofs and
+finite-probability laws, independently checked in the supported Lean model.
+
 For example, a collection law can replace successive maps with one composed
 map. Other laws remove an unobserved traversal, preserve ordered reductions or
 eliminate sorting before an order-insensitive observation. The database supplies

@@ -7,14 +7,14 @@ those checked definitions and update auxiliary folds at concrete cell mutations.
 
 ## Selection
 
-Ordinary compilation selects a plan made only of maintained folds without a
-workload profile: each cell write does a constant amount of extra work, and each
-read of a maintained keep is constant time instead of a scan of the table, so no
-workload makes it asymptotically worse. This is the single evidence-free selection
-rule (`planner/ink_planner/static_dominance.py`); plans with any other step remain
-evidence-gated, and supplied profiles, measurements or a validated work model
-still decide first. On a 4,000-row table, a JavaScript write followed by a read of
-a summed keep drops from 17.8 to 4.6 µs.
+Ordinary compilation requires comparable lifecycle measurements or a validated
+work model for maintained folds, extrema and grouped views, as for other
+implementations. Without evidence it retains the baseline. The former
+asymptotic-dominance exception is removed: bounded extra work per write does not
+establish profitable constants, setup, memory or migration on a particular
+workload. Short lifetimes and write-heavy histories can prefer direct execution.
+Explicit checked plan emission remains available. The historical 4,000-row
+JavaScript write/read observation (17.8 to 4.6 µs) describes that workload only.
 
 ## Admission and scope
 
@@ -150,7 +150,7 @@ count). A cell write removes the old contribution and adds the new one, journali
 each step so action failure and host rollback undo it; a keep read takes the
 largest or smallest key, or the identity when empty. Each write adds one
 logarithmic multiset update and each read is logarithmic instead of a table scan,
-so static dominance selects these plans too. Restore rebuilds the multiset from
+and selection must price that lifecycle. Restore rebuilds the multiset from
 validated rows.
 
 `producers.maintained_extrema` authors these views for word keeps over word-keyed
@@ -185,7 +185,7 @@ each previous entry for action failure and host rollback. A group whose total
 returns to the identity is dropped. The query becomes one lookup, with the
 identity for an absent group. Restore rebuilds the map from validated rows. Each
 write does constant extra work and each query is constant time instead of a scan,
-so static dominance selects these plans.
+and selection must price that lifecycle.
 
 `producers.maintained_groups` authors these views for wrapping word sums. It finds
 the unique `G == p` comparison in the query's per-row unfolding (possibly
