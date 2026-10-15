@@ -221,3 +221,93 @@ fn fixed_values_must_satisfy_existing_nominal_invariants() {
     p.frozen.get_mut("Model").unwrap()[0].1 = json!({"x":12});
     assert!(CheckedModule::from_source(p).is_err());
 }
+
+#[test]
+fn complete_action_specialization_uses_only_immutable_input_facts() {
+    use ink_core::optimisation::{self, Package};
+    let module = CheckedModule::from_bytes(include_bytes!("fixtures/frozen-specialization.core.json")).unwrap();
+    let packet: Package = serde_json::from_slice(include_bytes!("fixtures/frozen-specialization.selection.json")).unwrap();
+    let checked = optimisation::check(&module, &packet).unwrap();
+    assert_eq!(checked.evidence().assumptions, ["ink-frozen-roots-v1"]);
+    let mut original = Runtime::from_checked(&module).unwrap();
+    let mut selected = Runtime::new_selected(&checked).unwrap();
+    for x in [0, 1, 7, 255, u64::MAX-8, u64::MAX] {
+        for (name, args) in [("put", json!([x,x])), ("serve", json!([x]))] {
+            assert_eq!(original.invoke_json(name,&args).unwrap().json(),
+                       selected.invoke_json(name,&args).unwrap().json());
+            assert_eq!(original.checkpoint_portable().unwrap(), selected.checkpoint_portable().unwrap());
+        }
+    }
+    // Rebind all ordinary source identities, including the selected source.
+    // The same proof must still reject a different frozen value.
+    for changed in [false, true] {
+        let mut p = module.program().clone();
+        if changed {
+            p.frozen.get_mut("Bias").unwrap()[0].1 = json!(10);
+        } else {
+            p.frozen.get_mut("Choice").unwrap()[0].1 = json!(false);
+        }
+        let wrong = CheckedModule::from_source(p).unwrap();
+        let mut forged = packet.clone();
+        forged.input_core_sha256 = wrong.identity().unwrap();
+        let replacement = forged.action_replacement.as_mut().unwrap();
+        let selected = CheckedModule::from_bytes(&serde_json::to_vec(&replacement.selected).unwrap()).unwrap();
+        let mut p = selected.program().clone();
+        p.frozen = wrong.program().frozen.clone();
+        replacement.selected = serde_json::from_slice(&CheckedModule::from_source(p).unwrap().bytes().unwrap()).unwrap();
+        assert!(optimisation::check(&wrong,&forged).is_err());
+    }
+    // Removing a fixed capability cannot preserve the old assumption, even
+    // when no source writer happens to exist for that root.
+    let mut p = module.program().clone();
+    p.frozen.clear();
+    let mutable = CheckedModule::from_source(p).unwrap();
+    let mut forged = packet.clone();
+    forged.input_core_sha256 = mutable.identity().unwrap();
+    let replacement = forged.action_replacement.as_mut().unwrap();
+    let selected = CheckedModule::from_bytes(&serde_json::to_vec(&replacement.selected).unwrap()).unwrap();
+    let mut p = selected.program().clone();
+    p.frozen.clear();
+    replacement.selected = serde_json::from_slice(&CheckedModule::from_source(p).unwrap().bytes().unwrap()).unwrap();
+    assert!(optimisation::check(&mutable,&forged).is_err());
+    assert!(ink_core::action_model::Projection::derive(&mutable).unwrap().frozen_domain.is_empty());
+    let mut missing = packet;
+    missing.action_replacement.as_mut().unwrap().proofs.remove("put");
+    assert!(optimisation::check(&module,&missing).is_err());
+}
+
+#[test]
+fn helper_enum_and_word_and_correspondence_preserve_all_widths() {
+    use ink_core::action_model::Projection;
+    let p = syntax::parse("module enum_bits; enum Variant{Full,Packed,} fn evaluate(v:Variant,x:u64)->u64{return choose(v==Variant.Packed,word_and(x,255),x);} query q(v:Variant,x:u64)->u64{return evaluate(v,x);} query narrow(x:u32)->u32{return word_and(x,255);} query signed(x:i32)->i32{return word_and(x,-1);}").unwrap();
+    let m = CheckedModule::from_source(p).unwrap();
+    let projection = Projection::derive(&m).unwrap();
+    let context = projection.context().unwrap();
+    let mut runtime = Runtime::from_checked(&m).unwrap();
+    let initial = ink_core::logic::Term::Construct{datatype:projection.state.clone(),constructor:0,arguments:vec![]};
+    for variant in ["Variant.Full","Variant.Packed"] {
+        for x in [0,1,255,256,u64::MAX] {
+            let a = &projection.actions["q"];
+            let term = ink_core::logic::Term::Call{function:a.function.clone(),arguments:vec![
+                initial.clone(),
+                ink_core::logic::Term::U64(0),
+                ink_core::logic::Term::Construct{datatype:match &a.params[2].1{ink_core::logic::Sort::Data(d)=>d.clone(),_=>panic!()},constructor:usize::from(variant=="Variant.Packed"),arguments:vec![]},
+                ink_core::logic::Term::U64(x)]};
+            let ink_core::logic::Term::Construct{arguments,..}=context.evaluate(&[],&term).unwrap() else{panic!()};
+            assert_eq!(arguments[0], ink_core::logic::Term::U64(runtime.invoke_json("q",&json!([variant,x])).unwrap().result.json().as_u64().unwrap()));
+        }
+    }
+    for bits in [0,1,255,256,0x80000000,u32::MAX] {
+        for name in ["narrow","signed"] {
+            let a=&projection.actions[name];
+            let term=ink_core::logic::Term::Call{function:a.function.clone(),arguments:vec![
+                initial.clone(),ink_core::logic::Term::U64(0),
+                ink_core::logic::Term::U64(bits as u64)]};
+            let ink_core::logic::Term::Construct{arguments,..}=context.evaluate(&[],&term).unwrap() else{panic!()};
+            let argument=if name=="signed"{json!([bits as i32])}else{json!([bits])};
+            let expected=runtime.invoke_json(name,&argument).unwrap().result.json();
+            let word=if name=="signed"{expected.as_i64().unwrap() as i32 as u32 as u64}else{expected.as_u64().unwrap()};
+            assert_eq!(arguments[0],ink_core::logic::Term::U64(word));
+        }
+    }
+}

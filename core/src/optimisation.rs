@@ -191,6 +191,8 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedSel
                     .sorted_tables
                     .iter()
                     .map(|_| crate::action_model::SORTED_SEMANTICS.to_string())
+                    .chain((!module.program().frozen.is_empty())
+                        .then_some("ink-frozen-roots-v1".to_string()))
                     .collect(),
             },
         });
