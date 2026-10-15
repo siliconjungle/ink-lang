@@ -89,6 +89,7 @@ fn lex(source: &str) -> LangResult<Vec<Token>> {
                         p += 1;
                     }
                 }
+                if p + 3 <= b.len() && source[p..].starts_with("f64") { p += 3; }
             }
         } else if ["->", "=>", "==", "!=", "<=", ">=", "&&", "||", ".."]
             .iter()
@@ -274,6 +275,7 @@ impl Parser {
             "u32" => Ok(Type::U32),
             "i32" => Ok(Type::I32),
             "f32" => Ok(Type::F32),
+            "f64" => Ok(self.aliases.get("f64").cloned().unwrap_or_else(||if self.records.contains("f64"){Type::Named("f64".into())}else{Type::F64})),
             kind @ ("Vec2" | "Vec3" | "Vec4") => {
                 self.expect("<")?;
                 let t = self.ty()?;
@@ -521,7 +523,11 @@ impl Parser {
             Expr::Bool(false)
         } else if self.peek().as_bytes()[0].is_ascii_digit() {
             let s = self.take().replace('_', "");
-            if !s.starts_with("0x") && (s.contains('.') || s.contains('e') || s.contains('E')) {
+            if let Some(text)=s.strip_suffix("f64").filter(|_|!s.starts_with("0x")) {
+                let x=text.parse::<f64>().map_err(|_|format!("invalid f64 literal {s}"))?;
+                if !x.is_finite(){return Err(self.err("f64 literal is outside finite range"));}
+                Expr::Double(x.to_bits())
+            } else if !s.starts_with("0x") && (s.contains('.') || s.contains('e') || s.contains('E')) {
                 let x = s
                     .parse::<f32>()
                     .map_err(|_| format!("invalid f32 literal {s}"))?;
@@ -613,7 +619,7 @@ impl Parser {
             }
             let op = self.take();
             let rhs = self.expr(prec + 1)?;
-            lhs = if op=="/" { Expr::Call("f32_div".into(),vec![lhs,rhs]) } else if ["&", "|", "^"].contains(&op.as_str()) {
+            lhs = if ["&", "|", "^"].contains(&op.as_str()) {
                 Expr::Call(
                     match op.as_str() {
                         "&" => "word_and",

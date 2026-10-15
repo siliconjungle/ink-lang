@@ -473,7 +473,7 @@ impl Checker<'_> {
             }]),
             Kind::None => normal(&[ValueShape::None]),
             Kind::Number(_)
-            | Kind::Float(_)
+            | Kind::Float(_) | Kind::Double(_)
             | Kind::String(_)
             | Kind::Unit
             | Kind::Enum { .. }

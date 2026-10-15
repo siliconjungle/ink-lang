@@ -98,7 +98,7 @@ pub(super) fn children(kind: &Kind) -> Vec<NodeId> {
             .collect(),
         Kind::Lambda { body, .. } => vec![*body],
         Kind::Number(_)
-        | Kind::Float(_)
+        | Kind::Float(_) | Kind::Double(_)
         | Kind::Bool(_)
         | Kind::String(_)
         | Kind::Unit

@@ -7,6 +7,7 @@ pub enum Value {
     U32(u32),
     I32(i32),
     F32(u32),
+    F64(u64),
     Vector(Vec<Value>),
     Record(String, BTreeMap<String, Value>),
     Bool(bool),
@@ -24,6 +25,7 @@ impl Value {
             Self::U64(x) => (*x).into(),
             Self::U32(x) => (*x).into(),
             Self::I32(x) => (*x).into(),
+            Self::F64(bits) => crate::float64::json_bits(*bits),
             Self::F32(bits) => {
                 let x = f32::from_bits(*bits);
                 if x.is_finite() {
@@ -47,6 +49,7 @@ impl Value {
                 .and_then(|n| i32::try_from(n).ok())
                 .map(Self::I32)
                 .ok_or("expected i32".into()),
+            Type::F64 => crate::float64::from_json_bits(v).map(Self::F64),
             Type::F32 => {
                 let bits = if let Some(b) = v.get("F32Bits") {
                     if v.as_object().is_none_or(|o| o.len() != 1) {
@@ -98,7 +101,7 @@ impl Value {
     }
     pub fn from_program_json(v: &serde_json::Value, t: &Type, p: &Program) -> LangResult<Self> {
         match t {
-            Type::U32 | Type::U64 | Type::I32 | Type::F32 | Type::Vector(..) | Type::Bool => {
+            Type::U32 | Type::U64 | Type::I32 | Type::F32 | Type::F64 | Type::Vector(..) | Type::Bool => {
                 Self::from_json(v, t)
             }
             Type::Named(n) if p.records.contains_key(n) => {
@@ -320,6 +323,7 @@ fn expr(
             evaluate_local(e, frame, fuel, ty)
         }
         Expr::Float(bits) => Ok(Value::F32(*bits)),
+        Expr::Double(bits) => Ok(Value::F64(*bits)),
         Expr::String(text) => {
             charge(fuel, text.len() as u64)?;
             Ok(Value::Opaque(crate::stateful::Value::String(text.clone())))
@@ -364,6 +368,8 @@ fn evaluate_literal(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lan
             Value::Opaque(crate::stateful::Value::Int(num_bigint::BigInt::from(*n)))
         } else if ty == Type::I32 {
             Value::I32(*n as i32)
+        } else if ty == Type::F64 {
+            Value::F64((*n as f64).to_bits())
         } else if ty == Type::F32 {
             Value::F32((*n as f32).to_bits())
         } else if ty == Type::U32 {
@@ -477,6 +483,7 @@ fn evaluate_negation(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> La
                 Value::U32(x) => Value::U32(x.wrapping_neg()),
                 Value::U64(x) => Value::U64(x.wrapping_neg()),
                 Value::F32(b) => Value::F32(b ^ 0x80000000),
+                Value::F64(b) => Value::F64(b ^ 0x8000000000000000),
                 Value::Opaque(crate::stateful::Value::Int(x)) => {
                     Value::Opaque(crate::stateful::Value::Int(-x))
                 }
@@ -1019,6 +1026,17 @@ fn binary_values(op: &str, av: Value, bv: Value) -> LangResult<Value> {
                 _ => return Err("exact integer operator".into()),
             })
         }
+        (Value::F64(a), Value::F64(b), op) => {
+            let (a,b)=(f64::from_bits(*a),f64::from_bits(*b));
+            Ok(match op {
+                "+"=>Value::F64(crate::float64::canonical_bits(a+b)),
+                "-"=>Value::F64(crate::float64::canonical_bits(a-b)),
+                "*"=>Value::F64(crate::float64::canonical_bits(a*b)),
+                "<"=>Value::Bool(a<b),">"=>Value::Bool(a>b),"<="=>Value::Bool(a<=b),">="=>Value::Bool(a>=b),
+                "=="=>Value::Bool(a==b),"!="=>Value::Bool(a!=b),
+                _=>return Err("f64 operator".into()),
+            })
+        }
         (Value::F32(a), Value::F32(b), op) => {
             let a = f32::from_bits(*a);
             let b = f32::from_bits(*b);
@@ -1078,7 +1096,7 @@ fn evaluate_apply(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
     match e {
         Expr::Call(n, args) => {
             if crate::primitives::primitive(n) {
-                let first=if crate::primitives::bit_count(n){args.first().map(|e|crate::check::infer(e,types,p)).transpose()?}else{None};
+                let first=crate::primitives::input_type(n,args.first(),|e|crate::check::infer(e,types,p))?;
                 let (params,_)=crate::primitives::signature(n,first.as_ref())?;
                 let vals=args.iter().zip(params).map(|(e,t)|expr(e,env,types,p,fuel,Some(&t),depth).and_then(crate::stateful::Value::from_eval)).collect::<LangResult<Vec<_>>>()?;
                 return crate::primitives::evaluate(n,&vals)?.to_eval();
@@ -1134,6 +1152,13 @@ fn evaluate_apply(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                             sum += x;
                         }
                         return Ok(Value::Opaque(crate::stateful::Value::Int(sum)));
+                    }
+                    if ty == Type::F64 {
+                        let mut result=0.0f64;
+                        for x in xs{let Value::F64(bits)=x else{return Err("binary64 sum type".into());};
+                            result=f64::from_bits(crate::float64::canonical_bits(result+f64::from_bits(*bits)));
+                        }
+                        return Ok(Value::F64(crate::float64::canonical_bits(result)));
                     }
                     if ty == Type::F32 {
                         let mut result = 0.0f32;
@@ -1698,6 +1723,7 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                             Type::U64 => Value::U64(0),
                             Type::I32 => Value::I32(0),
                             Type::F32 => Value::F32(0),
+                            Type::F64 => Value::F64(0),
                             _ => return Err("buffer scan numeric type".into()),
                         };
                         let mut ys = vec![];

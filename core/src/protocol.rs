@@ -56,7 +56,7 @@ fn preflight(b:&Body)->bool {
             self.work+=1; if self.work>100_000||depth>128{return false;}
             let Some(n)=b.nodes.get(id)else{return false;};
             match &n.kind {
-                Kind::Number(_)|Kind::Float(_)|Kind::Bool(_)|Kind::String(_)|Kind::Unit|Kind::None|Kind::Local(_)|Kind::Enum{..}=>true,
+                Kind::Number(_)|Kind::Float(_) | Kind::Double(_)|Kind::Bool(_)|Kind::String(_)|Kind::Unit|Kind::None|Kind::Local(_)|Kind::Enum{..}=>true,
                 Kind::Keep(_)|Kind::State(_)|Kind::PureCall{..}|Kind::QueryCall{..}|Kind::ChangeCall{..}=>false,
                 Kind::Neg{value}|Kind::Try{value}|Kind::Field{receiver:value,..}|Kind::VectorField{receiver:value,..}=>self.expr(b,*value,depth+1),
                 Kind::Record{fields,..}=>fields.iter().all(|(_,i)|self.expr(b,*i,depth+1)),

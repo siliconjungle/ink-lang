@@ -33,7 +33,12 @@ impl SurfaceProgram {
         // also covers source-law tools that construct a surface program directly.
         crate::contracts::collections::resolve(&mut self.program)?;
         let occupied = surface_names(&self.program)?;
+        let wide_arithmetic=crate::float64::needed(&self.program)
+            || self.aliases.values().any(crate::float64::type_needed)
+            || self.applications.values().any(|(_,ts)|ts.iter().any(crate::float64::type_needed))
+            || self.callback_types.values().any(|(a,b)|crate::float64::type_needed(a)||crate::float64::type_needed(b));
         let mut e = Elaborator {
+            wide_arithmetic,
             templates: self.program.clone(),
             aliases: self.aliases,
             parameters: self.parameters,
@@ -295,6 +300,7 @@ impl SurfaceProgram {
 }
 
 struct Elaborator {
+    wide_arithmetic: bool,
     templates: Program,
     aliases: BTreeMap<String, Type>,
     parameters: BTreeMap<String, Vec<String>>,
@@ -738,9 +744,23 @@ impl Elaborator {
                 }
             }
             Expr::Neg(x) | Expr::Try(x) => self.expr(x, env, depth + 1)?,
-            Expr::Binary(_, a, b) => {
+            Expr::Binary(op, a, b) => {
                 self.expr(a, env, depth + 1)?;
                 self.expr(b, env, depth + 1)?;
+                if op=="/" {
+                    // Preserve the older F32 core spelling and fresh-name
+                    // sequence. Wide selection is a type hint; ordinary whole
+                    // checking still rejects mixed/invalid types and effects.
+                    let wide=if self.wide_arithmetic {
+                        let p=self.program_context();
+                        let mut types=self.local_types.clone();
+                        for d in p.states.iter().chain(&p.keeps){if !matches!(d.ty,Type::Table(..)){types.entry(d.name.clone()).or_insert_with(||d.ty.clone());}}
+                        let hint=|e:&Expr|crate::check::hint(e,&types,&p)
+                            .or_else(||self.value_hint(e,&p));
+                        hint(a)==Some(Type::F64)||hint(b)==Some(Type::F64)
+                    }else{false};
+                    *e=Expr::Call(if wide{"f64_div"}else{"f32_div"}.into(),vec![*a.clone(),*b.clone()]);
+                }
             }
             Expr::Method(x, variant, args) => {
                 if let Expr::Var(n) = x.as_ref() {
