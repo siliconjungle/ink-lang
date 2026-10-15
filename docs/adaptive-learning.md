@@ -118,9 +118,9 @@ rollback and portable state unchanged.
 The [learning lifecycle](learning-lifecycle.md) now includes a
 [cooperative continuous service](continuous-learning.md): bounded queued
 observations, source-controlled work and publication, separate serving/candidate
-models, exact progress recovery and an offline CLI bootstrap. Explicit build-stage
-packaging/freezing, parallel training workers and device reverse execution remain
-open. None of these capabilities follows from a declaration modifier alone.
+models, exact progress recovery and an offline CLI bootstrap. [Explicit build-stage packaging](trained-builds.md) now captures and compiles
+adaptive startup artifacts. Frozen specialization, parallel training workers and
+device reverse execution remain open. None of these capabilities follows from a declaration modifier alone.
 
 ## Programmatic training control
 

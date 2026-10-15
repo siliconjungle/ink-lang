@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: capture, serialize concurrent calls and recover exact receipts
+ok 1 - capture, serialize concurrent calls and recover exact receipts
+  ---
+  duration_ms: 8.115458
+  type: 'test'
+  ...
+# Subtest: uncertain write before or after durable publication requires recovery
+ok 2 - uncertain write before or after durable publication requires recovery
+  ---
+  duration_ms: 1.328166
+  type: 'test'
+  ...
+# Subtest: receiver failure leaves pending events; acknowledgement is durable
+ok 3 - receiver failure leaves pending events; acknowledgement is durable
+  ---
+  duration_ms: 1.497708
+  type: 'test'
+  ...
+# Subtest: delivery can repeat after receiver success and failed acknowledgement
+ok 4 - delivery can repeat after receiver success and failed acknowledgement
+  ---
+  duration_ms: 0.876166
+  type: 'test'
+  ...
+# Subtest: action exception rolls back; bounded receipt eviction is explicit
+ok 5 - action exception rolls back; bounded receipt eviction is explicit
+  ---
+  duration_ms: 1.080416
+  type: 'test'
+  ...
+# Subtest: storage conflict rejects a second stale writer
+ok 6 - storage conflict rejects a second stale writer
+  ---
+  duration_ms: 0.601291
+  type: 'test'
+  ...
+# Subtest: real file replacement, ownership, recovery and corruption rejection
+ok 7 - real file replacement, ownership, recovery and corruption rejection
+  ---
+  duration_ms: 24.191167
+  type: 'test'
+  ...
+# Subtest: retained boundaries restore state after uncertain append, before and after publication
+ok 8 - retained boundaries restore state after uncertain append, before and after publication
+  ---
+  duration_ms: 43.855708
+  type: 'test'
+  ...
+# Subtest: legacy receipt field order remains retryable without executing the query
+ok 9 - legacy receipt field order remains retryable without executing the query
+  ---
+  duration_ms: 0.697834
+  type: 'test'
+  ...
+# Subtest: initialized artifact bytes bind size/hash and reject corruption/truncation
+ok 10 - initialized artifact bytes bind size/hash and reject corruption/truncation
+  ---
+  duration_ms: 8.037375
+  type: 'test'
+  ...
+# Subtest: pause quiesces a live action and invalidates a pending plan
+ok 11 - pause quiesces a live action and invalidates a pending plan
+  ---
+  duration_ms: 4.897167
+  type: 'test'
+  ...
+# Subtest: continuous turns yield, accept wake and stop without closing the shared host
+ok 12 - continuous turns yield, accept wake and stop without closing the shared host
+  ---
+  duration_ms: 6.033542
+  type: 'test'
+  ...
+# Subtest: abort and plan/storage failure stop explicitly; no automatic retry
+ok 13 - abort and plan/storage failure stop explicitly; no automatic retry
+  ---
+  duration_ms: 0.451166
+  type: 'test'
+  ...
+# Subtest: a stopped but unresolved turn cannot be overlapped by another run
+ok 14 - a stopped but unresolved turn cannot be overlapped by another run
+  ---
+  duration_ms: 0.124291
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 119.815584

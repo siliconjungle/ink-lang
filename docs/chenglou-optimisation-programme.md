@@ -265,3 +265,12 @@ Queued feedback, candidate progress and serving versions survive restart; source
 controls pause/budgets/cadence, stale publication fails, and offline CLI state can
 bootstrap the service. This is a serialized CPU-host milestone, not parallel/device
 training, build-stage freezing or closure of the matched performance requirement.
+
+
+[Captured adaptive builds](trained-builds.md) integrate explicit fitting with target
+compilation and versioned package publication. Training/parent lineage, source,
+complete checkpoint and emitted files are bound; optional replay checks the whole
+training result. Startup and continued learning have complete CPU/Wasm comparisons,
+native durable recovery and actual native/browser GPU dispatch. This adds a build
+phase to the lifecycle, without claiming frozen specialization or a new throughput
+win. Pure invocation holders avoid retaining a deployed state they cannot observe.

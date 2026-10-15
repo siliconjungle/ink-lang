@@ -26,6 +26,7 @@ def audit(catalog, scope):
         "reverse_learning",
         "differentiation",
         "adaptive_learning",
+        "trained_build",
         "lowering_parity", "generated_parity", "durability", "modules",
         "selected_checkpoint", "action_optimisation", "action_transitions",
         "numerical_state", "mixed_durability", "bend_features", "feature_parity",

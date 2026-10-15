@@ -9,7 +9,7 @@ an implementation requirement, not a claim that every phase is already integrate
 | Phase | Required behavior | Current implementation |
 | --- | --- | --- |
 | Pre-compilation training | Fit from a declared dataset, validate and export a source-bound model artifact | `ink train`, portable complete-state checkpoints and exact resume |
-| Training during a build | Run an explicitly requested training stage; bind dataset/configuration/model lineage and package the result; freeze only when requested | Build-stage integration and frozen specialization remain required |
+| Training during a build | Run an explicitly requested training stage; bind dataset/configuration/model lineage and package the result; freeze only when requested | `build-model` captures/trains/compiles a bound adaptive package; frozen specialization remains required |
 | Adaptive runtime learning | Train on declared feedback or drift triggers, under bounded work and acceptance rules | Explicit `learn change`; authored objectives, updates, validation, backtracking and rollback; source-authored trigger/configuration policy; cooperative scheduled actions on a compiled durable host |
 | Continuous learning | Consume an ongoing observation stream while serving predictions; schedule bounded work and publish accepted model versions | Authored bounded sessions, separate serving/candidate versions, explicit cadence and cooperative compiled JavaScript service with durable recovery; parallel worker/device execution remains open |
 
@@ -88,4 +88,13 @@ across normal restart and storage failure before/after publication. A separate
 history boots the service from an offline CLI checkpoint containing an unfinished
 candidate. This closes a concrete serialized continuous path; it does not establish
 parallel worker promotion, hard real-time scheduling, GPU training, universal
-convergence or build-stage packaging/freezing.
+convergence or frozen specialization.
+
+
+[Training as a build stage](trained-builds.md) now captures the checked module and
+trace, resumes complete optimizer state when requested, compiles that captured
+module and publishes a new package with a verified startup checkpoint. JavaScript,
+native Rust, locked Rust projects, Wasm and mixed GPU hosts support adaptive startup
+and continued learning. Existing durable state takes precedence over a deployment
+seed. This completes an explicit adaptive build path; frozen specialization and
+trained implementation selection remain separate required work.
