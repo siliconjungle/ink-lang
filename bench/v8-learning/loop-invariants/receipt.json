@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "distribution_revision": "1ee7f5464ce2b296b2de03d439462b1189c6548d",
+  "knowledge_revision": "038c190a45a9bfc53f00b2ba2d22bd55de3f686d",
+  "planner_revision": "cdfbc2b33afa0ba8deb69acba5baf132c51df3a2",
+  "compiler_sha256": "141c44c50e2404e1d8b81a7ba961c630e747733167c49e1871e138a7089b0bd6",
+  "node": "v26.1.0",
+  "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+  "machine": "arm64",
+  "method": "Three fresh processes per split and target; three nonempty shapes per complete-call batch; empty input separate; reference interpreter plus independent wrapping-word formula before timing; unchanged inputs, complete results and snapshots checked before/after. No exclusive CPU; native JSON conversion included; JS trusted-value boundary. Selected law explicitly replayed; no default selection claim.",
+  "training_shapes": [
+    [
+      32,
+      128
+    ],
+    [
+      128,
+      256
+    ],
+    [
+      256,
+      512
+    ]
+  ],
+  "holdout_shapes": [
+    [
+      37,
+      193
+    ],
+    [
+      193,
+      383
+    ],
+    [
+      383,
+      769
+    ]
+  ],
+  "validation": {
+    "cpu_cases": 72,
+    "domains": [
+      "U32",
+      "U64",
+      "I32",
+      "F32",
+      "Bool"
+    ],
+    "float_bits": [
+      "00000000",
+      "80000000",
+      "3fa00000",
+      "7f800000",
+      "ff800000",
+      "7fc01234",
+      "7fa04321"
+    ],
+    "planner_tests": 295,
+    "proved_refinement_tests": 4
+  },
+  "limitations": [
+    "One purpose-built pure scalar result workload; no whole-language gain claim",
+    "Empty-call ratios are tiny noisy diagnostics",
+    "Host compiler already optimizes native code; absolute JS/native times use different boundaries",
+    "Corpus diagnostic separately frozen; entry count is not runtime evidence"
+  ]
+}

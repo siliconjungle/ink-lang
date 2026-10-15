@@ -1,0 +1,123 @@
+{
+  "applied_rule_ids": [],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v8",
+    "core_sha256": "880bcaa81dbb7fff065236312fce372b06d820e06312be35f934010ecdc16145",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "native-number-with-exact-nonfinite-tags",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "run",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "ys",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      }
+    ],
+    "javascript_sha256": "572112d80b8a7c6303f7cf57f5b3e12a38492aacb3b5d97699e5d48919b64827",
+    "named_types": {},
+    "owned_result_contract": {
+      "functions": 1,
+      "inputs": "same trusted caller contract",
+      "results": "canonical detached values with ABI byte/node/depth limits",
+      "unsupported": []
+    },
+    "private_record_elisions": [],
+    "private_sum_spines": [],
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "run": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "b78038f243fbc111dbc01de3b38790e3d50c6bba53ccf920253bad272ecb83c1",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "ys",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "input_core_sha256": "880bcaa81dbb7fff065236312fce372b06d820e06312be35f934010ecdc16145",
+  "selected_core_sha256": "880bcaa81dbb7fff065236312fce372b06d820e06312be35f934010ecdc16145",
+  "semantic_package": null,
+  "semantic_selection": null,
+  "source": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-v8-2026-10-15/bench/v8-learning/loop-invariants/source.ink",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}

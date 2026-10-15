@@ -277,7 +277,7 @@
         ]
       ],
       "review_status": "partial Maglev family review",
-      "note": "Header complete; implementation review through line 300. Known-node facts are cloned/scoped around synthesized subgraphs, can-allocate/deopt/throw clear allocation-folding blocks including reducer-created nodes, eager deopt requires a reconstructible frame, and range comparisons distinguish signed/unsigned validity. No V8 type/range/profile premise imported into Ink; guarded source proof and exact reconstruction remain mandatory. Remaining implementation not yet read."
+      "note": "Header complete; implementation review through line 620. Known-node facts are cloned/scoped around synthesized subgraphs, can-allocate/deopt/throw clear allocation-folding blocks including reducer-created nodes, eager deopt requires a reconstructible frame, and range comparisons distinguish signed/unsigned validity. No V8 type/range/profile premise imported into Ink; guarded source proof and exact reconstruction remain mandatory. Remaining implementation not yet read."
     },
     {
       "path": "src/maglev/maglev-graph-optimizer.cc",
@@ -285,11 +285,51 @@
       "inclusive_lines": [
         [
           1,
-          300
+          620
         ]
       ],
-      "review_status": "partial Maglev family review",
-      "note": "Header complete; implementation review through line 300. Known-node facts are cloned/scoped around synthesized subgraphs, can-allocate/deopt/throw clear allocation-folding blocks including reducer-created nodes, eager deopt requires a reconstructible frame, and range comparisons distinguish signed/unsigned validity. No V8 type/range/profile premise imported into Ink; guarded source proof and exact reconstruction remain mandatory. Remaining implementation not yet read."
+      "review_status": "partial file review; family open",
+      "note": "Read through 620: nested/sibling off-graph subgraph splicing, saved block/position/known facts, removed forwarding uses, allocation barriers on can-allocate/deopt/throw including generated nodes, signed versus unsigned range validity, throwing replacement bookkeeping and representation conversions. Remaining implementation open."
+    },
+    {
+      "path": "src/compiler/loop-peeling.cc",
+      "sha256": "0661d41fc81d8c12cc0881fb5f5da2c5ff4d3a59a2a0c87092da204f827d9cee",
+      "inclusive_lines": [
+        [
+          1,
+          299
+        ]
+      ],
+      "review_status": "file-read; dynamic peeling assessment open",
+      "note": "Full 299-line file read: first-iteration cloning, entry-value mapping, multi-backedge merge/phi repair, loop exit value/effect replacement, inner-first bounded peeling and backwards exit-marker cleanup. Dynamic Ink peeling remains open."
+    },
+    {
+      "path": "src/compiler/loop-variable-optimizer.cc",
+      "sha256": "aa1a6d9da9a41b4355a86917016086c5df992e83bed89b9993af51360ca0f49b",
+      "inclusive_lines": [
+        [
+          1,
+          130
+        ]
+      ],
+      "review_status": "partial file review; family open",
+      "note": "Initial control worklist traversal, queued-node deduplication, loop entry before backedge processing and single-backedge induction upper/lower constraints. Remaining implementation open."
+    },
+    {
+      "path": "src/compiler/scheduler.cc",
+      "sha256": "f6f788588d7554482c83330a7e3835cb4384a6dc71a0d1861872bfee8e34fb29",
+      "inclusive_lines": [
+        [
+          1538,
+          1597
+        ],
+        [
+          1700,
+          1735
+        ]
+      ],
+      "review_status": "partial file review; family open",
+      "note": "Loop hoisting bounded by minimum schedule position, dominator depth and execution on all outgoing paths. Ink knowledge now proposes lexical scalar hoisting from strict non-stopping callbacks with an explicit empty-list guard, hygienic captures and ordinary normalization proofs; no trusted loop matcher added. General CFG scheduling remains delegated/open."
     }
   ],
   "families": [
@@ -345,7 +385,7 @@
       "name": "loop-transforms",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/loop-optimization-reducer.h",
-      "note": "Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open."
+      "note": "Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open. Scheduler hoisting ranges and TurboFan peeling implementation reviewed; guarded scalar callback hoisting proposals added to knowledge. Broader dynamic CFG transforms remain open."
     },
     {
       "name": "strings",
@@ -369,7 +409,7 @@
       "name": "maglev",
       "status": "partial",
       "entry_point": "src/maglev/maglev-graph-builder.cc",
-      "note": "Optimizer header read in full and implementation lines 1..300 read; facts/scoping, deopt use accounting, subgraph splicing and signed/unsigned range guards assessed. Remaining optimizer, graph builder, known-node aspects and representation/inlining passes remain open."
+      "note": "Optimizer header read in full and implementation lines 1..620 read; facts/scoping, deopt use accounting, subgraph splicing and signed/unsigned range guards assessed. Remaining optimizer, graph builder, known-node aspects and representation/inlining passes remain open."
     },
     {
       "name": "pipeline-infrastructure",
