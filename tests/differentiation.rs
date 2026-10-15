@@ -185,7 +185,10 @@ fn collections_nonlinearity_decisions_and_hygiene_have_explicit_meanings() {
         );
     }
     for xs in [vec![], vec![1., -2., 3.]] {
-        assert_eq!(evaluate(&p,"sized_grad",json!([0.5,xs])).json(),json!(xs.len() as f64));
+        assert_eq!(
+            evaluate(&p, "sized_grad", json!([0.5, xs])).json(),
+            json!(xs.len() as f64)
+        );
         assert_eq!(
             evaluate(&p, "energy_gradient", json!([{"a":0.5,"b":-0.25},xs])).json(),
             json!({"a":xs.iter().map(|x|x*x).sum::<f64>(),"b":xs.iter().sum::<f64>()})
@@ -220,10 +223,10 @@ fn collections_nonlinearity_decisions_and_hygiene_have_explicit_meanings() {
         .unwrap();
     assert!((actual - 1. / 5_f64.sqrt()).abs() < 1e-6);
     assert_eq!(evaluate(&p, "hard_grad", json!([1.25])).json(), json!(0.));
-    let fields=(0..33).map(|i|format!("f{i}:f32,")).collect::<String>();
+    let fields = (0..33).map(|i| format!("f{i}:f32,")).collect::<String>();
     let large=format!("module directional;record W{{{fields}}}fn loss(w:W)->f32{{return w.f0;}}fn directed(w:W,d:W)->f32{{return jvp(loss,w,d);}}");
     CheckedModule::from_source(syntax::parse(&large).unwrap()).unwrap();
-    let too_many=format!("{large}fn full(w:W)->W{{return gradient(loss,w);}}");
+    let too_many = format!("{large}fn full(w:W)->W{{return gradient(loss,w);}}");
     assert!(syntax::parse(&too_many).unwrap_err().contains("32 scalar"));
     for bad in [
         MATH.replace("gradient_piecewise(relu_loss","gradient(relu_loss"),
@@ -318,4 +321,155 @@ fn source_modules_keeps_and_abstract_boundaries_are_retained() {
       "module bad; abstract record W{x:f32,}fn loss(w:W)->f32{return w.x;}fn g(w:W)->W{return gradient(loss,w);}",
       "module bad; refined record W{x:f32,}invariant value.x>=0.0;fn loss(w:W)->f32{return w.x;}fn g(w:W)->W{return gradient(loss,w);}",
     ] {let e=syntax::parse(source).and_then(CheckedModule::from_source).unwrap_err();assert!(e.contains("plain record view"),"{e}");}
+}
+
+const BATCHED: &str = include_str!("../examples/batched-differentiation.ink");
+#[test]
+fn batched_lanes_match_scalar_directions_bit_for_bit_and_across_targets() {
+    let m = CheckedModule::from_source(syntax::parse(BATCHED).unwrap()).unwrap();
+    let p = m.program();
+    let snapshot = Runtime::from_checked(&m)
+        .unwrap()
+        .checkpoint_portable()
+        .unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    // This compares stored F32 bits, including negative zero and nonfinite
+    // propagation. Batching must not simplify a zero tangent times infinity.
+    for bits in [
+        0_u32, 0x80000000, 0x3e800000, 0xbf000000, 0x7f7fffff, 0x7f800000, 0xff800000, 0x7fc01234,
+        0x7fa04321,
+    ] {
+        let x = json!({"F32Bits":bits});
+        let w = json!({"pair":{"a":x,"b":-0.5},"c":0.25});
+        let pair = json!({"a":x,"b":-0.5});
+        for (full, control, args) in [
+            ("batched", "directions", json!([w, [x, -0.5, 0.25]])),
+            ("pair_gradient", "pair_directions", json!([pair, 0.25])),
+        ] {
+            let value = evaluate(p, full, args.clone());
+            assert_eq!(
+                value,
+                evaluate(p, control, args.clone()),
+                "{full}: {bits:08x}"
+            );
+            for name in [full, control] {
+                steps.push(json!({"pure":name,"args":args,"cpu_only":true}));
+                expected.push(json!({"reply":{"value":value.json()},"snapshot":snapshot}));
+            }
+        }
+    }
+    for xs in [vec![], vec![0., -0.5, 1.]] {
+        let w = json!({"pair":{"a":0.25,"b":-0.5},"c":-0.125});
+        assert_eq!(
+            evaluate(p, "batched", json!([w, xs])),
+            evaluate(p, "directions", json!([w, xs]))
+        );
+    }
+    let args = json!([[0.,-0.5,0.25,1.],{"a":0.25,"b":-0.5}]);
+    let value = evaluate(p, "device_batch", args.clone());
+    steps.push(json!({"pure":"device_batch","args":args,"expect_gpu":true}));
+    expected.push(json!({"reply":{"value":value.json()},"snapshot":snapshot}));
+    parity::conformance_checked("batched-differentiation", &m, BATCHED, steps, expected);
+}
+
+#[test]
+fn full_gradient_supports_all_32_lanes_without_cache_aliasing() {
+    let fields = (0..32).map(|i| format!("f{i}:f32,")).collect::<String>();
+    let seed = |lane: usize| {
+        (0..32)
+            .map(|i| format!("f{i}:{}.0,", usize::from(i == lane)))
+            .collect::<String>()
+    };
+    let source=format!("module lanes;record W{{{fields}}}fn objective(w:W)->f32{{return w.f0*w.f31;}}fn full(w:W)->W{{return gradient(objective,w);}}fn first(w:W)->f32{{return jvp(objective,w,W{{{}}});}}fn last(w:W)->f32{{return jvp(objective,w,W{{{}}});}}",seed(0),seed(31));
+    let p = syntax::parse(&source).unwrap();
+    CheckedModule::from_source(p.clone()).unwrap();
+    let w: Value = (0..32)
+        .map(|i| (format!("f{i}"), json!(i as f32 / 16.0)))
+        .collect();
+    let eval::Value::Record(_, g) = evaluate(&p, "full", json!([w])) else {
+        panic!("gradient record")
+    };
+    assert_eq!(g["f0"], evaluate(&p, "first", json!([w])));
+    assert_eq!(g["f31"], evaluate(&p, "last", json!([w])));
+    for i in 1..31 {
+        assert_eq!(g[&format!("f{i}")], eval::Value::F32(0));
+    }
+}
+
+#[test]
+fn database_batching_equations_replay_and_preserve_selected_execution() {
+    use std::{fs, path::Path, process::Command};
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let negative = Command::new("python3")
+        .args([
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "knowledge/tests",
+            "-p",
+            "test_function_correspondence.py",
+        ])
+        .env("PYTHONPATH", root.join("knowledge"))
+        .env("INK_COMPILER", env!("CARGO_BIN_EXE_ink"))
+        .output()
+        .unwrap();
+    assert!(
+        negative.status.success(),
+        "{}",
+        String::from_utf8_lossy(&negative.stderr)
+    );
+    let source = include_str!("../knowledge/tests/fixtures/differential-batching/source.ink");
+    let m = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let view: Value = serde_json::from_slice(
+        &fs::read(root.join("knowledge/store/differential-batching-view.json")).unwrap(),
+    )
+    .unwrap();
+    let receipt: Value = serde_json::from_slice(
+        &fs::read(root.join("knowledge/libraries/differential-batching-admission.json")).unwrap(),
+    )
+    .unwrap();
+    let applications: Vec<_> = ["observed", "observed_nonlinear"]
+        .iter()
+        .zip(receipt["equations"].as_array().unwrap())
+        .map(|(function, e)| {
+            json!({
+            "function":function,"path":[],"law":e["law"],"premises":[],"arguments":{
+                "w":{"sort":{"Value":{"Named":"W"}},"node":{"Free":"w"}},
+                "x":{"sort":{"Value":"F32"},"node":{"Free":"x"}}
+            }})
+        })
+        .collect();
+    let packet=serde_json::from_value(json!({"schema":1,"semantics":"ink-evidence-v1","input_core_sha256":m.identity().unwrap(),"knowledge":view,"applications":applications})).unwrap();
+    let selected = verified_language::optimisation::check(&m, &packet).unwrap();
+    let snapshot = Runtime::from_checked(&m)
+        .unwrap()
+        .checkpoint_portable()
+        .unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for bits in [
+        0_u32, 0x80000000, 0x3e800000, 0xbf000000, 0x7f7fffff, 0x7f800000, 0xff800000, 0x7fc01234,
+        0x7fa04321,
+    ] {
+        let w = json!({"a":{"F32Bits":bits},"b":-0.5});
+        for name in ["observed", "observed_nonlinear"] {
+            let args = json!([w, 0.25]);
+            let result = evaluate(m.program(), name, args.clone());
+            steps.push(json!({"pure":name,"args":args,"cpu_only":true}));
+            expected.push(json!({"reply":{"value":result.json()},"snapshot":snapshot}));
+        }
+    }
+    let args = json!([[0.0,-0.5,0.25,1.0],{"a":0.25,"b":-0.5}]);
+    let result = evaluate(m.program(), "batch", args.clone());
+    steps.push(json!({"pure":"batch","args":args,"expect_gpu":true}));
+    expected.push(json!({"reply":{"value":result.json()},"snapshot":snapshot}));
+    parity::conformance_selected(
+        "proved-batched-differentiation",
+        &selected,
+        source,
+        steps,
+        expected,
+    );
 }

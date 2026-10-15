@@ -19,7 +19,12 @@ numeric data and bounded authored rollouts. Existing learning contracts enforce
 legal committed outcomes. Generated computation has independent numerical/analytic
 oracles and complete CPU/Wasm/eligible-GPU coverage; the AD translation remains
 trusted. [Context preparation measurements](bench/differentiable-preparation/README.md)
-retain small-input losses and a much faster handwritten derivative control.
+retain the initial small-input losses. [Batched propagation](bench/batched-differentiation/README.md)
+now executes all directions through one primal pass, improving the retained large
+JavaScript gradient 2.09×. Two exact-context database equations compare batched and
+separate directions on nonlinear kernels; a handwritten derivative remains about
+9× faster. Generic JavaScript scalar-record and F32-carrier bookkeeping also applies
+to ordinary source. These measurements do not establish broad neural performance.
 
 [Source-bound call facts](docs/interprocedural-word-facts.md) extend offline
 unsigned analysis through bounded acyclic helper definitions. Two new laws replay

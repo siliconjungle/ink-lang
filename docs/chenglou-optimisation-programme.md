@@ -223,3 +223,22 @@ The [retained comparison](../bench/differentiable-preparation/README.md) include
 small-input regressions and a substantially faster handwritten derivative control.
 These are further deliveries across all three investigations, not completion of
 the larger programme or a claim of Handwired training-performance parity.
+
+
+## Batched learning execution and implementation assurance
+
+Full gradients now propagate their basis directions through one primal execution.
+Generic JavaScript local scalar-record storage and native F32 carrier bookkeeping
+support the generated wide arithmetic and ordinary authored code. There is no
+F32 reassociation or zero-times-infinity shortcut. [Fresh-process measurements](../bench/batched-differentiation/README.md)
+show a 2.09× improvement on the large polynomial case while retaining empty-input
+and handwritten controls. This is a specific training-path improvement, not a
+cross-domain performance conclusion.
+
+Two source-bound database equations universally compare batched and separate
+JVP results on polynomial/nonlinear kernels. Normalization, exact definition
+attachment, stale-context rejection and actual selected GPU execution are checked.
+These equations strengthen concrete implementation checks; the whole AD transform,
+checker and generated backends remain trusted. Reverse mode, sparse activity,
+large learned models, F64/complete Pretext fidelity, broad call inference and the
+remaining work packages are still open.
