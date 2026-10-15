@@ -239,3 +239,12 @@ matched short text diagnostic improves the large counter 1.49×, retaining an
 approximately twelve-fold gap to Pretext and small ordinary-call losses. Continue
 reducing loop/record/helper overhead and implementing complete text preparation
 and complex walkers; this literal support does not close the broader programme.
+
+
+Source reverse differentiation now elaborates named pure objectives over dynamic
+F32 parameter lists and nested records into fresh bounded tapes. Optional/result
+context, helpers, zip, ordinary loops and both early-stop contracts are covered;
+one selected variant arm can consume an affine capture once. See
+[the implementation and remaining scope](docs/source-reverse-differentiation.md).
+Full source/contract transport, device tape training, frozen specialization,
+matched performance and the complete three-project programme remain required.

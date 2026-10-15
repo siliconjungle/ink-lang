@@ -746,9 +746,36 @@
           "reason": "Prepared text uses binary64 CPU geometry; native GPU-host fallback is tested with separate actual F32 dispatch."
         }
       }
+    },
+    {
+      "id": "source-reverse-differentiation",
+      "types": [],
+      "tests": [
+        "source_reverse"
+      ],
+      "targets": {
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "Source reverse tapes execute on the CPU host; the same history requires a separate actual eligible F32 dispatch."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "Source reverse tapes execute on the CPU host; the same history requires a separate actual eligible F32 dispatch."
+        }
+      }
     }
   ],
   "cpu_suites": [
+    "source_reverse",
     "reverse_learning",
     "differentiation",
     "adaptive_learning",

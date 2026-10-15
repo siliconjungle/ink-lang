@@ -232,3 +232,15 @@ new type. Semantic F64 proof terms currently fail closed, including closed neste
 subterms; source AD and neural/Adam libraries remain F32 until explicitly extended.
 Keep that scope distinct from general whole-application differentiation and the
 remaining Pretext/Handwired performance requirements. See docs/binary64.md.
+
+
+Source reverse differentiation uses fresh bounded owned tapes and fixed F32
+operation/adjoint order. Preserve primal evaluation, lazy branches/defaults,
+repeat_until's exclusive stop and fold_until's inclusive terminal step. Capacity
+and zero-cotangent policy are explicit; never substitute reverse for forward AD
+by equality or silently drop proof preconditions. Variant fold arms run once:
+consumed captures invalidate the outer owner across either arm, while repeated
+and borrowed callbacks retain their restrictions. Normal helpers remain checked;
+no AD transform, provenance or sampled gradient grants rewrite authority. CPU
+host tape execution is distinct from actual eligible GPU dispatch. See
+`docs/source-reverse-differentiation.md` and required `source_reverse` conformance.
