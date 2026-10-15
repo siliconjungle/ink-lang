@@ -116,6 +116,25 @@ zero. Comparable complete measurements govern selection. Structural prices only
 order exploration. Historical target-work diagnostic models with incompatible
 cohorts or explicitly provisional publication status do not become default policy.
 
+Offline pure JavaScript and native Rust acquisition both record a conservative
+whole-host peak RSS for every fresh process. Native acquisition reaps the exact
+host child with `wait4` on Darwin/Linux, using the platform's documented byte or
+KiB units. It never uses the parent's cumulative child high-water mark. The peak
+includes all variants, inputs, outputs, validation and adapter storage in that
+launch; it is a common upper bound, not a per-candidate allocation estimate.
+Memory-constrained selection rejects missing evidence and budgets below that
+observed bound. Unknown native platforms decline acquisition rather than invent
+memory evidence. Native builds remain outside the host's memory measurement.
+The Linux units follow the [Linux system-call documentation](https://www.man7.org/linux/man-pages/man2/getrusage.2.html);
+Darwin reports Mach resident bytes directly in [XNU's resource accounting](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_resource.c).
+
+The native JSON measurement boundary is version 2: integer outputs compare and
+consume exact integer bits, rather than converting through `f64`. Float outputs
+retain bit comparisons, including signed zero. Different integer/float JSON
+categories decline validation. This prevents rounded wide-word counterexamples
+from receiving cost observations. It does not change compiled application code;
+older measurement boundary identities remain distinct.
+
 ## Pure placement with maintained state
 
 For `wgpu`/`webgpu`, a representation and pure route emit one application facade.

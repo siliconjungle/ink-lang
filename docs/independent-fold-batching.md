@@ -92,7 +92,8 @@ higher-order adapter builder as law templates: exact source endpoint, checked
 normalisation, and ordinary use of the instantiated theorem. It does not add a
 compiler matcher or select an implementation on correctness evidence alone.
 
-The adapter rejects open lexical sites and unproved conditions or assumptions.
+The adapter rejects open lexical sites. Conditions remain explicit proof
+obligations; matching does not discharge them or any quantified assumptions.
 When each result iterates a different input sequence, the shared-input template
 does not match. Tests cover both a directly captured list and an input filtered
 by the environment. A rehashed change that substitutes the evolving accumulator
@@ -105,3 +106,25 @@ rewrites, including the original-seed callback, floating arithmetic and matrix
 column records. This demonstrates automatic carrier introduction and checked
 composition, not profitable fixed-width matrix blocking. Private records and
 intermediate lists can add allocation; selection still needs lifecycle timings.
+
+## Fixed product reductions
+
+`producers.product_fusion` also proposes ordered traversal sharing for independent
+record fields and Vec2/Vec3/Vec4 lanes. It derives the callbacks and seeds from
+the actual source, proves the complete product replacement by generalized
+induction, and lets normal discovery offer the checked alternative. The same
+database construction covers left folds and equally bounded `repeat_until`
+reductions with a constant-false stop. Different input sequences, unequal bounds
+and nonconstant stops are excluded. No arithmetic reassociation is assumed.
+
+Vector products use the existing vector constructors and field meanings. No core
+primitive, executable syntax or backend algorithm matcher is added. The source
+test covers wrapping words, non-associative floating operations, and a four-output
+matrix microtile; consistently rehashed coupled-lane and changed-count/index
+variants fail kernel replay. Discovery tests use synthetic structural prices to
+reach the rewrites; those prices do not establish a performance improvement.
+The mandatory `independent_batches` suite compares 44 vector-product cases on
+original/selected reference evaluation, native Rust, JavaScript and Rust-Wasm,
+including float bit patterns, empty inputs, wrapping indices and exact snapshots.
+Introducing tiles throughout an arbitrary matrix iteration space and selecting
+them profitably remain separate work.
