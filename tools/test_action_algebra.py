@@ -1,5 +1,5 @@
 """Run with: python3 -m unittest discover -s tools -p 'test_action_algebra.py'"""
-import os,tempfile,unittest
+import json,os,subprocess,tempfile,unittest
 from pathlib import Path
 from action_algebra import describe,analyse,certify
 ROOT=Path(__file__).resolve().parents[1]
@@ -35,6 +35,47 @@ class ActionAlgebra(unittest.TestCase):
     def test_queries_alone_are_not_paired(self):
         self.assertNotIn(('get','total'),self.pairs)
         self.assertIn('no reordering',self.report['scope'])
+class ConstantKeyRelations(unittest.TestCase):
+    def source(self, ty, left, right):
+        return f"""module constant_keys;
+        enum Error{{Failed,}}
+        state Rows:Table<{ty},u32> = Table.empty();
+        change first()->Result<Unit,Error> writes(Rows){{Rows.put({left},1);return Ok(());}}
+        change second()->Result<Unit,Error> writes(Rows){{Rows.put({right},2);return Ok(());}}
+        query value()->Option<u32> reads(Rows){{return Rows.get({left});}}
+        """
+
+    def test_different_closed_expressions_retain_key_conditions_and_order(self):
+        # Actual checked symbols are different, but the independently executed
+        # source writes one key in both orders. No arithmetic evaluator in the
+        # report may infer disjointness from those different trees.
+        for ty, expression in [('u32','1-1'),('u32','4294967295+1'),
+                               ('u64','18446744073709551615+1'),('i32','-0')]:
+            with self.subTest(ty=ty, expression=expression), tempfile.TemporaryDirectory() as directory:
+                d=Path(directory);source=d/'keys.ink';source.write_text(self.source(ty,'0',expression))
+                report=describe(COMPILER,source)
+                row=next(r for r in report['pairs'] if (r['first'],r['second'])==('first','second'))
+                self.assertEqual(row['relation'],'commute_when',row)
+                self.assertTrue(row['conditions'])
+                self.assertNotIn('key_parameters',row)
+                observed=[]
+                for order in [('first','second'),('second','first')]:
+                    script=d/'script.json';script.write_text(json.dumps([dict(call=n,args=[])for n in (*order,'value')]))
+                    run=subprocess.run([str(COMPILER),'execute',str(source),str(script)],capture_output=True,text=True,check=True)
+                    observed.append(json.loads(run.stdout)[-1]['result'])
+                self.assertEqual(observed,[{'Some':2},{'Some':1}])
+
+    def test_distinct_literal_keys_keep_disjoint_reporting(self):
+        # Adjacent U64 values above 2^53 must stay distinct without a float
+        # conversion, as must Bool and String literals and typed small words.
+        for ty,left,right in [('u32','0','1'),('u64','9007199254740992','9007199254740993'),
+                              ('i32','0','1'),('Bool','false','true'),('String','"left"','"right"')]:
+            with self.subTest(ty=ty), tempfile.TemporaryDirectory() as directory:
+                source=Path(directory)/'keys.ink';source.write_text(self.source(ty,left,right))
+                report=describe(COMPILER,source)
+                row=next(r for r in report['pairs'] if (r['first'],r['second'])==('first','second'))
+                self.assertEqual(row['relation'],'commute',row)
+
 class Certificates(unittest.TestCase):
     def test_disjoint_commutation_is_checked_and_conflicts_are_rejected(self):
         with tempfile.TemporaryDirectory() as d:

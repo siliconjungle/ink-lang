@@ -5,8 +5,8 @@ For every pair of public actions this applies Bernstein's conditions to the
 compiler's source-bound point accesses (`emit-access`, re-derived by
 `check-access`) and declared events (`emit-effects`):
 
-* `commute`: no table root is written by one and read or written by the other,
-  and at most one of them emits events.
+* `commute`: no potential read/write overlap remains after excluding distinct
+  same-type literal keys, and at most one action emits events.
 * `commute_when`: every conflict is between point accesses of one root, so the
   calls commute whenever the listed keys differ (`put(k1)` and `erase(k2)` with
   `k1 != k2`, say).
@@ -71,6 +71,26 @@ def constant(symbol):
     return False
 
 
+def distinct_literals(first, second):
+    """Recognize different literal values, never different expression trees.
+
+    Symbols are checked source descriptions. Computed constants can collide
+    through arithmetic or wrapping, so leave
+    those comparisons as explicit key-difference conditions.
+    """
+    if not isinstance(first, dict) or not isinstance(second, dict):
+        return False
+    if len(first) != 1 or len(second) != 1:
+        return False
+    kind, value = next(iter(first.items()))
+    other_kind, other_value = next(iter(second.items()))
+    if kind != other_kind:
+        return False
+    if kind == 'NumberAs':
+        return value[0] == other_value[0] and value[1] != other_value[1]
+    return kind in ('Number', 'Bool', 'String') and value != other_value
+
+
 def guards(access, names):
     return [('' if c['value'] else '!') + render(c['expression'], names) for c in access.get('conditions', [])]
 
@@ -90,9 +110,10 @@ def relate(first, second, access, effects):
             reasons.append(f'{what} ({why})')
             continue
         kx, ky = x['scope']['Point']['key'], y['scope']['Point']['key']
-        if constant(kx) and constant(ky):
-            if kx == ky:
-                reasons.append(f"{what} the same constant key {render(kx, an)}")
+        if constant(kx) and constant(ky) and kx == ky:
+            reasons.append(f"{what} the same constant key {render(kx, an)}")
+            continue
+        if distinct_literals(kx, ky):
             continue
         guard = guards(x, an) + guards(y, bn)
         if not guard and set(kx) == {'Parameter'} and set(ky) == {'Parameter'}:
