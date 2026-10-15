@@ -203,7 +203,7 @@ remaining roadmap acceptance criteria remain open; an inventory is not a port.
 learning may change and provide offline replay plus explicit online updates. A
 contextual interaction model, held-out predictions, failed-update rollback, module
 transport and complete-target conformance establish this initial path. Updates and
-objectives are authored Ink code. Broader AD, richer neural libraries, discrete
+objectives are authored Ink code. Broader source AD, discrete
 training policies and frozen-model specialization remain open; this does not close
 the broader Handwired or eight-package programme.
 
@@ -239,6 +239,21 @@ Two source-bound database equations universally compare batched and separate
 JVP results on polynomial/nonlinear kernels. Normalization, exact definition
 attachment, stale-context rejection and actual selected GPU execution are checked.
 These equations strengthen concrete implementation checks; the whole AD transform,
-checker and generated backends remain trusted. Reverse mode, sparse activity,
-large learned models, F64/complete Pretext fidelity, broad call inference and the
-remaining work packages are still open.
+checker and generated backends remain trusted. General source reverse AD,
+F64/complete Pretext fidelity, broad call inference and the remaining work packages
+are still open.
+
+[Prepared reverse graphs and models](reverse-learning.md) now add an authored VJP
+library, explicit sparse zero-cotangent and hard-operation policies, fused affine/
+ReGLU nodes, 244-parameter models and complete Adam/backtracking state. Offline
+training resumes the exact optimizer and control state. General interpreter
+lexical capture and requested field/index observation reduce copying of unrelated
+prepared values. This carries preparation and observation ideas into computation;
+it does not establish full Pretext text-layout fidelity or complete upstream parity.
+
+The [learning lifecycle requirement](learning-lifecycle.md) now explicitly covers
+pre-compilation fitting, training as a build stage, feedback-triggered adaptation
+and continuous learning while serving. Shared objectives, constrained degrees of
+freedom and complete optimizer lineage must cross these phases. Continuous queues,
+budgets, publication, cancellation and recovery are required work; repeated online
+calls alone do not close that requirement.

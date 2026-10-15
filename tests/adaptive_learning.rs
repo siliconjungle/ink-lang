@@ -110,3 +110,64 @@ fn offline_cli_exports_a_portable_model_and_receipt() {
     let value=rt.invoke_json("suggest",&json!([{"width":0.5,"length":0.5}])).unwrap().result.json().as_f64().unwrap();
     assert!((value-0.45).abs()<0.002);
 }
+
+#[test]
+fn source_logic_configures_and_triggers_another_learner_transactionally() {
+    let source = include_str!("../examples/learning-orchestration.ink");
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let mut rt = Runtime::from_checked(&module).unwrap();
+    let mut steps = vec![];
+    let mut expected = vec![];
+    let mut call = |rt: &mut Runtime, name: &str, args: serde_json::Value| {
+        let result = rt.invoke_json(name, &args).unwrap();
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(
+            json!({"reply":{"outcome":result.json()},"snapshot":rt.checkpoint_portable().unwrap()}),
+        );
+        result
+    };
+    let context = json!({"input":1.,"target":1.});
+    let result = call(&mut rt, "feedback", json!([context]));
+    assert!(result.committed);
+    let value = &result.result.json()["Ok"];
+    let mut first = 0f32;
+    for _ in 0..2 {
+        let e = first - 1.;
+        let d = e + e;
+        first -= 0.1f32 * d;
+    }
+    let input = first;
+    let e = 0.25f32 * input - 1.;
+    let d = input * e + e * input;
+    let second = 0.25f32 - 0.05f32 * d;
+    assert_eq!(value["first"]["weight"], json!(first));
+    assert_eq!(value["second"]["weight"], json!(second));
+    assert_eq!(value["first"]["updates"], 2);
+    assert_eq!(value["second"]["updates"], 1);
+    assert_eq!(value["settings"]["second_rate"], json!(0.05f32));
+    assert_eq!(result.events.len(), 2);
+    let settings = json!({"first_rate":0.1,"second_rate":0.02,"budget":2,"first_paused":true,"second_paused":false});
+    assert!(call(&mut rt, "configure", json!([settings])).committed);
+    let result = call(&mut rt, "feedback", json!([context]));
+    assert!(result.committed);
+    assert_eq!(result.result.json()["Ok"]["first"]["updates"], 2);
+    assert_eq!(result.events.len(), 1);
+    let checkpoint = rt.checkpoint_portable().unwrap();
+    assert!(!call(&mut rt, "train_first", json!([context, 1])).committed);
+    assert_eq!(checkpoint, rt.checkpoint_portable().unwrap());
+    assert!(!call(&mut rt, "train_second", json!([context, 9])).committed);
+    assert_eq!(checkpoint, rt.checkpoint_portable().unwrap());
+    assert!(!call(&mut rt, "cancel", json!([context])).committed);
+    assert_eq!(checkpoint, rt.checkpoint_portable().unwrap());
+    let _ = call(&mut rt, "models", json!([]));
+    assert_eq!(checkpoint, rt.checkpoint_portable().unwrap());
+    steps.push(json!({"pure":"batch","args":[[2.,-0.25]],"expect_gpu":true}));
+    expected.push(json!({"reply":{"value":[4.5,0.5625]},"snapshot":checkpoint}));
+    parity::conformance_checked(
+        "learning-orchestration-parity",
+        &module,
+        source,
+        steps,
+        expected,
+    );
+}

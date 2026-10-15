@@ -129,3 +129,10 @@ not prove the AD transform correct. Tests use an independent numerical oracle,
 closed-form derivatives, exact forward-value comparisons, source/module adversarial
 cases and complete compiled-target execution. Derivatives do not gain rewrite,
 approximation, range-fact or profitability authority merely by being generated.
+
+
+For larger explicitly constructed models, [reverse graph learning](reverse-learning.md)
+now supplies an independently authored ordered VJP algorithm over dynamic lists.
+It supports the 244-parameter ReGLU example without the source full-gradient's
+32-coordinate limit. This is a separate graph interface; arbitrary source
+functions do not automatically acquire reverse-mode differentiation.

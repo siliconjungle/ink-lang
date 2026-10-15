@@ -269,3 +269,13 @@ fn embedded_bit_automata_module_captures_its_source_and_checks_literals() {
     let mut masks=vec![0u32;256];masks[1]=5;masks[2]=2;
     assert_eq!(result,serde_json::json!({"Some":{"masks":masks,"accept":4,"width":3}}));
 }
+
+#[test]
+fn imported_record_spread_initializer_keeps_qualified_function_scope() {
+    let dir=Path::new("build/module-spread-import");fs::create_dir_all(dir).unwrap();
+    fs::write(dir.join("library.ink"),"module lib;record R{x:u32,y:u32,}fn make()->R{return R{x:3,y:4};}").unwrap();
+    fs::write(dir.join("main.ink"),r#"module main;import "library.ink" as lib;
+      fn run()->u32{let r=lib.R{..lib.make(),y:9};return r.x+r.y;}"#).unwrap();
+    let p=modules::load(dir.join("main.ink")).unwrap().program;CheckedModule::from_source(p.clone()).unwrap();
+    assert_eq!(eval::call(&p,"run",vec![],&mut 10000).unwrap(),eval::Value::U32(12));
+}
