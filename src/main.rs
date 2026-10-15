@@ -242,6 +242,7 @@ fn run() -> LangResult<()> {
         "--initial-state",
         "--freeze",
         "--freeze-roots",
+        "--specialize-frozen",
         "--replay",
         "--roles",
         "--route",
@@ -276,8 +277,8 @@ fn run() -> LangResult<()> {
         }
     }
     let input_receipt = args.iter().any(|arg| arg == "--input-receipt");
-    if cmd!="build-model" && (args.iter().any(|arg|arg=="--freeze")||arg_value(&args,"--freeze-roots")?.is_some()) {
-        return Err("--freeze and --freeze-roots require build-model".into());
+    if cmd!="build-model" && (args.iter().any(|arg|arg=="--freeze"||arg=="--specialize-frozen")||arg_value(&args,"--freeze-roots")?.is_some()) {
+        return Err("--freeze, --freeze-roots and --specialize-frozen require build-model".into());
     }
     if arg_value(&args,"--initial-state")?.is_some() && cmd!="build" {
         return Err("--initial-state is available only for build".into());
@@ -852,7 +853,7 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
-        println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] [--freeze | --freeze-roots A,B] --target TARGET -o NEW_DIRECTORY (train and publish; optionally bind immutable roots and withdraw their writers)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+        println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] [--freeze | --freeze-roots A,B] [--specialize-frozen] --target TARGET -o NEW_DIRECTORY (train and publish; optionally bind immutable roots and withdraw their writers)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -1106,7 +1107,7 @@ fn run() -> LangResult<()> {
     }
     if cmd=="build-model" {
         for arg in &args {
-            if arg.starts_with("--")&&!["--core","--restore","--target","--cargo","--contract-proofs","--termination-proofs","--freeze","--freeze-roots"].contains(&arg.as_str()){return Err(format!("unsupported build-model option {arg}; trained implementation selection remains open"));}
+            if arg.starts_with("--")&&!["--core","--restore","--target","--cargo","--contract-proofs","--termination-proofs","--freeze","--freeze-roots","--specialize-frozen","--python"].contains(&arg.as_str()){return Err(format!("unsupported build-model option {arg}; use --specialize-frozen for checked immutable-state specialization"));}
         }
         let trace=args.get(2).ok_or("build-model requires TRACE.json")?;
         let trace_bytes=read_bounded(trace,16_000_000)?;
@@ -1122,7 +1123,7 @@ fn run() -> LangResult<()> {
         }
         if all_trainable && frozen.is_empty(){return Err("--freeze found no trainable roots; use --freeze-roots for other prepared state".into());}
         let frozen=frozen.into_iter().collect::<Vec<_>>();
-        let result=verified_language::training::build_model_restricted(&module,&trace_bytes,initial.as_deref(),&target,Path::new(&out),arg_value(&args,"--cargo")?.as_deref(),&frozen)?;
+        let result=verified_language::training::build_model_specialized(&module,&trace_bytes,initial.as_deref(),&target,Path::new(&out),arg_value(&args,"--cargo")?.as_deref(),&frozen,args.iter().any(|arg|arg=="--specialize-frozen"),arg_value(&args,"--python")?.as_deref())?;
         println!("{result}");return Ok(());
     }
     let semantic_selection = prepare_selection(&args, &p)?;

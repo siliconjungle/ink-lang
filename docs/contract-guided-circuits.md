@@ -1,5 +1,9 @@
 # Contract-guided circuits and differentiable computation
 
+Implemented follow-ups include [source reverse differentiation](source-reverse-differentiation.md)
+and [frozen structural specialization](frozen-structural-specialization.md).
+The broader circuit investigation below retains its research scope.
+
 Status: research design, prompted by James's review of Handwired on 15 October
 2026. This document proposes an investigation; it does not announce a neural
 backend, automatic differentiation or a general JavaScript compiler in Ink.

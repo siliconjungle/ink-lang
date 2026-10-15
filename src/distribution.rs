@@ -60,6 +60,7 @@ pub fn doctor(python: &str) -> Value {
         "knowledge/producers/planning_recipes.py",
         "knowledge/producers/fold_until_laws.py",
         "knowledge/producers/action_replacement.py",
+        "knowledge/producers/frozen_specialization.py",
     ]
     .iter()
     .map(|name| match resource(name) {

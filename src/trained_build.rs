@@ -106,6 +106,34 @@ pub fn build_model_restricted(
     cargo: Option<&str>,
     frozen: &[String],
 ) -> LangResult<Value> {
+    build_model_specialized(
+        module,
+        trace_bytes,
+        initial,
+        target,
+        destination,
+        cargo,
+        frozen,
+        false,
+        None,
+    )
+}
+/// An explicit build-stage request to the external, untrusted knowledge producer.
+/// The resulting complete transition proofs are replayed before compilation.
+pub fn build_model_specialized(
+    module: &CheckedModule,
+    trace_bytes: &[u8],
+    initial: Option<&[u8]>,
+    target: &str,
+    destination: &Path,
+    cargo: Option<&str>,
+    frozen: &[String],
+    specialize: bool,
+    python: Option<&str>,
+) -> LangResult<Value> {
+    if specialize && frozen.is_empty() {
+        return Err("--specialize-frozen requires explicitly frozen roots".into());
+    }
     if trace_bytes.len() > 16_000_000 || initial.is_some_and(|bytes| bytes.len() > 64_000_000) {
         return Err("trained build input byte limit".into());
     }
@@ -192,13 +220,56 @@ pub fn build_model_restricted(
     if let Some(bytes) = initial {
         write("parent.snapshot", bytes)?;
     }
+    let compiler = std::env::current_exe().map_err(|e| e.to_string())?;
+    let selection = if specialize {
+        let producer =
+            crate::distribution::resource("knowledge/producers/frozen_specialization.py")?;
+        let output = Command::new(python.unwrap_or("python3"))
+            .arg(producer)
+            .arg(staging.0.join(source_file))
+            .arg("--ink")
+            .arg(&compiler)
+            .arg("-o")
+            .arg(staging.0.join("selection.json"))
+            .output()
+            .map_err(|e| e.to_string())?;
+        if !output.status.success() {
+            return Err(format!(
+                "frozen specialization failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ));
+        }
+        let mut bytes = Vec::new();
+        fs::File::open(staging.0.join("selection.json"))
+            .map_err(|e| e.to_string())?
+            .take(16_000_001)
+            .read_to_end(&mut bytes)
+            .map_err(|e| e.to_string())?;
+        if bytes.len() > 16_000_000 {
+            return Err("specialization package byte limit".into());
+        }
+        let packet: crate::optimisation::Package =
+            serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
+        if packet.action_replacement.is_none() {
+            return Err("frozen specialization requires complete action equality proofs".into());
+        }
+        let checked = crate::optimisation::check(compiled_module, &packet)?;
+        write("selected.core.json", &checked.module().bytes()?)?;
+        Some(checked)
+    } else {
+        None
+    };
+    let selected_identity = selection
+        .as_ref()
+        .map(|s| s.module())
+        .unwrap_or(compiled_module)
+        .identity()?;
     let artifact = match target {
         "javascript" => "program.mjs".to_string(),
         "wasm32" => "program.wasm".into(),
         "native" => format!("program{}", std::env::consts::EXE_SUFFIX),
         _ => "program".into(),
     };
-    let compiler = std::env::current_exe().map_err(|e| e.to_string())?;
     let mut command = Command::new(&compiler);
     command
         .arg("build")
@@ -210,6 +281,11 @@ pub fn build_model_restricted(
         .arg(target)
         .arg("-o")
         .arg(staging.0.join(&artifact));
+    if selection.is_some() {
+        command
+            .arg("--selection")
+            .arg(staging.0.join("selection.json"));
+    }
     command.env(
         "INK_COMPILED_TARGET_DIR",
         parent.join(".ink-compiled-cache"),
@@ -262,6 +338,7 @@ pub fn build_model_restricted(
     let mut plan: Value = serde_json::from_slice(&fs::read(&plan_path).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     if plan["input_core_sha256"] != compiled_module.identity()?
+        || plan["selected_core_sha256"] != selected_identity
         || plan["initial_state"]["snapshot_sha256"] != startup_sha256
     {
         return Err("compiled trained artifact binding mismatch".into());
@@ -283,6 +360,12 @@ pub fn build_model_restricted(
     let mut inventory = BTreeMap::new();
     files(&staging.0, &staging.0, &mut inventory)?;
     let manifest = json!({"schema":1,"semantics":"ink-trained-artifact-v1","mode":mode,"target":target,"entry":entry,"source_core_sha256":module.identity()?,"compiled_core_sha256":compiled_module.identity()?,"startup_snapshot_sha256":startup_sha256,"restriction":restricted.as_ref().map(|r|&r.receipt),"compiler_sha256":hash(&compiler)?,"training":trained.receipt,"files":inventory,"scope":"Captured checked source, explicit trace, complete optimizer/application state and compiled startup factory. An explicit restriction withdraws selected mutable degrees of freedom; retained capabilities remain available. No convergence, approximation or compiler-correctness proof."});
+    let mut manifest = manifest;
+    if let Some(selection) = &selection {
+        manifest["selected_core_sha256"] = json!(selected_identity);
+        manifest["specialization"] =
+            serde_json::to_value(selection.evidence()).map_err(|e| e.to_string())?;
+    }
     write(
         "artifact.json",
         &serde_json::to_vec_pretty(&manifest).map_err(|e| e.to_string())?,
@@ -294,7 +377,7 @@ pub fn build_model_restricted(
     }
     fs::rename(&staging.0, &destination).map_err(|e| e.to_string())?;
     Ok(
-        json!({"status":"published","directory":destination,"manifest_sha256":manifest_sha256,"source_core_sha256":module.identity()?,"compiled_core_sha256":compiled_module.identity()?,"snapshot_sha256":startup_sha256,"training_snapshot_sha256":manifest["training"]["snapshot_sha256"],"target":target,"mode":mode}),
+        json!({"status":"published","directory":destination,"manifest_sha256":manifest_sha256,"source_core_sha256":module.identity()?,"compiled_core_sha256":compiled_module.identity()?,"snapshot_sha256":startup_sha256,"training_snapshot_sha256":manifest["training"]["snapshot_sha256"],"target":target,"mode":mode,"selected_core_sha256":selected_identity,"specialization_checked":selection.is_some()}),
     )
 }
 pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
@@ -365,6 +448,40 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
         None
     };
     let compiled_module = restricted.as_ref().map(|r| &r.module).unwrap_or(&module);
+    let selection = if !manifest["specialization"].is_null() {
+        if restricted.is_none() {
+            return Err("specialization requires a source restriction".into());
+        }
+        let packet: crate::optimisation::Package =
+            serde_json::from_slice(&read("selection.json", 16_000_000)?)
+                .map_err(|e| e.to_string())?;
+        if packet.action_replacement.is_none() {
+            return Err("frozen specialization requires complete action equality proofs".into());
+        }
+        let checked = crate::optimisation::check(compiled_module, &packet)?;
+        if serde_json::to_value(checked.evidence()).map_err(|e| e.to_string())?
+            != manifest["specialization"]
+            || checked.module().bytes()?
+                != CheckedModule::from_bytes(&read(
+                    "selected.core.json",
+                    crate::core::MAX_BYTES as u64,
+                )?)?
+                .bytes()?
+        {
+            return Err("frozen specialization proof or selected source mismatch".into());
+        }
+        Some(checked)
+    } else {
+        None
+    };
+    let selected_identity = selection
+        .as_ref()
+        .map(|s| s.module())
+        .unwrap_or(compiled_module)
+        .identity()?;
+    if selection.is_some() && manifest["selected_core_sha256"] != selected_identity {
+        return Err("specialized source identity mismatch".into());
+    }
     let startup = restricted
         .as_ref()
         .map(|r| r.snapshot.as_slice())
@@ -396,10 +513,19 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
     let plan: Value =
         serde_json::from_slice(&read(plan_path, 64_000_000)?).map_err(|e| e.to_string())?;
     if plan["input_core_sha256"] != compiled_module.identity()?
-        || plan["selected_core_sha256"] != compiled_module.identity()?
+        || plan["selected_core_sha256"] != selected_identity
         || plan["initial_state"]["snapshot_sha256"] != startup_sha256
     {
         return Err("compiled initial state binding mismatch".into());
+    }
+    if let Some(selection) = &selection {
+        if plan["semantic_package"]
+            != serde_json::to_value(selection.package()).map_err(|e| e.to_string())?
+            || plan["semantic_selection"]
+                != serde_json::to_value(selection.evidence()).map_err(|e| e.to_string())?
+        {
+            return Err("compiled specialization binding mismatch".into());
+        }
     }
     for (name, binding) in &inventory {
         if name.ends_with("initial.snapshot") && binding["sha256"] != startup_sha256 {
@@ -457,6 +583,6 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
         }
     }
     Ok(
-        json!({"status":"checked","mode":manifest["mode"],"source_core_sha256":module.identity()?,"compiled_core_sha256":compiled_module.identity()?,"snapshot_sha256":startup_sha256,"files":inventory.len(),"training_replayed":replay,"restriction_replayed":restricted.is_some(),"scope":"Local artifact integrity, checked source and typed checkpoint; optional deterministic training replay and mandatory requested restriction replay. No authenticity, compiler-correctness or convergence proof."}),
+        json!({"status":"checked","mode":manifest["mode"],"source_core_sha256":module.identity()?,"compiled_core_sha256":compiled_module.identity()?,"snapshot_sha256":startup_sha256,"files":inventory.len(),"training_replayed":replay,"restriction_replayed":restricted.is_some(),"selected_core_sha256":selected_identity,"specialization_checked":selection.is_some(),"scope":"Local artifact integrity, checked source and typed checkpoint; optional deterministic training replay and mandatory requested restriction replay. No authenticity, compiler-correctness or convergence proof."}),
     )
 }
