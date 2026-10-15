@@ -432,6 +432,11 @@ jobs:
         python -m unittest discover -s planner/tests -p test_proposal_recipe.py
         python -m unittest discover -s knowledge/tests -p test_selection_probes.py
         python -m unittest discover -s planner/tests -p test_probe_validation.py
+        python -m unittest discover -s planner/tests -p test_measurement_context.py
+        python -m unittest discover -s planner/tests -p test_compiled_cache.py
+        python -m unittest discover -s planner/tests -p test_work_model_cli.py
+        python planner/tests/automatic_measurement_integration.py target/release/ink javascript build/measurement-context/validation.json
+        python planner/tests/measurement_context_state_integration.py target/release/ink build/measurement-context/state.json
         python -m unittest discover -s planner/tests -p test_offline_measurements.py
         python -m unittest discover -s planner/tests -p test_maintained_evidence.py
         python -m unittest discover -s planner/tests -p test_refinement_measurements.py
@@ -442,6 +447,7 @@ jobs:
       with:
         name: cpu-planning-evidence
         path: |
+          build/measurement-context/*.json
           build/lowering-residency/*.json
           build/lowering-residency/*.wgsl
           build/generated-parity-f32/source.ink
