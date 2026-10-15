@@ -240,6 +240,8 @@ fn run() -> LangResult<()> {
         "--replacement",
         "--restore",
         "--initial-state",
+        "--freeze",
+        "--freeze-roots",
         "--replay",
         "--roles",
         "--route",
@@ -274,6 +276,9 @@ fn run() -> LangResult<()> {
         }
     }
     let input_receipt = args.iter().any(|arg| arg == "--input-receipt");
+    if cmd!="build-model" && (args.iter().any(|arg|arg=="--freeze")||arg_value(&args,"--freeze-roots")?.is_some()) {
+        return Err("--freeze and --freeze-roots require build-model".into());
+    }
     if arg_value(&args,"--initial-state")?.is_some() && cmd!="build" {
         return Err("--initial-state is available only for build".into());
     }
@@ -847,7 +852,7 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
-        println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] --target TARGET -o NEW_DIRECTORY (train, compile and publish a bound adaptive artifact)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+        println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] [--freeze | --freeze-roots A,B] --target TARGET -o NEW_DIRECTORY (train and publish; optionally bind immutable roots and withdraw their writers)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -1101,14 +1106,23 @@ fn run() -> LangResult<()> {
     }
     if cmd=="build-model" {
         for arg in &args {
-            if arg.starts_with("--")&&!["--core","--restore","--target","--cargo","--contract-proofs","--termination-proofs"].contains(&arg.as_str()){return Err(format!("unsupported build-model option {arg}; trained implementation selection/frozen specialization remain open"));}
+            if arg.starts_with("--")&&!["--core","--restore","--target","--cargo","--contract-proofs","--termination-proofs","--freeze","--freeze-roots"].contains(&arg.as_str()){return Err(format!("unsupported build-model option {arg}; trained implementation selection remains open"));}
         }
         let trace=args.get(2).ok_or("build-model requires TRACE.json")?;
         let trace_bytes=read_bounded(trace,16_000_000)?;
         let initial=arg_value(&args,"--restore")?.map(|path|read_bounded(&path,64_000_000)).transpose()?;
         let target=arg_value(&args,"--target")?.unwrap_or_else(||"native".into());
         let out=arg_value(&args,"-o")?.ok_or("build-model requires -o NEW_DIRECTORY")?;
-        let result=verified_language::training::build_model(&core::CheckedModule::from_source(p)?,&trace_bytes,initial.as_deref(),&target,Path::new(&out),arg_value(&args,"--cargo")?.as_deref())?;
+        let module=core::CheckedModule::from_source(p)?;
+        let mut frozen=std::collections::BTreeSet::new();
+        let all_trainable=args.iter().any(|arg|arg=="--freeze");
+        if all_trainable {frozen.extend(module.program().contracts.learning.trainable.iter().cloned());}
+        if let Some(names)=arg_value(&args,"--freeze-roots")? {
+            for name in names.split(',') {let name=name.trim();if name.is_empty(){return Err("--freeze-roots requires nonempty state names".into());}frozen.insert(name.to_owned());}
+        }
+        if all_trainable && frozen.is_empty(){return Err("--freeze found no trainable roots; use --freeze-roots for other prepared state".into());}
+        let frozen=frozen.into_iter().collect::<Vec<_>>();
+        let result=verified_language::training::build_model_restricted(&module,&trace_bytes,initial.as_deref(),&target,Path::new(&out),arg_value(&args,"--cargo")?.as_deref(),&frozen)?;
         println!("{result}");return Ok(());
     }
     let semantic_selection = prepare_selection(&args, &p)?;
@@ -1152,7 +1166,7 @@ fn run() -> LangResult<()> {
         }
         "check-action-values" | "emit-action-values" => {
             let module = core::CheckedModule::from_source(p)?;
-            let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
+            let actions = verified_language::action_ir::CheckedActions::elaborate_with_frozen_roots(&module)?;
             let file = arg_value(&args, "--syntax-roles")?
                 .ok_or("action values require --syntax-roles SYNTAX.json")?;
             let syntax =
@@ -1218,7 +1232,7 @@ fn run() -> LangResult<()> {
         }
         "emit-source-syntax" | "check-source-syntax" => {
             let module = core::CheckedModule::from_source(p)?;
-            let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
+            let actions = verified_language::action_ir::CheckedActions::elaborate_with_frozen_roots(&module)?;
             let file =
                 arg_value(&args, "--roles")?.ok_or("source syntax requires --roles ROLES.json")?;
             let roles: verified_language::source_syntax::Roles =
@@ -1310,7 +1324,7 @@ fn run() -> LangResult<()> {
                     .map_err(|e| e.to_string())?;
                 verified_language::action_ir::CheckedActions::from_bytes(&module, &bytes)?
             } else {
-                verified_language::action_ir::CheckedActions::elaborate(&module)?
+                verified_language::action_ir::CheckedActions::elaborate_with_frozen_roots(&module)?
             };
             if cmd == "emit-actions" {
                 let out = arg_value(&args, "-o")?.ok_or("emit-actions requires -o ACTIONS.json")?;
@@ -1365,7 +1379,7 @@ fn run() -> LangResult<()> {
         }
         "emit-access" | "check-access" => {
             let module = core::CheckedModule::from_source(p)?;
-            let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
+            let actions = verified_language::action_ir::CheckedActions::elaborate_with_frozen_roots(&module)?;
             let access = if cmd == "check-access" {
                 let file = args
                     .get(2)
@@ -1394,7 +1408,7 @@ fn run() -> LangResult<()> {
         }
         "emit-effects" | "check-effects" => {
             let module = core::CheckedModule::from_source(p)?;
-            let actions = verified_language::action_ir::CheckedActions::elaborate(&module)?;
+            let actions = verified_language::action_ir::CheckedActions::elaborate_with_frozen_roots(&module)?;
             let effects = if cmd == "check-effects" {
                 let file = args
                     .get(2)

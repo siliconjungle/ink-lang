@@ -42,3 +42,8 @@ discipline, not a proof of backend correctness.
 rejection, fixed initial invariant obligations, nominal value invariants and a
 source-derived constant-lookup equality with missing/wrong-premise rejection.
 The full core suite remains independent of knowledge and backend checkouts.
+
+The distribution exposes this restriction through
+[`build-model --freeze` / `--freeze-roots`](trained-builds.md#explicitly-freeze-selected-degrees-of-freedom).
+[Retained deployment, checks and limitations](../reports/frozen-deployment-2026-10-15/README.md)
+include a resumed 244-parameter neural package and exact optimizer/control state.

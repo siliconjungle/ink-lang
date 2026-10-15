@@ -1,0 +1,105 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `test` profile [unoptimized] target(s) in 1.02s
+     Running tests/adaptive_learning.rs (target/debug/deps/adaptive_learning-8569f4feff629cb0)
+
+running 9 tests
+test learning_capabilities_are_checked_after_transport ... ok
+test learning_metadata_survives_imports_and_generic_instantiation ... ok
+test offline_training_learns_interactions_and_restores_exactly ... ok
+test offline_cli_exports_a_portable_model_and_receipt ... ok
+Compiled continuous learning: serving, queued work, exact recovery and ambiguous publication passed (4 histories, including offline CLI bootstrap).
+
+test compiled_continuous_service_recovers_durable_training_and_serves_predictions ... ok
+wgpu: 24 results matched; 1 GPU calls
+rust Wasm: 24 values/outcomes and exact snapshots matched
+
+test online_learning_preserves_values_errors_events_and_snapshots_across_targets ... ok
+wgpu: 8 results matched; 1 GPU calls
+rust Wasm: 8 values/outcomes and exact snapshots matched
+
+test source_logic_configures_and_triggers_another_learner_transactionally ... ok
+wgpu: 2 results matched; 1 GPU calls
+rust Wasm: 2 values/outcomes and exact snapshots matched
+
+test queued_learning_rejects_forged_shapes_and_counter_exhaustion ... ok
+wgpu: 39 results matched; 1 GPU calls
+rust Wasm: 39 values/outcomes and exact snapshots matched
+
+test continuous_sessions_preserve_serving_queue_versions_and_recovery_across_targets ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.39s
+
+     Running tests/frozen_state.rs (target/debug/deps/frozen_state-f8280290ae73baf5)
+
+running 3 tests
+test restricting_one_learner_preserves_other_training_and_the_complete_state_payload ... ok
+wgpu: 9 results matched; 1 GPU calls
+rust Wasm: 9 values/outcomes and exact snapshots matched
+
+test frozen_initial_data_and_restore_boundaries_match_all_targets ... ok
+javascript: frozen startup, live application updates, withdrawn writer and exact restore matched
+
+native: frozen startup, ordinary application updates and exact checkpoint matched
+rust: frozen startup, ordinary application updates and exact checkpoint matched
+wasm32: frozen startup, live application updates, withdrawn writer and exact restore matched
+
+webgpu: frozen startup, ordinary application updates and exact checkpoint matched
+test trained_frozen_packages_start_and_preserve_remaining_capabilities_across_targets ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 52.35s
+
+     Running tests/modules.rs (target/debug/deps/modules-aef82e95bffce0c7)
+
+running 8 tests
+test imported_function_type_failure_identifies_its_original_declaration ... ok
+test imported_record_spread_initializer_keeps_qualified_function_scope ... ok
+test imported_callback_parameters_shadow_same_named_helpers ... ok
+test imports_reject_cycles_unknown_exports_namespaces_and_module_collisions ... ok
+test linking_preserves_fields_and_shadowed_local_values ... ok
+test imported_generic_templates_and_aliases_are_linked_before_elaboration ... ok
+test embedded_bit_automata_module_captures_its_source_and_checks_literals ... ok
+wgpu: 6 results matched; 1 GPU calls
+rust Wasm: 6 values/outcomes and exact snapshots matched
+
+test imports_types_state_events_and_standard_helpers_lower_identically ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.61s
+
+     Running tests/policy_learning.rs (target/debug/deps/policy_learning-78b3429207791f96)
+
+running 4 tests
+test categorical_scores_match_an_independent_probability_derivative ... ok
+test returns_masks_and_invalid_domains_are_explicit ... ok
+test authored_reward_trains_contextual_choices_and_resumes_complete_adam_state ... ok
+wgpu: 22 results matched; 1 GPU calls
+rust Wasm: 22 values/outcomes and exact snapshots matched
+
+test delayed_feedback_stale_versions_and_rollback_match_all_cpu_targets ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.83s
+
+     Running tests/trained_build.rs (target/debug/deps/trained_build-918938fbb4ddfc7e)
+
+running 5 tests
+javascript: compiled startup, continued learning, exact snapshots, fresh instances and durable recovery matched.
+
+javascript: Build-stage unfinished candidate -> compiled continuous service -> durable final checkpoint matched exactly.
+
+test failed_training_and_tampered_artifacts_fail_without_replacing_publication ... ok
+native: seeded startup, learning, application state and exact checkpoint matched
+rust: seeded startup, learning, application state and exact checkpoint matched
+wasm32: Build-stage unfinished candidate -> compiled continuous service -> durable final checkpoint matched exactly.
+
+test build_stage_candidate_continues_in_the_programmable_continuous_service ... ok
+wasm32: compiled startup, continued learning, exact snapshots, fresh instances and durable recovery matched.
+
+test build_stage_packages_trained_state_and_continues_across_cpu_targets ... ok
+trained GPU module: seeded query, exact full snapshot and one required GPU dispatch matched
+test trained_gpu_module_initializes_the_same_state_and_dispatches_numeric_work ... ok
+test trained_adam_build_resumes_all_moments_and_control_state ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 39.00s
+

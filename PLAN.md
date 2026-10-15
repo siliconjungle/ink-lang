@@ -165,10 +165,19 @@ The [cooperative continuous path](docs/continuous-learning.md) now implements
 bounded source queues, candidate progress, version-checked publication and durable
 recovery on a compiled JavaScript host. [Adaptive build-stage packages](docs/trained-builds.md) now capture fitting inputs
 and compile a bound startup checkpoint across targets. Parallel workers, device
-training, frozen specialization and trained implementation selection remain required.
+training, frozen arithmetic/graph specialization and trained implementation selection remain required.
 
 [Discrete policy learning](docs/policy-learning.md) now adds categorical scores,
 authored reward feedback, reward-to-go and trajectory gradients. A contextual source
 AD example preserves policy tickets, pending feedback, full Adam state and rollback.
 Objectives and invariants belong to the application; no product goal is built in.
-This does not close off-policy algorithms, frozen specialization or device training.
+This does not close off-policy algorithms, frozen arithmetic/graph specialization or device training.
+
+
+[Explicit immutable deployment](docs/frozen-state.md) now binds fitted rows in
+source, removes their writers/callers, preserves the whole logical checkpoint and
+rejects changed fixed rows on every supported restore boundary. Source-derived
+constant facts reach the ordinary proof model. The next specialization gate is
+reusable database-authored preparation/arithmetic/graph transformations with
+complete behavior checks and measured compile/startup/steady-state/memory costs;
+immutable source binding alone does not close it.

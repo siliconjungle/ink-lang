@@ -2,8 +2,8 @@
 
 `build-model` captures a checked module, runs its authored training trace, compiles
 the captured module and publishes one new artifact directory. The compiled startup
-factory restores the complete fitted checkpoint. Runtime learning stays enabled.
-This is adaptive deployment, not frozen-weight specialization.
+factory restores the complete fitted checkpoint. Runtime learning stays enabled by
+default. An explicit frozen build withdraws selected mutable capabilities.
 
 ```sh
 ink build-model examples/adaptive-layout.ink examples/adaptive-layout-training.json \
@@ -96,9 +96,9 @@ ink build-model SOURCE TRACE.json --restore previous.snapshot \
 Resume validates the exact source identity before executing updates. Tests resume
 six more frames of the 244-parameter Adam example and compare the result byte for
 byte with its twelve-frame checkpoint, including both moments and control state.
-A frozen build must restrict writes through every entry point and restore
-boundary, declare the remaining degrees of freedom and expose immutable values to
-ordinary checked specialization. That contract remains required work.
+Use `model.snapshot` with the original source to continue pre-deployment training.
+A frozen deployment has its own source identity and deployment checkpoint; silently
+restoring the adaptive checkpoint into that different source rejects.
 
 Existing checkpoints can also initialize a normal literal build without a training
 stage:
@@ -117,7 +117,10 @@ directory publication and a complete input/artifact inventory.
 
 `verify-model DIRECTORY` checks file inventory/hashes, checked source, typed model
 checkpoint, parent lineage, trace binding and compiled startup metadata. It also
-checks that emitted initial-checkpoint copies match the training result. Merely
+checks that emitted initial-checkpoint copies match the deployed result. Frozen
+packages must also replay the requested source restriction and compare the exact
+compiled source, complete deployment checkpoint and restriction receipt, even
+without `--replay`. Merely
 rehashing a different startup seed does not satisfy that binding. `--replay`
 additionally reruns the authored reference training and compares the complete
 checkpoint and receipt. This verifies deterministic fitting independently of the
@@ -143,7 +146,54 @@ resume; and a trained mixed module with a required native GPU dispatch. An unfin
 build-stage candidate also continues through the JavaScript and Wasm continuous
 services to the same durable checkpoint. A browser
 fixture separately compares CPU-Wasm/JavaScript startup snapshots and actual WebGPU
-output. These checks establish neither a training-throughput ranking nor frozen,
-parallel/device learning or a universal convergence guarantee.
+output. The mandatory `frozen_state` suite adds immutable initialization, changed-row
+restore rejection, partial freezing, exact complete-state rebind, deep recursive
+values and rehashed source/checkpoint/receipt tampering. These checks establish
+neither a training-throughput ranking, parallel/device learning nor a universal
+convergence guarantee.
 
 [Retained package, checkpoints, target logs and browser observation](../reports/trained-builds-2026-10-15/README.md).
+
+
+## Explicitly freeze selected degrees of freedom
+
+```sh
+ink build-model examples/adaptive-layout.ink examples/adaptive-layout-training.json \
+    --freeze --target javascript -o build/frozen-layout
+ink verify-model build/frozen-layout --replay
+# Freeze only one learner or other prepared state, retaining other capabilities:
+ink build-model SOURCE TRACE.json --freeze-roots First,Prepared \
+    --target wasm32 -o build/partly-frozen
+```
+
+`--freeze` selects every declared trainable root. `--freeze-roots A,B` selects
+explicit roots; combining the options takes their union. An unknown root or an
+empty selection rejects. The restriction uses the fitted checkpoint, withdraws
+all actions with write capability for selected roots and their transitive callers,
+and removes those roots' trainable designation. Readonly serving and independent
+application/learning actions remain available. Even an action that only sometimes
+writes is withdrawn if it declares the capability.
+
+A frozen package preserves the original `source.core.json`, `model.snapshot`,
+trace and training receipt. It adds `compiled.core.json`, `deployment.snapshot`
+and a restriction receipt in `artifact.json`. The new source binds exact typed
+rows. The deployment checkpoint changes its source/layout binding while preserving
+the whole logical payload: all roots, optimizer/control state, commit version and
+pending events. Verification rederives this restriction, rather than trusting its
+hashes. Retained invariants and evidence must still check against the new source;
+unsupported proof transport fails explicitly.
+
+Rust, JavaScript and Rust/Wasm initialize fixed rows and check them on restore;
+mixed GPU bundles use the same CPU-host contract. JavaScript captures private
+values and checks both ordinary restore and parallel snapshot installation.
+This also applies to unseeded source-state factories. A seeded deployment factory
+additionally restores the full deployed checkpoint, including mutable state and
+outbox. An existing durable history must carry the new source identity before it
+can be opened by a frozen deployment; deployment does not silently migrate it.
+
+This is an explicit API restriction, not an equality-preserving optimization of a
+mutable application. [Core immutable-state semantics](frozen-state.md) expose
+source-derived fixed-value facts to ordinary proof consumers. Automatic arithmetic
+or neural graph specialization, trained implementation selection and measured
+frozen-inference speedups remain open. Merely making weights immutable does not
+remove an eagerly computed fallback model or promise faster inference.

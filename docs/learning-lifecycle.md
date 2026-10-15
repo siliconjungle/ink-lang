@@ -14,7 +14,7 @@ with authored reward-to-go, baselines and versioned feedback.
 | Phase | Required behavior | Current implementation |
 | --- | --- | --- |
 | Pre-compilation training | Fit from a declared dataset, validate and export a source-bound model artifact | `ink train`, portable complete-state checkpoints and exact resume |
-| Training during a build | Run an explicitly requested training stage; bind dataset/configuration/model lineage and package the result; freeze only when requested | `build-model` captures/trains/compiles a bound adaptive package; frozen specialization remains required |
+| Training during a build | Run an explicitly requested training stage; bind dataset/configuration/model lineage and package the result; freeze only when requested | `build-model` captures/trains/compiles a bound package; explicit `--freeze` / `--freeze-roots` restrict immutable roots and withdraw their writers |
 | Adaptive runtime learning | Train on declared feedback or drift triggers, under bounded work and acceptance rules | Explicit `learn change`; authored objectives, updates, validation, backtracking and rollback; source-authored trigger/configuration policy; cooperative scheduled actions on a compiled durable host |
 | Continuous learning | Consume an ongoing observation stream while serving predictions; schedule bounded work and publish accepted model versions | Authored bounded sessions, separate serving/candidate versions, explicit cadence and cooperative compiled JavaScript/Wasm service with durable recovery; parallel worker/device execution remains open |
 
@@ -101,5 +101,7 @@ trace, resumes complete optimizer state when requested, compiles that captured
 module and publishes a new package with a verified startup checkpoint. JavaScript,
 native Rust, locked Rust projects, Wasm and mixed GPU hosts support adaptive startup
 and continued learning. Existing durable state takes precedence over a deployment
-seed. This completes an explicit adaptive build path; frozen specialization and
-trained implementation selection remain separate required work.
+seed. Explicit frozen packages preserve the complete logical payload under a new
+source identity, reject changed fixed rows on restore and derive immutable facts
+for ordinary proof consumers. Arithmetic/graph specialization and trained
+implementation selection remain required work. See [frozen state](frozen-state.md).
