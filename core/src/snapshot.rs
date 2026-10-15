@@ -30,6 +30,7 @@ fn schema(t: &Type, x: &mut Expansion, depth: usize) -> LangResult<Schema> {
         Type::U64 => Schema::U64,
         Type::I32 => Schema::I32,
         Type::F32 => Schema::F32,
+        Type::F64 => Schema::F64,
         Type::Vector(t, n) => Schema::Vector(Box::new(schema(t, x, depth + 1)?), *n),
         Type::Int => Schema::Int,
         Type::String => Schema::String,

@@ -7,7 +7,7 @@ pub fn is_word(t: &Type) -> bool {
 }
 
 pub fn is_number(t: &Type) -> bool {
-    is_word(t) || *t == Type::F32
+    is_word(t) || matches!(t, Type::F32 | Type::F64)
 }
 
 /// Executable numerical values; logical correspondence has its own admission.
@@ -71,6 +71,7 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             infer_value_constructor(e, env, p, want)
         }
         Expr::Float(_) => Ok(Type::F32),
+        Expr::Double(_) => Ok(Type::F64),
         Expr::Neg(e) => {
             let ty = want
                 .filter(|t| is_numeric_value(t))
@@ -150,6 +151,10 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
                     return Err("integer literal is not exact in f32; use a decimal literal".into());
                 }
                 return Ok(Type::F32);
+            }
+            if want == Some(&Type::F64) {
+                if (*n as f64) as u128 != *n as u128 { return Err("integer literal is not exact in f64; use a decimal literal or explicit conversion".into()); }
+                return Ok(Type::F64);
             }
             if want == Some(&Type::U32) {
                 if *n > u32::MAX as u64 {
@@ -514,7 +519,7 @@ fn infer_binary(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangRe
 fn infer_call(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> LangResult<Type> {
     match e {
         Expr::Call(n, args) if crate::primitives::primitive(n) => {
-            let first = if crate::primitives::bit_count(n) { args.first().map(|x| infer(x,env,p)).transpose()? } else {None};
+            let first=crate::primitives::input_type(n,args.first(),|x|infer(x,env,p))?;
             let (params, result) = crate::primitives::signature(n, first.as_ref())?;
             if args.len()!=params.len(){return Err(format!("{n}: argument count mismatch"));}
             for (arg,ty) in args.iter().zip(params) {infer_as(arg,env,p,&ty)?;}

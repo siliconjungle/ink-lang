@@ -5,6 +5,27 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::cmp::Ordering;
 
+/// Raw binary64 payloads use canonical decimal u64 strings at JSON boundaries.
+/// This codec is also embedded verbatim in generated applications.
+pub fn f64_bits_from_json(value:&Value)->Result<u64,String> {
+    if let Some(bits)=value.get("F64Bits") {
+        if value.as_object().is_none_or(|o|o.len()!=1){return Err("expected only F64Bits field".into());}
+        let text=bits.as_str().ok_or("F64Bits requires a decimal u64 string")?;
+        if text.len()>20{return Err("invalid F64Bits word".into());}
+        let parsed=text.parse::<u64>().map_err(|_|"invalid F64Bits word")?;
+        if parsed.to_string()!=text{return Err("noncanonical F64Bits word".into());}
+        Ok(parsed)
+    }else{
+        let x=value.as_f64().ok_or("expected binary64 number or F64Bits")?;
+        if !x.is_finite(){return Err("finite f64 or explicit F64Bits required".into());}
+        Ok(x.to_bits())
+    }
+}
+pub fn f64_bits_to_json(bits:u64)->Value {
+    let x=f64::from_bits(bits);
+    if x.is_finite(){json!(x)}else{json!({"F64Bits":bits.to_string()})}
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Schema {
     Unit,
@@ -13,6 +34,7 @@ pub enum Schema {
     U64,
     I32,
     F32,
+    F64,
     Vector(Box<Schema>, u8),
     Int,
     String,
@@ -36,7 +58,7 @@ pub fn descriptor(s:&Schema)->Value {
         Schema::Option(t)=>json!({"kind":"option","element":descriptor(t)}),
         Schema::Result(a,b)=>json!({"kind":"result","ok":descriptor(a),"error":descriptor(b)}),
         Schema::Vector(t,n)=>json!({"kind":"vector","element":descriptor(t),"size":n}),
-        _=>json!({"kind":match s {Schema::Unit=>"unit",Schema::Bool=>"bool",Schema::U32=>"u32",Schema::U64=>"u64",Schema::I32=>"i32",Schema::F32=>"f32",Schema::Int=>"int",Schema::String=>"string",Schema::Id=>"id",_=>unreachable!()}}),
+        _=>json!({"kind":match s {Schema::Unit=>"unit",Schema::Bool=>"bool",Schema::U32=>"u32",Schema::U64=>"u64",Schema::I32=>"i32",Schema::F32=>"f32",Schema::F64=>"f64",Schema::Int=>"int",Schema::String=>"string",Schema::Id=>"id",_=>unreachable!()}}),
     }
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -192,6 +214,7 @@ fn encode_value<'s>(
                 .map_err(|_| "i32 overflow")?
                 .to_le_bytes(),
         ),
+        Schema::F64 => out.extend_from_slice(&f64_bits_from_json(v)?.to_le_bytes()),
         Schema::F32 => {
             let bits = if let Some(b) = v.get("F32Bits") {
                 if v.as_object().is_none_or(|o| o.len() != 1) {
@@ -357,6 +380,7 @@ impl<'a> Reader<'a> {
             Schema::U32 => json!(self.u32()?),
             Schema::U64 => json!(self.u64()?),
             Schema::I32 => json!(self.u32()? as i32),
+            Schema::F64 => f64_bits_to_json(self.u64()?),
             Schema::F32 => {
                 let bits = self.u32()?;
                 let f = f32::from_bits(bits);

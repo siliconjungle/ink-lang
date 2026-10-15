@@ -281,6 +281,21 @@ fn need(got: &Sort, want: Sort) -> LangResult<()> {
         ))
     }
 }
+// Execution has a binary64 carrier before this proof domain has binary64
+// operations. Fail shut at every nested sort (including closed callbacks), so
+// existing scalar simplifications cannot mistake IEEE equality for reflexivity.
+fn binary64_sort(s:&Sort)->bool {
+    let mut sorts=vec![s];let mut types=Vec::new();
+    while let Some(sort)=sorts.pop(){match sort {
+        Sort::Value(t)=>types.push(t),Sort::Arrow(a,b)=>sorts.extend([a.as_ref(),b.as_ref()]),Sort::Nat=>(),
+    }}
+    while let Some(t)=types.pop(){match t {
+        Type::F64=>return true,
+        Type::List(t)|Type::Buffer(t)|Type::Option(t)|Type::Vector(t,_)=>types.push(t),
+        Type::Result(a,b)|Type::Map(a,b)|Type::Table(a,b)=>types.extend([a.as_ref(),b.as_ref()]),
+        _=>(),
+    }}false
+}
 pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<()> {
     fn check_node(
         t: &Term,
@@ -288,6 +303,7 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
         bound: &[Sort],
         p: &Program,
     ) -> LangResult<()> {
+        if binary64_sort(&t.sort){return Err("binary64 source proof domain is not admitted".into());}
         match &t.node {
             Node::Free(n) => need(
                 &t.sort,
@@ -741,6 +757,7 @@ pub fn validate(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult<
     }
     fn sort(s: &Sort, p: &Program, b: &mut Budget, d: usize) -> LangResult<()> {
         b.step(d)?;
+        if binary64_sort(s){return Err("binary64 source proof domain is not admitted".into());}
         match s {
             Sort::Value(Type::Unknown) => Err("unresolved semantic sort".into()),
             Sort::Value(t) => crate::statecheck::validate_type(t, p),

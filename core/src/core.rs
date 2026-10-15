@@ -10,6 +10,7 @@ pub enum Type {
     U32,
     I32,
     F32,
+    F64,
     Vector(Box<Type>, u8),
     Int,
     Unit,
@@ -30,6 +31,7 @@ pub enum Type {
 pub enum Expr {
     Num(u64),
     Float(u32),
+    Double(u64),
     Neg(Box<Expr>),
     // Box annotations to preserve the compact v1 Expr stack footprint.
     Let(String, Option<Box<Type>>, Box<Expr>, Box<Expr>),
@@ -140,6 +142,7 @@ pub const VALUE_INVARIANT_SEMANTICS: &str = "ink-executable-core-v11";
 pub const MEASURE_SEMANTICS: &str = "ink-executable-core-v12";
 pub const BORROW_RANGE_SEMANTICS: &str = "ink-executable-core-v13";
 pub const FROZEN_STATE_SEMANTICS: &str = "ink-executable-core-v14";
+pub const BINARY64_SEMANTICS: &str = "ink-executable-core-v15";
 pub const WORD_CONVERSION_SEMANTICS: &str = "ink-executable-core-v11";
 pub const BULK_BUFFER_SEMANTICS: &str = "ink-executable-core-v9";
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
@@ -515,7 +518,9 @@ impl CheckedModule {
         crate::frozen::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if !program.frozen.is_empty() {
+            semantics: if crate::float64::needed(&program) {
+                BINARY64_SEMANTICS
+            } else if !program.frozen.is_empty() {
                 FROZEN_STATE_SEMANTICS
             } else if borrow_range_needed(&program) {
                 BORROW_RANGE_SEMANTICS
@@ -575,6 +580,7 @@ impl CheckedModule {
                 MEASURE_SEMANTICS,
                 BORROW_RANGE_SEMANTICS,
                 FROZEN_STATE_SEMANTICS,
+                BINARY64_SEMANTICS,
                 WORD_CONVERSION_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())
@@ -686,6 +692,13 @@ impl Bounds {
     fn expr(&mut self, e: &Expr, d: usize) -> LangResult<()> {
         self.step(d)?;
         match e {
+            Expr::Double(bits) => {
+                self.extended = true;
+                if !f64::from_bits(*bits).is_finite() {
+                    return Err("non-finite binary64 literal".into());
+                }
+                Ok(())
+            }
             Expr::Float(bits) => {
                 self.extended = true;
                 if !f32::from_bits(*bits).is_finite() {

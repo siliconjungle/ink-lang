@@ -218,7 +218,7 @@ impl Lower<'_> {
                     ..
                 } => dependencies(body, *value, slots) | dependencies(body, *expression, slots),
                 Kind::Number(_)
-                | Kind::Float(_)
+                | Kind::Float(_) | Kind::Double(_)
                 | Kind::String(_)
                 | Kind::Bool(_)
                 | Kind::Unit

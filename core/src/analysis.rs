@@ -12,6 +12,7 @@ pub fn children(e: &Expr) -> Vec<&Expr> {
         Expr::Record(_, fields) => fields.iter().map(|(_, e)| e).collect(),
         Expr::Num(_)
         | Expr::Float(_)
+        | Expr::Double(_)
         | Expr::Bool(_)
         | Expr::String(_)
         | Expr::Unit
