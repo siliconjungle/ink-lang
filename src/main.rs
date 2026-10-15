@@ -226,6 +226,8 @@ fn run() -> LangResult<()> {
         "--lean",
         "--library",
         "--circuit",
+        "--semantics",
+        "--encoding",
         "--optimise",
         "--plan-cache",
         "--plan-cache-context",
@@ -722,7 +724,17 @@ fn run() -> LangResult<()> {
         }else{core::CheckedModule::from_source(source(path)?)?};
         let goal:Goal=serde_json::from_slice(&read_bounded(goal_path,4_000_000)?).map_err(|e|e.to_string())?;
         if goal.params.len()>128 || goal.conditions.len()>128{return Err("semantic bit obligation parameter/condition limit".into());}
-        let problem=verified_language::laws::bitvector_problem(module.program(),&goal.params,&goal.conditions,&verified_language::laws::Equation{from:goal.from,to:goal.to})?;
+        let semantics=match arg_value(&args,"--semantics")?.as_deref().unwrap_or("opaque-v1") {
+            "opaque-v1"=>verified_language::laws::BitVectorSemantics::OpaqueV1,
+            "fixed-words-v2"=>verified_language::laws::BitVectorSemantics::FixedWordsV2,
+            _=>return Err("unknown source bit circuit semantics".into()),
+        };
+        let encoding=match arg_value(&args,"--encoding")?.as_deref().unwrap_or("literal-v1") {
+            "literal-v1"=>verified_language::bitproof::Encoding::LiteralV1,
+            "shared-v2"=>verified_language::bitproof::Encoding::SharedV2,
+            _=>return Err("unknown bit circuit encoding".into()),
+        };
+        let problem=verified_language::laws::bitvector_problem_with_encoding(module.program(),&goal.params,&goal.conditions,&verified_language::laws::Equation{from:goal.from,to:goal.to},semantics,encoding)?;
         let output=arg_value(&args,"-o")?.ok_or("missing -o")?;
         write(&output,&serde_json::to_string(&problem).map_err(|e|e.to_string())?)?;
         println!("{}",serde_json::json!({"status":"unproved","source":module.identity()?,"conditions":goal.conditions.len(),"scope":"Typed scalar circuit only; rewrite admission requires certificate replay."}));
@@ -804,7 +816,7 @@ fn run() -> LangResult<()> {
         println!("ink emit-termination-obligations SOURCE -o GOALS.json\nink check-termination SOURCE --termination-proofs BUNDLE.json\nSource compilation/execution accepts --termination-proofs BUNDLE.json; measures grant no authority without checked evidence.");
         println!("ink emit-laws THEOREMS.ink [--proofs EVIDENCE.json] [--view DEPENDENCIES.json] -o BUNDLE.json");
         println!("ink law-bitvector-obligation THEOREMS.ink LAW_NAME -o CNF.json\nExported scalar obligations remain unproved until emit-laws replays a hinted-RUP certificate.");
-        println!("ink semantic-bitvector-obligation SOURCE GOAL.json [--core] -o CNF.json");
+        println!("ink semantic-bitvector-obligation SOURCE GOAL.json [--core] [--semantics opaque-v1|fixed-words-v2] [--encoding literal-v1|shared-v2] -o CNF.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|javascript|wasm32|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
         println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)");

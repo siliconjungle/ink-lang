@@ -31,15 +31,12 @@
       "sha256": "9239724610a1736a1168ffd5c3409bc448f2ba1f06c709ea7b84ea499c866484",
       "inclusive_lines": [
         [
-          780,
-          1075
-        ],
-        [
-          1918,
-          2130
+          1,
+          3314
         ]
       ],
-      "review_status": "partial"
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Constant folding, conversions/tag casts, IEEE and signalling-NaN restrictions, modular word arithmetic, div/mod default/trap differences, rotate recognition (XOR excludes zero effective count), checked overflow, SIMD reduction grouping, reversible shifts, narrow comparisons, truncation/offset reductions, guard branches and stable-map dependencies. Staged generic versioned source-circuit support and database rotate/widen-comparison proofs are independently checked; final integration/replay pending. Signed/float/memory/SIMD and host-delegation assessments remain open."
     },
     {
       "path": "src/compiler/turboshaft/typed-optimizations-reducer.h",
@@ -172,6 +169,30 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read. Exact base/offset/size shadowing, conservative read aliasing, observable/GC-observable lattice and joins, loop-local fresh-base invalidation, fixed-point revisits and adjacent initializing store merge with pointer/endianness restrictions. Compare existing whole-action replace_overwrite proof; broader effects/transaction assessment remains open."
+    },
+    {
+      "path": "src/compiler/turboshaft/string-escape-analysis-reducer.cc",
+      "sha256": "bb0f4f73df73f5adec99102c44ac43b29370162d27acb7dbece5b570b5d0052d",
+      "inclusive_lines": [
+        [
+          1,
+          182
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Nonescaping concat graphs, backwards propagation and loop-Phi revisits; only length/deopt-frame uses permit elision, reconstruct parent frame states and deduplicate dematerialized strings, bail out on frame-input growth. Ink String is UTF-8 with a U32 byte-length boundary and concat overflow failure; unconditional wrapping length arithmetic would not preserve that boundary. Generic unused-value/observed-representation work requires checked domain/outcome correspondence; no string law admitted from this review."
+    },
+    {
+      "path": "src/compiler/turboshaft/string-escape-analysis-reducer.h",
+      "sha256": "69da0a263a0fbf4bd4a1cd130ee3aa3079490bedfd0643307edc33338720556e",
+      "inclusive_lines": [
+        [
+          1,
+          428
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Nonescaping concat graphs, backwards propagation and loop-Phi revisits; only length/deopt-frame uses permit elision, reconstruct parent frame states and deduplicate dematerialized strings, bail out on frame-input growth. Ink String is UTF-8 with a U32 byte-length boundary and concat overflow failure; unconditional wrapping length arithmetic would not preserve that boundary. Generic unused-value/observed-representation work requires checked domain/outcome correspondence; no string law admitted from this review."
     }
   ],
   "families": [
@@ -179,7 +200,7 @@
       "name": "machine-word",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
-      "note": "63 independently admitted database word/control/conversion laws; four shift-combination proposals and multiplication narrowing remain unadmitted; remaining reducers need review"
+      "note": "Full machine reducer read; 80 admitted word/control/conversion laws from 82 proposals. Generic versioned source circuits add fixed rotate semantics and honor shared-gate encodings. Two U64 count-combination proposals remain unadmitted. Signed arithmetic, division and backend-delegation assessment remain open."
     },
     {
       "name": "branch-control",
@@ -231,9 +252,9 @@
     },
     {
       "name": "strings",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/string-escape-analysis-reducer.cc",
-      "note": "Compare fixed UTF-8 semantics and database text algorithms"
+      "note": "Full string escape reducer reviewed. UTF-16/deoptimization representations are not Ink UTF-8 semantics. String length bounds/concat failures and portable reconstruction need explicit proof; no new string transformation admitted."
     },
     {
       "name": "simd-wasm",

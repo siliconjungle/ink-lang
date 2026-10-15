@@ -13,11 +13,27 @@ pub struct Equation {
     pub from: Term,
     pub to: Term,
 }
+/// Versioned interpretation of source terms, independent of gate sharing.
+/// Legacy opaque atoms and their certificate identities remain reproducible.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum BitVectorSemantics {
+    #[default]
+    OpaqueV1,
+    FixedWordsV2,
+}
+impl BitVectorSemantics {
+    fn is_legacy(&self) -> bool { *self == Self::OpaqueV1 }
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub enum Proof {
     /// Reconstruct the exact fixed-width scalar circuit and replay hinted RUP.
-    BitVector { hypotheses: Vec<usize>, certificate: crate::bitproof::Certificate },
+    BitVector {
+        #[serde(default, skip_serializing_if = "BitVectorSemantics::is_legacy")]
+        semantics: BitVectorSemantics,
+        hypotheses: Vec<usize>, certificate: crate::bitproof::Certificate
+    },
     AssertEquality {
         equality: Equation,
         premise: Box<Proof>,
@@ -188,11 +204,16 @@ pub fn identity<T: Serialize>(v: &T) -> LangResult<String> {
 /// Export only an obligation. No equality is admitted without replaying its
 /// certificate against this same reconstructed circuit in `prove_inner`.
 pub fn bitvector_problem(p:&Program,env:&Env,hyp:&[Equation],goal:&Equation)->LangResult<crate::bitproof::Problem>{
-    bitvector_problem_with_budget(p,env,hyp,goal,&mut Budget::new())
+    bitvector_problem_with_encoding(p,env,hyp,goal,BitVectorSemantics::OpaqueV1,crate::bitproof::Encoding::LiteralV1)
 }
-fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equation,b:&mut Budget)->LangResult<crate::bitproof::Problem>{
+pub fn bitvector_problem_with_encoding(p:&Program,env:&Env,hyp:&[Equation],goal:&Equation,
+    semantics:BitVectorSemantics,encoding:crate::bitproof::Encoding)->LangResult<crate::bitproof::Problem>{
+    bitvector_problem_with_budget(p,env,hyp,goal,semantics,encoding,&mut Budget::new())
+}
+fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equation,
+    semantics:BitVectorSemantics,encoding:crate::bitproof::Encoding,b:&mut Budget)->LangResult<crate::bitproof::Problem>{
     use crate::logic::{Term as L,Sort as S,Equation as E};
-    struct Lower{atoms:BTreeMap<String,String>,env:BTreeMap<String,S>}
+    struct Lower{atoms:BTreeMap<String,String>,env:BTreeMap<String,S>,semantics:BitVectorSemantics}
     fn bin(op:&str,left:L,right:L)->L{L::Binary{op:op.into(),left:Box::new(left),right:Box::new(right)}}
     impl Lower {
         fn lower(&mut self,t:&Term,b:&mut Budget,d:usize)->LangResult<L>{
@@ -226,6 +247,12 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                     let op=format!("{width}.{}",if n.ends_with("shl"){"shl"}else{"shr"});
                     bin(&op,self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
                 },
+                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedWordsV2 &&
+                    ["call:rotate_left","call:rotate_right"].contains(&n.as_str()) && args.len()==2=>{
+                    let width=if t.sort==value(Type::U32){"word32"}else{"word64"};
+                    let op=format!("{width}.{}",if n.ends_with("left"){"rol"}else{"ror"});
+                    bin(&op,self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
+                },
                 // A scalar observation may be abstracted to an unconstrained
                 // input. Proving the circuit for every input also proves it for
                 // the observation; no relationship between distinct atoms is
@@ -248,10 +275,10 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
         }
     }
     if hyp.len()>128{return Err("bit proof hypothesis count limit".into());}
-    let mut lower=Lower{atoms:BTreeMap::new(),env:BTreeMap::new()};
+    let mut lower=Lower{atoms:BTreeMap::new(),env:BTreeMap::new(),semantics};
     let hypotheses=hyp.iter().map(|e|lower.equation(e,p,env,b)).collect::<LangResult<Vec<_>>>()?;
     let goal=lower.equation(goal,p,env,b)?;
-    crate::bitproof::problem_with_work(&lower.env,&hypotheses,&goal,&mut b.bit_work)
+    crate::bitproof::problem_with_encoding_and_work(&lower.env,&hypotheses,&goal,encoding,&mut b.bit_work)
 }
 #[derive(Clone)]
 struct InductionSchema {
@@ -505,10 +532,10 @@ impl CheckedCatalogue {
             }
         }
         match proof {
-            Proof::BitVector { hypotheses, certificate } => {
+            Proof::BitVector { semantics, hypotheses, certificate } => {
                 if hypotheses.len()>128{return Err("bit proof hypothesis count limit".into());}
                 let selected=hypotheses.iter().map(|i|hyp.get(*i).cloned().ok_or_else(||"unknown bit proof hypothesis".to_owned())).collect::<LangResult<Vec<_>>>()?;
-                let problem=bitvector_problem_with_budget(p,env,&selected,goal,b)?;
+                let problem=bitvector_problem_with_budget(p,env,&selected,goal,*semantics,certificate.encoding,b)?;
                 crate::bitproof::verify_with_work(&problem,certificate,&mut b.bit_work)
             }
             Proof::Linear { premises } => linear(p, hyp, goal, premises, b),
@@ -2613,6 +2640,33 @@ mod tests {
         .unwrap();
     }
     #[test]
+    fn source_circuit_semantics_and_gate_encoding_are_explicit_and_replayed() {
+        let (p,c)=context();
+        let sort=value(Type::U32);
+        let x=free(sort.clone(),"x");let k=free(sort.clone(),"k");
+        let env=BTreeMap::from([("x".into(),sort.clone()),("k".into(),sort.clone())]);
+        let rotate=op(sort.clone(),"call:rotate_left",vec![x,k]);
+        let goal=Equation{from:op(sort.clone(),"call:word_and",vec![rotate,word(Type::U32,0)]),to:word(Type::U32,0)};
+        let problem=bitvector_problem_with_encoding(&p,&env,&[],&goal,BitVectorSemantics::FixedWordsV2,crate::bitproof::Encoding::SharedV2).unwrap();
+        let certificate=crate::bitproof::Certificate{
+            encoding:crate::bitproof::Encoding::SharedV2,
+            problem_sha256:problem.identity().to_owned(),
+            steps:vec![crate::bitproof::Step{clause:vec![],hints:vec![0,problem.clauses().len()-1]}],
+        };
+        let proof=Proof::BitVector{semantics:BitVectorSemantics::FixedWordsV2,hypotheses:vec![],certificate:certificate.clone()};
+        c.prove(&p,&env,&[],&goal,&proof,&mut Budget::new(),0).unwrap();
+        let forged=Proof::BitVector{semantics:BitVectorSemantics::OpaqueV1,hypotheses:vec![],certificate};
+        assert!(c.prove(&p,&env,&[],&goal,&forged,&mut Budget::new(),0).is_err());
+        let bytes=serde_json::to_value(&forged).unwrap();
+        assert!(bytes["BitVector"].get("semantics").is_none());
+        let legacy:Proof=serde_json::from_value(bytes).unwrap();
+        assert!(matches!(legacy,Proof::BitVector{semantics:BitVectorSemantics::OpaqueV1,..}));
+        let legacy_problem=bitvector_problem(&p,&env,&[],&goal).unwrap();
+        let explicit_legacy=bitvector_problem_with_encoding(&p,&env,&[],&goal,BitVectorSemantics::OpaqueV1,crate::bitproof::Encoding::LiteralV1).unwrap();
+        assert_eq!(legacy_problem.identity(),explicit_legacy.identity());
+        assert_ne!(problem.identity(),legacy_problem.identity());
+    }
+    #[test]
     fn wrapping_arithmetic_is_checked_for_each_word_width() {
         let (p, c) = context();
         for ty in [Type::U32, Type::U64, Type::I32] {
@@ -2809,7 +2863,7 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
             })
         };
         Ok(match proof {
-            Proof::BitVector { hypotheses, certificate } => Proof::BitVector { hypotheses:hypotheses.clone(),certificate:certificate.clone() },
+            Proof::BitVector { semantics, hypotheses, certificate } => Proof::BitVector { semantics:*semantics,hypotheses:hypotheses.clone(),certificate:certificate.clone() },
             Proof::Linear { premises } => Proof::Linear { premises: premises.clone() },
             Proof::Word { hypotheses, certificate } => Proof::Word { hypotheses: hypotheses.clone(), certificate: certificate.clone() },
             Proof::Normalize => Proof::Normalize,
