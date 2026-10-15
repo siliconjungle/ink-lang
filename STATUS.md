@@ -13,6 +13,15 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Sequential callback preparation](docs/prepared-loop-callbacks.md) carries sealed
+JavaScript captures through loops and strict expressions while iteration inputs
+remain dynamic. The 147-case regression runs 1,510 prepared calls under each F32
+carrier. Held-out large repeated membership/group/table work improves 165×/232×/23×;
+small cases can regress, retained memory grows, and neural/text workloads retain
+substantial gaps to faster controls. [All samples and validation](reports/prepared-loops-2026-10-16/README.md)
+are retained. Source reverse AD, general mutable-session staging and full upstream
+fidelity/performance remain open.
+
 [Prepared binary64 text geometry](docs/prepared-text.md) ports Pretext's simple
 counter and line-range walkers into ordinary Ink source. Separate count/height
 and complete geometry paths match 232 upstream oracle cases; an additional

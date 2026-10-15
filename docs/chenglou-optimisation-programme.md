@@ -331,3 +331,14 @@ still leaves a substantial gap to the upstream direct loop; this is a fidelity
 baseline, not full Pretext preparation/layout or performance parity. The complex
 walker, segmentation/shaping oracle integration, incremental preparation and the
 rest of this delivery checklist remain required work.
+
+## Preparation inside sequential computation
+
+[Sequential callback preparation](prepared-loop-callbacks.md) now propagates
+stable lexical captures into ordinary loops and strict expressions. Iteration
+elements, indices and carried values stay dynamic; helper sites retain separate
+lazy state. This enables one-time indexes, grouped folds and coefficient tables
+without a library-name recognizer. The retained paired study shows large repeated
+work gains alongside small-input, memory and ordinary-call costs. Neural and text
+controls still expose substantial gaps; source reverse AD, mutable-session staging,
+full complex text/preparation and broad matched performance remain open.

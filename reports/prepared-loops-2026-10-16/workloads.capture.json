@@ -1,0 +1,14 @@
+{
+  "core_sha256": "8c82e8320abe4fd9d42adff410f634d24f3a84df724f8a7a72fc77c0f361fc72",
+  "files": [
+    {
+      "module": "prepared_loops",
+      "path": "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/bench/prepared-loops/workloads.ink",
+      "sha256": "46cea91ac76d5b672255d7bd621aeeb2bef038ed170d3d720329378e9b9e0863",
+      "source": "module prepared_loops;\nrecord Row { key:u32, value:u32, }\nfn member(keys:List<u32>,query:u32)->Bool {\n let index:Map<u32,Bool>=foldr(keys,Map.empty(),fn(key)=>fn(index)=>index.set(key,true));\n return index.contains(query);\n}\nfn membership(keys:List<u32>,queries:List<u32>)->List<Bool> {return queries.map(fn(query)=>member(keys,query));}\nfn add_row(row:Row,index:Map<u32,u32>)->Map<u32,u32> {\n let previous=index.get_or(row.key,0);\n return index.set(row.key,previous+row.value);\n}\nfn grouped(rows:List<Row>,query:u32)->u32 {\n let empty:Map<u32,u32>=Map.empty();\n let index=foldl(rows,empty,fn(row)=>fn(index)=>add_row(row,index));\n return index.get_or(query,0);\n}\nfn aggregates(rows:List<Row>,queries:List<u32>)->List<u32> {return queries.map(fn(query)=>grouped(rows,query));}\nfn coefficient(weights:List<f32>,index:u32,x:f32)->f32 {\n let prepared=weights.map(fn(w)=>w*w+0.25);\n return prepared.at_or(index,0.0)*x;\n}\nfn numeric(weights:List<f32>,xs:List<f32>)->List<f32> {return xs.map_indexed(fn(i)=>fn(x)=>coefficient(weights,i,x));}\n"
+    }
+  ],
+  "schema": 1,
+  "scope": "Exact source bytes consumed by this load, not a filesystem-wide atomic snapshot or proof authority.",
+  "semantics": "ink-source-capture-v1"
+}

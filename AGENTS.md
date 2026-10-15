@@ -213,6 +213,12 @@ input requires fresh primals; opaque graph records remain untrusted ABI data.
 This is literal execution support, separate from proof-backed graph rewriting
 and profitability. Keep complete-result controls and ordinary/setup regressions
 visible; stateful learning does not silently acquire this pure-call lane.
+Sequential callbacks can carry stable lexical captures, but their iteration
+elements, indices and state are always dynamic. Preserve operand evaluation once
+in source order, lazy Boolean branches, both early-stop contracts, hygienic
+shadowing and per-syntactic-site helpers. Owned/parallel/unsupported callbacks keep
+ordinary execution. Bounded opportunity search may skip staging; it never grants
+an equality fact or profitability authority. See docs/prepared-loop-callbacks.md.
 
 Binary64 uses explicit suffixed literals, raw u64 storage/transport and V15 core
 meaning (V4 action trees). Keep scalar IEEE equality separate from structural

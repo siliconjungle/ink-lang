@@ -19,6 +19,14 @@ let code=await readFile(join(dir,'program.mjs'),'utf8');
 const topology=m.metadata.functions.find(f=>f.params.map(x=>x.name).join(',')==='inputs,nodes,roots'&&f.result.kind==='bool');assert(topology);
 const signature=`function __fn${topology.index}(`,begin=code.indexOf('{',code.indexOf(signature));assert(begin>0);
 code=code.slice(0,begin+1)+'globalThis.__topologyChecks++;'+code.slice(begin+1);
+// The validator can now execute through its residual factory as well as the
+// ordinary function. Instrument the invocation body, not factory construction.
+const preparedSignature=`function __prepareFn${topology.index}(`,factory=code.indexOf(preparedSignature);
+if(factory>=0){
+ const returned=code.indexOf('return function(',factory),body=code.indexOf('{',returned);
+ assert(returned>factory&&body>returned);
+ code=code.slice(0,body+1)+'globalThis.__topologyChecks++;'+code.slice(body+1);
+}
 await writeFile(join(dir,'counted.mjs'),code);globalThis.__topologyChecks=0;
 const counted=await import(pathToFileURL(join(dir,'counted.mjs'))),valid=cases.filter(c=>c.name==='predict'&&c.expected.Ok).slice(0,4);
 const c=counted.compiledValues.predict,host=structuredClone(valid[0].args[0]),graph=c.params[0].capture(host);
