@@ -218,8 +218,18 @@ simple-walker fidelity baseline against pinned upstream counts, heights and full
 cursor ranges. It rejects complex kinds and preserves explicit measured-data
 boundaries. The 232-case oracle and 182-observation compiled history pass; the
 first diagnostic still exposes a large execution gap to Pretext's direct loop.
-Next work must carry stable preparation through loop callbacks and reduce record,
-dispatch and transport costs without stale dynamic inputs. Port the complete
+Stable preparation now reaches sequential loop callbacks; the remaining work must
+reduce record, dispatch and transport costs without stale dynamic inputs. Port the complete
 complex walker, segmentation/shaping preparation and incremental invalidation,
 then establish matched lifecycle performance. This is not full Pretext parity or
 completion of the learning programme.
+
+[Sequential callback preparation](docs/prepared-loop-callbacks.md) now retains
+fixed helper work through ordinary loops and strict expressions, with dynamic
+iteration bindings and source-order/lazy fallback preserved. The matched study
+shows large repeated-index/table gains, small-case losses, retained-memory costs
+and no material neural/layout improvement. Direct and upstream controls still
+lead. Next work must remove unobserved construction/dispatch, implement general
+source reverse AD and full preparation/layout fidelity, and compose measured
+staging with mutable learning and other backends. This does not complete the
+three-project performance requirement.
