@@ -1,5 +1,5 @@
 //! Shared structural and lexical analysis. This module grants no rewrite authority.
-use crate::{core::{Expr,Type,Program}, LangResult};
+use crate::{core::{Expr,Type,Program,Statement}, LangResult};
 use std::collections::{BTreeMap,BTreeSet};
 
 /// Immediate children in source evaluation order. Exhaustive over executable IR.
@@ -78,6 +78,76 @@ pub fn mentions_variable(e: &Expr, name: &str) -> bool {
     let mut found=false;
     walk(e,|e|if matches!(e,Expr::Var(n)|Expr::Lambda(n,_)|Expr::Let(n,_,_,_) if n==name){found=true});
     found
+}
+
+/// Names that a fresh source binding must avoid, including unexpanded contract
+/// bodies and lexical binders. This grants no semantic or rewrite authority.
+pub(crate) fn program_names(p: &Program) -> BTreeSet<String> {
+    fn expression(e: &Expr, names: &mut BTreeSet<String>) {
+        crate::analysis::walk(e, |e| {
+            if let Expr::Var(n) | Expr::Call(n, _) | Expr::Lambda(n, _) | Expr::Let(n, _, _, _) = e
+            {
+                names.insert(n.clone());
+            }
+        });
+    }
+    fn block(body: &[Statement], names: &mut BTreeSet<String>) {
+        let mut pending = body.iter().collect::<Vec<_>>();
+        while let Some(s) = pending.pop() {
+            match s {
+                Statement::Let(n, _, e) => {
+                    names.insert(n.clone());
+                    expression(e, names);
+                }
+                Statement::Return(e) | Statement::Emit(_, e) | Statement::Expr(e) => {
+                    expression(e, names)
+                }
+                Statement::If(e, a, b) => {
+                    expression(e, names);
+                    pending.extend(a);
+                    pending.extend(b);
+                }
+            }
+        }
+    }
+    let mut names = p
+        .ids
+        .iter()
+        .chain(p.records.keys())
+        .chain(p.enums.keys())
+        .chain(p.events.keys())
+        .cloned()
+        .collect::<BTreeSet<_>>();
+    for d in p.states.iter().chain(&p.keeps) {
+        names.insert(d.name.clone());
+        expression(&d.value, &mut names);
+    }
+    for f in &p.functions {
+        names.insert(f.name.clone());
+        names.extend(f.params.iter().map(|(n, _)| n.clone()));
+        expression(&f.body, &mut names);
+    }
+    for a in &p.actions {
+        names.insert(a.name.clone());
+        names.extend(a.params.iter().map(|(n, _)| n.clone()));
+        block(&a.body, &mut names);
+    }
+    for s in &p.contracts.specifications {
+        names.insert(s.name.clone());
+        names.extend(s.params.iter().map(|(n, _)| n.clone()));
+        for e in s.requires.iter().chain(&s.ensures) {
+            expression(e, &mut names);
+        }
+    }
+    for i in &p.contracts.implementations {
+        names.insert(i.name.clone());
+        names.insert(i.specification.clone());
+        block(&i.body, &mut names);
+    }
+    for e in &p.contracts.invariants {
+        expression(e, &mut names);
+    }
+    names
 }
 
 #[cfg(test)]
