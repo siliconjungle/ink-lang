@@ -9,6 +9,26 @@ sys.path[:0]=[str(ROOT/'planner'),str(ROOT/'knowledge')]
 from ink_planner.corpus import clone_knowledge
 from ink_knowledge import Store,canonical,semantic_entry,identity
 
+def workload(n,q,seed):
+ keys=[(i*2654435761+seed)&0xffffffff for i in range(n)]
+ requests=[dict(key=keys[i%n]if n and i%2==0 else i+seed,other=keys[(i+1)%n]if n and i%3==0 else i+1,enabled=i%4!=0,probes=[0,1,0xffffffff,i])for i in range(q)]
+ calls={'records':[keys,requests,seed,0],'predicate':[keys,keys[::3],requests],'nested':[keys,requests]}
+ return dict(schema=1,phases={name:[dict(function=name,args=args)]for name,args in calls.items()},profile={name:1 for name in calls},
+  workload=dict(shape=dict(elements=n,queries=q),distribution='alternating membership',concurrency=1,residency='complete host call including index construction and output'))
+
+def grid_workload(grid,seed):
+ phases={}
+ for key_slot,n in enumerate(grid['keys']):
+  for query_slot,q in enumerate(grid['queries']):
+   # Empty/empty has one canonical input for predicate and nested. Keep it
+   # evaluation-only rather than fake independence with an unused nonce.
+   if n==0 and q==0:continue
+   sample=workload(n,q,seed)
+   for name,calls in sample['phases'].items():phases[f'{name}:keys-stratum:{key_slot}:queries-stratum:{query_slot}']=calls
+ return dict(schema=1,phases=phases,profile={phase:1 for phase in phases},
+  workload=dict(shape=grid,distribution='registered mixed-size Cartesian grid; empty/empty reserved for evaluation',
+   concurrency=1,residency='complete host call including construction and output'))
+
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--compiler',type=pathlib.Path,required=True);p.add_argument('--output',type=pathlib.Path,required=True);p.add_argument('--seed-offset',type=int,default=0);p.add_argument('--training-grid',action='store_true');a=p.parse_args()
  if not 0<=a.seed_offset<2**31:p.error('seed offset must be a nonnegative signed 32-bit integer')
@@ -25,7 +45,7 @@ def main():
  files={str(p.relative_to(d)):hashlib.sha256(p.read_bytes()).hexdigest()for folder in ['knowledge/producers','knowledge/ink_knowledge','planner/ink_planner']for p in (d/folder).rglob('*.py')}
  files.update({f:hashlib.sha256((d/f).read_bytes()).hexdigest()for f in ['source.ink','ink','prepare.py','run.mjs','order.mjs']})
  bank=Store(d/'knowledge');initial=bank.snapshot_id
- env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(d/'planner'),str(d/'knowledge')]))
+ env=dict(os.environ,INK_COMPILER=str(d/'ink'),PYTHONPATH=os.pathsep.join([str(d/'planner'),str(d/'knowledge')]))
  authoring=subprocess.check_output([sys.executable,'-c','from ink_planner.compiled_planning import code_fingerprint;print(code_fingerprint())'],cwd=ROOT,env=env,text=True).strip()
  registration=dict(schema=1,authoring_sha256=authoring,python=sys.version,seed_offset=a.seed_offset,training_grid=a.training_grid,at=datetime.datetime.now(datetime.timezone.utc).isoformat(),files=files,knowledge_snapshot=initial,
   scope='Development fixture for contextual membership indexing; not an unseen library. Default registry and balanced planning; no forced producer or candidate. Complete call includes index construction, all query results and full consumption. Import, input generation and compilation excluded. Explicit indexed control is checked separately and never supplies selection authority. All held-out cells are reported, including losses outside a selected workload.',
@@ -33,31 +53,21 @@ def main():
   evaluation=dict(sizes=[0,1,31,257,4097],queries=[0,1,17,257],shapes=['unique','repeated16'],processes=3,rounds=8,batch_ns=3000000,seed=733+a.seed_offset))
  if a.training_grid:
   registration['selection']='Independent mixed-size and small plans; mixed training and rejection-only validation use independently registered Cartesian grids. Evaluation never selects or repairs a plan.'
-  registration['grids']=dict(training=dict(keys=[0,3,97,1537],queries=[0,3,193]),validation=dict(keys=[0,7,149,2053],queries=[0,7,263]))
+  registration['grids']=dict(training=dict(keys=[0,3,97,1537],queries=[0,3,193]),validation=dict(keys=[0,7,149,2053],queries=[0,7,263]),evaluation_only_controls=[dict(keys=0,queries=0)])
  (d/'registration.json').write_text(json.dumps(registration,indent=2)+'\n')
  def run(command,log):
   start=time.monotonic()
   with log.open('w')as stream:r=subprocess.run(list(map(str,command)),cwd=ROOT,env=env,stdout=stream,stderr=subprocess.STDOUT)
   if r.returncode:raise RuntimeError(f'command failed ({r.returncode}); see {log}')
   return time.monotonic()-start
- def workload(n,q,seed):
-  keys=[(i*2654435761+seed)&0xffffffff for i in range(n)]
-  requests=[dict(key=keys[i%n]if n and i%2==0 else i+seed,other=keys[(i+1)%n]if n and i%3==0 else i+1,enabled=i%4!=0,probes=[0,1,0xffffffff,i])for i in range(q)]
-  calls={'records':[keys,requests,seed,0],'predicate':[keys,keys[::3],requests],'nested':[keys,requests]}
-  return dict(schema=1,phases={name:[dict(function=name,args=args)]for name,args in calls.items()},profile={name:1 for name in calls},
-   workload=dict(shape=dict(elements=n,queries=q),distribution='alternating membership',concurrency=1,residency='complete host call including index construction and output'))
  for label,n,q,seed in [('large-training',1536,128,37),('large-validation',2049,193,101),('small-training',3,1,41),('small-validation',5,2,103)]:
   (d/(label+'.json')).write_text(json.dumps(workload(n,q,seed+a.seed_offset))+'\n')
  if a.training_grid:
   for label,grid,seed in [('large-training',registration['grids']['training'],37),('large-validation',registration['grids']['validation'],101)]:
-   phases={}
-   for n in grid['keys']:
-    for q in grid['queries']:
-     sample=workload(n,q,seed+a.seed_offset)
-     for name,calls in sample['phases'].items():phases[f'{name}:keys:{n}:queries:{q}']=calls
-   spec=dict(schema=1,phases=phases,profile={phase:1 for phase in phases},
-    workload=dict(shape=grid,distribution='registered mixed-size Cartesian grid',concurrency=1,residency='complete host call including construction and output'))
+   spec=grid_workload(grid,seed+a.seed_offset)
    (d/(label+'.json')).write_text(json.dumps(spec)+'\n')
+ from ink_planner.offline_measurements import independent_workloads
+ for label in ['large','small']:independent_workloads(d/(label+'-training.json'),d/(label+'-validation.json'))
  for stage in ['core','semantic']:run([d/'ink','emit-'+stage,d/'source.ink','-o',d/(stage+'.json')],d/(stage+'.log'))
  # This separately checked counterfactual is a measurement control only.
  sys.path[:0]=[str(d/'planner'),str(d/'knowledge')]
