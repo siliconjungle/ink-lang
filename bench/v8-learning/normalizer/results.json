@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "distribution_revision": "e5b6a96959f8e1edb1a15466736530f97ffc0ea0",
+  "knowledge_revision": "93bfb02c16d7ea7f382a7c3b680b36bc8e0bcd4d",
+  "planner_revision": "dcf97faa2512f5baba48413bd306634802acd957",
+  "baseline_knowledge_revision": "ebc4a8c73b91a5ccd3d25b1a91bfe181af48032c",
+  "compiler_sha256": "9fc3051470a64f2f0900bb1f08b4576d609c12b7420f06256887fe8d6abb63d0",
+  "producer_sha256": "91a8ef04c03bcaa244c046b898698e496a9001f1664ee48586fad930515bf610",
+  "baseline_producer_sha256": "1fcb8174cc4bfbb69701ddf810760f6c51ed500c83f7f84015e4c08cbfc6578c",
+  "groups": {
+    "dag-training": [
+      {
+        "process": "raw-1.json",
+        "before_ns": 4017666,
+        "cached_ns": 311267,
+        "speedup": 12.907458869716352
+      },
+      {
+        "process": "raw-2.json",
+        "before_ns": 4108847,
+        "cached_ns": 311045,
+        "speedup": 13.209815300036972
+      },
+      {
+        "process": "raw-3.json",
+        "before_ns": 4019819,
+        "cached_ns": 307402,
+        "speedup": 13.07674966330733
+      }
+    ],
+    "dag-holdout": [
+      {
+        "process": "raw-1.json",
+        "before_ns": 8103653,
+        "cached_ns": 367444,
+        "speedup": 22.05411708995112
+      },
+      {
+        "process": "raw-2.json",
+        "before_ns": 8238916,
+        "cached_ns": 368378,
+        "speedup": 22.36538555505486
+      },
+      {
+        "process": "raw-3.json",
+        "before_ns": 8126736,
+        "cached_ns": 369621,
+        "speedup": 21.986672835147353
+      }
+    ],
+    "captured-contract": [
+      {
+        "process": "raw-1.json",
+        "before_ns": 10095,
+        "cached_ns": 10243,
+        "speedup": 0.9855511080738065
+      },
+      {
+        "process": "raw-2.json",
+        "before_ns": 10471,
+        "cached_ns": 10677,
+        "speedup": 0.9807061908775874
+      },
+      {
+        "process": "raw-3.json",
+        "before_ns": 10211,
+        "cached_ns": 10306,
+        "speedup": 0.9907820686978459
+      }
+    ],
+    "captured-state": [
+      {
+        "process": "raw-1.json",
+        "before_ns": 92892,
+        "cached_ns": 92317,
+        "speedup": 1.0062285386223555
+      },
+      {
+        "process": "raw-2.json",
+        "before_ns": 92753,
+        "cached_ns": 91541,
+        "speedup": 1.0132399689756502
+      },
+      {
+        "process": "raw-3.json",
+        "before_ns": 91994,
+        "cached_ns": 90748,
+        "speedup": 1.013730330145017
+      }
+    ]
+  },
+  "scope": "Authoring normalizer with complete output hashing; invocation-local cache; three fresh processes; no compiled runtime or whole compiler performance claim",
+  "limitations": [
+    "Shared host; short captured controls are sensitive to noise",
+    "Purpose-built repeated helper DAGs establish mechanism, not frequency in production",
+    "Small captured obligations show about 1\u20132% overhead; captured state obligations are approximately unchanged",
+    "Corpora use bounded planning and cannot attribute aggregate changes to this cache alone"
+  ],
+  "measurement_distribution_revision": "9ef6d413fcd4490a4e2e8c3dd55952d928cf87d6",
+  "measurement_planner_revision": "cdfbc2b33afa0ba8deb69acba5baf132c51df3a2",
+  "note": "Raw samples acquired before integrating the incoming execution-context planner change; normalizer producer bytes unchanged. Merged planner validation recorded separately.",
+  "validation": {
+    "normal_forms_equal": 64,
+    "independent_theorems_replayed": 6,
+    "forged_result_rejected": true,
+    "focused_tests_passed": 16,
+    "pre_merge_planner_tests_passed": 295,
+    "merged_planner_tests_passed": 301
+  }
+}

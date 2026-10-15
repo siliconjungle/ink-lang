@@ -166,6 +166,7 @@ fn conformance_inner(
             || name == "numerical-state-parity"
             || name == "language-foundations-parity"
             || name == "generic-libraries-parity"
+            || name == "query-expressions-parity"
             || name.starts_with("invariant-value")
             || name == "bulk-workloads-parity"
             || name == "competitive-workloads-parity"

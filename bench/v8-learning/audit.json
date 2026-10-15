@@ -277,7 +277,7 @@
         ]
       ],
       "review_status": "partial Maglev family review",
-      "note": "Header complete; implementation review through line 300. Known-node facts are cloned/scoped around synthesized subgraphs, can-allocate/deopt/throw clear allocation-folding blocks including reducer-created nodes, eager deopt requires a reconstructible frame, and range comparisons distinguish signed/unsigned validity. No V8 type/range/profile premise imported into Ink; guarded source proof and exact reconstruction remain mandatory. Remaining implementation not yet read."
+      "note": "Header complete; optimizer implementation now fully read. Reducer helpers, known-node aspects, graph builder and family-wide applicability remain open; no tagged type/range/profile assumption imported into Ink."
     },
     {
       "path": "src/maglev/maglev-graph-optimizer.cc",
@@ -285,11 +285,159 @@
       "inclusive_lines": [
         [
           1,
-          300
+          4050
         ]
       ],
-      "review_status": "partial Maglev family review",
-      "note": "Header complete; implementation review through line 300. Known-node facts are cloned/scoped around synthesized subgraphs, can-allocate/deopt/throw clear allocation-folding blocks including reducer-created nodes, eager deopt requires a reconstructible frame, and range comparisons distinguish signed/unsigned validity. No V8 type/range/profile premise imported into Ink; guarded source proof and exact reconstruction remain mandatory. Remaining implementation not yet read."
+      "review_status": "file-read; delegated reducer and Maglev family assessment open",
+      "note": "Full optimizer file read. Scoped subgraph/known-fact state, allocation/deopt/throw barriers, representation alternatives preserving stronger checks, Smi versus heap-number identity (including an explicitly disabled unsound untag bypass), hole/undefined NaN silencing, exact signed/unsigned ranges, negative-zero constraints on multiplication, nonnegative power-of-two modulus, deferred identity-use cleanup and loop-Phi repair. Constant folding and builtin reduction delegate to reducer helpers; call inlining is frequency/size/budget ranked with captured exception/frame state. Many visitors explicitly remain TODOs. Ink has fixed typed words/F32 and no tagged oddballs/Smi/GC/deopt premise; unsafe representation reuse cannot follow from numeric range alone. Existing checked word/conversion/control laws and host lowering cover subsets. General constant-folding, range, inlining and reducer helpers remain open."
+    },
+    {
+      "path": "src/compiler/loop-peeling.cc",
+      "sha256": "0661d41fc81d8c12cc0881fb5f5da2c5ff4d3a59a2a0c87092da204f827d9cee",
+      "inclusive_lines": [
+        [
+          1,
+          299
+        ]
+      ],
+      "review_status": "file-read; dynamic peeling assessment open",
+      "note": "Full 299-line file read: first-iteration cloning, entry-value mapping, multi-backedge merge/phi repair, loop exit value/effect replacement, inner-first bounded peeling and backwards exit-marker cleanup. Dynamic Ink peeling remains open."
+    },
+    {
+      "path": "src/compiler/loop-variable-optimizer.cc",
+      "sha256": "aa1a6d9da9a41b4355a86917016086c5df992e83bed89b9993af51360ca0f49b",
+      "inclusive_lines": [
+        [
+          1,
+          358
+        ]
+      ],
+      "review_status": "file-read; generic range/loop applicability open",
+      "note": "Full file read. Control worklist entry-before-backedge traversal, common-ancestor condition joins, strict/non-strict comparison polarity, affine +/- induction recognition with selected conversions and a required effect Phi, explicit bound inputs for typer prefixed-point analysis, and restoring ordinary Phis with runtime TypeGuards where backedges do not fit. Ink word arithmetic wraps and source Nat/loop bounds differ from JS speculative numbers; hints or observed ranges are not universal equality premises. Dynamic range/strength-reduction applicability remains open."
+    },
+    {
+      "path": "src/compiler/scheduler.cc",
+      "sha256": "f6f788588d7554482c83330a7e3835cb4384a6dc71a0d1861872bfee8e34fb29",
+      "inclusive_lines": [
+        [
+          1538,
+          1597
+        ],
+        [
+          1700,
+          1735
+        ]
+      ],
+      "review_status": "partial file review; family open",
+      "note": "Loop hoisting bounded by minimum schedule position, dominator depth and execution on all outgoing paths. Ink knowledge now proposes lexical scalar hoisting from strict non-stopping callbacks with an explicit empty-list guard, hygienic captures and ordinary normalization proofs; no trusted loop matcher added. General CFG scheduling remains delegated/open."
+    },
+    {
+      "path": "src/maglev/maglev-known-node-aspects.h",
+      "sha256": "de4787220ba17ff88add54190e5efb37fbbfddccb728f5bac64acc1b27cbbc56",
+      "inclusive_lines": [
+        [
+          1,
+          1176
+        ]
+      ],
+      "review_status": "file-read; implementation and family assessment open",
+      "note": "Full header read. Distinguishes path joins from conjunction of facts about the same value; representation alternatives retain exact identity, map unions preserve staleness, unknown maps mean the universal set, stable maps require installed dependencies, conservative alias invalidation for stores/transitions/context slots, bounded keyed-load cache, exact hash/input/options checks, saturating effect epochs and deferred loop-header invalidation. Ink equivalents must remain checked source preservation or exact scoped pure sharing, never guessed alias/type facts. Implementation now fully read; family-wide applicability remains open."
+    },
+    {
+      "path": "src/maglev/maglev-known-node-aspects.cc",
+      "sha256": "76dbd368d10c1271bdf0ad35e2520c958e080ec21757cd4f9be0fa01c5d3e4bf",
+      "inclusive_lines": [
+        [
+          1,
+          1159
+        ]
+      ],
+      "review_status": "file-read; generic Ink applicability and family open",
+      "note": "Full implementation read. Linear sorted-map intersection/merge and monotone ignore cursors, separate forward-dominator versus backedge loop facts, preserving forward loads only under complete loop-write/alias summaries, structural equality after identity unwrapping, conservative context/OSR alias classes, stable dependency and stale-map invalidation, optimistic loop-header cloning followed by compatibility checks, and distinction between compiled effect epochs and lower-tier feedback after peeling/deopt. Numeric, map and physical-alias facts must never be substituted for one another. Existing Ink source-bound cache preservation/whole-action laws and pure scalar hoisting cover subsets; broader stateful loop transformations and planning/data-structure applicability remain open."
+    },
+    {
+      "path": "src/compiler/wasm-escape-analysis.cc",
+      "sha256": "e2259239361ab0d0c679d788f3fa1374ab1bb402769a5256fabe3f054bbf5b06",
+      "inclusive_lines": [
+        [
+          1,
+          82
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "All value uses must be dead phis or object initialization stores; deleting stores explicitly revisits stored allocations. Unknown uses retain allocation. No Ink rewrite admitted by this observation."
+    },
+    {
+      "path": "src/compiler/wasm-escape-analysis.h",
+      "sha256": "0af53cd52503c1499d24b5683c0253b8dc944fdae54fc7f7f94319c736630f09",
+      "inclusive_lines": [
+        [
+          1,
+          40
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Dead-allocation use discipline; full header read. Broader Wasm/GC family remains open."
+    },
+    {
+      "path": "src/compiler/select-lowering.cc",
+      "sha256": "69223eb219f33d7eebedf54604d13443b5b37179b860f63303c5985778c4c870",
+      "inclusive_lines": [
+        [
+          1,
+          59
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Literal Select lowering through conditional control and a merge phi. Ink lazy evaluation and strict argument evaluation must remain distinct; no new semantic authority."
+    },
+    {
+      "path": "src/compiler/escape-analysis-reducer.cc",
+      "sha256": "65b647b3df1165692487ae31c51fa207bf4a6a501156597660ca1c7a451556cd",
+      "inclusive_lines": [
+        [
+          1,
+          455
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Replacement preserves narrower original type via TypeGuard. Virtual-object reconstruction preserves identity and DFS dedup order; lazy deopt/stack trace and mapped arguments constrain escape. Hash-cons nodes by exact operator/inputs; speculative object materialization is not portable Ink state proof."
+    },
+    {
+      "path": "src/compiler/escape-analysis-reducer.h",
+      "sha256": "724057b60b1cb472daf232faf07496e2ebdcef80c2fd138db163acb7c3e991aa",
+      "inclusive_lines": [
+        [
+          1,
+          122
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Copy-on-write node hash-consing/recycling, exact node equality and explicit finalization/verification interfaces."
+    },
+    {
+      "path": "src/compiler/escape-analysis.cc",
+      "sha256": "b092fccdae5193b784990815b1a5a0097bfa6a9c2e298976e3d980ce564d3036",
+      "inclusive_lines": [
+        [
+          1,
+          981
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full implementation read. Effect/value changes schedule distinct dependent revisits, monotone escaped state invalidates dependants, persistent field maps merge through phis with dominance/uninitialized sentinels, 1300-byte tracking cap, unknown operations escape inputs. Finite one/two-element reads may scalar-replace only under type/bounds facts; trusted/bounded fields and lazy stack visibility retain materialization."
+    },
+    {
+      "path": "src/compiler/escape-analysis.h",
+      "sha256": "f4631f63573bc48d7c4791d48e0e34484df1e3c2dd4845aee6da7eb7805bf683",
+      "inclusive_lines": [
+        [
+          1,
+          198
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read. Fixed-point reducer and explicit dependencies; immutable analysis result is available only after completion. Virtual-object field bounds and escaped state gate access."
     }
   ],
   "families": [
@@ -309,7 +457,7 @@
       "name": "value-numbering",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/value-numbering-reducer.h",
-      "note": "Full reducer reviewed. Generic exact scalar lexical-sharing proposals admitted through existing Normalize checks, including nested binders; held-out complete-call JavaScript evidence retained. Stateful loads and global dominance reuse remain open."
+      "note": "Full reducer reviewed. Generic exact scalar lexical-sharing proposals admitted through existing Normalize checks, including nested binders; held-out complete-call JavaScript evidence retained. Stateful loads and global dominance reuse remain open. Invocation-local bounded successful-call normalization cache now reuses exact function/argument/depth results in untrusted authoring after a 32-call threshold. Six ordinary Convert proofs and 64 matching old/new normal forms; three-process helper DAG controls improve ~13x/~22x, small captured obligations approximately unchanged. No proof-verdict cache or whole compiler/runtime gain claimed; see bench/v8-learning/normalizer."
     },
     {
       "name": "load-elimination",
@@ -325,9 +473,9 @@
     },
     {
       "name": "escape-allocation",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/late-escape-analysis-reducer.cc",
-      "note": "Assess affine owners, scalar replacement, allocation folding and existing support"
+      "note": "Late escape and full TurboFan escape analysis/reducer plus Wasm dead-allocation pass read. Existing affine owners, last-use moves and record-elision proposals cover parts of allocation avoidance. Effect-sensitive virtual fields, dominance merges, identity-preserving materialization, failure boundaries and lifecycle profitability need further Ink-specific assessment. No allocation rewrite authority follows from source review."
     },
     {
       "name": "representation-types",
@@ -345,7 +493,7 @@
       "name": "loop-transforms",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/loop-optimization-reducer.h",
-      "note": "Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open."
+      "note": "Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open. Scheduler hoisting ranges and TurboFan peeling implementation reviewed; guarded scalar callback hoisting proposals added to knowledge. Broader dynamic CFG transforms remain open."
     },
     {
       "name": "strings",
@@ -369,7 +517,7 @@
       "name": "maglev",
       "status": "partial",
       "entry_point": "src/maglev/maglev-graph-builder.cc",
-      "note": "Optimizer header read in full and implementation lines 1..300 read; facts/scoping, deopt use accounting, subgraph splicing and signed/unsigned range guards assessed. Remaining optimizer, graph builder, known-node aspects and representation/inlining passes remain open."
+      "note": "Optimizer header and full 4050-line implementation read. Scoped facts, representation/check strength, disabled unsafe Smi bypass, NaN/negative-zero distinctions, call specialization/inlining scores and deferred Phi/identity repair assessed. Reducer helpers, graph builder, known-node aspects, representation/inlining passes and generic Ink applicability remain open. Known-node-aspects header and implementation read in full; broader graph builder/reducer and applicability assessment remain open."
     },
     {
       "name": "pipeline-infrastructure",
@@ -383,5 +531,9 @@
       "entry_point": "src/compiler/backend/register-allocator.cc",
       "note": "Assess which responsibilities are already delegated to existing host compilers"
     }
-  ]
+  ],
+  "closeout": {
+    "reason": "User requested wrapping up and merging the current batch; broad audit remains partial",
+    "remaining": "Open family statuses describe unimplemented/unassessed scope; no exhaustive V8 coverage or broad runtime speedup claim"
+  }
 }

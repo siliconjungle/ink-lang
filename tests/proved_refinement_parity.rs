@@ -277,3 +277,6 @@ packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['inpu
 
 #[path = "support/parameter_cache.rs"]
 mod parameter_cache;
+
+#[path = "support/loop_invariants.rs"]
+mod loop_invariants;

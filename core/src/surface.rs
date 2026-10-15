@@ -54,6 +54,7 @@ impl SurfaceProgram {
             occupied,
             abstract_records: self.abstract_records,
             access_origins: self.access_origins,
+            in_action: false,
         };
         if e.parameters.len() + e.aliases.len() > 1024 {
             return Err("surface declaration limit exceeded".into());
@@ -183,6 +184,7 @@ impl SurfaceProgram {
             }
         }
         for a in &mut p.actions {
+            e.in_action = true;
             e.locals = a.params.iter().map(|(n, _)| n.clone()).collect();
             for (_, t) in &mut a.params {
                 *t = e.ty(t, &env, 0)?;
@@ -191,6 +193,7 @@ impl SurfaceProgram {
             e.local_types = a.params.iter().cloned().collect();
             e.block(&mut a.body, &env, 0)?;
         }
+        e.in_action = false;
         for fs in p.records.values_mut() {
             for (_, t) in fs {
                 *t = e.ty(t, &env, 0)?;
@@ -303,6 +306,7 @@ struct Elaborator {
     occupied: BTreeSet<String>,
     abstract_records: BTreeMap<String, String>,
     access_origins: BTreeMap<String, String>,
+    in_action: bool,
 }
 impl Elaborator {
     fn fresh_prefix(&mut self) -> String {
@@ -699,7 +703,7 @@ impl Elaborator {
                     let mut p = self.templates.clone();
                     p.functions.extend(self.output.functions.clone());
                     p.records.extend(self.output.records.clone());
-                    crate::check::infer(a, &self.local_types, &p).ok()
+                    self.value_hint(a, &p)
                 });
                 let old_type = resolved.and_then(|t| self.local_types.insert(n.clone(), t));
                 let previous = self.locals.insert(n.clone());
@@ -786,6 +790,42 @@ impl Elaborator {
             }
             _ => (),
         }
+        if self.in_action {
+            self.lift_pure_region(e)?;
+        }
+        Ok(())
+    }
+    /// Hints only select generated helper signatures. Whole-module action
+    /// checking still establishes argument types, capabilities and effects.
+    fn value_hint(&self, e:&Expr, p:&Program)->Option<Type> {
+        crate::check::infer(e,&self.local_types,p).ok()
+            .or_else(||crate::statecheck::expression_type(p,e,&self.local_types).ok())
+            .or_else(||if let Expr::Call(n,_) = e {
+                p.actions.iter().find(|a|&a.name==n).map(|a|a.result.clone())
+            } else {None})
+    }
+    /// General pure compute regions in actions use the same checked helper
+    /// boundary as handwritten pure functions. Owned temporaries stay inside;
+    /// input actions and state observations remain in the caller's order.
+    fn lift_pure_region(&mut self,e:&mut Expr)->LangResult<()> {
+        let eligible=match e {
+            Expr::Call(n,_)=>["foldl","foldr","fold_until","repeat","repeat_until","parallel_map"].contains(&n.as_str()),
+            Expr::Method(_,n,_)=>["freeze","borrow_range","split_at"].contains(&n.as_str()),
+            _=>false,
+        };
+        if !eligible {return Ok(());}
+        let p=self.program_context();
+        let Ok(result)=crate::check::infer(e,&self.local_types,&p) else {return Ok(());};
+        if crate::local_collections::owned(&result,&p) {return Ok(());}
+        let free=free_variables(e,&BTreeSet::new());
+        let params=self.local_types.iter().filter(|(n,_)|free.contains(*n))
+            .map(|(n,t)|(n.clone(),t.clone())).collect::<Vec<_>>();
+        if params.iter().any(|(_,t)|crate::local_collections::owned(t,&p)) {return Ok(());}
+        let env=params.iter().cloned().collect();
+        crate::check::infer_as(e,&env,&p,&result)?;
+        let name=self.fresh_prefix();
+        self.output.functions.push(Function{name:name.clone(),params:params.clone(),result,body:e.clone()});
+        *e=Expr::Call(name,params.into_iter().map(|(n,_)|Expr::Var(n)).collect());
         Ok(())
     }
     fn program_context(&self) -> Program {
@@ -1319,7 +1359,7 @@ impl Elaborator {
                     self.expr(e, env, depth + 1)?;
                     self.locals.insert(n.clone());
                     if let Some(t) = t.clone().or_else(|| {
-                        crate::check::infer(e, &self.local_types, &self.program_context()).ok()
+                        self.value_hint(e, &self.program_context())
                     }) {
                         self.local_types.insert(n.clone(), t);
                     }

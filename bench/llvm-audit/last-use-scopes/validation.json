@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "baseline_distribution": "e5b6a96959f8e1edb1a15466736530f97ffc0ea0",
+  "production_changed": [
+    "core/src/last_use.rs"
+  ],
+  "candidate_source_sha256": "59e9921250a57fc2919c431f08fce1bec9509b95ed7a7747a82e31aa23abfae4",
+  "libraries": {
+    "before": "81e7bc19aa87aa89b72ba51a6d3bd4355c0177eebc5b1b2f442ccb7db2f97dda",
+    "after": "36f15c4d5caaf99ad1c22d63d5248af43b8259abd808cb8765232b2d6cc0f1ad"
+  },
+  "compiler_sha256": "613f4be0329d349d10f5aafe4a6fa14699e14bbe75b641212ba3143689a4ade8",
+  "checks": {
+    "independent_core": {
+      "passed": 377,
+      "failed": 0,
+      "suites_including_doctests": 66,
+      "log_sha256": "7f030a9a2c0206638e495ba1a70cad8348b31f0729a140dc07949a2ee26e8bb9"
+    },
+    "ownership_cpu_conformance": {
+      "tests": 2,
+      "targets": [
+        "reference",
+        "Rust",
+        "JavaScript",
+        "Rust-Wasm"
+      ],
+      "environment": {
+        "INK_TEST_WASM": "1",
+        "INK_PARITY_REQUIRE_ALL": "1"
+      },
+      "log_sha256": "d4da9a42f25b1a9fc84c0f765cc99e0c5251db280b0697fed84077854c23e1d1",
+      "suites": [
+        "state_field_ownership",
+        "variant_fold_ownership"
+      ],
+      "scope": "Values, events and exact transactional snapshots; variant selected-plan checks and instrumented native clone counters also pass."
+    },
+    "differential": {
+      "fresh_process_pairs_per_case": 9,
+      "calls_per_process": 3,
+      "cases": 6,
+      "samples": 324,
+      "exact_fact_traces": 108,
+      "all_equal": true,
+      "measurement_sha256": "dc0c83ac3a9da8c59023281a776d5bc5d27ee26643cacdccb62d3f20e2e808f9",
+      "independently_reaggregated": true
+    },
+    "portable_harness": {
+      "status": "passed",
+      "samples": 324,
+      "traces": 108,
+      "result_sha256": "062efdd4158685b0f4db8b8c7f39aa3bd669e091e9a7042d639a6d6005fc5bee",
+      "purpose": "Exercise published parameterized harness outside its original scratch layout; primary measurement unchanged."
+    }
+  },
+  "notes": [
+    "New regression checks restored outer identities after let, repeated callback and direct variant-arm scopes for both whole-value and field reads.",
+    "Scoped insert/restore preserves fresh IDs, initializer-before-binder evaluation, branch/capture policies and fail-closed limits; it adds no rule or rewrite authority.",
+    "Five timed subjects pass CheckedModule admission before timing. A separate over-depth control is unadmitted, excluded from performance range.",
+    "An initial scratch probe Let type needed Box<Type>; then over-wide 64-scope subjects hit core depth32. Neither failed attempt is counted; timed scope counts reduced to admitted shapes.",
+    "Debug core with optimized allocator-instrumented client; timings under contention, cumulative bytes are not RSS; no release/planner/browser/runtime gain claim.",
+    "No knowledge change, hence no law-selection generalisation claim and no new frozen-corpus evaluation required for this internal allocation change.",
+    "No LLVM tests or GPU executions performed in this change."
+  ],
+  "publication": "Pending; local checks do not imply CI green."
+}

@@ -1,0 +1,44 @@
+use compiled_state::{State,l_Pair};
+use serde_json::{Value,json};
+use std::{hint::black_box,time::Instant};
+
+enum Output{Words(Vec<u32>),Pairs(Vec<l_Pair>),Found(bool)}
+impl Output{
+ fn json(&self)->Value{match self{Self::Words(xs)=>json!(xs),Self::Pairs(xs)=>json!(xs.iter().map(|x|json!({"left":x.l_left,"right":x.l_right})).collect::<Vec<_>>()),Self::Found(b)=>json!(b)}}
+ fn digest(&self)->u64{match self{Self::Words(xs)=>xs.iter().fold(0u64,|h,x|h.wrapping_mul(31)^u64::from(*x)),Self::Pairs(xs)=>xs.iter().fold(0u64,|h,x|h.wrapping_mul(31)^u64::from(x.l_left.wrapping_mul(31)^x.l_right)),Self::Found(b)=>u64::from(*b)}}
+}
+fn invoke(state:&State,name:&str,xs:&[u32],ys:&[u32],a:u32,b:u32)->Output{
+ match name{
+  "filtered"=>Output::Words(state.function_l_filtered(xs.to_vec(),a,b)),
+  "pipeline"=>Output::Words(state.function_l_pipeline(xs.to_vec(),a,b)),
+  "manual"=>Output::Words(state.function_l_manual(xs.to_vec(),a,b)),
+  "hand_filter"=>Output::Words(xs.iter().copied().filter(|x|*x>=a).map(|x|x.wrapping_mul(3).wrapping_add(b)).collect()),
+  "joined"=>Output::Pairs(state.function_l_joined(xs.to_vec(),ys.to_vec())),
+  "manual_join"=>Output::Pairs(state.function_l_manual_join(xs.to_vec(),ys.to_vec())),
+  "hand_join"=>{let mut output=Vec::new();for &x in xs{for &y in ys{if x==y{output.push(l_Pair{l_left:x,l_right:y});}}}Output::Pairs(output)},
+  "contains"=>Output::Found(state.function_l_contains(xs.to_vec(),a)),
+  "manual_contains"=>Output::Found(state.function_l_manual_contains(xs.to_vec(),a)),
+  "hand_contains"=>Output::Found(xs.contains(&a)),
+  _=>panic!("unknown lane")
+ }
+}
+fn main(){
+ let request:Value=serde_json::from_slice(&std::fs::read(std::env::args().nth(1).unwrap()).unwrap()).unwrap();
+ let started=Instant::now();let state=State::new();let setup_ns=started.elapsed().as_nanos();
+ let mut seed=request["seed"].as_u64().unwrap()as u32;let mut sink=0u64;let mut rows=vec![];
+ for c in request["cases"].as_array().unwrap(){
+  let args=c["args"].as_array().unwrap();let xs=args[0].as_array().unwrap().iter().map(|n|u32::try_from(n.as_u64().unwrap()).unwrap()).collect::<Vec<_>>();
+  let ys=args.get(1).and_then(Value::as_array).map(|xs|xs.iter().map(|n|u32::try_from(n.as_u64().unwrap()).unwrap()).collect::<Vec<_>>()).unwrap_or_default();
+  let a=args.get(1).and_then(Value::as_u64).unwrap_or(0)as u32;let b=args.get(2).and_then(Value::as_u64).unwrap_or(0)as u32;
+  let names=c["functions"].as_array().unwrap().iter().map(|n|n.as_str().unwrap()).collect::<Vec<_>>();
+  let call=|name:&str|invoke(black_box(&state),name,black_box(&xs),black_box(&ys),black_box(a),black_box(b));
+  let mut counts=vec![];let mut samples=vec![Vec::new();names.len()];
+  for name in &names{assert_eq!(call(name).json(),c["expected"],"{} {name}",c["name"]);for _ in 0..32{sink^=black_box(call(name)).digest();}
+   let mut n=1;loop{let t=Instant::now();for _ in 0..n{sink^=black_box(call(name)).digest();}if t.elapsed().as_millis()>=5||n>=16384{break;}n*=2;}counts.push(n);}
+  let mut order=(0..names.len()).collect::<Vec<_>>();
+  for _ in 0..11{for i in (1..order.len()).rev(){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;order.swap(i,seed as usize%(i+1));}
+   for &index in &order{let t=Instant::now();for _ in 0..counts[index]{sink^=black_box(call(names[index])).digest();}samples[index].push(t.elapsed().as_nanos()as f64/counts[index]as f64);}}
+  for (index,name) in names.iter().enumerate(){assert_eq!(call(name).json(),c["expected"]);rows.push(json!({"case":c["name"],"function":name,"calls_per_sample":counts[index],"samples_ns":samples[index]}));}
+ }
+ println!("{}",json!({"target":"rust","setup_ns":setup_ns,"sink":black_box(sink),"rows":rows}));
+}

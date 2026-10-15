@@ -13,6 +13,15 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Ordered query expressions](docs/query-expressions.md) add typed `list<T>{...}`
+and `exists{...}` with `from`, `where`, `join` and `select`. They preserve list
+order and duplicates, and elaborate to existing checked operations. The first
+milestone includes generic/nested expressions, action input ordering and rollback,
+cross-target conformance, and comparisons with ordinary pipelines and handwritten
+loops. It adds no privileged query optimization or external-storage backend;
+the [full implementation programme](docs/optimisation-language-programme.md)
+keeps unordered collections and broader relational operators in scope.
+
 [Approximation contracts](docs/approximation-contracts.md) lower explicit integer
 absolute/rational-relative and finite-f32 ULP bounds to ordinary proof obligations.
 Twelve error/finite-probability laws and three discovery templates live in the

@@ -234,3 +234,75 @@ seven across programs. No representation was admitted, and all ten exhausted the
 quick search budget. It supplies no broad parameter-cache generalization or V8
 runtime speedup claim; the workload-specific cache evidence remains separate.
 See `bench/v8-learning/corpus-parameter-summary.json`.
+
+V8's scheduler bounds loop hoisting by the earliest valid schedule position and
+requires the original block to execute on every outgoing path. The database's
+new `loop_invariants` producer follows the same demand constraint for strict
+regions of non-stopping map/filter/left-fold/right-fold callbacks. Scalar work
+can move through hygienic lexical binding, with an explicit empty-list guard.
+Conditional-only work and early-stopping callbacks are excluded. Existing
+source binding and Normalize proofs must accept every whole-function proposal;
+there is no new trusted loop rewrite rule. A generic planner extraction fix
+preserves local binders inside captured lambda expressions while still rejecting
+captures of the pattern's binders.
+
+The retained `bench/v8-learning/loop-invariants` control supplies actual compiled
+runtime evidence: three fresh processes per target and disjoint workload split.
+An explicit checked captured-fold hoist improved JavaScript nonempty complete
+calls about 105x in training and 164x in holdout, and native JSON-call medians
+about 1.15x and 1.27x. Every nonempty native process comparison improved; empty
+calls were roughly tied. Native includes typed input conversion, so absolute
+target times are not comparable. This single workload does not establish broad
+language speedups or automatic plan selection. The new mandatory CPU suite
+checks 72 cases including raw floating-point boundary values and nested captures;
+all 295 planner tests passed after materializing two exact legacy test inputs.
+
+The sixth frozen corpus run compiled all ten unchanged programs, selected three
+alternatives, admitted 38 laws and reused seven across programs. All ten exhausted
+the quick budget. A separate discovery diagnostic on the exact captured cores
+found zero callback-hoisting proposals, so this corpus supplies no cross-program
+generalization evidence for the new producer. The direct installed-catalogue
+regression fixture independently admits twelve hoisting laws across eleven
+functions; it is a purpose-built validation input. See the retained
+`corpus-invariants-summary.json` and `corpus-invariants-proposals.json`. Concurrent
+database/evidence-gate changes and the binder fix prevent attributing aggregate
+corpus count differences to any one change. The default structural model also
+ranks the measured guarded hoist worse; addressing that search limitation remains
+separate from the explicit selected-plan runtime control.
+
+A follow-up proposal restriction accepts only reviewed numeric/list operation
+trees and declines nested string construction or unanalysed source helpers. A
+scalar result alone does not establish that its nested work is total: string
+concatenation has a fixed U32 length failure boundary. The kernel still replays
+the same equality proof. Both the measured proposal and all twelve numeric CPU
+fixture proposals are byte-identical after this restriction, and the hardened
+72-case CPU suite passes. The frozen corpus above predates this restriction;
+post-run discovery on its exact captured cores remains zero for this producer.
+
+The value-numbering pass also informs bounded invocation-local reuse in the
+database's authoring normalizer. Exact function/argument/depth keys reuse only
+successful results, with a fresh context for each invocation, fresh returned
+containers and unchanged lazy/depth behavior. It activates after 32 expansions
+to avoid structural-key overhead on small jobs. Three fresh processes show
+about 13.1×/22.1× on deliberately repeated helper DAGs; captured obligations are
+approximately unchanged, with about 1–2% overhead on the smallest group. These
+are authoring measurements, not generated-program or whole-compiler speedups.
+All 64 old/new normal forms match; six ordinary Convert theorems replay with
+unchanged limits, and a reauthenticated false result is rejected. The 16 focused
+regressions and all 301 merged planner tests pass. See
+`bench/v8-learning/normalizer` for inputs, raw samples and exact revisions.
+
+At the user's closeout request, the broader audit stops with its explicit partial
+and pending family statuses in `bench/v8-learning/audit.json`. The completed
+changes and selected evidence are retained; unread paths and unassessed domains
+are not claimed as implemented. The new authoring cache is distinct from the
+measured native hoisting improvement, and neither establishes a broad speedup
+across Ink applications.
+
+The final frozen corpus diagnostic compiles all ten unchanged programs, selects
+two alternatives, admits 36 laws and reuses seven across programs, with no
+representation admitted. Every quick budget is exhausted. Compiler/planner
+changes since the prior run and bounded-search variability prevent attributing
+count or elapsed-time differences to authoring reuse. Exact inputs, selected
+plans, near misses and context are retained in `corpus-normalizer`; its private
+knowledge publications are retired after successful completion.
