@@ -141,15 +141,18 @@ impl Runtime {
                 Type::Int => Value::Int(BigInt::from(*n)),
                 Type::I32 => Value::I32(*n as i32),
                 Type::F32 => Value::F32((*n as f32).to_bits()),
+                Type::F64 => Value::F64((*n as f64).to_bits()),
                 _ => Value::U64(*n),
             }),
             Kind::Bool(v) => Ok(Value::Bool(*v)),
             Kind::Float(bits) => Ok(Value::F32(*bits)),
+            Kind::Double(bits) => Ok(Value::F64(*bits)),
             Kind::Neg { value } => Ok(match self.typed_expr(body, *value, slots)? {
                 Value::I32(v) => Value::I32(v.wrapping_neg()),
                 Value::U32(v) => Value::U32(v.wrapping_neg()),
                 Value::U64(v) => Value::U64(v.wrapping_neg()),
                 Value::F32(v) => Value::F32(v ^ 0x80000000),
+                Value::F64(v) => Value::F64(v ^ 0x8000000000000000),
                 Value::Int(v) => Value::Int(-v),
                 _ => return Err("numeric negation".into()),
             }),
@@ -254,7 +257,7 @@ impl Runtime {
                     let Kind::Lambda {parameter,body: callback}=body.nodes[arguments[0]].kind else {return Err("scan callback".into());};
                     let values=self.tables[&name].values().cloned().collect::<Vec<_>>();
                     let ExprType::Value(result_type)=&node.ty else {unreachable!()};
-                    let mut result=match result_type {Type::U64=>Value::U64(0),Type::U32=>Value::U32(0),Type::I32=>Value::I32(0),Type::F32=>Value::F32(0),Type::Int=>Value::Int(0.into()),_=>return Err("scan result type".into())};
+                    let mut result=match result_type {Type::U64=>Value::U64(0),Type::U32=>Value::U32(0),Type::I32=>Value::I32(0),Type::F32=>Value::F32(0),Type::F64=>Value::F64(0),Type::Int=>Value::Int(0.into()),_=>return Err("scan result type".into())};
                     for value in values {
                         let contribution=self.typed_apply(body,parameter,callback,slots,value)?;
                         if method=="count_where" {if contribution==Value::Bool(true) {let Value::Int(n)=&mut result else {unreachable!()};*n+=1;}else if contribution!=Value::Bool(false){return Err("scan predicate".into());}}

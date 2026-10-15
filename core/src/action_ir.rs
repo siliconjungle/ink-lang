@@ -13,6 +13,7 @@ use std::{collections::BTreeMap, sync::Arc};
 pub const SEMANTICS: &str = "ink-typed-actions-v1";
 pub const NUMERICAL_SEMANTICS: &str = "ink-typed-actions-v2";
 pub const VALUE_SEMANTICS: &str = "ink-typed-actions-v3";
+pub const BINARY64_SEMANTICS: &str = "ink-typed-actions-v4";
 const MAX_NODES: usize = 100_000;
 pub type NodeId = usize;
 pub type SlotId = usize;
@@ -35,6 +36,7 @@ pub struct Node {
 pub enum Kind {
     Number(u64),
     Float(u32),
+    Double(u64),
     Neg {
         value: NodeId,
     },
@@ -231,7 +233,7 @@ impl CheckedActions {
             module: module.clone(),
             wire: Wire {
                 schema: 1,
-                semantics: if values {
+                semantics: if crate::float64::needed(p) { BINARY64_SEMANTICS } else if values {
                     VALUE_SEMANTICS
                 } else if numerical {
                     NUMERICAL_SEMANTICS
@@ -497,6 +499,7 @@ impl<'a> Lower<'a> {
             let kind = match e {
                 Expr::Num(n) => Kind::Number(*n),
                 Expr::Float(bits) => Kind::Float(*bits),
+                Expr::Double(bits) => Kind::Double(*bits),
                 Expr::Neg(value) => Kind::Neg {
                     value: self.expr(value, Some(&ty), env)?,
                 },
@@ -940,6 +943,7 @@ impl Body {
                 Kind::Local(slot) => solver.unify(out()?, slots[*slot].clone())?,
                 Kind::Bool(_) => solver.unify(out()?, Ty::Atom(Type::Bool))?,
                 Kind::Float(_) => solver.unify(out()?, Ty::Atom(Type::F32))?,
+                Kind::Double(_) => solver.unify(out()?, Ty::Atom(Type::F64))?,
                 Kind::Neg { value } => solver.unify(out()?, val(*value)?)?,
                 Kind::String(_) => solver.unify(out()?, Ty::Atom(Type::String))?,
                 Kind::Unit => solver.unify(out()?, Ty::Atom(Type::Unit))?,
@@ -1199,6 +1203,7 @@ impl Body {
                     ExprType::Value(Type::U64 | Type::Int) => (),
                     ExprType::Value(Type::I32) if n <= 2147483648 => (),
                     ExprType::Value(Type::F32) if (n as f32) as u128 == n as u128 => (),
+                    ExprType::Value(Type::F64) if (n as f64) as u128 == n as u128 => (),
                     _ => return Err("invalid numeric action type".into()),
                 }
             }
@@ -1226,6 +1231,7 @@ impl Body {
         Ok(match &node.kind {
             Kind::Number(n) => Expr::Num(*n),
             Kind::Float(bits) => Expr::Float(*bits),
+            Kind::Double(bits) => Expr::Double(*bits),
             Kind::Neg { value } => Expr::Neg(Box::new(self.expression(p, *value, replacements)?)),
             Kind::VectorField {
                 receiver,

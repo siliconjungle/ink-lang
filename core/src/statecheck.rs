@@ -253,7 +253,7 @@ impl Context<'_> {
             }
         }
         if let Expr::Num(n) = e {
-            if matches!(want, Type::I32 | Type::F32) {
+            if matches!(want, Type::I32 | Type::F32 | Type::F64) {
                 return crate::check::infer_as(e, env, self.p, want);
             }
             if *want == Type::U32 {
@@ -291,6 +291,7 @@ impl Context<'_> {
         use Type as T;
         match e {
             Expr::Float(_) => Ok(T::F32),
+            Expr::Double(_) => Ok(T::F64),
             Expr::Neg(value) => {
                 let t = if matches!(value.as_ref(), Expr::Num(_)) {
                     T::I32
@@ -485,7 +486,7 @@ impl Context<'_> {
                     return self.expected(e, &t, env, facts);
                 }
                 if crate::primitives::primitive(n) {
-                    let first=if crate::primitives::bit_count(n){args.first().map(|e|self.infer(e,env,facts)).transpose()?}else{None};
+                    let first=crate::primitives::input_type(n,args.first(),|e|self.infer(e,env,facts))?;
                     let (params,result)=crate::primitives::signature(n,first.as_ref())?;
                     if args.len()!=params.len(){return Err(format!("{n}: argument count mismatch"));}
                     for (arg,ty) in args.iter().zip(params){self.expected(arg,&ty,env,facts)?;}

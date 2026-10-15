@@ -3,6 +3,19 @@ use crate::{core::Type, stateful::Value as V, LangResult};
 pub const NAMES: &[&str] = &[
     "sqrt",
     "f32_div",
+    "f64_div",
+    "f64_bits",
+    "f64_from_bits",
+    "f64_from_f32",
+    "f32_from_f64",
+    "f64_from_u32",
+    "f64_from_u64",
+    "f64_from_i32",
+    "f64_from_int",
+    "int_from_f64",
+    "u32_from_f64",
+    "u64_from_f64",
+    "i32_from_f64",
     "is_nan",
     "is_finite",
     "floor",
@@ -34,13 +47,48 @@ pub fn primitive(n: &str) -> bool {
 pub fn bit_count(n: &str) -> bool {
     ["popcount", "leading_zeros", "trailing_zeros"].contains(&n)
 }
+pub fn floating_operation(n:&str)->bool {
+    matches!(n,"sqrt"|"floor"|"ceil"|"trunc"|"round_ties_even"|"is_nan"|"is_finite")
+}
+/// Float overloads inspect typed arguments while keeping untyped literal trees
+/// at their historical F32 default. Fixed-word counting keeps its U64 default.
+pub fn input_type(n:&str,argument:Option<&crate::core::Expr>,mut infer:impl FnMut(&crate::core::Expr)->LangResult<Type>)->LangResult<Option<Type>> {
+    fn floating_hint(e:&crate::core::Expr,infer:&mut impl FnMut(&crate::core::Expr)->LangResult<Type>)->Option<Type> {
+        use crate::core::Expr;
+        match e {
+            Expr::Num(_)=>None,
+            Expr::Neg(x)=>floating_hint(x,infer),
+            Expr::Binary(op,a,b)if matches!(op.as_str(),"+"|"-"|"*")=>floating_hint(a,infer).or_else(||floating_hint(b,infer)),
+            _=>infer(e).ok(),
+        }
+    }
+    let Some(argument)=argument else{return Ok(None);};
+    if bit_count(n){return infer(argument).map(Some);}
+    Ok(if floating_operation(n){floating_hint(argument,&mut infer)}else{None})
+}
 pub fn signature(n: &str, first: Option<&Type>) -> LangResult<(Vec<Type>, Type)> {
     use Type::*;
     let option = |t| Option(Box::new(t));
+    if floating_operation(n) {
+        let t=first.cloned().unwrap_or(F32);
+        if !matches!(t,F32|F64){return Err("floating operation requires f32 or f64".into());}
+        return Ok((vec![t.clone()],if matches!(n,"is_nan"|"is_finite"){Bool}else{t}));
+    }
     Ok(match n {
-        "sqrt" | "floor" | "ceil" | "trunc" | "round_ties_even" => (vec![F32], F32),
         "f32_div" => (vec![F32, F32], F32),
-        "is_nan" | "is_finite" => (vec![F32], Bool),
+        "f64_div" => (vec![F64,F64],F64),
+        "f64_bits" => (vec![F64],U64),
+        "f64_from_bits" => (vec![U64],F64),
+        "f64_from_f32" => (vec![F32],F64),
+        "f32_from_f64" => (vec![F64],F32),
+        "f64_from_u32" => (vec![U32],F64),
+        "f64_from_u64" => (vec![U64],F64),
+        "f64_from_i32" => (vec![I32],F64),
+        "f64_from_int" => (vec![Int],F64),
+        "int_from_f64" => (vec![F64],option(Int)),
+        "u32_from_f64" => (vec![F64],option(U32)),
+        "u64_from_f64" => (vec![F64],option(U64)),
+        "i32_from_f64" => (vec![F64],option(I32)),
         "f32_bits" => (vec![F32], U32),
         "f32_from_bits" => (vec![U32], F32),
         "f32_from_u32" => (vec![U32], F32),
@@ -109,6 +157,9 @@ pub fn sqrt_bits(bits: u32) -> u32 {
     (((half + 127) as u32) << 23) | ((lo as u32) & 0x7fffff)
 }
 pub fn evaluate(n: &str, a: &[V]) -> LangResult<V> {
+    if n.starts_with("f64_")||n.ends_with("_f64")||(floating_operation(n)&&matches!(a.first(),Some(V::F64(_)))) {
+        return crate::float64::evaluate(n,a);
+    }
     let arity = match n {
         "f32_div" | "string_byte_at" | "string_concat" => 2,
         "string_slice" | "string_find" => 3,

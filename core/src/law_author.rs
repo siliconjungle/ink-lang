@@ -408,6 +408,15 @@ impl<'a> Scope<'a> {
                     .map(|a| self.transform(a, shadow))
                     .collect::<LangResult<_>>()?,
             ),
+            // External law bodies do not pass through executable surface
+            // elaboration. Their currently admitted floating domain is F32;
+            // preserve its canonical division spelling after the parser became
+            // width-neutral. Binary64 proof terms remain explicitly unsupported
+            // by semantic admission, rather than borrowing F32 rewrite rules.
+            Expr::Binary(o, a, b) if o == "/" => Expr::Call(
+                "f32_div".into(),
+                vec![self.transform(a, shadow)?, self.transform(b, shadow)?],
+            ),
             Expr::Binary(o, a, b) => Expr::Binary(
                 o.clone(),
                 Box::new(self.transform(a, shadow)?),

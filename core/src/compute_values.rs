@@ -3,14 +3,14 @@ use crate::syntax::*;
 pub fn needed(p: &Program) -> bool {
     fn ty(t: &Type) -> bool {
         match t {
-            Type::I32 | Type::F32 | Type::Vector(..) | Type::Named(_) => true,
+            Type::I32 | Type::F32 | Type::F64 | Type::Vector(..) | Type::Named(_) => true,
             Type::List(t) => matches!(**t, Type::Bool) || ty(t),
             _ => false,
         }
     }
     fn expr(e: &Expr) -> bool {
         match e {
-            Expr::Float(_) | Expr::Neg(_) | Expr::Let(..) | Expr::Record(..) | Expr::Field(..) => {
+            Expr::Float(_) | Expr::Double(_) | Expr::Neg(_) | Expr::Let(..) | Expr::Record(..) | Expr::Field(..) => {
                 true
             }
             Expr::Call(n, a) => {

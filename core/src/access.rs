@@ -569,7 +569,7 @@ impl Checker<'_> {
                 self.expr(body, *receiver, state, out, depth + 1)?;
                 None
             }
-            Kind::Float(_) | Kind::Unit | Kind::None | Kind::Enum { .. } => None,
+            Kind::Float(_) | Kind::Double(_) | Kind::Unit | Kind::None | Kind::Enum { .. } => None,
         };
         Ok(value)
     }
