@@ -258,3 +258,9 @@ new goal revisions without repeating actions or waiving correctness, evidence,
 migration and resource gates. See [authored and learned objectives](docs/programmable-objectives.md)
 and the [complete source example](examples/programmable-objective.ink). General
 compiler search does not yet learn its objective automatically.
+
+An optional [compiled source search policy](docs/learned-search.md) can also order
+the planner's frontier using the complete checked program structure and captured
+typed model context. Its example trains a source model with Adam. All proposed
+edges still need proof replay; measured selection remains separate. This is
+programmable exploration, with further search and performance work remaining.

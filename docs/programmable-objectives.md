@@ -111,7 +111,10 @@ by `prepareInkObjective`, including `entry` and typed `context`. Previous identi
 is optional; omitting it restarts confirmation. The receipt records exact input
 digests and the proposed decision. This ranks an already checked portfolio; it does
 not construct a new proof, commit a migration or redirect all compiler search
-heuristics. Those integration boundaries remain explicit.
+heuristics. A separate [compiled source search goal](learned-search.md) can now
+order the compiled planner's frontier using complete checked program structures;
+recipe dispatch, inner search and evidence-based deployment selection retain their
+own contracts.
 
 ## Learning goals and permitted behavior
 
