@@ -37,8 +37,10 @@ Configuration belongs in the authored program and trace: objectives, observation
 seeds, optimizer settings, constraints and update actions. The build does not infer
 labels, shuffle data, choose an optimizer or run a profitability experiment.
 `--contract-proofs`, `--termination-proofs` and checked `--core` input retain normal
-admission. Implementation planning/selection inside `build-model` remains open;
-unsupported options reject instead of silently being ignored.
+admission. Explicit `--specialize-frozen` requests database-authored immutable-state
+specialization after restriction, with complete action proof replay.
+General planning inside `build-model` remains open; unsupported options reject
+instead of silently being ignored.
 
 ## Startup and continuation
 
@@ -156,6 +158,11 @@ convergence guarantee.
 
 
 ## Explicitly freeze selected degrees of freedom
+
+Add `--specialize-frozen` to request [checked structural
+specialization](frozen-structural-specialization.md) of the restricted source.
+Verification rechecks its equality package and selected source. This explicit
+request carries no automatic profitability claim.
 
 ```sh
 ink build-model examples/adaptive-layout.ink examples/adaptive-layout-training.json \

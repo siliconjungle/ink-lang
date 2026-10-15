@@ -32,6 +32,11 @@ equality checking can use them to establish constant lookups. This supplies a
 foundation for database-authored specialization. It does not itself replace neural
 evaluation, fold arithmetic or establish a performance improvement.
 
+[Structural specialization](frozen-structural-specialization.md) now connects those
+fixed facts to complete action replacement proofs. Explicit
+`build-model --specialize-frozen` propagates frozen choices through helpers and
+removes unused serving branches in that checked source domain.
+
 State emitters must explicitly support initialization and every restore boundary.
 The legacy `CheckedActions::elaborate` entry rejects frozen source; updated callers
 use `elaborate_with_frozen_roots`. This prevents an older emitter linked to the new

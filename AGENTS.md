@@ -250,3 +250,15 @@ nonrecursive parameters. Mutable branch/loop/call slots retain value snapshots;
 field reads and calls keep their evaluation positions. Do not infer purity,
 unique ownership, numeric range or rewrite authority from a reused local name.
 See docs/immutable-javascript-bindings.md and the exact-bit alias/swap regression.
+
+Whole-action specialization may use the re-derived frozen_domain after existing
+sorted-table premises. Arbitrary source predicates and producer hints grant no
+additional facts. Use exhaustive Cases to transport state-dependent premises;
+do not introduce dependent induction hypotheses. Partial evaluation and helper
+specialization belong in knowledge. Explicit build-model --specialize-frozen
+must replay complete action proofs and preserve the restricted checkpoint
+namespace; artifact verification rechecks proofs even without training replay.
+This is not automatic profitability selection or physical-layout authority.
+Programmable objective versions and feedback policies remain authored state;
+the example does not change the general planner's evidence/admission contract.
+See docs/frozen-structural-specialization.md.

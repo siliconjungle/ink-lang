@@ -451,3 +451,223 @@ fn neural_and_reward_models_freeze_complete_optimizer_and_control_state() {
         }
     }
 }
+
+#[test]
+fn frozen_learned_structure_has_checked_complete_transitions_on_all_targets() {
+    let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
+    let source = include_str!("../examples/adaptive-structure.ink");
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let trace =
+        serde_json::from_str(include_str!("../examples/adaptive-structure-training.json")).unwrap();
+    let trained = verified_language::training::replay(&module, &trace).unwrap();
+    let frozen =
+        verified_language::freezing::restrict(&module, &trained.snapshot, &["Choice".into()])
+            .unwrap();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/frozen-structure-authoring");
+    fs::create_dir_all(&root).unwrap();
+    let input = root.join("frozen.core.json");
+    fs::write(&input, frozen.module.bytes().unwrap()).unwrap();
+    let packet_file = root.join("selection.json");
+    ok(Command::new("python3")
+        .arg("knowledge/producers/frozen_specialization.py")
+        .arg(&input)
+        .arg("--ink")
+        .arg(env!("CARGO_BIN_EXE_ink"))
+        .arg("-o")
+        .arg(&packet_file)
+        .output()
+        .unwrap());
+    let packet = serde_json::from_slice(&fs::read(packet_file).unwrap()).unwrap();
+    let selected = verified_language::optimisation::check(&frozen.module, &packet).unwrap();
+    assert_ne!(
+        selected.module().identity().unwrap(),
+        frozen.module.identity().unwrap()
+    );
+    let body = serde_json::to_string(&selected.module().program().actions[0].body).unwrap();
+    assert!(!body.contains("Choice") && !body.contains("evaluate") && !body.contains("expanded"));
+    assert!(body.contains("word_and"));
+    let mut baseline = Runtime::restore_portable_checked(&frozen.module, &frozen.snapshot).unwrap();
+    let mut implementation =
+        Runtime::restore_portable_selected(&selected, &frozen.snapshot).unwrap();
+    let mut steps = vec![json!({"restore":frozen.snapshot})];
+    let mut expected = vec![];
+    let mut calls = vec![("choice", json!([])), ("costs", json!([]))];
+    for (key, value, fail) in [
+        (0, 0, false),
+        (7, u64::MAX, false),
+        (7, 42, true),
+        (3, 255, false),
+    ] {
+        calls.push(("put", json!([key, value, fail])));
+        for x in [0, 1, 255, 256, 1023, u64::MAX] {
+            calls.push(("serve", json!([key, x])));
+        }
+    }
+    for (name, args) in calls {
+        let reply = baseline.invoke_json(name, &args).unwrap();
+        assert_eq!(
+            reply.json(),
+            implementation.invoke_json(name, &args).unwrap().json()
+        );
+        assert_eq!(
+            baseline.checkpoint_portable().unwrap(),
+            implementation.checkpoint_portable().unwrap()
+        );
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":baseline.checkpoint_portable().unwrap()}));
+    }
+    steps.push(json!({"restore":baseline.checkpoint_portable().unwrap()}));
+    steps.push(json!({"pure":"batch","args":[[0.,0.5,-1.]],"expect_gpu":true}));
+    expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":baseline.checkpoint_portable().unwrap()}));
+    parity::conformance_selected(
+        "frozen-structure-parity",
+        &selected,
+        source,
+        steps,
+        expected,
+    );
+}
+
+#[test]
+fn specialized_training_build_rechecks_proofs_even_after_inventory_rehashing() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join(format!("build/specialized-build-{}", std::process::id()));
+    fs::create_dir_all(&root).unwrap();
+    for target in ["javascript", "wasm32"] {
+        if target == "wasm32" && std::env::var_os("INK_TEST_WASM").is_none() {
+            continue;
+        }
+        let destination = root.join(target);
+        ok(Command::new(env!("CARGO_BIN_EXE_ink"))
+            .args([
+                "build-model",
+                "examples/adaptive-structure.ink",
+                "examples/adaptive-structure-training.json",
+                "--freeze-roots",
+                "Choice",
+                "--specialize-frozen",
+                "--target",
+                target,
+                "-o",
+            ])
+            .arg(&destination)
+            .output()
+            .unwrap());
+        verified_language::training::verify_model(&destination, true).unwrap();
+        let file = destination.join("selection.json");
+        let original = fs::read(&file).unwrap();
+        let original_manifest = fs::read(destination.join("artifact.json")).unwrap();
+        let mut packet: serde_json::Value = serde_json::from_slice(&original).unwrap();
+        packet["action_replacement"]["proofs"]["serve"] = json!({"Hypothesis":999});
+        let changed = serde_json::to_vec(&packet).unwrap();
+        fs::write(&file, &changed).unwrap();
+        let mut manifest: serde_json::Value = serde_json::from_slice(&original_manifest).unwrap();
+        manifest["files"]["selection.json"] =
+            json!({"bytes":changed.len(),"sha256":format!("{:x}",Sha256::digest(&changed))});
+        fs::write(
+            destination.join("artifact.json"),
+            serde_json::to_vec(&manifest).unwrap(),
+        )
+        .unwrap();
+        let error = verified_language::training::verify_model(&destination, false).unwrap_err();
+        assert!(error.contains("action serve"), "{error}");
+        fs::write(file, original).unwrap();
+        fs::write(destination.join("artifact.json"), original_manifest).unwrap();
+        verified_language::training::verify_model(&destination, false).unwrap();
+    }
+    let bad = root.join("missing-restriction");
+    let rejected = Command::new(env!("CARGO_BIN_EXE_ink"))
+        .args([
+            "build-model",
+            "examples/adaptive-structure.ink",
+            "examples/adaptive-structure-training.json",
+            "--specialize-frozen",
+            "--target",
+            "javascript",
+            "-o",
+        ])
+        .arg(&bad)
+        .output()
+        .unwrap();
+    assert!(!rejected.status.success() && !bad.exists());
+}
+
+#[test]
+fn authored_objective_changes_reset_scores_and_reject_stale_feedback() {
+    let module = CheckedModule::from_source(
+        syntax::parse(include_str!("../examples/adaptive-structure.ink")).unwrap(),
+    )
+    .unwrap();
+    let mut rt = Runtime::from_checked(&module).unwrap();
+    let observations =
+        json!([{"latency":120,"energy":10,"memory":20},{"latency":30,"energy":40,"memory":5},0]);
+    rt.invoke_json("observe", &observations).unwrap();
+    assert_eq!(
+        rt.invoke_json("choice", &json!([])).unwrap().result.json(),
+        json!("Representation.Packed")
+    );
+    assert_eq!(
+        rt.invoke_json("retarget", &json!([{"latency":0,"energy":1,"memory":0},0]))
+            .unwrap()
+            .result
+            .json(),
+        json!({"Ok":1})
+    );
+    assert_eq!(
+        rt.invoke_json("costs", &json!([])).unwrap().result.json(),
+        json!({"expanded":0,"packed":0,"observations":0})
+    );
+    let before = rt.checkpoint_portable().unwrap();
+    assert_eq!(
+        rt.invoke_json("observe", &observations)
+            .unwrap()
+            .result
+            .json(),
+        json!({"Err":"Error.Domain"})
+    );
+    assert_eq!(rt.checkpoint_portable().unwrap(), before);
+    let mut next = observations;
+    next[2] = json!(1);
+    rt.invoke_json("observe", &next).unwrap();
+    assert_eq!(
+        rt.invoke_json("choice", &json!([])).unwrap().result.json(),
+        json!("Representation.Expanded")
+    );
+}
+
+#[test]
+fn restored_objective_and_score_domains_are_checked_before_arithmetic() {
+    let module = CheckedModule::from_source(
+        syntax::parse(include_str!("../examples/adaptive-structure.ink")).unwrap(),
+    )
+    .unwrap();
+    let mut rt = Runtime::from_checked(&module).unwrap();
+    let observations =
+        json!([{"latency":120,"energy":10,"memory":20},{"latency":30,"energy":40,"memory":5},0]);
+    rt.invoke_json("observe", &observations).unwrap();
+    let layout = snapshot::layout(module.program()).unwrap();
+    let bytes = rt.checkpoint_portable().unwrap();
+    for name in ["Target", "History"] {
+        let mut logical = snapshot_wire::decode(&layout, &bytes, Default::default()).unwrap();
+        let index = layout.roots.iter().position(|(n, _, _)| n == name).unwrap();
+        if name == "Target" {
+            logical.tables[index] = vec![(
+                json!(0),
+                json!({"weights":{"latency":u64::MAX,"energy":0,"memory":0},"version":0}),
+            )];
+        } else {
+            logical.tables[index][0].1["expanded"] = json!(u64::MAX);
+        }
+        let forged = snapshot_wire::encode(&layout, &logical, Default::default()).unwrap();
+        let mut restored = Runtime::restore_portable_checked(&module, &forged).unwrap();
+        assert_eq!(
+            restored
+                .invoke_json("observe", &observations)
+                .unwrap()
+                .result
+                .json(),
+            json!({"Err":"Error.Domain"})
+        );
+        assert_eq!(restored.checkpoint_portable().unwrap(), forged);
+    }
+}
