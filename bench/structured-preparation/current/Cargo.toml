@@ -1,0 +1,13 @@
+[package]
+name="ink-structured-keep-candidate"
+version="0.1.0"
+edition="2021"
+[workspace]
+[[bin]]
+name="ink-structured-keep-candidate"
+path="../control/src/main.rs"
+[dependencies]
+ink-core={path="../../../core"}
+ink-lowering-js={git="https://github.com/siliconjungle/ink-lowering-js",rev="62ea46f8f206190c1bd4687280e03cde105b558f"}
+[patch."https://github.com/siliconjungle/ink-lang"]
+ink-core={path="../../../core"}

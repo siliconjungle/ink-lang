@@ -163,7 +163,7 @@ GitHub conformance run was still queued when this checklist was recorded.
 | Incremental work and placement | Maintain item/paragraph/batch changes, share derived state, upload changed regions and keep intermediate values resident. Compose query/ordinary code/device plans and price I/O. | Partial maintained-state and GPU foundations; broader composition, transfer planning and external storage remain open |
 | Ownership and execution overhead | Remove measured helper/capture clones, reuse searchers/prepared inputs, compare layouts and allocation behavior across target engines. | UTF-8 and primitive borrowing improvements delivered; native whole-workload ownership gap remains open |
 | Behavioral contracts | Explicit permitted staleness, capacity, first/any/tie selection and fallback; preserve transaction and observation meaning. | Partial specification foundations; relevant source contracts and consumers remain open |
-| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Source gradient/JVP, authored reverse graphs, complete optimizer state and cooperative queued sessions delivered; general source reverse AD, build-stage freezing, broader domains and performance parity remain open |
+| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Source gradient/JVP, authored reverse graphs, complete optimizer state and cooperative queued sessions delivered; general source reverse AD, frozen arithmetic/graph specialization, broader domains and performance parity remain open |
 | Cross-domain and lifecycle acceptance | Real layout/prepared computation, JSON/structured data, relational/bitset and sparse numeric workloads; matched first-call, steady-state, edits, memory and adverse cases against strong controls. | Complete-count search evidence delivered; broader parity/performance and comparable first-call evidence remain open |
 
 The next implementation priorities are reusable checked facts and their consumers,
@@ -282,3 +282,13 @@ The application defines every objective, reward, constraint and acceptance rule;
 no engagement or other product goal belongs in the compiler. This source-library
 delivery does not establish convergence, universal machine-level unbiasedness,
 PPO/off-policy correction, device training or the outstanding performance target.
+
+
+[Structured keep preparation](structured-preparation.md) now retains private
+immutable lists/records/results and recursive data on CPU hosts, using the common
+checked effect graph. The neural example reuses an architecture during ongoing
+training. Same-source comparisons retain repeated-query wins and cold, memory,
+invalidation and training-only losses. Source restrictions for explicit frozen
+builds are delivered; arithmetic/graph specialization and automatic lifecycle
+profitability remain open. These mechanisms add reuse outside search without
+closing F64/Pretext fidelity or complete matched-performance acceptance.

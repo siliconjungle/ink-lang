@@ -39,6 +39,15 @@ package branch excludes distribution files and submodules, avoiding recursive
 Cargo downloads of the knowledge repository. It is package storage, not a feature
 branch replacing publication on distribution main. Tree identity does not replace
 standalone tests or locked integration checks.
+`tools/check_core_package.py PACKAGE_RECEIPT.json --log LOG --receipt RESULT.json`
+checks both committed trees, archives only the standalone core into a private
+checkout and runs all tests with a private Cargo target directory. Dependency
+archives may use the normal Cargo cache. Do not share a standalone root build
+directory between different package checkouts: a retained library from another
+root can invalidate test evidence. Download caches and compiled-test targets have
+different identity requirements. This check does not prove Cargo, rustc or the
+checker correct.
+
 
 The full CLI needs its backend submodules. Integration tests additionally need
 knowledge. New code-generation primitives belong in the relevant backend; new

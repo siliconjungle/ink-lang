@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';import{readFile,writeFile}from'node:fs/promises';import{resolve,join}from'node:path';import{pathToFileURL}from'node:url';
+const dir=resolve(process.argv[2]);let code=await readFile(join(dir,'program.mjs'),'utf8');const needle='function __computeKeep0(ctx,rt){';assert(code.includes(needle));code=code.replace(needle,needle+'globalThis.__networkBuilds++;');await writeFile(join(dir,'instrumented.mjs'),code);globalThis.__networkBuilds=0;
+const {createState}=await import(pathToFileURL(join(dir,'instrumented.mjs')).href);const s=createState(),features=Array(10).fill(0.2),target=Array(4).fill(0.1),predict=()=>s.invoke('predict',[features]).result;
+const first=predict();assert.equal(globalThis.__networkBuilds,1);predict();assert.equal(globalThis.__networkBuilds,1);
+assert(s.invoke('observe',[features,target,2]).committed);const learned=predict();assert.equal(globalThis.__networkBuilds,1);assert.notDeepEqual(learned,first);
+const model=s.invoke('model',[]).result;model.Ok.weights.fill(99);assert.deepEqual(predict(),learned);
+const before=await s.checkpoint();assert.equal(s.invoke('cancel',[features,target]).committed,false);assert.deepEqual(await s.checkpoint(),before);assert.deepEqual(predict(),learned);assert.equal(globalThis.__networkBuilds,1);
+s.beginTransaction();assert(s.invoke('observe',[features,target,2]).committed);s.rollbackTransaction();assert.deepEqual(predict(),learned);assert.equal(globalThis.__networkBuilds,1);
+await s.restore(before);assert.deepEqual(predict(),learned);assert.equal(globalThis.__networkBuilds,2);
+console.log('Prepared neural graph: reused through successful/failed training, private model outputs, host rollback and restore.');

@@ -9,10 +9,13 @@ laws, work skipping, range specialisations, maintained representations and layou
 alternatives belong in the independently pinned `ink-knowledge` database.
 No target matcher, theorem whitelist or hash may grant rewrite authority.
 
-At James's request, fixed JavaScript scalar-keep retention is implementation
-machinery: checked effects derive root dependencies, concrete mutations invalidate
-them, failed actions restore cache before-images, and restore/host rollback clear
-auxiliary caches. This preserves deterministic evaluation of the same source; it
+Fixed keep retention is implementation machinery: checked effects derive root
+dependencies, concrete mutations invalidate them, and failed actions restore cache
+before-images. JavaScript host rollback restores its prior private cache image;
+native rollback and explicit restore discard auxiliary caches. Structured immutable
+values may be retained; owned Buffer/Map descendants remain ineligible. Public
+results must remain detached and pure callees must not acquire unique ownership
+of shared inputs. This preserves deterministic evaluation of the same source; it
 grants no algebraic replacement or maintained-layout authority. More selective
 state/field/algorithm replacements continue to require database proofs.
 
