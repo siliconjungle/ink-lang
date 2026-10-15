@@ -196,3 +196,13 @@ Wasm/GPU; these explicit full-target reruns close that verification gap.
 The pinned [source inventory](../reports/chenglou-source-audit-2026-10-15/README.md)
 catalogues tracked files and subsystem coverage. Semantic extraction and all
 remaining roadmap acceptance criteria remain open; an inventory is not a port.
+
+## Explicit learning: initial delivery
+
+[Adaptive declarations and training](adaptive-learning.md) now enforce which state
+learning may change and provide offline replay plus explicit online updates. A
+contextual interaction model, held-out predictions, failed-update rollback, module
+transport and complete-target conformance establish this initial path. Updates and
+objectives are authored Ink code. General AD, richer neural libraries, discrete
+training policies and frozen-model specialization remain open; this does not close
+the broader Handwired or eight-package programme.

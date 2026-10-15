@@ -144,6 +144,10 @@ impl SurfaceProgram {
                     .iter()
                     .any(|(_, t)| matches!(t,Type::Named(n) if e.callback_types.contains_key(n)))
         });
+        e.output.contracts.learning.adaptive.retain(|n| {
+            !e.parameters.contains_key(n) && !e.templates.functions.iter().any(|f| &f.name == n &&
+                f.params.iter().any(|(_,t)|matches!(t,Type::Named(n) if e.callback_types.contains_key(n))))
+        });
         e.output.contracts.specifications.retain(|s|!e.parameters.contains_key(&s.name) && !s.params.iter().any(|(_,t)|matches!(t,Type::Named(n) if e.callback_types.contains_key(n))));
         e.output.contracts.implementations.retain(|i| e.output.contracts.specifications.iter().any(|s|s.name==i.specification));
         e.output
@@ -259,9 +263,13 @@ impl SurfaceProgram {
                 e.measure(&mut measure,&function,&bindings,0)?;
                 e.output.termination.measures.insert(instance.clone(),measure);
             }
+            if e.templates.contracts.learning.adaptive.contains(&base) && !e.output.contracts.learning.adaptive.contains(&instance) {
+                e.output.contracts.learning.adaptive.push(instance.clone());
+            }
             e.output.functions[index] = function;
             e.instance_contract(&base, &instance, &bindings, &args, 0)?;
         }
+        p.contracts.learning.adaptive.extend(e.output.contracts.learning.adaptive);
         p.contracts.specifications.extend(e.output.contracts.specifications);
         p.contracts.implementations.extend(e.output.contracts.implementations);
         p.contracts.value_invariants.extend(e.output.contracts.value_invariants);

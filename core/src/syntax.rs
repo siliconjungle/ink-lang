@@ -648,7 +648,25 @@ impl Parser {
             let refined = self.eat("refined");
             if refined && self.peek() != "record" { return Err(self.err("refined applies to record declarations")); }
             if abstract_record && self.peek() != "record" { return Err(self.err("abstract applies to record declarations")); }
-            let private = self.eat("private");
+            let (mut trainable, mut adaptive, mut learn, mut private) = (false, false, false, false);
+            while ["trainable", "adaptive", "learn", "private"].contains(&self.peek()) {
+                let modifier = self.take();
+                let seen = match modifier.as_str() {
+                    "trainable" => &mut trainable, "adaptive" => &mut adaptive,
+                    "learn" => &mut learn, _ => &mut private,
+                };
+                if *seen { return Err(self.err("duplicate declaration modifier")); }
+                *seen = true;
+            }
+            if trainable && self.peek() != "state" { return Err(self.err("trainable applies to state declarations")); }
+            if adaptive && !["fn", "query"].contains(&self.peek()) { return Err(self.err("adaptive applies to fn or query declarations")); }
+            if learn && self.peek() != "change" { return Err(self.err("learn applies to change declarations")); }
+            if trainable || adaptive || learn {
+                let name = self.ts.get(self.at + 1).ok_or("missing learning declaration name")?.text.clone();
+                if trainable { p.contracts.learning.trainable.push(name); }
+                else if learn { p.contracts.learning.learn.push(name); }
+                else { p.contracts.learning.adaptive.push(name); }
+            }
             if private && self.peek() != "state" { return Err(self.err("private applies to state declarations")); }
             if private {
                 p.contracts.private_states.push(self.ts.get(self.at + 1).ok_or("missing private state")?.text.clone());
