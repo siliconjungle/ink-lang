@@ -25,7 +25,7 @@ Frontier dependencies are hashed, independently of Git revision labels.
 | Prepared row updates, 4096 rows | 0.637 µs | 0.433 µs | Frontier 1.47× faster |
 | Mixed state work, 4096 rows | 43.988 µs | 132.140 µs | Ink 3.00× faster |
 | Read-heavy state work, 4096 rows | 135.006 µs | 377.240 µs | Ink 2.79× faster |
-| Retained immutable known JSON edit, 512 fields | 3.088 µs | 72.761 µs | Ink 23.56× faster |
+| Retained immutable first-key JSON edit, 512 fields | 3.088 µs | 72.761 µs | Ink 23.56× faster |
 | Fully detached known JSON edit, 512 fields | 91.096 µs | 96.246 µs | Near tie; Ink median 1.06× faster |
 | Text parse/edit/UTF-8 output, 512 fields | 507.621 µs | 111.188 µs | Frontier 4.57× faster |
 
@@ -35,7 +35,9 @@ abort paths in their declared proportions. Prepared capture is outside timing fo
 both libraries. Setup is recorded separately; ordinary throughput setup uses
 Ink puts and Frontier bulk initialization and must not rank startup.
 
-The large retained-edit win permits unchanged subtrees to be shared and times the
+All JSON edit fixtures update the first member, `k00000`; they do not rank
+arbitrary key positions. The large retained-edit win permits unchanged subtrees
+to be shared and times the
 API return after complete-value preflight. Detaching every output nearly removes
 the advantage. The separate UTF-8 pipeline parses input text, edits, renders,
 UTF-8 encodes and digests every output byte. Its slower result includes deferred
