@@ -26,6 +26,7 @@ jobs:
       run: |
         python3 bench/conditional-facts/analyse.py reports/conditional-facts-2026-10-15 --check
         python3 bench/prepared-tables/analyse.py reports/prepared-tables-2026-10-15
+        python3 tools/audit_learning_receipts.py reports/adaptive-learning-2026-10-15
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
