@@ -1,0 +1,201 @@
+{
+  "schema": 1,
+  "finding": "F076",
+  "problem": "Cost observations and selected-plan keys aliased incompatible execution settings; publication could also recompute the host key after measuring a choice.",
+  "tested_root": "0e31b0638dbc117ee27366186cdd439dc1e76eca",
+  "planner": "dcf97faa2512f5baba48413bd306634802acd957",
+  "knowledge": "ebc4a8c73b91a5ccd3d25b1a91bfe181af48032c",
+  "compiler_sha256": "477e458b2fef130fb6f360c7a25037496595a37412d383b929e261a83924f7e2",
+  "changes": [
+    "Versioned recorded execution context in existing five-field observation target and acquisition receipts.",
+    "Known Node/worker flags, effective heap/GC flags, native tool/compiler/wrapper bytes, Rust/release/target controls and bounded Cargo/rustup configuration lookup.",
+    "One Node command builder; cheap configuration survives unavailable/timed-out host inspection.",
+    "Frozen cache execution binding through candidate publication and fresh replay/planning context checks.",
+    "Fresh full semantic replay and strict workload/oracle/holdout gates preserved."
+  ],
+  "checks": {
+    "focused_tests": 82,
+    "automatic_cpu_cross_target_tests": 2,
+    "upstream_hoisting_cross_target_tests": 1,
+    "cpu_targets": [
+      "Rust",
+      "JavaScript",
+      "Rust-Wasm"
+    ],
+    "require_all": true,
+    "wasm": true,
+    "jitless_transition_and_24_heldout": "passed",
+    "actual_state_lifecycle_phases": 5,
+    "mid_acquisition_change_publishes_nothing": "passed",
+    "publication_race": "new implementation passes; deliberately rereading publication host reproduces bad cache hit",
+    "standalone_last_use_tests": 14,
+    "workflow": "Psych parse and required context commands checked; CI partitions4tests pass"
+  },
+  "corpus": {
+    "schema": 1,
+    "source_cores_identical": true,
+    "programs": 10,
+    "before": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 2,
+      "median_seconds": 18.673000000000002,
+      "stopped_by_time": 3,
+      "laws_admitted": 45,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_budget": 8,
+        "selected_alternative": 2
+      }
+    },
+    "after": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 3,
+      "median_seconds": 17.708,
+      "stopped_by_time": 2,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_budget": 7,
+        "selected_alternative": 3
+      }
+    },
+    "wall_seconds": {
+      "before": 721.8792265418451,
+      "after": 643.7046755421907
+    },
+    "cases": [
+      {
+        "name": "sequence-every",
+        "core_sha256": "44dc64a74456ff85189fc9d8969a5d23ca8b1fdfc43db8a28b18656980a840b3",
+        "before_seconds": 19.498,
+        "after_seconds": 16.017
+      },
+      {
+        "name": "ast-ancestor",
+        "core_sha256": "c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a",
+        "before_seconds": 17.301,
+        "after_seconds": 20.761
+      },
+      {
+        "name": "text-lines",
+        "core_sha256": "0634958705c7abf328f46a587248b142ecc0b787c8f6adc86e7caaec25e98971",
+        "before_seconds": 14.607,
+        "after_seconds": 15.482
+      },
+      {
+        "name": "drawing-hit",
+        "core_sha256": "4353976cdb705e415e24e54597fcc71b87812fcff845d5d66e13aa13c678fc12",
+        "before_seconds": 20.06,
+        "after_seconds": 18.757
+      },
+      {
+        "name": "particle-step",
+        "core_sha256": "de0b37ddb9679078d9aa6030d4faabfee76e27d389ab1952329aefb2be9a0ea8",
+        "before_seconds": 18.964,
+        "after_seconds": 19.958
+      },
+      {
+        "name": "spatial-collision",
+        "core_sha256": "d7ec714b376b0d6ef96de74d4c82a11f2e5fe1f69741e3a16c3769994167c14f",
+        "before_seconds": 19.917,
+        "after_seconds": 19.572
+      },
+      {
+        "name": "index-membership",
+        "core_sha256": "3dd1622462455584f5c70eac19f035c668ceedb440472462a006ff6070959693",
+        "before_seconds": 18.069,
+        "after_seconds": 16.659
+      },
+      {
+        "name": "incremental-distinct",
+        "core_sha256": "57abb3fd09d2310f001759da691b0514a45611ddadc5c11d7a0f0f9094d2b29b",
+        "before_seconds": 18.309,
+        "after_seconds": 14.513
+      },
+      {
+        "name": "bulk-update",
+        "core_sha256": "4974307099a2517e44d06e4cb6b5e2e8e64aefde0157c06cff2934fc58d01a37",
+        "before_seconds": 18.382,
+        "after_seconds": 15.538
+      },
+      {
+        "name": "compact-set",
+        "core_sha256": "eddeb5f9ed8754afd2bb466ff9eab47821ae3aaa79ecaf776f85d6db593a65db",
+        "before_seconds": 27.094,
+        "after_seconds": 24.502
+      }
+    ],
+    "scope": "Frozen unchanged DA knowledge copies and compiler; before CB planner versus F076 planner before upstream binder/hoisting merge. Bounded searches and shared-machine contention; not a causal speedup or new generalisation claim."
+  },
+  "additional_broad_check": {
+    "schema": 1,
+    "status": "stopped_incomplete",
+    "reason": "An additional pre-integration broad check is not final-revision verification. Its slow proof-generation case is outside the changed cost-context path; merged focused/cross-target checks completed separately.",
+    "elapsed": "29:11",
+    "pids": [
+      75140,
+      2945,
+      2931
+    ],
+    "completed_tests": 13,
+    "pending_test": "loose_contracts_discover_checked_alternatives_and_remove_sorting"
+  },
+  "audit": {
+    "memoryssa_analysis_fixtures_reviewed": 83,
+    "memoryssa_analysis_fixtures_total": 83,
+    "llvm_tests_executed": false
+  },
+  "logs": {
+    "measurement-context-merged-units.log": {
+      "sha256": "c512a79ad2cd71a4506bdc717f8d6a0c08a429467c904a81d10a0e59f9aabfa1",
+      "bytes": 181
+    },
+    "measurement-context-merged-actual.log": {
+      "sha256": "24e96bdf6bddc846d89801f1377eb7466293d0193e14bfb9ed04935c1b10fe0c",
+      "bytes": 159
+    },
+    "measurement-context-merged-state.log": {
+      "sha256": "8bc2229817b5f5c3239d6708bd687a74587a02bcf7c7b79a1b77e404f3e916e5",
+      "bytes": 109
+    },
+    "measurement-context-merged-automatic.log": {
+      "sha256": "b474472b184f396ef99ecead7575fc178d298dc78774cf873eab4ebaf8c67467",
+      "bytes": 517
+    },
+    "measurement-context-merged-hoisting-conformance.log": {
+      "sha256": "0597b1afaecb1e1dd45bfe7e6e208198f50eb801b2a5571cb9c6ea724f8e1cc2",
+      "bytes": 810
+    },
+    "measurement-context-publication-race-final.log": {
+      "sha256": "15e1b3902e99e62bc7f061b84c3f571d085b893e42f8ed52ac52d3ab8d134652",
+      "bytes": 98
+    },
+    "measurement-context-publication-race-negative-final.log": {
+      "sha256": "35c8904486279db1ff56536cddd83ceb350ae27917453be256be742c037372e0",
+      "bytes": 4207
+    },
+    "measurement-context-baseline-integration.log": {
+      "sha256": "21675fdcd55a67952c72b073219ceab8e0428d618ffa6d9c05663e46ef186f8f",
+      "bytes": 20626
+    },
+    "capture-last-use-tests.log": {
+      "sha256": "1a9265927316fe6c6072bc8c5a3f45d24360290e573de450014cfd04cfec2ed1",
+      "bytes": 21601
+    }
+  },
+  "limits": [
+    "Recorded execution components are not hermetic build attestation; transitive preload/linker/shared-library changes and machine load are not completely captured.",
+    "No generated-program runtime speedup is established by F076.",
+    "Browser comparison remains the separately frozen d63372a0 report.",
+    "The full LLVM/Ink file audit remains open; no100%claim.",
+    "Remote CI has not been verified green."
+  ]
+}
