@@ -30,7 +30,8 @@ try{
   const capture=(v,t)=>{
    if(t.kind==='ref')return capture(v,program.metadata.named_types[t.name]);
    if(t.kind==='u32'||t.kind==='i32')return Number(v);
-   if(t.kind==='f32'||t.kind==='f64')return typeof v==='object'?v:Number(v);
+   if(t.kind==='f32')return typeof v==='object'?{F32Bits:Number(v.F32Bits)}:Number(v);
+   if(t.kind==='f64')return typeof v==='object'?v:Number(v);
    if(t.kind==='list'||t.kind==='vector')return v.map(x=>capture(x,t.element));
    if(t.kind==='record')return Object.fromEntries(t.fields.map(f=>[f.name,capture(v[f.name],f.type)]));
    if(t.kind==='option')return Object.hasOwn(v,'Some')?{Some:capture(v.Some,t.element)}:v;

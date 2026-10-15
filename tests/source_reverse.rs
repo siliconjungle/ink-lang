@@ -94,3 +94,35 @@ fn reverse_source_training_preserves_every_result_event_and_checkpoint() {
         .push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
     parity::conformance_checked("source-reverse-parity", &module, SOURCE, steps, expected);
 }
+
+#[test]
+fn terminal_values_and_gradients_survive_compilation() {
+    let source=r#"module terminal_reverse;
+state Marker:u32=0;
+fn exclusive(x:f32)->f32{return repeat_until(10,x,fn(s)=>s>=8.0,fn(i)=>fn(s)=>s*2.0);}
+fn inclusive(x:f32)->f32{return fold_until(list(1,2,3,4),x,fn(i)=>fn(s)=>s>=4.0,fn(i)=>fn(s)=>s*2.0);}
+fn exclusive_value(x:f32)->f32{return reverse_linearize_piecewise(exclusive,x,128,true).fold(fn(r)=>r.value,fn(e)=>-1.0);}
+fn exclusive_gradient(x:f32)->f32{return reverse_linearize_piecewise(exclusive,x,128,true).fold(fn(r)=>r.gradient,fn(e)=>-1.0);}
+fn inclusive_value(x:f32)->f32{return reverse_linearize_piecewise(inclusive,x,128,true).fold(fn(r)=>r.value,fn(e)=>-1.0);}
+fn inclusive_gradient(x:f32)->f32{return reverse_linearize_piecewise(inclusive,x,128,true).fold(fn(r)=>r.gradient,fn(e)=>-1.0);}
+fn device(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>x*2.0+1.0);}
+"#;
+    let module=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let runtime=Runtime::from_checked(&module).unwrap();let mut steps=vec![];let mut expected=vec![];
+    for input in [json!(-4.0),json!(-0.0),json!(2.0),json!(8.0),json!({"F32Bits":0x7f800000u32}),json!({"F32Bits":0x7fc00000u32})] {
+        for name in ["exclusive","inclusive"] {
+            let p=module.program();let argument=eval::Value::from_program_json(&input,&syntax::Type::F32,p).unwrap();
+            let original=eval::call(p,name,vec![argument.clone()],&mut 1_000_000).unwrap();
+            let forward=eval::call(p,&format!("{name}_value"),vec![argument],&mut 1_000_000).unwrap();
+            assert_eq!(forward,original,"{name} primal bits");
+            for suffix in ["value","gradient"] {
+                let name=format!("{name}_{suffix}");let args=json!([input]);let value=pure(&module,&name,args.clone());
+                if input==json!(2.0)&&suffix=="gradient" {assert_eq!(value,json!(4.0));}
+                steps.push(json!({"pure":name,"args":args}));expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+            }
+        }
+    }
+    let args=json!([(0..8192).map(|i|(i as f32)/8.0).collect::<Vec<_>>()]);let value=pure(&module,"device",args.clone());
+    steps.push(json!({"pure":"device","args":args,"expect_gpu":true}));expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    parity::conformance_checked("source-reverse-until-parity",&module,source,steps,expected);
+}
