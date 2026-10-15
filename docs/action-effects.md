@@ -69,3 +69,20 @@ replacement. Host failures after writes remain visible even for a body without
 a domain error. Complete source/primitive correspondence, ordered observations
 and all-future representation refinement are still the next gates. This phase
 claims no execution speedup. See reports/action-effects-phase1.
+
+
+## Lexical state dependencies
+
+The earlier declaration-cycle check now uses the shared lexical free-variable
+analysis, with action parameters and sequential/branch-local bindings in scope.
+Lambda or local names matching an action no longer introduce a false dependency.
+Named calls keep their global call namespace, so a local value cannot hide an
+actual action cycle. Initializers are checked before introducing their binder;
+negated expressions and lexical expression bodies participate in dependency
+checking. These admission checks do not infer an action-commutation law.
+
+Native retained observations now use this same checked effect judgment for root
+invalidation, replacing a second name-scanning traversal in the emitter.
+JavaScript already uses the common judgment. Both can retain immutable structured
+keeps under the ordinary ownership and checkpoint contracts; selecting a different
+expression or maintained algorithm still requires the database proof path.
