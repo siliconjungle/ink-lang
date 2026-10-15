@@ -27,9 +27,15 @@ second call of itself:
 
 | Relation | Meaning |
 |---|---|
-| `commute` | No root is written by one call and read or written by the other, and at most one call emits events. |
+| `commute` | No potential read/write overlap remains after excluding distinct same-type literal keys, and at most one call emits events. |
 | `commute_when` | Every conflict is between point accesses of the same root, so the calls commute when the listed keys differ, for example `erase.key != put.key`. Input guards on an access are kept in the condition. |
 | `conflict` | A whole-root access (a scan, a state-derived key), equal constant keys, or two ordered event streams make call order observable. |
+
+Key symbols describe source expressions, not canonical values. Different closed
+expressions can name the same key: `0`, `1 - 1` and a wrapping word sum may
+collide. Only distinct same-type literals are discarded as disjoint without a
+key-difference condition. Other computed keys retain an explicit condition;
+this report does not evaluate their arithmetic or grant equality authority.
 
 For `examples/grouped-state.ink`, `put` and `erase` commute when their keys
 differ, two `put` calls commute when their keys differ, and the `total` scan
