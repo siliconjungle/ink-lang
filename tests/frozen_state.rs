@@ -393,6 +393,12 @@ fn neural_and_reward_models_freeze_complete_optimizer_and_control_state() {
             vec!["Agent"],
             json!([{"signal":0.7,"urgency":0.3}]),
         ),
+        (
+            "examples/staged-neural.ink",
+            "reports/prepared-initializers-2026-10-16/neural/model.snapshot",
+            vec!["Optimizer", "Control", "Architecture"],
+            json!([vec![0.2; 10]]),
+        ),
     ] {
         let module =
             CheckedModule::from_source(verified_language::modules::load(source).unwrap().program)
@@ -430,5 +436,18 @@ fn neural_and_reward_models_freeze_complete_optimizer_and_control_state() {
             .trainable
             .is_empty());
         assert!(frozen.module.program().contracts.learning.learn.is_empty());
+        if source == "examples/staged-neural.ink" {
+            // A checked fixed model is also the next staging input. Export the
+            // real source binding and complete checkpoint, never a rebased header.
+            let directory =
+                Path::new(env!("CARGO_MANIFEST_DIR")).join("build/staged-neural-frozen");
+            fs::create_dir_all(&directory).unwrap();
+            fs::write(
+                directory.join("source.core.json"),
+                frozen.module.bytes().unwrap(),
+            )
+            .unwrap();
+            fs::write(directory.join("model.snapshot"), &frozen.snapshot).unwrap();
+        }
     }
 }

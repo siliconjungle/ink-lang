@@ -284,3 +284,103 @@ query scalar()->Bool reads(PreparedRows){return PreparedRows.fold(fn(p)=>scalar_
     );
     println!("{}", String::from_utf8_lossy(&output.stdout));
 }
+
+#[test]
+fn prepared_defaults_share_only_private_immutable_values() {
+    let source = include_str!("../examples/prepared-defaults.ink");
+    let module = CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    let direct = source
+        .replace("module prepared_defaults;", "module direct_defaults;")
+        .replace(
+            "state Left:Config=Seed;",
+            "state Left:Config=default_config();",
+        )
+        .replace(
+            "state Right:Config=Seed;",
+            "state Right:Config=default_config();",
+        )
+        .replace(
+            "state Maybe:Result<Config,String>=Failed;",
+            "state Maybe:Result<Config,String>=Err(\"default unavailable\");",
+        );
+    let direct = CheckedModule::from_source(parse(&direct).unwrap()).unwrap();
+    let mut r = Runtime::from_checked(&module).unwrap();
+    let mut control = Runtime::from_checked(&direct).unwrap();
+    let initial = r.checkpoint_portable().unwrap();
+    let input = json!({"label":"updated","values":[{"F32Bits":0x7fa12345u32},{"F32Bits":0x80000000u32}],"next":{"Some":{"label":"nested","values":[1.0],"next":{"None":null}}}});
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for (name, args) in [
+        ("left", json!([])),
+        ("right", json!([])),
+        ("maybe", json!([])),
+        ("maybe", json!([])),
+        ("seed", json!([])),
+        ("scoped", json!([[1, 2]])),
+        ("unrelated", json!([7])),
+        ("left", json!([])),
+        ("set_left", json!([input])),
+        ("left", json!([])),
+        ("right", json!([])),
+        ("copy", json!([])),
+        ("right", json!([])),
+        ("seed", json!([])),
+        ("set_maybe", json!([input])),
+        ("maybe", json!([])),
+        ("cancel", json!([input])),
+        ("left", json!([])),
+        ("right", json!([])),
+        ("maybe", json!([])),
+    ] {
+        let before = r.checkpoint_portable().unwrap();
+        let reply = r.invoke_json(name, &args).unwrap();
+        let other = control.invoke_json(name, &args).unwrap();
+        assert_eq!(reply.json(), other.json());
+        let snapshot = r.checkpoint_portable().unwrap();
+        if !reply.committed {
+            assert_eq!(snapshot, before);
+        }
+        let decode = |module: &CheckedModule, bytes: &[u8]| {
+            verified_language::snapshot_wire::decode(
+                &verified_language::snapshot::layout(module.program()).unwrap(),
+                bytes,
+                Default::default(),
+            )
+            .unwrap()
+        };
+        assert_eq!(
+            decode(&module, &snapshot),
+            decode(&direct, &control.checkpoint_portable().unwrap())
+        );
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":snapshot}));
+    }
+    r = Runtime::restore_portable_checked(&module, &initial).unwrap();
+    steps.push(json!({"restore":initial}));
+    for name in ["left", "right", "maybe", "seed"] {
+        let reply = r.invoke_json(name, &json!([])).unwrap();
+        steps.push(json!({"call":name,"args":[]}));
+        expected.push(
+            json!({"reply":{"outcome":reply.json()},"snapshot":r.checkpoint_portable().unwrap()}),
+        );
+    }
+    steps.push(json!({"pure":"numeric","args":[[0.0,0.5,-1.0]],"expect_gpu":true}));
+    expected.push(
+        json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":r.checkpoint_portable().unwrap()}),
+    );
+    parity::conformance_checked("prepared-defaults-parity", &module, source, steps, expected);
+    let out = std::process::Command::new("node")
+        .arg("tests/fixtures/prepared-defaults.mjs")
+        .arg(
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("build/prepared-defaults-parity"),
+        )
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}\n{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    println!("{}", String::from_utf8_lossy(&out.stdout));
+}

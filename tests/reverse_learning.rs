@@ -657,7 +657,26 @@ fn full_model_updates_backtracking_and_rollback_match_all_cpu_targets() {
 
 #[test]
 fn prepared_architecture_preserves_complete_learning_and_compiled_state() {
-    let prepared = load("examples/prepared-neural.ink");
+    prepared_model_parity(
+        "examples/prepared-neural.ink",
+        include_str!("../examples/prepared-neural.ink"),
+        "prepared-neural-parity",
+        "tests/fixtures/prepared-neural.mjs",
+    );
+}
+
+#[test]
+fn prepared_defaults_preserve_complete_learning_and_compiled_state() {
+    prepared_model_parity(
+        "examples/staged-neural.ink",
+        include_str!("../examples/staged-neural.ink"),
+        "staged-neural-parity",
+        "tests/fixtures/staged-neural.mjs",
+    );
+}
+
+fn prepared_model_parity(path: &str, source: &str, tag: &str, fixture: &str) {
+    let prepared = load(path);
     let mut rt = Runtime::from_checked(&prepared).unwrap();
     let mut direct = Runtime::from_checked(adaptive()).unwrap();
     let features = vec![0.2; 10];
@@ -700,17 +719,12 @@ fn prepared_architecture_preserves_complete_learning_and_compiled_state() {
     expected.push(
         json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":rt.checkpoint_portable().unwrap()}),
     );
-    parity::conformance_checked(
-        "prepared-neural-parity",
-        &prepared,
-        include_str!("../examples/prepared-neural.ink"),
-        steps,
-        expected,
-    );
-    let directory =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("build/prepared-neural-parity");
+    parity::conformance_checked(tag, &prepared, source, steps, expected);
+    let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("build")
+        .join(tag);
     let out = std::process::Command::new("node")
-        .arg("tests/fixtures/prepared-neural.mjs")
+        .arg(fixture)
         .arg(&directory)
         .output()
         .unwrap();

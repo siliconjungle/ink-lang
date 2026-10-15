@@ -16,7 +16,13 @@ native rollback and explicit restore discard auxiliary caches. Structured immuta
 values may be retained; owned Buffer/Map descendants remain ineligible. Public
 results must remain detached and pure callees must not acquire unique ownership
 of shared inputs. This preserves deterministic evaluation of the same source; it
-grants no algebraic replacement or maintained-layout authority. More selective
+grants no algebraic replacement or maintained-layout authority. Value-state defaults
+may reference explicit keeps only through the checked state-independent preparation
+domain: transitive state/action access rejects, pure functions remain checked, and
+fresh scopes prevent callback capture. Carry derived reads through complete
+interfaces, retain strict fallback evaluation and keep legacy source identities
+unchanged when the new form is unused. This grants no automatic profitable staging.
+More selective
 state/field/algorithm replacements continue to require database proofs.
 
 The distribution pins Rust, JavaScript, Wasm and GPU lowering packages.
@@ -172,7 +178,9 @@ Finish completed, validated work by merging and publishing it on `main` in the
 distribution and every changed independent package repository. Report the verified
 main revision. When a pin bump changes a crate another pinned crate depends on
 (for example, runtime pins the Rust lowering), refresh `runtime/Cargo.lock` in the same
-change (`cargo metadata` without `--locked`); CI's locked fetch fails otherwise.
+change (`cargo metadata` without `--locked`); CI's locked fetch fails otherwise. Also refresh
+other tracked package locks, including JavaScript, and check them with `cargo fetch
+--locked` before publication.
 A run is verified only when every job finishes green; failing steps report their
 error lines as annotations (`tools/ci_step.sh`). Feature branches and worktrees are staging areas during active work;
 keep work isolated when James explicitly requests a draft or separate branch.

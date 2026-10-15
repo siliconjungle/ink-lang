@@ -84,3 +84,9 @@ collection operations still have a narrower admitted surface; the scalar NaN
 observation test uses an explicit pure helper. This mechanism does not close that
 language parity gap, F64/Pretext fidelity, general source reverse AD or device
 training.
+
+
+[Prepared value-state initializers](prepared-initializers.md) now carry the same
+explicit reuse into defaults for mutable cells. This avoids rebuilding a default
+optimizer on every read, while preserving the strict fallback and live learning
+state. Its source identity and lifecycle measurements are tracked separately.

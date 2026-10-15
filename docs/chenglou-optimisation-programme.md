@@ -292,3 +292,13 @@ invalidation and training-only losses. Source restrictions for explicit frozen
 builds are delivered; arithmetic/graph specialization and automatic lifecycle
 profitability remain open. These mechanisms add reuse outside search without
 closing F64/Pretext fidelity or complete matched-performance acceptance.
+
+
+[Prepared value-state defaults](prepared-initializers.md) now allow explicit keeps
+whose complete dependency closure contains no state/action access. Hygienic source
+elaboration composes these with ordinary mutable cells and existing private keep
+retention. Same-state comparisons across source variants add a 1.19× JavaScript
+prediction gain beyond structured keeps, retaining cold/memory costs. Complete
+learning lineage and explicit immutable source binding compose. The frozen module
+is a concrete input for subsequent ordinary-proof specialization; it is not an
+already specialized graph, a new GPU training engine or closure of upstream parity.
