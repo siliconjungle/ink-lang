@@ -720,6 +720,32 @@
           "reason": "Prepared value-state defaults use immutable CPU-host keeps; training remains on CPU hosts, with a separate actual eligible numeric GPU call."
         }
       }
+    },
+    {
+      "id": "prepared-binary64-text",
+      "types": [],
+      "tests": [
+        "generic_libraries"
+      ],
+      "targets": {
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "Prepared text uses binary64 CPU geometry; complex breaks and GPU arithmetic remain open."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "Prepared text uses binary64 CPU geometry; native GPU-host fallback is tested with separate actual F32 dispatch."
+        }
+      }
     }
   ],
   "cpu_suites": [

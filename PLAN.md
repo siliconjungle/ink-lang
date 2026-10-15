@@ -212,3 +212,14 @@ Next work must reduce remaining dispatch/temporary/output costs, avoid paying fo
 unused preparation, compose profitable staging with live state and other targets,
 and establish ordinary proof-backed graph/arithmetic specialization. This is not
 source reverse AD, an automatic cost policy or completion of the programme.
+
+[Prepared binary64 text geometry](docs/prepared-text.md) now supplies an exact
+simple-walker fidelity baseline against pinned upstream counts, heights and full
+cursor ranges. It rejects complex kinds and preserves explicit measured-data
+boundaries. The 232-case oracle and 182-observation compiled history pass; the
+first diagnostic still exposes a large execution gap to Pretext's direct loop.
+Next work must carry stable preparation through loop callbacks and reduce record,
+dispatch and transport costs without stale dynamic inputs. Port the complete
+complex walker, segmentation/shaping preparation and incremental invalidation,
+then establish matched lifecycle performance. This is not full Pretext parity or
+completion of the learning programme.
