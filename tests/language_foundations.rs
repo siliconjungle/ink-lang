@@ -204,3 +204,6 @@ fn new_surface_and_value_operations_have_complete_backend_parity() {
     );
     parity::conformance("language-foundations-parity", p, source, steps, expected);
 }
+
+#[path = "support/count_comparisons.rs"]
+mod count_comparisons;

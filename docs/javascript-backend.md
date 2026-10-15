@@ -45,6 +45,17 @@ require stable caller-owned arguments. Runtime asynchronous submissions capture
 inputs at their documented boundary.
 Exact Int, strings, IDs, enums, Unit and Option/Result are supported, together with tables, queries, changes, keeps, ordered events and rollback. `createState()` exposes action invocation and asynchronous portable checkpoint/restore. See the [complete parity contract](lowering-parity.md) for the host API and wire forms.
 
+An `Int` comparison may consume direct collection counts and nonnegative integer
+literals through exact Number carriers when both operands fit that carrier. Array
+lengths are exact integers bounded by JavaScript's array representation; admitted
+literals are at most `9007199254740991`. The lowerer evaluates both collections in
+source order and retains the normal expression depth/work bounds. Public counts,
+Int arguments, arithmetic, negative/large literals and `u64` counts retain their
+existing carriers. State queries use the same rule without changing collection
+enumeration, state reads, transactions or snapshots. This is a finite target
+carrier choice for fixed primitive semantics; it supplies no collection rewrite,
+range assumption from a profile or new proof authority.
+
 Generated pure functions use a caller-trusted ABI without a fuel or cell budget.
 State invocation retains typed ingress with a one-million-cell bound and its
 separate bounded host execution policy. These limits do not reproduce the
