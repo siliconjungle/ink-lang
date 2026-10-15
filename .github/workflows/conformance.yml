@@ -129,7 +129,7 @@ jobs:
       continue-on-error: true
     - name: Runtime policies and failure injection
       run: |
-        node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs runtime/tests/scheduled-actions.mjs runtime/tests/initial-state.mjs runtime/tests/route-resources.mjs runtime/tests/usage-profile.mjs
+        node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs runtime/tests/scheduled-actions.mjs runtime/tests/initial-state.mjs runtime/tests/route-resources.mjs runtime/tests/usage-profile.mjs runtime/tests/adaptive-state.mjs
         node lowerings/gpu/tests/device_graph.mjs
     - name: Independent core and source-bound value admission
       run: |
@@ -152,7 +152,8 @@ jobs:
         cargo test --manifest-path native-support/Cargo.toml
         CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
         cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation --test reference_evaluation_budget --test automatic_compilation
-        cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test policy_learning --test differentiation --test reverse_learning --test source_reverse --test scalable_state --test binary64
+        cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test policy_learning --test differentiation --test reverse_learning --test source_reverse --test scalable_state --test binary64 --test adaptive_host --test programmable_objective
+        cargo test --manifest-path abi/Cargo.toml --locked --test objective
         cargo test --test physical_capabilities --test gpu
         cargo build --bin ink --offline
         target/debug/ink verify-model reports/prepared-initializers-2026-10-16/neural --replay
@@ -1046,7 +1047,7 @@ jobs:
     - name: Install pinned proof authoring
       run: python -m pip install python-sat==1.9.dev5
     - name: Required GPU dispatch, exact u64 and binary32
-      run: cargo test --test feature_parity --test database_planning --test physical_capabilities --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test policy_learning --test differentiation --test reverse_learning --test source_reverse --test scalable_state -- --nocapture --test-threads=1
+      run: cargo test --test feature_parity --test database_planning --test physical_capabilities --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test policy_learning --test differentiation --test reverse_learning --test source_reverse --test scalable_state --test programmable_objective -- --nocapture --test-threads=1
     - name: Imported proof composition on the actual device
       run: cargo test --test composable_knowledge imported_algorithms -- --nocapture
     - name: Actual wgpu dispatch and resident feedback

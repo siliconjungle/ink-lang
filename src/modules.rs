@@ -497,6 +497,7 @@ impl Loader {
             Some("std:neural") => include_str!("../knowledge/libraries/neural.ink").into(),
             Some("std:learning") => include_str!("../knowledge/libraries/learning.ink").into(),
             Some("std:policy_gradient") => include_str!("../knowledge/libraries/policy_gradient.ink").into(),
+            Some("std:objective") => include_str!("../knowledge/libraries/objective.ink").into(),
             Some("std:learning_session") => include_str!("../knowledge/libraries/learning_session.ink").into(),
             Some("std:autodiff") => include_str!("../knowledge/libraries/autodiff.ink").into(),
             Some("std:prepared_text") => include_str!("../knowledge/libraries/prepared_text.ink").into(),

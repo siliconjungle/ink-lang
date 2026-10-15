@@ -91,6 +91,96 @@ fn native_switch_retains_reply_state_and_never_repeats_effects() {
 }
 
 #[test]
+fn native_authored_goals_retarget_without_replaying_actions_or_resetting_budgets() {
+    use ink_abi::objective::{Direction, Goal, Score};
+    use ink_runtime::adaptive::Objective;
+    let calls = Rc::new(Cell::new(0));
+    let binding = json!({"source":"a".repeat(64),"compiler":"b".repeat(64),"target":"native-goal-test","boundary":"owned-serial-state-v1","variants":{"a":"c".repeat(64),"b":"d".repeat(64)}});
+    let cells = |ns| json!({"action:read@s":{"low_ns":ns,"high_ns":ns}});
+    let profile = json!({"binding":binding,"variants":{"a":{"cells":cells(100),"peak_bytes":400},"b":{"cells":cells(200),"peak_bytes":80}},"migrations":[{"from":"a","to":"b","high_ns":1,"max_pause_ns":1,"peak_bytes":500,"min_state_elements":0,"max_state_elements":100},{"from":"b","to":"a","high_ns":1,"max_pause_ns":1,"peak_bytes":500,"min_state_elements":0,"max_state_elements":100}]});
+    let policy = json!({"horizon_calls":100,"min_residence_calls":1,"stable_windows":2,"min_gain":0.1,"migration_margin":2,"memory_limit_bytes":1000,"max_pause_ns":1000000000,"max_switches":2});
+    let mut host = Host::new(
+        Factory {
+            calls: calls.clone(),
+            corrupt: false,
+        },
+        serde_json::from_value(binding).unwrap(),
+        serde_json::from_value(profile).unwrap(),
+        serde_json::from_value(policy).unwrap(),
+        "a".into(),
+        2,
+        1,
+        1024,
+    )
+    .unwrap();
+    let goal = |revision| Goal {
+        source: "e".repeat(64),
+        entry: "rank".into(),
+        revision,
+        context: format!("{:064x}", revision),
+    };
+    let objective = |revision, memory| {
+        Objective::new(
+            goal(revision),
+            Direction::Minimize,
+            0.0,
+            move |candidates| {
+                Ok(candidates
+                    .iter()
+                    .map(|c| {
+                        let (low, high) = if memory {
+                            (c.peak_bytes as f64, c.peak_bytes as f64)
+                        } else {
+                            (c.total_low_ns, c.total_high_ns)
+                        };
+                        (c.variant.clone(), Score { low, high })
+                    })
+                    .collect())
+            },
+        )
+        .unwrap()
+    };
+    host.retarget(Some(objective(1, true)), None).unwrap();
+    for _ in 0..2 {
+        host.call("read", &json!([]), "s", 0).unwrap();
+    }
+    assert_eq!(host.current(), "a");
+    assert!(host
+        .retarget(Some(objective(2, false)), Some(&goal(99)))
+        .is_err());
+    assert_eq!(host.objective(), Some(&goal(1)));
+    for _ in 0..2 {
+        host.call("read", &json!([]), "s", 0).unwrap();
+    }
+    assert_eq!(host.current(), "b");
+    host.call("read", &json!([]), "s", 0).unwrap();
+    host.retarget(Some(objective(2, false)), Some(&goal(1)))
+        .unwrap();
+    assert!(host.recent().is_empty());
+    for _ in 0..3 {
+        host.call("read", &json!([]), "s", 0).unwrap();
+    }
+    assert_eq!(host.current(), "b", "old partial windows must be discarded");
+    host.call("read", &json!([]), "s", 0).unwrap();
+    assert_eq!(host.current(), "a");
+    host.retarget(Some(objective(3, true)), Some(&goal(2)))
+        .unwrap();
+    for _ in 0..4 {
+        host.call("read", &json!([]), "s", 0).unwrap();
+    }
+    assert_eq!(
+        host.current(),
+        "a",
+        "goal updates must preserve the switch cap"
+    );
+    assert_eq!(calls.get(), 13);
+    assert_eq!(host.checkpoint().unwrap(), 0u64.to_le_bytes());
+    host.disable_recording();
+    host.retarget(None, Some(&goal(3))).unwrap();
+    assert!(host.disabled);
+}
+
+#[test]
 fn emitted_adaptive_state_preserves_reference_histories() {
     use std::{path::Path, process::Command};
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -127,6 +217,37 @@ fn emitted_adaptive_state_preserves_reference_histories() {
         .arg(env!("CARGO_BIN_EXE_ink"))
         .arg(root)
         .arg(output.join("results.json"))
+        .output()
+        .unwrap();
+    assert!(
+        run.status.success(),
+        "{}",
+        String::from_utf8_lossy(&run.stderr)
+    );
+    let goal = output.join("objective.mjs");
+    let build = Command::new(env!("CARGO_BIN_EXE_ink"))
+        .current_dir(root)
+        .args([
+            "build",
+            "examples/programmable-objective.ink",
+            "--target",
+            "javascript",
+            "-o",
+        ])
+        .arg(&goal)
+        .output()
+        .unwrap();
+    assert!(
+        build.status.success(),
+        "{}",
+        String::from_utf8_lossy(&build.stderr)
+    );
+    let run = Command::new("node")
+        .current_dir(root)
+        .arg("tests/fixtures/programmable-objective.mjs")
+        .arg(output.join("bundle"))
+        .arg(goal)
+        .arg(output.join("objective-results.json"))
         .output()
         .unwrap();
     assert!(

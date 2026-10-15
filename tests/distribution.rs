@@ -41,6 +41,9 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     fs::create_dir_all(&outside).unwrap();
     let resources = relocated.join("share/ink");
     assert!(resources.join("planner/select_implementation.py").is_file());
+    assert!(resources.join("planner/ink_planner/objective.py").is_file());
+    assert!(resources.join("planner/ink_planner/objective.mjs").is_file());
+    assert!(resources.join("runtime/hosts/objective.mjs").is_file());
     assert!(resources
         .join("knowledge/producers/implementation_candidates.py")
         .is_file());
