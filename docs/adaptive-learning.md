@@ -115,11 +115,12 @@ control state with weights; resetting those fields would describe different
 training. Runtime learning invokes the same authored action and keeps transaction
 rollback and portable state unchanged.
 
-The required [learning lifecycle](learning-lifecycle.md) also includes explicit
-build-stage training and an integrated continuous learning service. Offline replay
-and explicit online changes are current capabilities; observation queues, bounded
-continuous scheduling, atomic model publication and durable progress remain
-implementation work rather than being implied by the declaration modifiers.
+The [learning lifecycle](learning-lifecycle.md) now includes a
+[cooperative continuous service](continuous-learning.md): bounded queued
+observations, source-controlled work and publication, separate serving/candidate
+models, exact progress recovery and an offline CLI bootstrap. Explicit build-stage
+packaging/freezing, parallel training workers and device reverse execution remain
+open. None of these capabilities follows from a declaration modifier alone.
 
 ## Programmatic training control
 

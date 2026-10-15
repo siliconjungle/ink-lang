@@ -118,7 +118,7 @@ jobs:
       continue-on-error: true
     - name: Runtime policies and failure injection
       run: |
-        node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs runtime/tests/route-resources.mjs runtime/tests/usage-profile.mjs
+        node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs runtime/tests/scheduled-actions.mjs runtime/tests/route-resources.mjs runtime/tests/usage-profile.mjs
         node lowerings/gpu/tests/device_graph.mjs
     - name: Independent core and source-bound value admission
       run: |
