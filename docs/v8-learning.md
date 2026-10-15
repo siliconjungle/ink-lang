@@ -210,3 +210,19 @@ three, admitted 37 laws and reused seven across programs. Every program exhauste
 its quick search budget. It predates parameter caches and includes the explicitly
 materialized legacy hardening inputs; see `corpus-circuits-summary.json`. Search
 counts do not isolate runtime gains or close the remaining V8 audit.
+
+
+A native control of the repeated-fold sharing workload is retained in
+`bench/v8-learning/native-sharing`. Three fresh processes per split measured the
+complete generated JSON-call ABI, including typed input conversion and complete
+output consumption. Aggregate medians were about 1.07 times faster, but one
+training process regressed and one held-out process was nearly tied. This does
+not establish a robust native gain. Constructor costs were separately observed;
+absolute timings must not be compared with the JavaScript trusted-value boundary.
+The selected Rust/helper sources, dependency lock, adapter, exact reference inputs
+and all samples are retained. No selection threshold was relaxed.
+
+These database alternatives reach compiled programs through a checked selected
+plan: `ink compile --optimise KNOWLEDGE ...` searches and applies its normal gates,
+while `ink build --selection PACKET ...` can replay an explicit selected equality.
+A plain literal `ink build` does not automatically search the new law catalogue.
