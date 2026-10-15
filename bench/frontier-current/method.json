@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "requested_comparison": "Current compiled Ink versus unchanged Frontier controls, repeated from the previous state/JSON suite",
+  "processes": [
+    1001,
+    1002,
+    1003
+  ],
+  "state_fixtures": [
+    "replace-4096",
+    "mixed-4096",
+    "read-heavy-4096"
+  ],
+  "json_field_counts": [
+    4,
+    64,
+    512
+  ],
+  "rounds": 9,
+  "json_warmup_calls": 200,
+  "reference_controls": {
+    "frontier": "0.1.9",
+    "frontier-state": "0.1.1",
+    "frontier-state-main": "9ff840ea690e55fd8c064934f92a26c1603a63fa"
+  },
+  "metric": "Median of per-process medians of rotated ns-per-complete-public-call samples; every process retained",
+  "acceptance": "Compare matching ordinary/prepared state boundaries and known-edit ownership boundaries. Report wins, losses and per-process variation; no all-metrics or causal V8 speedup claim.",
+  "validation": "Every state lane: complete replies/errors/rollback/events/versions and final logical state; Ink lanes exact portable snapshots. JSON: full-value/text/message/ownership preflight; UTF-8 group separately consumes all output bytes.",
+  "separation": [
+    "Setup/capture excluded only where declared equally for prepared state lanes",
+    "Literal compiled baseline and manually supplied checked indexed alternative labelled separately",
+    "JSON-return string length and complete UTF-8 output consumption are separate groups",
+    "No arbitrary JSON snapshot-diff equivalent in Ink; Frontier-only difference rows are controls",
+    "Lifecycle and forced-GC memory are independent fresh-process diagnostics, not throughput or exact allocation bounds",
+    "Shared host; no other own performance runs or compilation overlap timing"
+  ],
+  "harness_changes": [
+    "JSON-only/lifecycle provenance excludes unused native executable; fixes reporting dependency only",
+    "Preserves existing text-return group and adds UTF-8 encode/every-byte consumption for each text pipeline"
+  ],
+  "history_lookup": {
+    "frontier_perf_wiki": "Frozen Frontier source checkout lacks docs:perf:search script; direct retained benchmark reports and prior comparison results used instead",
+    "previous_verdict": "Read-heavy state and retained edits won; ordinary writes, text pipelines and memory lost",
+    "current_releases_checked_with": "npm view for Frontier/state/engine/codec, state-main ls-remote"
+  }
+}
