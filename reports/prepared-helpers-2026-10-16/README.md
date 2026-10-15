@@ -86,3 +86,10 @@ publication and recorded only by hash in metadata. These programs do not use it.
 Reproduction and commands are in [the benchmark guide](../../bench/prepared-helpers/README.md).
 The checksum audit is a byte/provenance check, not measurement authentication,
 optimization authority, a mathematical AD proof or a proof of compiler correctness.
+
+
+The source packet retains the runner/oracle/validator and relevant example/tests/
+documentation with their own byte hashes. The audit verifies that packet, rather
+than requiring mutable files in future repository revisions to keep old bytes.
+The emitter/source integration revision is `3855acdb`; the source packet's audit
+also includes this provenance correction. No timing or implementation changed.

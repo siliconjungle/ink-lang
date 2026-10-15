@@ -2,14 +2,24 @@
 """Audit retained bytes and the complete isolated-process measurement matrix.
 This ledger is not an authenticity, correctness or profitability certificate.
 """
-import argparse,hashlib,json,statistics,re
+import argparse,hashlib,json,statistics,re,tarfile
 from pathlib import Path
 
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def analyse(root):
  metadata=json.loads((root/'metadata.json').read_text())
  for name,sha in metadata['files'].items():
+  assert not Path(name).is_absolute() and '..'not in Path(name).parts,name
   assert digest(root/name)==sha,name
+ # Historical source is retained independently of future repository edits.
+ # Never extract or execute archive members during this provenance audit.
+ with tarfile.open(root/'source-packet.tar.gz','r:gz')as archive:
+  members=archive.getmembers();assert len(members)==len(metadata['source_files'])
+  assert {m.name for m in members}==set(metadata['source_files'])
+  assert sum(m.size for m in members)<=2_000_000
+  for member in members:
+   assert member.isfile() and not Path(member.name).is_absolute() and '..'not in Path(member.name).parts
+   assert hashlib.sha256(archive.extractfile(member).read()).hexdigest()==metadata['source_files'][member.name]
  sources={}
  for artifact in ['previous','current']:
   p=root/f'{artifact}.mjs';text=p.read_text();m=re.search(r'^export const metadata = (.*);$',text,re.M);assert m

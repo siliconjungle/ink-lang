@@ -48,3 +48,10 @@ This is explicit reuse, without automatic selection. The measured ordinary-call
 regression, import/cold costs and faster controls remain part of the result.
 Whole learning sessions, frozen graph specialization, device execution and broad
 Pretext/Freerange/Handwired parity remain open.
+
+The source packet `source-packet.tar.gz` retains the benchmark runner, independent
+oracle, shared helper, validator, example, tests and mechanism documentation. Its
+member hashes are audited without extraction/execution. Historical evidence does
+not require future repository test/docs files to retain these exact bytes. To
+replay the retained scripts, extract this packet into a fresh directory and use
+absolute paths for both emitted modules, the upstream source and output directory.
