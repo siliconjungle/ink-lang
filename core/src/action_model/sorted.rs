@@ -11,7 +11,7 @@
 //! table from the projection's own insertion order, and a replacement may
 //! assume every table is strictly sorted only after the checker has established
 //! that this is an inductive invariant of the *original* module:
-//! - the initial state (all tables empty) satisfies it, by computation;
+//! - the declared initial rows satisfy it, by computation;
 //! - every original action, from a state satisfying it, returns a state
 //!   satisfying it on both observation constructors (supplied proofs).
 //!
@@ -357,8 +357,9 @@ impl Projection {
             }
             context.matches_definition(i, &declaration(e)?)?;
         }
-        for (predicate, table) in sorted.predicates.iter().zip(&self.tables) {
-            let empty = call(predicate, vec![c(&table.datatype, 0, vec![])]);
+        for (index,(predicate, table)) in sorted.predicates.iter().zip(&self.tables).enumerate() {
+            let rows=match &self.initial_state {Some(Term::Construct{arguments,..})=>arguments[index].clone(),_=>c(&table.datatype,0,vec![])};
+            let empty = call(predicate, vec![rows]);
             context
                 .check(
                     &[],
@@ -370,7 +371,7 @@ impl Projection {
                         to: Term::Bool(true),
                     },
                 )
-                .map_err(|e| format!("empty table is not sorted: {e}"))?;
+                .map_err(|e| format!("initial table is not sorted: {e}"))?;
         }
         if proofs.actions.keys().ne(self.actions.keys()) {
             return Err("sorted tables require a proof for exactly every action".into());

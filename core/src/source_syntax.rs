@@ -358,7 +358,7 @@ mod tests {
             , "module recursive_types; record Chain { value:u64, next:Option<Chain>, } fn next(x:Chain)->Option<Chain>{return x.next;}"
         ] {
         let module = crate::core::CheckedModule::from_source(crate::syntax::parse(source).unwrap()).unwrap();
-        let actions = CheckedActions::elaborate(&module).unwrap();
+        let actions = CheckedActions::elaborate_with_frozen_roots(&module).unwrap();
         let declaration = definition(&actions, &roles).unwrap();
         let mut context = Context::default();
         for (id, d) in grammar(&roles) {

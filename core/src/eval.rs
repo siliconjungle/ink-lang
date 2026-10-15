@@ -222,12 +222,39 @@ fn copy_value(value: &Value, fuel: &mut u64) -> LangResult<Value> {
     charge(fuel, weight(value))?;
     Ok(value.clone())
 }
-fn copy_env(env: &Env, fuel: &mut u64) -> LangResult<Env> {
-    charge(
-        fuel,
-        env.values().fold(0u64, |n, v| n.saturating_add(weight(v))),
-    )?;
-    Ok(env.clone())
+// Capture lexical dependencies only. Copy costs still charge the actual values
+// retained by the evaluator; unrelated prepared data does not enter a callback.
+fn copy_scope(env: &Env, body: &Expr, shadow: Option<&str>, fuel: &mut u64) -> LangResult<Env> {
+    let mut captured = Env::new();
+    for name in crate::analysis::free_variables(body) {
+        if Some(name.as_str()) != shadow {
+            if let Some(value) = env.get(&name) {
+                captured.insert(name, copy_value(value, fuel)?);
+            }
+        }
+    }
+    Ok(captured)
+}
+
+// Immutable lexical projections can observe a child without first copying its
+// containing record. Charge every traversed expression and copy the result.
+fn lexical_place<'a>(e: &Expr, env: &'a Env) -> Option<&'a Value> {
+    match e {
+        Expr::Var(name) => env.get(name),
+        Expr::Field(base, field) => match lexical_place(base, env)? {
+            Value::Record(_, fields) => fields.get(field),
+            Value::Vector(values) => ["x", "y", "z", "w"].iter().position(|f| *f == field)
+                .and_then(|i| values.get(i)),
+            _ => None,
+        },
+        _ => None,
+    }
+}
+fn charge_place(e: &Expr, fuel: &mut u64, depth: usize) -> LangResult<()> {
+    charge(fuel, 1)?;
+    if depth > MAX_DEPTH { return Err("interpreter evaluation nesting limit exceeded".into()); }
+    if let Expr::Field(base, _) = e { charge_place(base, fuel, depth + 2)?; }
+    Ok(())
 }
 
 fn expr(
@@ -472,22 +499,22 @@ fn evaluate_binding(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lan
         Expr::Let(n, t, a, b) => {
             let at = crate::check::infer_context(a, types, p, t.as_deref())?;
             let value = expr(a, env, types, p, fuel, Some(&at), depth)?;
-            let mut local = copy_env(env, fuel)?;
+            let mut local = copy_scope(env, b, Some(n), fuel)?;
             local.insert(n.clone(), value);
             let mut ts = types.clone();
             ts.insert(n.clone(), at);
             // A sequence of lexical bindings needs one evaluator frame. Keep
             // the recursion bound for nested RHS expressions and function
             // calls; source elaboration must not turn a long straight-line
-            // function into an artificial recursion failure. Retain the same
-            // expression and environment-copy fuel charges for each binding.
+            // function into an artificial recursion failure. Charge each expression
+            // and only the values actually retained by its continuation.
             let mut tail = b.as_ref();
             while let Expr::Let(n, t, a, b) = tail {
                 charge(fuel, 1)?;
                 crate::check::infer_context(tail, &ts, p, Some(&ty))?;
                 let at = crate::check::infer_context(a, &ts, p, t.as_deref())?;
                 let value = expr(a, &local, &ts, p, fuel, Some(&at), depth)?;
-                local = copy_env(&local, fuel)?;
+                local = copy_scope(&local, b, Some(n), fuel)?;
                 local.insert(n.clone(), value);
                 ts.insert(n.clone(), at);
                 tail = b.as_ref();
@@ -538,6 +565,14 @@ fn evaluate_field(e: &Expr, frame: Frame<'_>, fuel: &mut u64, _ty: Type) -> Lang
                         n.clone(),
                     )));
                 }
+            }
+            if let Some(value) = lexical_place(e, env) {
+                charge_place(e, fuel, depth)?;
+                return match value {
+                    Value::Record(_, fields) => copy_value(fields.get(n).ok_or("missing field")?, fuel),
+                    Value::Vector(values) => copy_value(&values[["x", "y", "z", "w"].iter().position(|f| *f == n).unwrap()], fuel),
+                    _ => Err("field access needs record/vector".into()),
+                };
             }
             let v = expr(e, env, types, p, fuel, None, depth)?;
             match v {
@@ -598,7 +633,7 @@ fn evaluate_repeat(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> Lang
             let mut ts = types.clone();
             ts.insert(index.clone(), Type::U32);
             ts.insert(name.clone(), ty.clone());
-            let mut local = copy_env(env, fuel)?;
+            let mut local = copy_scope(env, &args[2], None, fuel)?;
             for i in 0..bound {
                 local.insert(index.clone(), Value::U32(i as u32));
                 local.insert(name.clone(), acc);
@@ -663,6 +698,16 @@ fn evaluate_index(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
     } = frame;
     match e {
         Expr::Method(xs, n, args) if n == "at_or" => {
+            if let Some(Value::List(values)) = lexical_place(xs, env) {
+                charge_place(xs, fuel, depth)?;
+                let Value::U32(i) = expr(&args[0], env, types, p, fuel, Some(&Type::U32), depth)? else {
+                    return Err("at_or index".into());
+                };
+                return match values.get(i as usize) {
+                    Some(value) => copy_value(value, fuel),
+                    None => expr(&args[1], env, types, p, fuel, Some(&ty), depth),
+                };
+            }
             let Value::List(xs) = expr(xs, env, types, p, fuel, None, depth)? else {
                 return Err("at_or list".into());
             };
@@ -780,7 +825,7 @@ fn evaluate_array_operation(
                 return Err("output list".into());
             };
             let mut out = Vec::new();
-            let mut local = copy_env(env, fuel)?;
+            let mut local = copy_scope(env, lambda, None, fuel)?;
             let mut ts = types.clone();
             for (i, x) in values.into_iter().enumerate() {
                 if n == "zip" && i >= other.len() {
@@ -849,8 +894,8 @@ fn evaluate_fold_until(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> 
     let Expr::Lambda(step_state, step_body) = step_inner.as_ref() else { return Err("fold_until nested lambda".into()); };
     // Capture the enclosing scope once, as foldr does. Both callbacks observe
     // the old accumulator; only the stop callback needs copies of moved values.
-    let mut stop_env = copy_env(env, fuel)?;
-    let mut step_env = copy_env(env, fuel)?;
+    let mut stop_env = copy_scope(env, &args[2], None, fuel)?;
+    let mut step_env = copy_scope(env, &args[3], None, fuel)?;
     let mut stop_types = types.clone();
     stop_types.insert(stop_item.clone(), (*item_type).clone());
     stop_types.insert(stop_state.clone(), ty.clone());
@@ -894,7 +939,7 @@ fn evaluate_foldr(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
             let Expr::Lambda(rest, body) = inner.as_ref() else {
                 return Err("foldr needs a nested lambda".into());
             };
-            let mut local = copy_env(env, fuel)?;
+            let mut local = copy_scope(env, &args[2], None, fuel)?;
             let Type::List(item_type) = crate::check::infer(&args[0], types, p)? else {
                 return Err("foldr needs a list".into());
             };
@@ -1174,7 +1219,7 @@ fn evaluate_map_filter(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> 
                     let Expr::Lambda(var, body) = &args[branch] else {
                         return Err("variant fold callback".into());
                     };
-                    let mut local = copy_env(env, fuel)?;
+                    let mut local = copy_scope(env, &args[branch], None, fuel)?;
                     local.insert(var.clone(), value.to_eval()?);
                     let mut local_types = types.clone();
                     local_types.insert(var.clone(), input);
@@ -1201,7 +1246,7 @@ fn evaluate_map_filter(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> 
                 let Expr::Lambda(var, body) = &args[0] else {
                     return Err("variant lambda".into());
                 };
-                let mut local = copy_env(env, fuel)?;
+                let mut local = copy_scope(env, &args[0], None, fuel)?;
                 local.insert(var.clone(), payload.to_eval()?);
                 let mut ts = types.clone();
                 ts.insert(var.clone(), input_type.clone());
@@ -1245,7 +1290,7 @@ fn evaluate_map_filter(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> 
                 return Err("expected lambda".into());
             };
             let mut out = Vec::new();
-            let mut local = copy_env(env, fuel)?;
+            let mut local = copy_scope(env, &args[0], None, fuel)?;
             let Type::List(inner) = crate::check::infer_context(
                 xs,
                 types,
@@ -1543,8 +1588,8 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
             ts.insert(name.clone(), ty.clone());
             let mut stop_ts = types.clone();
             stop_ts.insert(stop_name.clone(), ty.clone());
-            let mut local = copy_env(env, fuel)?;
-            let mut stop_env = copy_env(env, fuel)?;
+            let mut local = copy_scope(env, &a[3], None, fuel)?;
+            let mut stop_env = copy_scope(env, &a[2], None, fuel)?;
             for i in 0..limit {
                 charge(fuel, 1)?;
                 stop_env.insert(stop_name.clone(), copy_value(&acc, fuel)?);
@@ -1606,7 +1651,7 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                         let cost=(0..size).fold(0u64,|cost,i|cost.saturating_add(1+b.with_item(begin+i,|v|weight(v.unwrap()))));
                         charge(fuel,cost)?;
                         let view=Value::Buffer(b.range_snapshot(start,count));
-                        let mut local=copy_env(env,fuel)?;local.insert(name.clone(),view);
+                        let mut local=copy_scope(env,&a[2],None,fuel)?;local.insert(name.clone(),view);
                         let mut ts=types.clone();ts.insert(name.clone(),Type::Buffer(t.clone()));
                         return expr(body,&local,&ts,p,fuel,Some(&ty),depth);
                     }
@@ -1619,7 +1664,7 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                         let Expr::Lambda(item, body) = &a[0] else {
                             unreachable!()
                         };
-                        let mut local = copy_env(env, fuel)?;
+                        let mut local = copy_scope(env, &a[0], None, fuel)?;
                         let mut ts = types.clone();
                         ts.insert(item.clone(), *t.clone());
                         let mut ys = vec![];
@@ -1633,7 +1678,7 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                         let Expr::Lambda(item, body) = &a[0] else {
                             unreachable!()
                         };
-                        let mut local = copy_env(env, fuel)?;
+                        let mut local = copy_scope(env, &a[0], None, fuel)?;
                         let mut ts = types.clone();
                         ts.insert(item.clone(), *t.clone());
                         let mut ys = vec![];
@@ -1698,7 +1743,7 @@ fn evaluate_local(e: &Expr, frame: Frame<'_>, fuel: &mut u64, ty: Type) -> LangR
                         let Expr::Lambda(r, body) = rest.as_ref() else {
                             unreachable!()
                         };
-                        let mut local = copy_env(env, fuel)?;
+                        let mut local = copy_scope(env, &a[1], None, fuel)?;
                         let mut ts = types.clone();
                         local.insert(l.clone(), Value::Buffer(left));
                         local.insert(r.clone(), Value::Buffer(right));
@@ -1839,7 +1884,7 @@ fn indexed_values(
     let Expr::Lambda(item, body) = rest.as_ref() else {
         unreachable!()
     };
-    let mut local = copy_env(env, fuel)?;
+    let mut local = copy_scope(env, callback, None, fuel)?;
     let mut ts = types.clone();
     ts.insert(index.clone(), Type::U32);
     ts.insert(item.clone(), input.clone());

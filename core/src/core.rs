@@ -116,6 +116,9 @@ pub struct Program {
     pub keeps: Vec<BindingDecl>,
     pub events: std::collections::BTreeMap<String, Type>,
     pub actions: Vec<Action>,
+    /// Immutable typed initial rows; part of program meaning, not removable proof metadata.
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub frozen: crate::frozen::Bindings,
     #[serde(default, skip_serializing_if = "crate::termination::Declarations::is_empty")]
     pub termination: crate::termination::Declarations,
     #[serde(default, skip_serializing_if = "crate::contracts::Contracts::is_empty")]
@@ -136,6 +139,7 @@ pub const CONTRACT_SEMANTICS: &str = "ink-executable-core-v10";
 pub const VALUE_INVARIANT_SEMANTICS: &str = "ink-executable-core-v11";
 pub const MEASURE_SEMANTICS: &str = "ink-executable-core-v12";
 pub const BORROW_RANGE_SEMANTICS: &str = "ink-executable-core-v13";
+pub const FROZEN_STATE_SEMANTICS: &str = "ink-executable-core-v14";
 pub const WORD_CONVERSION_SEMANTICS: &str = "ink-executable-core-v11";
 pub const BULK_BUFFER_SEMANTICS: &str = "ink-executable-core-v9";
 pub const PARALLEL_SEMANTICS: &str = "ink-executable-core-v5";
@@ -508,9 +512,12 @@ impl CheckedModule {
         let (extended, sequence) = validate(&program)?;
         let local = crate::local_collections::needed(&program);
         crate::check::check(&program)?;
+        crate::frozen::check(&program)?;
         let module = Self(WireModule {
             schema: 1,
-            semantics: if borrow_range_needed(&program) {
+            semantics: if !program.frozen.is_empty() {
+                FROZEN_STATE_SEMANTICS
+            } else if borrow_range_needed(&program) {
                 BORROW_RANGE_SEMANTICS
             } else if !program.termination.is_empty() {
                 MEASURE_SEMANTICS
@@ -567,6 +574,7 @@ impl CheckedModule {
                 VALUE_INVARIANT_SEMANTICS,
                 MEASURE_SEMANTICS,
                 BORROW_RANGE_SEMANTICS,
+                FROZEN_STATE_SEMANTICS,
                 WORD_CONVERSION_SEMANTICS,
             ]
             .contains(&wire.semantics.as_str())

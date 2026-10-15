@@ -474,7 +474,7 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
         call_checks.push((g.name, name, conditions, stable_state));
     }
     let checked = CheckedModule::from_source(ghosts.p)?;
-    let typed=crate::action_ir::CheckedActions::elaborate(&checked)?;
+    let typed=crate::action_ir::CheckedActions::elaborate_with_frozen_roots(&checked)?;
     let mut requests=vec![];
     let mut site_maps=BTreeMap::new();
     for (_,owner,site,locals,post,phase) in &prefix_checks {
@@ -497,7 +497,7 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
     }
     let (model,observations) = Projection::derive_site_observations(&checked,&requests)?;
     let cx = model.context()?;
-    let initial = Term::Construct {
+    let initial = model.initial_state.clone().unwrap_or_else(||Term::Construct {
         datatype: model.state.clone(),
         constructor: 0,
         arguments: model
@@ -509,7 +509,7 @@ pub(super) fn derive(source: &Program) -> LangResult<StateObligations> {
                 arguments: vec![],
             })
             .collect(),
-    };
+    });
     let mut goals = vec![];
     for ((label,owner,_,_,_,_),observation) in prefix_checks.iter().zip(&observations) {
         let params=&observation.params;
