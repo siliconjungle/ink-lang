@@ -244,3 +244,9 @@ and borrowed callbacks retain their restrictions. Normal helpers remain checked;
 no AD transform, provenance or sampled gradient grants rewrite authority. CPU
 host tape execution is distinct from actual eligible GPU dispatch. See
 `docs/source-reverse-differentiation.md` and required `source_reverse` conformance.
+
+Literal JavaScript binding reuse applies only to fresh const locals and immutable
+nonrecursive parameters. Mutable branch/loop/call slots retain value snapshots;
+field reads and calls keep their evaluation positions. Do not infer purity,
+unique ownership, numeric range or rewrite authority from a reused local name.
+See docs/immutable-javascript-bindings.md and the exact-bit alias/swap regression.

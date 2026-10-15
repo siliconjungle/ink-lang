@@ -248,3 +248,10 @@ one selected variant arm can consume an affine capture once. See
 [the implementation and remaining scope](docs/source-reverse-differentiation.md).
 Full source/contract transport, device tape training, frozen specialization,
 matched performance and the complete three-project programme remain required.
+
+[Immutable JavaScript bindings](docs/immutable-javascript-bindings.md) now avoid
+redundant const aliases while retaining snapshots of mutable loop/branch/call
+slots. Text/model/collection emitted modules shrink 2.12%/2.95%/0.54%; the retained
+timings are mixed. Full standalone and required-target histories validate the
+change, with exact-bit swap/recursion regressions. This is code-size progress;
+substantial upstream speed gaps and the complete complex text walker remain open.

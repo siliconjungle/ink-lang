@@ -102,12 +102,12 @@ language and engine behavior. A word-width toy is not Pretext parity.
 
 ### Precision direction
 
-The recommended baseline is first-class F64 semantics on the reference, CPU,
-JavaScript and Wasm paths, with explicit conversion and bit behavior, rather than
-changing a binary64 algorithm while porting it. This is new language/ABI/proof
-work, not an existing Ink capability. Establish arithmetic, comparison, NaN,
-signed-zero, serialization and conversion conformance before making optimisation
-claims. Source-to-proof correspondence must name the new domain explicitly.
+The baseline now supplies first-class F64 semantics on the reference, CPU,
+JavaScript and Wasm paths, with explicit conversion and bit behavior. Retained
+[binary64 conformance](binary64.md) covers arithmetic, comparison, NaN,
+signed-zero, serialization and conversion. General semantic F64 proof terms
+still fail closed; source-to-proof correspondence must name that domain before
+facts can authorize binary64 rewrites or narrowing.
 
 After that baseline, range inference can propose checked narrower execution.
 For a fit test against 300 pixels, an enclosing interval entirely below the
@@ -168,7 +168,7 @@ GitHub conformance run was still queued when this checklist was recorded.
 | Incremental work and placement | Maintain item/paragraph/batch changes, share derived state, upload changed regions and keep intermediate values resident. Compose query/ordinary code/device plans and price I/O. | Partial maintained-state and GPU foundations; broader composition, transfer planning and external storage remain open |
 | Ownership and execution overhead | Remove measured helper/capture clones, reuse searchers/prepared inputs, compare layouts and allocation behavior across target engines. | UTF-8 and primitive borrowing improvements delivered; native whole-workload ownership gap remains open |
 | Behavioral contracts | Explicit permitted staleness, capacity, first/any/tie selection and fallback; preserve transaction and observation meaning. | Partial specification foundations; relevant source contracts and consumers remain open |
-| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Source gradient/JVP, authored reverse graphs, complete optimizer state and cooperative queued sessions delivered; general source reverse AD, frozen arithmetic/graph specialization, broader domains and performance parity remain open |
+| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Source gradient/JVP, bounded F32 source reverse AD, authored reverse graphs, complete optimizer state and cooperative queued sessions delivered; F64 AD, broader source domains, device training, frozen specialization and performance parity remain open |
 | Cross-domain and lifecycle acceptance | Real layout/prepared computation, JSON/structured data, relational/bitset and sparse numeric workloads; matched first-call, steady-state, edits, memory and adverse cases against strong controls. | Complete-count search evidence delivered; broader parity/performance and comparable first-call evidence remain open |
 
 The next implementation priorities are reusable checked facts and their consumers,
@@ -244,9 +244,9 @@ Two source-bound database equations universally compare batched and separate
 JVP results on polynomial/nonlinear kernels. Normalization, exact definition
 attachment, stale-context rejection and actual selected GPU execution are checked.
 These equations strengthen concrete implementation checks; the whole AD transform,
-checker and generated backends remain trusted. General source reverse AD,
-F64/complete Pretext fidelity, broad call inference and the remaining work packages
-are still open.
+checker and generated backends remain trusted. [Bounded F32 source reverse
+AD](source-reverse-differentiation.md) is now implemented. F64 AD, complete Pretext
+fidelity, broad call inference and the remaining work packages are still open.
 
 [Prepared reverse graphs and models](reverse-learning.md) now add an authored VJP
 library, explicit sparse zero-cotangent and hard-operation policies, fused affine/
@@ -340,5 +340,6 @@ elements, indices and carried values stay dynamic; helper sites retain separate
 lazy state. This enables one-time indexes, grouped folds and coefficient tables
 without a library-name recognizer. The retained paired study shows large repeated
 work gains alongside small-input, memory and ordinary-call costs. Neural and text
-controls still expose substantial gaps; source reverse AD, mutable-session staging,
-full complex text/preparation and broad matched performance remain open.
+controls still expose substantial gaps; broader source differentiation,
+mutable-session staging, full complex text/preparation and broad matched
+performance remain open.
