@@ -1,0 +1,80 @@
+{
+  "finding": "F068",
+  "files": [
+    {
+      "repo": "llvm",
+      "path": "llvm/include/llvm/Analysis/InlineCost.h",
+      "blob": "9b7c2b6ca96a14392175252ecb29cd4d1e2213b3",
+      "bytes": 14625,
+      "sha256": "51654b7efd39b574d3287c4ddceb80e8bfa613c4d69758160a120cde66a3ebe4",
+      "insights": [
+        "InlineCost separates variable cost/threshold from Always/Never sentinels carrying reasons; tri-state attribute decisions differ from cost estimates, and features can be returned when inlining is impossible.",
+        "Cost is unitless; CostBenefitPair uses arbitrary-width integers. Code size, stack limits, thresholds and runtime benefit must keep their units and scope explicit.",
+        "Callsite hot/cold, size objectives, recursive-call permission and explicit overrides are independent policy inputs, not mathematical rewrite authority.",
+        "Heavyweight cost queries can stop after threshold crossing; full estimates and feature extraction require distinct completeness contracts. Function viability alone is not callsite compatibility.",
+        "An explicit inferred callee supports devirtualization without pretending every indirect call has a statically known target."
+      ]
+    },
+    {
+      "repo": "llvm",
+      "path": "llvm/unittests/Analysis/InlineCostTest.cpp",
+      "blob": "78e2aee95f82acadb08d4f0033eacc314cce2c79",
+      "bytes": 4155,
+      "sha256": "0be65ea7f9933578bed4062785a055bb7e9904e48d0b60cd8962419bde7a4a3f",
+      "insights": [
+        "Full unit source review. One test only asserts features available for a trivial call; the SROA test checks savings versus losses when an escaping call prevents stack scalarization.",
+        "Escapes invalidate accumulated speculative savings. Tests use actual LLVM analysis managers and default5 instruction price, but no local LLVM unit execution was performed.",
+        "Pipeline analysis ownership is explicit; these narrow fixtures are not broad inliner performance or correctness evidence."
+      ]
+    },
+    {
+      "repo": "ink/planner",
+      "path": "tests/test_callback_work_cost.py",
+      "blob": "1b03f00703c402610a75eff5fe47816064579aaf",
+      "bytes": 1618,
+      "sha256": "ceaab42655ccb1f254c7b5ac491f332d04edaa83fc0eb3c0211fb21d1155047c",
+      "insights": [
+        "Generic callback-loop estimates distinguish invariant arithmetic hoisting from per-element work, while scalar apply gets no list multiplier.",
+        "Test exercises cost suggestion with accepting and rejecting checker callbacks; rejecting equality never becomes eligible because it has a lower estimated cost.",
+        "Cost is an unmeasured ordering hypothesis; no runtime speed evidence."
+      ]
+    },
+    {
+      "repo": "ink/planner",
+      "path": "tests/test_target_components.py",
+      "blob": "f72fd863e44a81a8da80c33173c777d68aa92027",
+      "bytes": 18820,
+      "sha256": "c1a60904ffe31b84943d7bb75e63e288357b72f388500eb7b28e1beed14b756f",
+      "insights": [
+        "Full pinned baseline test source reviewed. Actual source signatures, helper dependency changes, lexical lets/captures, fold fixed points and bounded growth are exercised.",
+        "Tests distinguish unknown/max-priced branches, short-circuit absorbing versus neutral operands, empty traversal, ownership-boundary copies, GPU lowering unknowns, negative/NaN prices and false proof rejection.",
+        "Baseline missed agreeing literal branch joins; F068 reproduces it with actual checked source/reference values and strengthens maintained tests. No broad runtime speed claim."
+      ]
+    },
+    {
+      "repo": "ink/knowledge",
+      "path": "producers/control_choice_templates.py",
+      "blob": "c5d98c85f363e79be22f8a4e2dd5245c6daceb91",
+      "bytes": 1993,
+      "sha256": "443a2becd7f13fb298a029cfd31126a6f2048a42b435bcffdc3f8208a1f6649b",
+      "insights": [
+        "Four generic lazy-choice families use ordinary Cases/Normalize proofs, with six concrete carriers each. Templates bind type parameters and have no target/source-specific tags.",
+        "Existing same-branches law already expresses agreeing branch equality; preserve this database machinery rather than adding backend shortcuts or duplicate rules.",
+        "All24 concrete instances independently replayed through actual kernel. Stronger maintained regression also rejects a reconstructed, rehashed false conclusion by semantic normal forms."
+      ]
+    },
+    {
+      "repo": "ink/knowledge",
+      "path": "tests/test_control_choice_templates.py",
+      "blob": "7feb6e1abbc57b94e93cffb057d11a15c03d40d1",
+      "bytes": 812,
+      "sha256": "f46d2ee4413f59cfa0d52e7e790e85c92687ef2dcffa4b7f405fed0c9c98b089",
+      "insights": [
+        "Full pinned baseline test read: only template shape, counts, distinct identities and interface absence were checked; actual proof replay was missing.",
+        "F068 adds actual24-instance kernel replay and properly rebuilt false conclusion rejection, and includes suite in mandatory hardening. No change to canonical mathematical entries."
+      ]
+    }
+  ],
+  "actual_proof_replay": "outputs/llvm-ink-audit/control-choice-proof-replay.json",
+  "limits": "Full reviews of listed pinned files. InlineCost.cpp is only read through byte60000of135488; no whole-file review credit. LLVM tests not executed."
+}

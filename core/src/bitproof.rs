@@ -233,13 +233,17 @@ impl Circuit {
                         "|" | "^" => Ok(Value::Word(a.iter().zip(&b).map(|(&a,&b)|
                             self.gate(if op=="|"{"or"}else{"xor"},a,b)
                         ).collect::<LangResult<_>>()?)),
-                        "word32.shl" | "word32.shr" | "word64.shl" | "word64.shr" => {
+                        "word32.shl" | "word32.shr" | "word64.shl" | "word64.shr" |
+                        "word32.rol" | "word32.ror" | "word64.rol" | "word64.ror" => {
                             let width=if op.starts_with("word32."){32}else{64};
-                            let left=op.ends_with(".shl");let mut bits=a;
+                            let left=op.ends_with(".shl") || op.ends_with(".rol");
+                            let rotate=op.ends_with(".rol") || op.ends_with(".ror");let mut bits=a;
                             for (stage,&condition) in b.iter().take(if width==32{5}else{6}).enumerate(){
                                 let shift=1usize<<stage;let mut next=Vec::with_capacity(64);
                                 for index in 0..64usize {
-                                    let changed=if index>=width{-1}else if left{
+                                    let changed=if index>=width{-1}else if rotate {
+                                        bits[if left{(index+width-shift)%width}else{(index+shift)%width}]
+                                    }else if left{
                                         if index>=shift{bits[index-shift]}else{-1}
                                     }else if index+shift<width{bits[index+shift]}else{-1};
                                     next.push(if index>=width{-1}else{self.select(condition,changed,bits[index])?});
@@ -761,6 +765,22 @@ mod tests {
                         a.wrapping_sub(b)
                     })
                 );
+            }
+        }
+    }
+    #[test]
+    fn fixed_rotate_circuits_match_both_word_widths_and_modular_counts() {
+        for a in [0,1,u32::MAX as u64,u64::MAX,0xa5a5_f0f0_1234_5678] {
+            for k in [0,1,31,32,33,63,64,65,u32::MAX as u64,u64::MAX] {
+                let input=[("a",Term::U64(a)),("k",Term::U64(k))];
+                for (op,expected) in [
+                    ("word32.rol",(a as u32).rotate_left(k as u32) as u64),
+                    ("word32.ror",(a as u32).rotate_right(k as u32) as u64),
+                    ("word64.rol",a.rotate_left(k as u32)),
+                    ("word64.ror",a.rotate_right(k as u32)),
+                ] {
+                    assert_eq!(evaluate(&binary(op,var("a"),var("k")),&input),Term::U64(expected),"{a} {op} {k}");
+                }
             }
         }
     }

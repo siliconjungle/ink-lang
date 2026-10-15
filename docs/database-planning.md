@@ -113,7 +113,13 @@ ceiling. Measurement paging covers more than 1024 plans and repetitions. Lifecyc
 profiles can charge proof checking, compilation, construction, actions, checkpoint,
 restore and migration; a memory limit requires measured memory, never an invented
 zero. Comparable complete measurements govern selection. Structural prices only
-order exploration. Historical target-work diagnostic models with incompatible
+order exploration. The schema-2 source-component estimator preserves agreeing
+scalar literal payloads when joining unknown branch arms. This can identify a
+known later condition through nested choices and current helper arguments, while
+retaining the cost of evaluating the original condition and its reachable arms.
+Different literals remain unknown, and branch-selected closures remain unresolved.
+These are cost hypotheses; database laws and independent replay authorize rewrites.
+Historical target-work diagnostic models with incompatible
 cohorts or explicitly provisional publication status do not become default policy.
 
 Offline pure JavaScript and native Rust acquisition both record a conservative

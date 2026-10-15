@@ -1,0 +1,14 @@
+{
+  "core_sha256": "d7ec714b376b0d6ef96de74d4c82a11f2e5fe1f69741e3a16c3769994167c14f",
+  "files": [
+    {
+      "module": "frozen_software",
+      "path": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-v8-2026-10-15/bench/planning-corpus/heldout/spatial-collision.ink",
+      "sha256": "7196fe4a7e48b0dd245707192f9bf5b375c83126fa02c98ab89d5006fa471915",
+      "source": "module frozen_software;\nrecord Box { minX:u32,minY:u32,maxX:u32,maxY:u32, }\nfn intersects(a:Box,b:Box)->Bool {return a.minX<=b.maxX && a.minY<=b.maxY && a.maxX>=b.minX && a.maxY>=b.minY;}\npub fn run(xs:List<Box>,q:Box)->Bool{return foldl(xs,false,fn(x)=>fn(a)=>a || intersects(x,q));}\n"
+    }
+  ],
+  "schema": 1,
+  "scope": "Exact source bytes consumed by this load, not a filesystem-wide atomic snapshot or proof authority.",
+  "semantics": "ink-source-capture-v1"
+}

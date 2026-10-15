@@ -1,0 +1,25 @@
+{
+  "llvm_revision": "d977b4533f1d9b01d28cf4dba9b2db9d1ccfda08",
+  "path": "llvm/lib/Analysis/InlineCost.cpp",
+  "read_range": [
+    0,
+    60000
+  ],
+  "total_bytes": 135488,
+  "full_file_review": false,
+  "observations": [
+    "Caller context must be constrained for cacheable queries: use covered argument attributes rather than arbitrary caller traversal. Borrowed simplified values may belong to caller and need ownership checks before analysis as callee values.",
+    "Maintain per-query SimplifiedValues, dead blocks, known successors, SROA allocations and constant pointer offsets. Scope/lifetimes are separate from scoring.",
+    "Accumulate speculative SROA and load-elimination benefits, then reverse saved costs when escapes or conflicting uses invalidate the opportunity. Avoid retaining profitability facts past invalidation.",
+    "Threshold query may stop early; full estimates/features request complete analysis. Initial maximal bonuses permit early rejection only with a monotonic remaining-cost argument.",
+    "128-bit cost-benefit products combine per-block savings and entry/callsite frequencies; missing or zero counts disable the profile path, with fallback to unitless estimates.",
+    "Explicit profile policy distinguishes instrumented versus other profiles. User overrides target defaults only when explicitly present.",
+    "Cost-benefit decision has accept/reject/fallback bands; integer cross-products avoid division rounding. Tiny callee allowance and exclusion of never-executed code are heuristic policy.",
+    "Vector, single-block, call convention and hot/cold bonuses include documented arbitrary/default historical factors. Measure Ink target-specific alternatives instead of importing numeric magic constants.",
+    "Nested devirtualization analysis disables further indirect boosting to bound nested speculative cost. Calls charge arguments and target-specific penalties.",
+    "Feature extraction shares generic analysis but still duplicates some cost policy; source TODOs warn of heuristic contamination. Keep raw model features distinct from preset bonuses.",
+    "Inline assembly instruction counting intentionally excludes some outlined sections; cost models disclose unsupported/approximate regions rather than pretending exactness."
+  ],
+  "next_byte": 60000,
+  "limits": "Partial source observations only; no whole-file credit or local LLVM execution."
+}

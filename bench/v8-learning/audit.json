@@ -9,10 +9,11 @@
       "inclusive_lines": [
         [
           1,
-          220
+          765
         ]
       ],
-      "review_status": "partial"
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Dominator-layer facts, replay after cloning, switch/branch/select folding, guarded trap/deopt behavior, small-block threading and return duplication. Existing arbitrary-carrier control_choice_templates already cover repeated branches; consolidate duplicate word instances rather than counting these as new generalization. Further control equivalences require ordinary Cases proofs; clone budgets are search policy."
     },
     {
       "path": "src/compiler/turboshaft/late-load-elimination-reducer.h",
@@ -26,30 +27,16 @@
       "review_status": "partial"
     },
     {
-      "path": "src/compiler/turboshaft/value-numbering-reducer.h",
-      "sha256": "a002b203ed072056f140c76b370c38c7a932ca068f6988933a0bd8bc4472d748",
-      "inclusive_lines": [
-        [
-          1,
-          110
-        ]
-      ],
-      "review_status": "partial"
-    },
-    {
       "path": "src/compiler/turboshaft/machine-optimization-reducer.h",
       "sha256": "9239724610a1736a1168ffd5c3409bc448f2ba1f06c709ea7b84ea499c866484",
       "inclusive_lines": [
         [
-          780,
-          1075
-        ],
-        [
-          1918,
-          2130
+          1,
+          3314
         ]
       ],
-      "review_status": "partial"
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Constant folding, conversions/tag casts, IEEE and signalling-NaN restrictions, modular word arithmetic, div/mod default/trap differences, rotate recognition (XOR excludes zero effective count), checked overflow, SIMD reduction grouping, reversible shifts, narrow comparisons, truncation/offset reductions, guard branches and stable-map dependencies. Staged generic versioned source-circuit support and database rotate/widen-comparison proofs are independently checked; final integration/replay pending. Signed/float/memory/SIMD and host-delegation assessments remain open."
     },
     {
       "path": "src/compiler/turboshaft/typed-optimizations-reducer.h",
@@ -88,16 +75,148 @@
       "note": "Full file read: allocation-use collection and fixed-point removal of nonescaping allocation/store chains. Compare owned-buffer and collect-before-build proofs; no new authority admitted."
     },
     {
+      "path": "src/compiler/turboshaft/simplified-optimization-reducer.h",
+      "sha256": "65a5b277c023f2fbf4ba367e3550b935c0586f00aef3b2a78d2208c0e47fcf17",
+      "inclusive_lines": [
+        [
+          1,
+          294
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Tagged/untagged cancellation, exact conversion constants, object-kind checks and overflow/minus-zero check removal. Ink has fixed carriers rather than JS maps/oddballs; seven total U32/U64 conversion laws independently checked in staging, multiplication-narrowing unadmitted."
+    },
+    {
+      "path": "src/compiler/turboshaft/late-escape-analysis-reducer.h",
+      "sha256": "767a851e5ba06c86e637ee1d02beafc93af7992f9740cd4ff0514e66de4df517",
+      "inclusive_lines": [
+        [
+          1,
+          63
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. API and use-list/worklist state for the already-read allocation remover; broader escape/physical representation assessment remains."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-unrolling-reducer.cc",
+      "sha256": "4d5b7175a90273e650bb3a43857418ab44123adcffa3fd2e438e75889a156540",
+      "inclusive_lines": [
+        [
+          1,
+          613
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Static canonical loop matching, bounded exact simulation and conservative overflow bailout; approximate counts are heuristics, not proof. Ink stages exact literal-count expansions through existing Normalize proofs rather than copying approximate assumptions."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-peeling-reducer.h",
+      "sha256": "4cfa2790c560ef3e78400a69c6fc82d4485af0c069aac74bc5b024eaabbf9e79",
+      "inclusive_lines": [
+        [
+          1,
+          195
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Peel innermost bounded-size loops, remap loop phis/backedges and retain separate peeling/unrolling phases; skip unavailable second iteration. General database literal-loop expansions checked on U32, U64 and List<U32>; broader dynamic peeling and profitability remain open."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-unrolling-reducer.h",
+      "sha256": "4acae4e0bff4d6e6d550170696cdf240b505e6493d84980fcb14321584fb4466",
+      "inclusive_lines": [
+        [
+          1,
+          711
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Exact versus approximate iteration counts, loop/function/code-size budgets, partial body cloning with per-copy exit checks, Phi snapshot repair and variable-allocation bailout. Exact literal repeat proposals are now independently checked for arbitrary source carriers. Dynamic partial unrolling and peeling need separately checked identities and profitability evidence; V8 thresholds are not imported as authority."
+    },
+    {
+      "path": "src/compiler/turboshaft/value-numbering-reducer.h",
+      "sha256": "a002b203ed072056f140c76b370c38c7a932ca068f6988933a0bd8bc4472d748",
+      "inclusive_lines": [
+        [
+          1,
+          508
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Exact equality after hashing, dominance-scoped tables, same-block Phi restriction, mutation epochs, conservative loop invalidation, GC-sensitive map-load exclusion and ordered rehashing. Generic database scalar-sharing producer inserts existing lexical bindings; scoped/captured source instances independently replayed. Stateful memory/value numbering remains open."
+    },
+    {
+      "path": "src/compiler/turboshaft/dead-code-elimination-reducer.h",
+      "sha256": "0dfb3358e71e472c97d24dbfffe7797d5ca33270869574b638d787c2b373a1dd",
+      "inclusive_lines": [
+        [
+          1,
+          483
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Backwards live-operation/control lattice, required effects, joins, loop fixed-point revisits, branch redirection and leaf stack-check facts. Pure lexical dead-value proposals need checker evidence; stateful effects, observations, failures and interrupts cannot be erased from source observations."
+    },
+    {
       "path": "src/compiler/turboshaft/store-store-elimination-reducer-inl.h",
       "sha256": "9581651ca6cbe6406bf7c6574ec10fa67636163ffad7f5b2a2dadd5cecea1648",
       "inclusive_lines": [
         [
           1,
-          160
+          611
         ]
       ],
-      "review_status": "partial",
-      "note": "Backward observability lattice; aliasing, store sizes, branch joins, loop fixed points and GC initialization barriers. Existing Ink replace_overwrite database law identified; whole-action/effects assessment remains."
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Exact base/offset/size shadowing, conservative read aliasing, observable/GC-observable lattice and joins, loop-local fresh-base invalidation, fixed-point revisits and adjacent initializing store merge with pointer/endianness restrictions. Compare existing whole-action replace_overwrite proof; broader effects/transaction assessment remains open."
+    },
+    {
+      "path": "src/compiler/turboshaft/string-escape-analysis-reducer.cc",
+      "sha256": "bb0f4f73df73f5adec99102c44ac43b29370162d27acb7dbece5b570b5d0052d",
+      "inclusive_lines": [
+        [
+          1,
+          182
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Nonescaping concat graphs, backwards propagation and loop-Phi revisits; only length/deopt-frame uses permit elision, reconstruct parent frame states and deduplicate dematerialized strings, bail out on frame-input growth. Ink String is UTF-8 with a U32 byte-length boundary and concat overflow failure; unconditional wrapping length arithmetic would not preserve that boundary. Generic unused-value/observed-representation work requires checked domain/outcome correspondence; no string law admitted from this review."
+    },
+    {
+      "path": "src/compiler/turboshaft/string-escape-analysis-reducer.h",
+      "sha256": "69da0a263a0fbf4bd4a1cd130ee3aa3079490bedfd0643307edc33338720556e",
+      "inclusive_lines": [
+        [
+          1,
+          428
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Nonescaping concat graphs, backwards propagation and loop-Phi revisits; only length/deopt-frame uses permit elision, reconstruct parent frame states and deduplicate dematerialized strings, bail out on frame-input growth. Ink String is UTF-8 with a U32 byte-length boundary and concat overflow failure; unconditional wrapping length arithmetic would not preserve that boundary. Generic unused-value/observed-representation work requires checked domain/outcome correspondence; no string law admitted from this review."
+    },
+    {
+      "path": "src/execution/tiering-manager.cc",
+      "sha256": "d59fc28f257747d55d5372f559edeffc7579dadbfa0e0c4b67161eec011e732f",
+      "inclusive_lines": [
+        [
+          1,
+          690
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Tier/OSR requests, concurrent compilation deduplication, urgency saturation, bytecode-size and battery/efficiency gates, allocation of feedback on demand, PGO cached decisions and delayed optimization after IC changes. Candidate scheduling/hotness feedback supplies no correctness premise. Compare Ink bounded offline planning, cache provenance and lifecycle costs; dynamic OSR/feedback-vector applicability remains open."
+    },
+    {
+      "path": "src/execution/tiering-manager.h",
+      "sha256": "7bb2baf828355f54acd7490e7a65847a6bc3dc915fd62a787e89ddbe95e10217",
+      "inclusive_lines": [
+        [
+          1,
+          73
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Tier/OSR requests, concurrent compilation deduplication, urgency saturation, bytecode-size and battery/efficiency gates, allocation of feedback on demand, PGO cached decisions and delayed optimization after IC changes. Candidate scheduling/hotness feedback supplies no correctness premise. Compare Ink bounded offline planning, cache provenance and lifecycle costs; dynamic OSR/feedback-vector applicability remains open."
     }
   ],
   "families": [
@@ -105,7 +224,7 @@
       "name": "machine-word",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
-      "note": "56 independently admitted database laws; four shift-combination proposals remain unadmitted; remaining reducers need review"
+      "note": "Full machine reducer read; 80 admitted word/control/conversion laws from 82 proposals. Generic versioned source circuits add fixed rotate semantics and honor shared-gate encodings. Two U64 count-combination proposals remain unadmitted. Signed arithmetic, division and backend-delegation assessment remain open."
     },
     {
       "name": "branch-control",
@@ -117,7 +236,7 @@
       "name": "value-numbering",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/value-numbering-reducer.h",
-      "note": "Dominance and exact equality constraints identified; compare with existing Ink sharing and query caches"
+      "note": "Full reducer reviewed. Generic exact scalar lexical-sharing proposals admitted through existing Normalize checks, including nested binders; held-out complete-call JavaScript evidence retained. Stateful loads and global dominance reuse remain open."
     },
     {
       "name": "load-elimination",
@@ -127,9 +246,9 @@
     },
     {
       "name": "store-elimination",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/store-store-elimination-reducer-inl.h",
-      "note": "Assess observer/error/transaction semantics before proposing source action laws"
+      "note": "Full reducer read. Existing replace_overwrite database laws identified; whole-action observation/error/transaction assessment and profitability remain open."
     },
     {
       "name": "escape-allocation",
@@ -151,15 +270,15 @@
     },
     {
       "name": "loop-transforms",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/loop-optimization-reducer.h",
-      "note": "Peeling, unrolling, invariant motion and literal backend delegation"
+      "note": "Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open."
     },
     {
       "name": "strings",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/string-escape-analysis-reducer.cc",
-      "note": "Compare fixed UTF-8 semantics and database text algorithms"
+      "note": "Full string escape reducer reviewed. UTF-16/deoptimization representations are not Ink UTF-8 semantics. String length bounds/concat failures and portable reconstruction need explicit proof; no new string transformation admitted."
     },
     {
       "name": "simd-wasm",
@@ -169,9 +288,9 @@
     },
     {
       "name": "feedback-tiering",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/execution/tiering-manager.cc",
-      "note": "Assess guarded feedback use and offline lifecycle amortization; preserve exact fallback"
+      "note": "TieringManager implementation/header read in full. Request deduplication, hot/stable delay, saturating budgets, large-function/resource gates identified; compare generic offline scheduling and cost provenance. No speculative premise admitted."
     },
     {
       "name": "maglev",
