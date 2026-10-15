@@ -19,3 +19,7 @@ Snapshots/events/errors and rollback after writes and emission are compared
 against the independent reference. Imports/generics, metadata forgery and offline
 admission failures are tested separately. Full-suite CI status must be checked
 independently of these local receipts.
+
+The value-state rerun uses ordinary `Model` reads and `Model=next` assignments.
+It elaborates to exactly the same checked module and model snapshot as the
+explicit table version, with all five tests and 24 cross-target replies passing.
