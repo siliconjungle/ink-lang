@@ -478,3 +478,16 @@ Partial freezing retains other learning and application actions. Mandatory artif
 verification replays the restriction, including against rehashed tampering.
 The transition model derives fixed-value equalities for ordinary proof consumers;
 automatic neural/arithmetic specialization and measured speed gains remain open.
+
+
+[Structured preparation](docs/structured-preparation.md) now reuses immutable
+composite keeps through checked root dependencies on compiled CPU hosts. A prepared
+neural architecture remains valid through mutable optimizer updates; private data,
+rollback and exact restore are validated across targets. Held-out JavaScript
+prediction improves 3.45× in the retained study. Selected structured observations
+also improve, while cold setup, frequent invalidation, training-only turns and
+retained memory can lose. No automatic retention profitability rule or broad
+native/device speed conclusion follows. The independent core package now has a
+private-checkout/private-target validation path, avoiding shared-build evidence
+contamination. General staging/specialization, source reverse AD and the full
+Handwired/Pretext/Freerange requirements remain open.

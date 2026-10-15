@@ -654,3 +654,71 @@ fn full_model_updates_backtracking_and_rollback_match_all_cpu_targets() {
         expected,
     );
 }
+
+#[test]
+fn prepared_architecture_preserves_complete_learning_and_compiled_state() {
+    let prepared = load("examples/prepared-neural.ink");
+    let mut rt = Runtime::from_checked(&prepared).unwrap();
+    let mut direct = Runtime::from_checked(adaptive()).unwrap();
+    let features = vec![0.2; 10];
+    let target = vec![0.1; 4];
+    let mut steps = vec![];
+    let mut expected = vec![];
+    for (name, args) in [
+        ("predict", json!([features])),
+        ("model", json!([])),
+        ("observe", json!([features, target, 2])),
+        ("predict", json!([features])),
+        ("observe", json!([features, target, 2])),
+        ("cancel", json!([features, target])),
+        ("control", json!([])),
+        ("model", json!([])),
+        ("objective", json!([features, target])),
+    ] {
+        let result = rt.invoke_json(name, &args).unwrap();
+        let control = direct.invoke_json(name, &args).unwrap();
+        assert_eq!(result.json(), control.json());
+        let a = verified_language::snapshot_wire::decode(
+            &verified_language::snapshot::layout(prepared.program()).unwrap(),
+            &rt.checkpoint_portable().unwrap(),
+            Default::default(),
+        )
+        .unwrap();
+        let b = verified_language::snapshot_wire::decode(
+            &verified_language::snapshot::layout(adaptive().program()).unwrap(),
+            &direct.checkpoint_portable().unwrap(),
+            Default::default(),
+        )
+        .unwrap();
+        assert_eq!(a, b);
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(
+            json!({"reply":{"outcome":result.json()},"snapshot":rt.checkpoint_portable().unwrap()}),
+        );
+    }
+    steps.push(json!({"pure":"numeric","args":[[0.,0.5,-1.]],"expect_gpu":true}));
+    expected.push(
+        json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":rt.checkpoint_portable().unwrap()}),
+    );
+    parity::conformance_checked(
+        "prepared-neural-parity",
+        &prepared,
+        include_str!("../examples/prepared-neural.ink"),
+        steps,
+        expected,
+    );
+    let directory =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("build/prepared-neural-parity");
+    let out = std::process::Command::new("node")
+        .arg("tests/fixtures/prepared-neural.mjs")
+        .arg(&directory)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}\n{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    println!("{}", String::from_utf8_lossy(&out.stdout));
+}

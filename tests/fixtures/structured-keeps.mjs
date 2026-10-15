@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import {readFile,writeFile} from 'node:fs/promises';
+import {resolve,join} from 'node:path';
+import {pathToFileURL} from 'node:url';
+const dir=resolve(process.argv[2]);
+let code=await readFile(join(dir,'program.mjs'),'utf8');
+for(const id of [0,1]){
+ const start=`function __computeKeep${id}(ctx,rt){`;
+ assert.ok(code.includes(start));
+ code=code.replace(start,start+`globalThis.__keepBuilds[${id}]++;if(globalThis.__throwPreparation)throw Error("forced preparation error");`);
+}
+await writeFile(join(dir,'instrumented.mjs'),code);
+globalThis.__keepBuilds=[0,0];
+const {createState}=await import(pathToFileURL(join(dir,'instrumented.mjs')).href);
+const state=createState();
+const call=(name,args=[])=>state.invoke(name,args).result;
+const node=name=>({name,values:[{F32Bits:0x7fa12345},-0],next:{Some:{name:'child',values:[1],next:{None:null}}}});
+assert.deepEqual(call('value'),{Err:'no owner'});assert.deepEqual(call('value'),{Err:'no owner'});assert.equal(globalThis.__keepBuilds[0],1);
+call('owner',['ffffffffffffffffffffffffffffffff']);assert.deepEqual(call('value'),{Err:'no rows'});assert.equal(globalThis.__keepBuilds[0],2);
+const input=node('one');call('put',[0,input]);input.name='host changed';input.values.fill(99);input.next.Some.name='host child changed';
+const original=call('value');assert.equal(original.Ok.rows[0].name,'one prepared');assert.equal(globalThis.__keepBuilds[0],3);
+original.Ok.rows[0].name='output changed';original.Ok.rows[0].values.fill(77);original.Ok.rows[0].next.Some.name='output child changed';original.Ok.words.fill(3n);
+const again=call('value');assert.equal(globalThis.__keepBuilds[0],3);assert.equal(again.Ok.rows[0].name,'one prepared');assert.equal(again.Ok.rows[0].values[0].F32Bits,0x7fa12345);assert.equal(again.Ok.rows[0].next.Some.name,'child');assert.equal(again.Ok.words[1],18446744073709551615n);
+const names=state.bind('names',{resultOnly:true})();names.push('host append');
+assert.deepEqual(call('names'),['one prepared']);assert.deepEqual(call('appended'),['one prepared','private append']);assert.deepEqual(call('names'),['one prepared']);
+assert.deepEqual(globalThis.__keepBuilds,[3,1]);call('unrelated',[15]);call('value');call('names');assert.deepEqual(globalThis.__keepBuilds,[3,1]);
+const checkpoint=await state.checkpoint();call('aborted',[0,node('aborted')]);assert.deepEqual(await state.checkpoint(),checkpoint);assert.equal(call('value').Ok.rows[0].name,'one prepared');assert.deepEqual(call('names'),['one prepared']);
+state.beginTransaction();call('put',[0,node('host transaction')]);assert.equal(call('value').Ok.rows[0].name,'host transaction prepared');state.rollbackTransaction();assert.deepEqual(await state.checkpoint(),checkpoint);assert.equal(call('value').Ok.rows[0].name,'one prepared');
+call('peek_put',[0,node('committed')]);assert.equal(call('value').Ok.rows[0].name,'committed prepared');
+await state.restore(checkpoint);assert.equal(call('value').Ok.rows[0].name,'one prepared');
+const restored=call('value');restored.Ok.rows.length=0;assert.equal(call('value').Ok.rows.length,1);
+
+const typed=node('typed');state.bind('put',{resultOnly:true,typed:true})(0,typed);typed.values.fill(19);typed.next.Some.name='typed host changed';
+assert.equal(call('value').Ok.rows[0].values[0].F32Bits,0x7fa12345);assert.equal(call('value').Ok.rows[0].next.Some.name,'child');
+const cold=createState(),coldSnapshot=await cold.checkpoint(),count=globalThis.__keepBuilds[0];
+globalThis.__throwPreparation=true;
+for(let i=0;i<2;i++)assert.throws(()=>cold.invoke('value',[]),/forced preparation error/);
+assert.equal(globalThis.__keepBuilds[0],count+2);assert.deepEqual(await cold.checkpoint(),coldSnapshot);
+globalThis.__throwPreparation=false;assert.deepEqual(cold.invoke('value',[]).result,{Err:'no owner'});cold.invoke('value',[]);assert.equal(globalThis.__keepBuilds[0],count+3);
+console.log('Structured keeps: exact invalidation, source Err values, private host boundaries, rollback and restore passed.');

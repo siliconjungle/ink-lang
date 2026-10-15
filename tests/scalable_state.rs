@@ -192,4 +192,95 @@ fn bulk_and_shared_keys_preserve_utf8_identity_and_signed_order() {
     );
 }
 
-
+#[test]
+fn structured_preparation_preserves_transactions_restore_and_private_values() {
+    let source = format!(
+        "{}\n{}",
+        include_str!("../examples/structured-keeps.ink"),
+        r#"
+fn scalar_same(x:f32)->Bool{return x==x;}
+query reflexive()->Bool reads(PreparedRows){return PreparedRows==PreparedRows;}
+fn scalar_nodes(p:Prepared)->Bool{return p.rows.map(fn(row)=>scalar_same(row.values.at_or(0,0.0))).at_or(0,true);}
+query scalar()->Bool reads(PreparedRows){return PreparedRows.fold(fn(p)=>scalar_nodes(p),fn(error)=>true);}
+"#
+    );
+    let module = CheckedModule::from_source(parse(&source).unwrap()).unwrap();
+    let mut runtime = Runtime::from_checked(&module).unwrap();
+    let node = |name: &str, bits: u32| json!({"name":name,"values":[{"F32Bits":bits},0.5],"next":{"Some":{"name":"child","values":[-0.0],"next":{"None":null}}}});
+    let a = node("first 😀", 0x7fa12345);
+    let b = node("second", 0x80000000);
+    let mut steps = vec![];
+    let mut expected = vec![];
+    let mut saved = None;
+    for (name, args) in [
+        ("value", json!([])),
+        ("value", json!([])),
+        ("names", json!([])),
+        ("owner", json!(["ffffffffffffffffffffffffffffffff"])),
+        ("value", json!([])),
+        ("put", json!([0, a.clone()])),
+        ("value", json!([])),
+        ("names", json!([])),
+        ("appended", json!([])),
+        ("names", json!([])),
+        ("reflexive", json!([])),
+        ("scalar", json!([])),
+        ("unrelated", json!([73])),
+        ("value", json!([])),
+        ("peek_put", json!([0, b.clone()])),
+        ("reflexive", json!([])),
+        ("scalar", json!([])),
+        ("value", json!([])),
+        ("names", json!([])),
+        ("aborted", json!([0, a.clone()])),
+        ("value", json!([])),
+        ("names", json!([])),
+        ("put", json!([1, a.clone()])),
+        ("names", json!([])),
+        ("remove", json!([0])),
+        ("value", json!([])),
+        ("remove", json!([1])),
+        ("value", json!([])),
+        ("value", json!([])),
+        ("names", json!([])),
+    ] {
+        let before = runtime.checkpoint_portable().unwrap();
+        let reply = runtime.invoke_json(name, &args).unwrap();
+        let checkpoint = runtime.checkpoint_portable().unwrap();
+        if !reply.committed {
+            assert_eq!(before, checkpoint);
+        }
+        if name == "peek_put" {
+            saved = Some(checkpoint.clone());
+        }
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":checkpoint}));
+    }
+    let saved = saved.unwrap();
+    runtime = Runtime::restore_portable_checked(&module, &saved).unwrap();
+    steps.push(json!({"restore":saved}));
+    for name in ["value", "names", "appended", "value"] {
+        let reply = runtime.invoke_json(name, &json!([])).unwrap();
+        steps.push(json!({"call":name,"args":[]}));
+        expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    steps.push(json!({"pure":"batch","args":[[0.,0.5,-1.]],"expect_gpu":true}));
+    expected.push(
+        json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":runtime.checkpoint_portable().unwrap()}),
+    );
+    parity::conformance_checked("structured-keep-parity", &module, &source, steps, expected);
+    let directory =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("build/structured-keep-parity");
+    let output = std::process::Command::new("node")
+        .arg("tests/fixtures/structured-keeps.mjs")
+        .arg(&directory)
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    println!("{}", String::from_utf8_lossy(&output.stdout));
+}

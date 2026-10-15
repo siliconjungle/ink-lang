@@ -1,0 +1,7 @@
+import{spawnSync}from'node:child_process';import{readFile,writeFile}from'node:fs/promises';import{resolve}from'node:path';import{createHash}from'node:crypto';import assert from'node:assert/strict';
+const[baseline,candidate,neural,table,out]=process.argv.slice(2),records=[];
+for(const[name,source]of[['neural',neural],['table',table]])for(let processIndex=0;processIndex<3;processIndex++)for(const[label,exe]of processIndex%2?[['prepared',candidate],['direct',baseline]]:[['direct',baseline],['prepared',candidate]]){
+ const file=resolve(`${out}.${name}.${label}.mjs`),result=spawnSync(resolve(exe),[resolve(source),file,'5'],{encoding:'utf8'});if(result.status!==0)throw Error(result.stderr||result.stdout);const data=await readFile(file);records.push({name,label,process:processIndex,source_sha256:createHash('sha256').update(await readFile(source)).digest('hex'),javascript_sha256:createHash('sha256').update(data).digest('hex'),...JSON.parse(result.stdout)});
+}
+for(const name of['neural','table'])for(const label of['direct','prepared'])assert.equal(new Set(records.filter(r=>r.name===name&&r.label===label).map(r=>r.javascript_sha256)).size,1);
+await writeFile(out,JSON.stringify({schema:1,scope:'Fresh identical Rust harnesses with old/current JavaScript emitters and the same core checker. Checked core input decoding/checking once; five literal emissions per process; no training, optimizer search or native toolchain compilation included.',records},null,2)+'\n');console.log('Emission checks and artifact stability passed');

@@ -181,3 +181,12 @@ constant facts reach the ordinary proof model. The next specialization gate is
 reusable database-authored preparation/arithmetic/graph transformations with
 complete behavior checks and measured compile/startup/steady-state/memory costs;
 immutable source binding alone does not close it.
+
+
+[Immutable structured keeps](docs/structured-preparation.md) extend stable-input
+preparation to neural architecture and ordinary structured data. Whole-call reuse
+and owned observations are measured, with cold/invalidation/memory and training-only
+losses retained. Next preparation work must choose profitable lifecycles, reduce
+unobserved representation/output construction, specialize graphs through ordinary
+proofs and close the remaining query/pure-method surface differences. This is not
+completion of universal staging or the matched upstream performance requirement.

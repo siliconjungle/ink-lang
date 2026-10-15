@@ -636,6 +636,33 @@
           "reason": "Frozen state is initialized and checked on CPU hosts; eligible numeric work can still dispatch to GPU."
         }
       }
+    },
+    {
+      "id": "structured-keep-preparation",
+      "types": [],
+      "tests": [
+        "scalable_state",
+        "reverse_learning"
+      ],
+      "targets": {
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Immutable keeps and training run on CPU hosts; a separate eligible numeric kernel exercises actual GPU dispatch."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Immutable keeps and training run on CPU hosts; a separate eligible numeric kernel exercises actual GPU dispatch."
+        }
+      }
     }
   ],
   "cpu_suites": [
