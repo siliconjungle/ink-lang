@@ -161,4 +161,8 @@ Training orchestration must remain programmable: ordinary source policies and
 learning actions can configure and trigger other learners, with full explicit
 context, declared capabilities and transactional rollback. The checked
 `examples/learning-orchestration.ink` demonstrates this across targets; it does
-not close build-stage training or continuous queue/publication/recovery work.
+not close build-stage training or the entire multi-phase learning programme.
+The [cooperative continuous path](docs/continuous-learning.md) now implements
+bounded source queues, candidate progress, version-checked publication and durable
+recovery on a compiled JavaScript host. Parallel workers, device training and
+build-stage packaging/freezing remain required.

@@ -163,7 +163,7 @@ GitHub conformance run was still queued when this checklist was recorded.
 | Incremental work and placement | Maintain item/paragraph/batch changes, share derived state, upload changed regions and keep intermediate values resident. Compose query/ordinary code/device plans and price I/O. | Partial maintained-state and GPU foundations; broader composition, transfer planning and external storage remain open |
 | Ownership and execution overhead | Remove measured helper/capture clones, reuse searchers/prepared inputs, compare layouts and allocation behavior across target engines. | UTF-8 and primitive borrowing improvements delivered; native whole-workload ownership gap remains open |
 | Behavioral contracts | Explicit permitted staleness, capacity, first/any/tie selection and fallback; preserve transaction and observation meaning. | Partial specification foundations; relevant source contracts and consumers remain open |
-| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Checked source gradient/JVP elaboration through pure helpers, structured state and bounded loops delivered; reverse mode, broader domains and performance parity remain open |
+| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Source gradient/JVP, authored reverse graphs, complete optimizer state and cooperative queued sessions delivered; general source reverse AD, build-stage freezing, broader domains and performance parity remain open |
 | Cross-domain and lifecycle acceptance | Real layout/prepared computation, JSON/structured data, relational/bitset and sparse numeric workloads; matched first-call, steady-state, edits, memory and adverse cases against strong controls. | Complete-count search evidence delivered; broader parity/performance and comparable first-call evidence remain open |
 
 The next implementation priorities are reusable checked facts and their consumers,
@@ -257,3 +257,11 @@ and continuous learning while serving. Shared objectives, constrained degrees of
 freedom and complete optimizer lineage must cross these phases. Continuous queues,
 budgets, publication, cancellation and recovery are required work; repeated online
 calls alone do not close that requirement.
+
+
+[Cooperative continuous learning](continuous-learning.md) now composes a generic
+source session with compiled action scheduling and the existing durable host.
+Queued feedback, candidate progress and serving versions survive restart; source
+controls pause/budgets/cadence, stale publication fails, and offline CLI state can
+bootstrap the service. This is a serialized CPU-host milestone, not parallel/device
+training, build-stage freezing or closure of the matched performance requirement.
