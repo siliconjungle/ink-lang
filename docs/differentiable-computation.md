@@ -69,8 +69,10 @@ Current propagation supports F32 addition/subtraction/multiplication/division,
 negation and square root; named nonrecursive helpers; lexical bindings/records;
 lists, map/filter/lookup/concatenation; sum/folds; and bounded `repeat`. Callbacks
 keep their ordinary iteration order, captures and lazy branch semantics. Immutable
-context is seeded/prepared once per complete gradient request and reused across
-its directional passes, with no retained cross-call cache.
+context is seeded/prepared once per complete gradient request. All basis
+directions travel through one primal execution, with no retained cross-call cache.
+Each lane retains its scalar JVP operation order, including nonfinite arithmetic;
+zero tangents do not authorize discarding a multiplication by infinity.
 
 Abstract/refined records require an explicit plain numeric view for this first AD
 domain. Direct effects, recursive calls/record shapes, owned buffers/maps, vectors,
@@ -95,12 +97,31 @@ predicate selects the branch convention. There is no implicit straight-through
 estimator, soft relaxation, search or reinforcement-learning policy. Those need
 separate explicit interfaces and acceptance work.
 
-This first implementation uses forward-mode directional propagation. A full
-gradient performs one pass per scalar parameter, sharing prepared immutable
-context. It is useful for small models/sensitivities, and can be much slower than
-an authored closed-form derivative. Reverse-mode tapes, larger model libraries,
-sparse tangent analysis and frozen-weight specialization remain open. No general
-speedup or parity with Handwired training is established by this milestone.
+This implementation uses forward-mode propagation. A full gradient batches its
+basis directions through a single primal pass; tangent work and storage still
+scale with parameter count. JVP/linearize retain a single explicit direction.
+Generated wide arithmetic uses lexical bindings, and ordinary JavaScript local
+storage/carrier bookkeeping avoids unnecessary temporary records and repeated
+Number/tag conversions without changing any F32 arithmetic operation.
+
+The [retained comparison](../bench/batched-differentiation/README.md) improves the
+large polynomial gradient from 18.779 to 8.985 ms in fresh held-out JavaScript
+processes. An authored derivative remains about 9× faster. This is one workload,
+not broad training-performance or Handwired parity. Reverse-mode tapes, larger
+model libraries, sparse tangent analysis and frozen-weight specialization remain
+open.
+
+Two [database equations](../knowledge/libraries/differential-batching-admission.json)
+prove that batched and separate-direction results agree for specific polynomial
+and nonlinear kernels using ordinary normalization and portable exact definition
+contexts. They cover all typed inputs of those definitions, including exceptional
+F32 values, rather than only sampled inputs. Changed helper definitions cannot
+reuse an old law at a source application, even if the source hash is refreshed.
+These equations compare two generated implementations; they do not prove that
+the shared differentiation formulas are correct derivatives, generalize to every
+objective, or certify emitted machine code. The generic offline authoring tool is
+`knowledge/producers/function_correspondence.py`; signatures and function names
+select proposed equations but never establish them or select profitable code.
 
 Source differentiation and its translation remain trusted implementation code.
 Normal type/effect/ownership/resource checks validate generated helpers; they do

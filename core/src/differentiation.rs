@@ -148,13 +148,10 @@ pub(crate) fn expand(
         active: BTreeSet::new(),
         ops: BTreeMap::new(),
         wrappers: BTreeMap::new(),
-        dual: String::new(),
+        width: 1,
+        duals: BTreeMap::new(),
     };
-    b.dual = b.fresh();
-    b.out.records.insert(
-        b.dual.clone(),
-        vec![("value".into(), Type::F32), ("tangent".into(), Type::F32)],
-    );
+    b.install_dual();
     for f in &mut p.functions {
         let scope = f.params.iter().map(|(n, _)| n.clone()).collect();
         b.rewrite(&mut f.body, &scope, 0)?;
@@ -179,12 +176,13 @@ struct Builder {
     occupied: BTreeSet<String>,
     next: usize,
     work: usize,
-    dual: String,
+    width: usize,
+    duals: BTreeMap<usize, String>,
     blocked: BTreeSet<String>,
-    records: BTreeMap<String, String>,
-    functions: BTreeMap<(String, bool), String>,
+    records: BTreeMap<(String, usize), String>,
+    functions: BTreeMap<(String, bool, usize), String>,
     active: BTreeSet<String>,
-    ops: BTreeMap<String, String>,
+    ops: BTreeMap<(String, usize), Function>,
     wrappers: BTreeMap<(String, String), String>,
 }
 impl Builder {
@@ -204,14 +202,42 @@ impl Builder {
         self.work -= 1;
         Ok(())
     }
-    fn dual(&self) -> Type {
-        Type::Named(self.dual.clone())
+    fn install_dual(&mut self) {
+        if self.duals.contains_key(&self.width) {
+            return;
+        }
+        let name = self.fresh();
+        let mut fields = vec![("value".into(), Type::F32)];
+        fields.extend((0..self.width).map(|i| (self.tangent_name(i), Type::F32)));
+        self.out.records.insert(name.clone(), fields);
+        self.duals.insert(self.width, name);
     }
-    fn pair(&self, value: Expr, tangent: Expr) -> Expr {
-        Expr::Record(
-            self.dual.clone(),
-            vec![("value".into(), value), ("tangent".into(), tangent)],
-        )
+    fn tangent_name(&self, i: usize) -> String {
+        if self.width == 1 {
+            "tangent".into()
+        } else {
+            format!("tangent_{i}")
+        }
+    }
+    fn tangent(&self, e: Expr, i: usize) -> Expr {
+        field(e, &self.tangent_name(i))
+    }
+    fn dual(&self) -> Type {
+        Type::Named(self.duals[&self.width].clone())
+    }
+    fn pair(&self, value: Expr, tangents: Vec<Expr>) -> Expr {
+        assert_eq!(tangents.len(), self.width);
+        let mut fields = vec![("value".into(), value)];
+        fields.extend(
+            tangents
+                .into_iter()
+                .enumerate()
+                .map(|(i, t)| (self.tangent_name(i), t)),
+        );
+        Expr::Record(self.duals[&self.width].clone(), fields)
+    }
+    fn constant(&self, value: Expr) -> Expr {
+        self.pair(value, vec![float(0.0); self.width])
     }
     fn dtype(&mut self, t: &Type, depth: usize) -> LangResult<Type> {
         self.step(depth)?;
@@ -227,7 +253,7 @@ impl Builder {
             }
             Type::F32 => self.dual(),
             Type::Named(n) if self.source.records.contains_key(n) => {
-                if let Some(n) = self.records.get(n) {
+                if let Some(n) = self.records.get(&(n.clone(), self.width)) {
                     Type::Named(n.clone())
                 } else {
                     if self.active.contains(n) {
@@ -241,7 +267,7 @@ impl Builder {
                         .map(|(f, t)| Ok((f, self.dtype(&t, depth + 1)?)))
                         .collect::<LangResult<Vec<_>>>()?;
                     self.active.remove(n);
-                    self.records.insert(n.clone(), name.clone());
+                    self.records.insert((n.clone(), self.width), name.clone());
                     self.out.records.insert(name.clone(), fs);
                     Type::Named(name)
                 }
@@ -287,10 +313,7 @@ impl Builder {
             _ => return Err("gradient parameters must be f32 or finite records of f32".into()),
         }
         if out.len() > 1024 {
-            return Err(
-                "directional parameter shape exceeds 1024 scalar coordinates"
-                    .into(),
-            );
+            return Err("directional parameter shape exceeds 1024 scalar coordinates".into());
         }
         Ok(())
     }
@@ -299,20 +322,35 @@ impl Builder {
         t: &Type,
         x: Expr,
         seed: Option<Expr>,
-        selected: Option<&[String]>,
+        selected: &[Option<&[String]>],
         depth: usize,
     ) -> LangResult<Expr> {
         self.step(depth)?;
         Ok(match t {
             Type::F32 => self.pair(
                 x,
-                seed.unwrap_or_else(|| {
-                    float(if selected.is_some_and(|p| p.is_empty()) {
-                        1.0
-                    } else {
-                        0.0
-                    })
-                }),
+                if let Some(seed) = seed {
+                    // Explicit JVP requests always use a single direction.
+                    assert_eq!(self.width, 1);
+                    vec![seed]
+                } else {
+                    (0..self.width)
+                        .map(|i| {
+                            float(
+                                if selected
+                                    .get(i)
+                                    .copied()
+                                    .flatten()
+                                    .is_some_and(|p| p.is_empty())
+                                {
+                                    1.0
+                                } else {
+                                    0.0
+                                },
+                            )
+                        })
+                        .collect()
+                },
             ),
             Type::Named(n) if self.source.records.contains_key(n) => {
                 let Type::Named(target) = self.dtype(t, depth + 1)? else {
@@ -320,18 +358,23 @@ impl Builder {
                 };
                 let mut fields = vec![];
                 for (f, t) in self.source.records[n].clone() {
-                    let sub = selected.and_then(|p| {
-                        p.split_first()
-                            .filter(|(first, _)| *first == &f)
-                            .map(|(_, tail)| tail)
-                    });
+                    let sub = selected
+                        .iter()
+                        .map(|p| {
+                            p.and_then(|p| {
+                                p.split_first()
+                                    .filter(|(first, _)| *first == &f)
+                                    .map(|(_, tail)| tail)
+                            })
+                        })
+                        .collect::<Vec<_>>();
                     fields.push((
                         f.clone(),
                         self.seed(
                             &t,
                             field(x.clone(), &f),
                             seed.clone().map(|s| field(s, &f)),
-                            sub,
+                            &sub,
                             depth + 1,
                         )?,
                     ));
@@ -339,7 +382,7 @@ impl Builder {
                 Expr::Record(target, fields)
             }
             Type::List(t) => {
-                if seed.is_some() || selected.is_some() {
+                if seed.is_some() || selected.iter().any(Option::is_some) {
                     return Err("list parameter directions need a fixed record shape".into());
                 }
                 let n = self.fresh();
@@ -348,7 +391,7 @@ impl Builder {
                     "map".into(),
                     vec![Expr::Lambda(
                         n.clone(),
-                        Box::new(self.seed(t, var(&n), None, None, depth + 1)?),
+                        Box::new(self.seed(t, var(&n), None, &[], depth + 1)?),
                     )],
                 )
             }
@@ -398,45 +441,51 @@ impl Builder {
             return Err("gradient objective requires a first parameter and f32 result".into());
         }
         let piecewise = kind.ends_with("piecewise");
-        let differentiated = self.function(target, piecewise, 0)?;
         let n = self.fresh();
         let mut params = f.params.clone();
         let weight = f.params[0].1.clone();
         let mut paths = vec![];
         self.leaves(&weight, vec![], &mut paths, 0)?;
-        if kind.starts_with("gradient") && paths.len()>32 {
-            return Err("gradient has more than 32 scalar parameters; use jvp for explicit directions".into());
+        if kind.starts_with("gradient") && paths.len() > 32 {
+            return Err(
+                "gradient has more than 32 scalar parameters; use jvp for explicit directions"
+                    .into(),
+            );
         }
         if paths.is_empty() {
             return Err("gradient has no trainable scalar parameters".into());
         }
+        // Batch basis directions through one primal execution. Every lane keeps
+        // exactly the scalar JVP arithmetic tree, including nonfinite arithmetic.
+        self.width = if kind.starts_with("gradient") {
+            paths.len()
+        } else {
+            1
+        };
+        self.install_dual();
+        let differentiated = self.function(target, piecewise, 0)?;
         let (body, result) = if kind.starts_with("gradient") {
-            // Stable context is prepared once per complete gradient request,
-            // then shared by every directional pass. No cross-call cache.
-            let mut prepared = vec![];
+            let basis = paths.iter().map(|p| Some(p.as_slice())).collect::<Vec<_>>();
+            let mut args = vec![self.seed(&weight, var(&f.params[0].0), None, &basis, 0)?];
             for (name, t) in f.params.iter().skip(1) {
-                let local = self.fresh();
-                let ty = self.dtype(t, 0)?;
-                let value = self.seed(t, var(name), None, None, 0)?;
-                prepared.push((local, ty, value));
+                args.push(self.seed(t, var(name), None, &[], 0)?);
             }
-            let mut components = BTreeMap::new();
-            for path in paths {
-                let mut args = vec![self.seed(
-                    &weight,
-                    var(&f.params[0].0),
-                    None,
-                    Some(path.as_slice()),
-                    0,
-                )?];
-                args.extend(prepared.iter().map(|(n, _, _)| var(n)));
-                components.insert(path, field(call(&differentiated, args), "tangent"));
-            }
-            let mut body = self.assemble(&weight, vec![], &components, 0)?;
-            for (n, t, value) in prepared.into_iter().rev() {
-                body = Expr::Let(n, Some(Box::new(t)), Box::new(value), Box::new(body));
-            }
-            (body, weight)
+            let local = self.fresh();
+            let components = paths
+                .into_iter()
+                .enumerate()
+                .map(|(i, path)| (path, self.tangent(var(&local), i)))
+                .collect();
+            let result = self.assemble(&weight, vec![], &components, 0)?;
+            (
+                Expr::Let(
+                    local,
+                    Some(Box::new(self.dual())),
+                    Box::new(call(&differentiated, args)),
+                    Box::new(result),
+                ),
+                weight,
+            )
         } else {
             let seed = self.fresh();
             params.insert(1, (seed.clone(), weight));
@@ -446,7 +495,7 @@ impl Builder {
                     t,
                     var(name),
                     if i == 0 { Some(var(&seed)) } else { None },
-                    None,
+                    &[],
                     0,
                 )?);
             }
@@ -454,7 +503,7 @@ impl Builder {
             if kind.starts_with("linearize") {
                 (value, self.dual())
             } else {
-                (field(value, "tangent"), Type::F32)
+                (self.tangent(value, 0), Type::F32)
             }
         };
         self.out.functions.push(Function {
@@ -556,7 +605,7 @@ impl Builder {
                 "differentiation excludes recursive call graph at {name}"
             ));
         }
-        if let Some(n) = self.functions.get(&(name.into(), piecewise)) {
+        if let Some(n) = self.functions.get(&(name.into(), piecewise, self.width)) {
             return Ok(n.clone());
         }
         let f = self
@@ -581,7 +630,7 @@ impl Builder {
         let body = self.lift(&f.body, &env, Some(&f.result), piecewise, depth + 1)?;
         self.active.remove(name);
         self.functions
-            .insert((name.into(), piecewise), target.clone());
+            .insert((name.into(), piecewise, self.width), target.clone());
         self.out.functions.push(Function {
             name: target.clone(),
             params,
@@ -590,58 +639,82 @@ impl Builder {
         });
         Ok(target)
     }
-    fn op(&mut self, name: &str) -> String {
-        if let Some(n) = self.ops.get(name) {
-            return n.clone();
+    fn op(&mut self, name: &str) -> LangResult<Function> {
+        if let Some(n) = self.ops.get(&(name.into(), self.width)) {
+            return Ok(n.clone());
         }
         let n = self.fresh();
         let a = self.fresh();
         let b = self.fresh();
+        let primal = self.fresh();
         let av = field(var(&a), "value");
-        let ad = field(var(&a), "tangent");
         let bv = field(var(&b), "value");
-        let bd = field(var(&b), "tangent");
-        let (value, tangent, arity) = match name {
-            "+" | "-" => (bin(name, av, bv), bin(name, ad, bd), 2),
-            "*" => (
-                bin("*", av.clone(), bv.clone()),
-                bin("+", bin("*", ad, bv), bin("*", av, bd)),
-                2,
-            ),
-            "f32_div" => (
-                call(name, vec![av.clone(), bv.clone()]),
-                call(
-                    name,
-                    vec![
-                        bin("-", bin("*", ad, bv.clone()), bin("*", av, bd)),
-                        bin("*", bv.clone(), bv),
-                    ],
-                ),
-                2,
-            ),
-            "neg" => (Expr::Neg(Box::new(av)), Expr::Neg(Box::new(ad)), 1),
-            "sqrt" => (
-                call("sqrt", vec![av.clone()]),
-                call(
-                    "f32_div",
-                    vec![ad, bin("*", float(2.0), call("sqrt", vec![av]))],
-                ),
-                1,
-            ),
+        let (value, arity) = match name {
+            "+" | "-" | "*" => (bin(name, av.clone(), bv.clone()), 2),
+            "f32_div" => (call(name, vec![av.clone(), bv.clone()]), 2),
+            "neg" => (Expr::Neg(Box::new(av.clone())), 1),
+            "sqrt" => (call("sqrt", vec![av.clone()]), 1),
             _ => unreachable!(),
         };
+        let mut tangents = vec![];
+        for i in 0..self.width {
+            self.step(0)?;
+            let ad = self.tangent(var(&a), i);
+            let bd = self.tangent(var(&b), i);
+            tangents.push(match name {
+                "+" | "-" => bin(name, ad, bd),
+                "*" => bin("+", bin("*", ad, bv.clone()), bin("*", av.clone(), bd)),
+                "f32_div" => call(
+                    name,
+                    vec![
+                        bin("-", bin("*", ad, bv.clone()), bin("*", av.clone(), bd)),
+                        bin("*", bv.clone(), bv.clone()),
+                    ],
+                ),
+                "neg" => Expr::Neg(Box::new(ad)),
+                "sqrt" => call("f32_div", vec![ad, bin("*", float(2.0), var(&primal))]),
+                _ => unreachable!(),
+            });
+        }
         let mut params = vec![(a, self.dual())];
         if arity == 2 {
             params.push((b, self.dual()));
         }
-        self.out.functions.push(Function {
+        let function = Function {
             name: n.clone(),
             params,
             result: self.dual(),
-            body: self.pair(value, tangent),
-        });
-        self.ops.insert(name.into(), n.clone());
-        n
+            body: Expr::Let(
+                primal.clone(),
+                Some(Box::new(Type::F32)),
+                Box::new(value),
+                Box::new(self.pair(var(&primal), tangents)),
+            ),
+        };
+        if self.width == 1 {
+            self.out.functions.push(function.clone());
+        }
+        self.ops.insert((name.into(), self.width), function.clone());
+        Ok(function)
+    }
+    fn operation(&mut self, name: &str, args: Vec<Expr>) -> LangResult<Expr> {
+        let f = self.op(name)?;
+        if self.width == 1 {
+            return Ok(call(&f.name, args));
+        }
+        // Wide dual arithmetic stays lexical so ordinary host compilers can
+        // keep fields in scalar locals. Bind operands once, left to right.
+        let mut body = f.body;
+        for ((name, ty), arg) in f.params.into_iter().zip(args).rev() {
+            body = Expr::Let(name, Some(Box::new(ty)), Box::new(arg), Box::new(body));
+        }
+        let mut nodes = 0;
+        crate::analysis::walk(&body, |_| nodes += 1);
+        if nodes > self.work {
+            return Err("differentiation expansion budget exceeded".into());
+        }
+        self.work -= nodes;
+        Ok(body)
     }
     fn lambda(
         &mut self,
@@ -705,8 +778,8 @@ impl Builder {
         self.step(depth)?;
         let ty = check::infer_context(e, env, &self.source, want)?;
         Ok(match e {
-            Expr::Float(_) => self.pair(e.clone(), float(0.0)),
-            Expr::Num(_) if ty == Type::F32 => self.pair(e.clone(), float(0.0)),
+            Expr::Float(_) => self.constant(e.clone()),
+            Expr::Num(_) if ty == Type::F32 => self.constant(e.clone()),
             Expr::Var(_) | Expr::Num(_) | Expr::Bool(_) | Expr::String(_) | Expr::Unit => e.clone(),
             Expr::Field(x, n) if matches!(x.as_ref(),Expr::Var(n) if self.source.enums.contains_key(n)&&!env.contains_key(n)) => {
                 e.clone()
@@ -715,8 +788,7 @@ impl Builder {
             Expr::Neg(x) => {
                 let x = self.lift(x, env, Some(&ty), piecewise, depth + 1)?;
                 if ty == Type::F32 {
-                    let op = self.op("neg");
-                    call(&op, vec![x])
+                    self.operation("neg", vec![x])?
                 } else {
                     Expr::Neg(Box::new(x))
                 }
@@ -765,8 +837,7 @@ impl Builder {
                 let aa = self.lift(a, env, Some(&input), piecewise, depth + 1)?;
                 let bb = self.lift(b, env, Some(&input), piecewise, depth + 1)?;
                 if arithmetic && ty == Type::F32 {
-                    let n = self.op(op);
-                    call(&n, vec![aa, bb])
+                    self.operation(op, vec![aa, bb])?
                 } else if ["==", "!=", "<", "<=", ">", ">="].contains(&op.as_str()) {
                     if !piecewise && self.dtype(&input, 0)? != input {
                         return Err("numeric decisions require gradient_piecewise or jvp_piecewise; no implicit hard-decision gradient".into());
@@ -836,9 +907,9 @@ impl Builder {
                 }
                 call(n, xs)
             }
-            Expr::Call(n,args) if n=="length"||n=="count" => {
-                let x=self.lift(&args[0],env,None,piecewise,depth+1)?;
-                call(n,vec![x])
+            Expr::Call(n, args) if n == "length" || n == "count" => {
+                let x = self.lift(&args[0], env, None, piecewise, depth + 1)?;
+                call(n, vec![x])
             }
             Expr::Call(n, args) if n == "sum" && ty == Type::F32 => {
                 let xs = self.lift(
@@ -850,18 +921,15 @@ impl Builder {
                 )?;
                 let a = self.fresh();
                 let acc = self.fresh();
-                let op = self.op("+");
+                let sum = self.operation("+", vec![var(&acc), var(&a)])?;
                 call(
                     "foldl",
                     vec![
                         xs,
-                        self.pair(float(0.0), float(0.0)),
+                        self.constant(float(0.0)),
                         Expr::Lambda(
                             a.clone(),
-                            Box::new(Expr::Lambda(
-                                acc.clone(),
-                                Box::new(call(&op, vec![var(&acc), var(&a)])),
-                            )),
+                            Box::new(Expr::Lambda(acc.clone(), Box::new(sum))),
                         ),
                     ],
                 )
@@ -871,8 +939,7 @@ impl Builder {
                 for x in args {
                     xs.push(self.lift(x, env, Some(&Type::F32), piecewise, depth + 1)?);
                 }
-                let op = self.op(n);
-                call(&op, xs)
+                self.operation(n, xs)?
             }
             Expr::Call(n, args) if crate::primitives::primitive(n) => {
                 let (inputs, _) = crate::primitives::signature(
@@ -895,7 +962,7 @@ impl Builder {
                 }
                 let primal = call(n, xs);
                 if ty == Type::F32 {
-                    self.pair(primal, float(0.0))
+                    self.constant(primal)
                 } else {
                     primal
                 }
