@@ -13,6 +13,17 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Packed bit-state algorithms](docs/bit-automata.md) add ordinary
+`std:bit_automata` source, eight checked scalar component laws and independent
+CPU/Wasm/eligible-GPU conformance. Literal-count experiments show search-focused
+gains with resident data; [the report](reports/handwired-packed-circuits-2026-10-15/README.md)
+retains native ownership losses, small-input controls and first-call limitations.
+Allocation-free JavaScript UTF-8 reads and native lexical primitive borrowing are
+integrated separately from the authored matcher. Complete GPU bundles now carry
+the distribution planner asset in their child bundles as well as at the root.
+The [broader investigation](docs/chenglou-optimisation-programme.md) includes
+Freerange and Pretext; their mechanisms beyond these foundations remain open.
+
 [Ordered query expressions](docs/query-expressions.md) add typed `list<T>{...}`
 and `exists{...}` with `from`, `where`, `join` and `select`. They preserve list
 order and duplicates, and elaborate to existing checked operations. The first

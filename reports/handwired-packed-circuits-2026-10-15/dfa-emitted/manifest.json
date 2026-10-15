@@ -1,0 +1,803 @@
+{
+  "abi": "packed little-endian 32-bit lanes; GPU lists carry a length header; records in declaration order; vectors unpadded",
+  "backend": "webgpu-wgpu-v2",
+  "collection_strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured",
+  "core_semantics": "ink-executable-core-v2",
+  "core_sha256": "a03c271f87a974abacd1009c5fdcbdcdffcb2e54b27ad2f5aea04e28021c2d14",
+  "cpu_rust_sha256": "f127001dd993f437b3ad9d36a3c0a07183a8931548c269e86a28e49e94adbbe6",
+  "destination_abi": {
+    "aliasing": "destination-disjoint-from-all-reachable-inputs",
+    "alignment": 8,
+    "capacity": "trusted",
+    "count": "words32",
+    "name": "ink-packed-into-v1",
+    "ownership": "caller-owned",
+    "prepared_instance": "exclusive",
+    "scratch_lifetime": "call-mark-rewind",
+    "symbol": "ink_compute_into"
+  },
+  "float_contract": "integer-lane binary32; round-to-nearest ties-to-even, gradual underflow, signed zero, source operation order and canonical arithmetic NaN; pass-through/negation retain payload bits",
+  "functions": [
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 4
+              },
+              {
+                "param": 1
+              },
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-0-0.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "fields": [
+                  {
+                    "name": "state",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "matches",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Cursor"
+              }
+            ],
+            "args": [
+              {
+                "node": 0
+              },
+              {
+                "param": 2
+              },
+              {
+                "param": 5
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 1,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-0-1.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "fields": [
+                  {
+                    "name": "state",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "matches",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Cursor"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "node": 1
+              },
+              {
+                "param": 5
+              },
+              {
+                "param": 3
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 2,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "fields": [
+                {
+                  "name": "state",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "matches",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Cursor"
+            },
+            "shader": "graph-0-2.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 2
+        },
+        "result": {
+          "fields": [
+            {
+              "name": "state",
+              "type": {
+                "kind": "u32"
+              }
+            },
+            {
+              "name": "matches",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "Cursor"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 0,
+      "lengths": [],
+      "name": "advance",
+      "params": [
+        {
+          "name": "data",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "id",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "transitions",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "width",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "i",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "s",
+          "type": {
+            "fields": [
+              {
+                "name": "state",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "matches",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Cursor"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "fields": [
+          {
+            "name": "state",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "matches",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Cursor"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 1
+              },
+              {
+                "param": 2
+              },
+              {
+                "param": 3
+              }
+            ],
+            "capacity": {
+              "args": [
+                1
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "map",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-1-0.wgsl",
+            "workgroup_size": 64
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 1,
+      "lengths": [
+        1
+      ],
+      "name": "counts_encoded",
+      "params": [
+        {
+          "name": "data",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "ids",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "transitions",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "width",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-1.wgsl"
+    }
+  ],
+  "gpu_list_abi": "ink-gpu-list-v3",
+  "javascript": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v2",
+    "core_sha256": "a03c271f87a974abacd1009c5fdcbdcdffcb2e54b27ad2f5aea04e28021c2d14",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "native-number-with-exact-nonfinite-tags",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "advance",
+        "parallel": false,
+        "params": [
+          {
+            "name": "data",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "id",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "transitions",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "width",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "i",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "s",
+            "type": {
+              "fields": [
+                {
+                  "name": "state",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "matches",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Cursor"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "state",
+              "type": {
+                "kind": "u32"
+              }
+            },
+            {
+              "name": "matches",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "Cursor"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 1,
+        "internal": false,
+        "name": "counts_encoded",
+        "parallel": false,
+        "params": [
+          {
+            "name": "data",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "ids",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "transitions",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "width",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "javascript_sha256": "dae7b128ab609b3b2485ac7def3711453f43e1ce95588942de0dda14f2e3049e",
+    "named_types": {
+      "Cursor": {
+        "fields": [
+          {
+            "name": "state",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "matches",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Cursor"
+      }
+    },
+    "owned_result_contract": {
+      "functions": 2,
+      "inputs": "same trusted caller contract",
+      "results": "canonical detached values with ABI byte/node/depth limits",
+      "unsupported": []
+    },
+    "private_record_elisions": [],
+    "private_sum_spines": [],
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "advance": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "472c53adb27c0de5dad2a9e42a20b21124486773de1bd394171ed88c3139116b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "data",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "transitions",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "width",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "i",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "s",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "state",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      },
+                      {
+                        "name": "matches",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "Cursor"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "d2526e8da20411f0ad262bd02b542cba2cd4aa9d075c0524679501ad8b021e42",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "state",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "matches",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Cursor"
+            }
+          }
+        },
+        "counts_encoded": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "29b19f29054b49dc74ee29d7b840e15332f2dce972d7978b602052aaff65b4e2",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "data",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "ids",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "transitions",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "width",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "69ebf947aa59a2546656d1976b0baa6e56e7182d989425379b31e3bff74168ca",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        }
+      }
+    }
+  },
+  "javascript_sha256": "dae7b128ab609b3b2485ac7def3711453f43e1ce95588942de0dda14f2e3049e",
+  "pipeline_planner_sha256": "7011d6da8f4bdd27d78011be19f2f1bb38bb748611553b2ec2206bd7fd1b74e0",
+  "proof_claim": "no backend correctness proof or optimisation theorem; saved profiles estimate profitability only",
+  "runtime_abi": "ink-packed-pipeline-v2",
+  "runtime_host_sha256": "a0dc5753d93adf2c4decce4c7884b35e802b0fb0df8db472f75d0714fcdcf949",
+  "schema": 2,
+  "shaders": {
+    "compute-1.wgsl": "d8ddbaaed487344137046766f136db2d1e8ce57d2ce7a4cc5cc43d81b3d82124",
+    "graph-0-0.wgsl": "78c87b0341ac9a151b4247a4bdf4f1f83a9ef63757ab191996e788301dd4ad8b",
+    "graph-0-1.wgsl": "0cb541022a1f0d37d351758eb6628d4529306adcae4c6ea7b1be3fb751d62112",
+    "graph-0-2.wgsl": "db563f578e8606576eeac9ff2af93df0f01512201196102fa5dddec0870e298a",
+    "graph-1-0.wgsl": "bfc5342ef84532e2f9cb3103ad01ac7ec86eca31c9be7f50656a3b2a3d5daad3"
+  },
+  "trust": [
+    "type checker",
+    "literal C and WGSL lowering",
+    "packed ABI and host pipeline execution",
+    "C/LLVM, WebGPU/wgpu and drivers"
+  ]
+}

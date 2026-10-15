@@ -258,3 +258,14 @@ fn imports_reject_cycles_unknown_exports_namespaces_and_module_collisions() {
         .unwrap()
         .contains("declared by both"));
 }
+
+#[test]
+fn embedded_bit_automata_module_captures_its_source_and_checks_literals() {
+    let loaded=verified_language::modules::load("examples/bit-automata.ink").unwrap();
+    assert!(loaded.files.iter().any(|file|file.path.to_string_lossy()=="std:bit_automata"&&file.source==include_str!("../knowledge/libraries/bit_automata.ink")));
+    let function=loaded.program.functions.iter().find(|f|f.name=="compile_literal").unwrap();
+    let value=verified_language::eval::Value::from_program_json(&serde_json::json!([1,2,1]),&function.params[0].1,&loaded.program).unwrap();
+    let result=verified_language::eval::call(&loaded.program,"compile_literal",vec![value],&mut 1_000_000).unwrap().json();
+    let mut masks=vec![0u32;256];masks[1]=5;masks[2]=2;
+    assert_eq!(result,serde_json::json!({"Some":{"masks":masks,"accept":4,"width":3}}));
+}

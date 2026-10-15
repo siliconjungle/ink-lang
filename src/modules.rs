@@ -492,6 +492,7 @@ impl Loader {
             Some("std:text") => include_str!("../knowledge/libraries/text.ink").into(),
             Some("std:math") => include_str!("../knowledge/libraries/math.ink").into(),
             Some("std:approximation") => include_str!("../knowledge/libraries/approximation.ink").into(),
+            Some("std:bit_automata") => include_str!("../knowledge/libraries/bit_automata.ink").into(),
             Some("std:json") => include_str!("../knowledge/libraries/json.ink").into(),
             Some(s) if s.starts_with("std:") => return Err(format!("unknown standard module {s}")),
             _ => {
