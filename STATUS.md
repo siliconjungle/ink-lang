@@ -13,6 +13,13 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Direct binary64 constants](docs/binary64.md#javascript-constant-execution) remove
+repeated JavaScript bit-carrier construction for finite literals. All 2,210 raw-bit
+cases, 50 standalone backend tests and full binary64/text target histories pass.
+The [short paired diagnostic](reports/binary64-literals-2026-10-16/README.md) improves
+the large prepared counter 1.49×; Pretext still leads by about twelve times, and
+some small ordinary calls regress. Numeric semantics and proof scope are unchanged.
+
 [Sequential callback preparation](docs/prepared-loop-callbacks.md) carries sealed
 JavaScript captures through loops and strict expressions while iteration inputs
 remain dynamic. The 147-case regression runs 1,510 prepared calls under each F32

@@ -233,3 +233,9 @@ lead. Next work must remove unobserved construction/dispatch, implement general
 source reverse AD and full preparation/layout fidelity, and compose measured
 staging with mutable learning and other backends. This does not complete the
 three-project performance requirement.
+
+Finite binary64 constants now avoid runtime bit conversion in JavaScript; the
+matched short text diagnostic improves the large counter 1.49×, retaining an
+approximately twelve-fold gap to Pretext and small ordinary-call losses. Continue
+reducing loop/record/helper overhead and implementing complete text preparation
+and complex walkers; this literal support does not close the broader programme.

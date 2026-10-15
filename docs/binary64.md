@@ -115,3 +115,18 @@ and another required F32 dispatch.
 These checks are conformance evidence, not mathematical or compiler proofs.
 
 [Exact sources, package pins, complete histories and isolated validation](../reports/binary64-2026-10-16/README.md).
+
+## JavaScript constant execution
+
+Finite binary64 constants now emit as round-tripping number literals in pure and
+action code, avoiding repeated BigInt/DataView construction inside ordinary loops.
+Signed zero and every arithmetic rounding point remain unchanged. Explicit
+nonfinite bit construction and private payload carriers keep their existing
+meaning; this supplies no F64 proof-domain or precision-narrowing authority.
+
+The raw-bit regression checks 2,210 boundary/seeded values across pure, compiled,
+prepared and action execution. The full standalone JavaScript suite and complete
+binary64/text histories pass. A short three-process diagnostic improves the
+large prepared text counter 1.49×, while Pretext remains about twelve times faster.
+Small ordinary calls can regress. [Exact artifacts, samples, profile and scope](../reports/binary64-literals-2026-10-16/README.md)
+retain that gap; this does not establish broad numeric performance or full Pretext.
