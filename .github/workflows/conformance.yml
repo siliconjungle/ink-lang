@@ -33,6 +33,7 @@ jobs:
         python3 reports/frozen-deployment-2026-10-15/audit.py
         python3 bench/structured-preparation/analyse.py reports/structured-preparation-2026-10-16 --check
         python3 bench/staged-initializers/analyse.py reports/prepared-initializers-2026-10-16 --check
+        python3 bench/prepared-helpers/analyse.py reports/prepared-helpers-2026-10-16 --check
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -148,6 +149,11 @@ jobs:
         target/debug/ink verify-model reports/prepared-initializers-2026-10-16/neural --replay
         target/debug/ink build reports/prepared-initializers-2026-10-16/frozen/source.core.json --core --target javascript --initial-state reports/prepared-initializers-2026-10-16/frozen/model.snapshot -o build/staged-frozen.mjs
         node bench/staged-initializers/check-frozen.mjs build/staged-frozen.mjs reports/prepared-initializers-2026-10-16/neural reports/prepared-initializers-2026-10-16/frozen/model.snapshot
+        mkdir -p build/retained-prepared-helpers
+        target/debug/ink build reports/prepared-helpers-2026-10-16/source.core.json --core --target javascript -o build/retained-prepared-helpers/program.mjs
+        cmp build/retained-prepared-helpers/program.mjs reports/prepared-helpers-2026-10-16/current.mjs
+        cp reports/prepared-helpers-2026-10-16/reference-cases.json build/retained-prepared-helpers/cases.json
+        node tests/fixtures/prepared-network.mjs build/retained-prepared-helpers
         python3 tools/check_bit_circuit_laws.py --receipt build/bit-circuit-replay.json
     - name: Retain reproducible programs, seeds and expected outcomes
       if: always()

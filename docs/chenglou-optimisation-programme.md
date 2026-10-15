@@ -302,3 +302,15 @@ prediction gain beyond structured keeps, retaining cold/memory costs. Complete
 learning lineage and explicit immutable source binding compose. The frozen module
 is a concrete input for subsequent ordinary-proof specialization; it is not an
 already specialized graph, a new GPU training engine or closure of upstream parity.
+
+
+[Pure helper preparation](prepared-helpers.md) now carries sealed stable inputs
+through ordinary JavaScript helper boundaries. Source topology/policy checks can
+persist with a graph while weights, context and targets vary; full primals and
+reverse values remain fresh. This applies the preparation idea to neural
+computation without a model-name recognizer or unchecked validity flag. The
+[complete-result comparison](../reports/prepared-helpers-2026-10-16/README.md)
+retains gains and ordinary/setup regressions, plus faster Handwired and dense
+controls. This explicit pure-call capability does not automatically stage mutable
+learning sessions or complete graph specialization, broader target support or
+Pretext fidelity.

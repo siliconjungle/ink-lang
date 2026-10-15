@@ -126,3 +126,10 @@ bounded optional lane. This first host implementation is JavaScript. It is not a
 persistent replacement for arbitrary public Set values or automatic prepared-call
 selection. Prepared capture, first call, updates, memory, module load and teardown
 need lifecycle evidence before a planner may select this execution boundary.
+
+
+[Pure helper preparation](prepared-helpers.md) now carries bound parameter masks
+through lazily created, call-site-specific residual helpers and retains successful
+stable conditions. Sixteen helper levels, existing body/source limits and ordinary
+fallback bound the optional lane. Changing neural weights/context still compute
+fresh primal and reverse values; malformed graph records retain validation.
