@@ -79,7 +79,7 @@ their own contracts and ordinary proof/applicability/profitability gates.
 [Differentiation through supported pure computation](differentiable-computation.md)
 now generates gradients/JVPs through helpers, records, lists and bounded loops,
 with an explicit piecewise policy for hard decisions. General effectful/recursive
-source AD, broader neural libraries and frozen-weight compiler specialization
+source AD and frozen-weight compiler specialization
 remain open work. F32 arithmetic here keeps its existing rounding semantics; an
 analytic real-valued derivative must not be described as the exact derivative of
 rounded machine arithmetic.
@@ -93,3 +93,38 @@ and exact snapshots across reference, Rust, JavaScript and Rust-Wasm, including
 rejected updates and rollback after a write. The GPU host compares those results
 and performs one required eligible numeric kernel dispatch; learning actions run
 on the host. This is conformance evidence, not a proof of the checker or backend.
+
+## Prepared reverse graphs and complete model state
+
+`std:autodiff`, `std:neural` and `std:learning` are ordinary pinned knowledge
+libraries. They complement source `gradient` rather than implicitly replacing it.
+See [reverse graphs and learned models](reverse-learning.md) and the complete
+[244-parameter example](../examples/neural-adaptive.ink). Architecture, parameters,
+optimizer moments, step count, learning rate and acceptance are explicit data and
+computation. Training can therefore follow the whole authored model and context.
+
+Offline fitting can now continue from a complete checkpoint:
+
+```sh
+ink train SOURCE TRACE.json --restore previous.snapshot -o next.snapshot
+```
+
+The exact source identity is validated before any update. Receipts bind the initial
+snapshot as well as the trace and resulting snapshot. Resume restores moments and
+control state with weights; resetting those fields would describe different
+training. Runtime learning invokes the same authored action and keeps transaction
+rollback and portable state unchanged.
+
+The required [learning lifecycle](learning-lifecycle.md) also includes explicit
+build-stage training and an integrated continuous learning service. Offline replay
+and explicit online changes are current capabilities; observation queues, bounded
+continuous scheduling, atomic model publication and durable progress remain
+implementation work rather than being implied by the declaration modifiers.
+
+## Programmatic training control
+
+Training actions are ordinary checked calls. One learner can trigger another,
+choose its rate from an authored policy, or update pause/budget configuration.
+See [the two-learner example](../examples/learning-orchestration.ink) and the
+[general lifecycle contract](learning-lifecycle.md). Pure functions calculate
+control decisions; declared learning actions perform mutations transactionally.

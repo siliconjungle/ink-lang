@@ -494,6 +494,9 @@ impl Loader {
             Some("std:text") => include_str!("../knowledge/libraries/text.ink").into(),
             Some("std:math") => include_str!("../knowledge/libraries/math.ink").into(),
             Some("std:approximation") => include_str!("../knowledge/libraries/approximation.ink").into(),
+            Some("std:neural") => include_str!("../knowledge/libraries/neural.ink").into(),
+            Some("std:learning") => include_str!("../knowledge/libraries/learning.ink").into(),
+            Some("std:autodiff") => include_str!("../knowledge/libraries/autodiff.ink").into(),
             Some("std:bit_automata") => include_str!("../knowledge/libraries/bit_automata.ink").into(),
             Some("std:json") => include_str!("../knowledge/libraries/json.ink").into(),
             Some(s) if s.starts_with("std:") => return Err(format!("unknown standard module {s}")),
@@ -572,7 +575,11 @@ impl Loader {
                 imported_records.insert(target_names[n].clone());
             }
             for (position, window) in node.tokens.windows(3).enumerate() {
-                if (position > 0 && node.tokens[position - 1].text == ".")
+                let after_spread = position >= 3
+                    && node.tokens[position - 3].text == "{"
+                    && node.tokens[position - 2].text == "."
+                    && node.tokens[position - 1].text == ".";
+                if (position > 0 && node.tokens[position - 1].text == "." && !after_spread)
                     || window[0].start < import.end
                     || window[0].text != import.alias
                     || window[1].text != "."

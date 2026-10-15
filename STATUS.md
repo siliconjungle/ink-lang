@@ -35,8 +35,13 @@ summaries even if source metadata is rehashed.
 state`, `adaptive fn` / `adaptive query` and `learn change` declarations, offline
 training traces with portable model snapshots, and explicit online learning events.
 The contextual example fits interacting inputs with an authored update rule;
-automatic gradients now extend through the admitted pure computation; reverse
-mode and frozen-weight specialization remain open. Learning
+automatic gradients now extend through the admitted pure computation. Authored
+reverse graphs and 244-parameter ReGLU models are available through
+[`std:neural` and companion libraries](docs/reverse-learning.md), including
+explicit gradient policies, F32 Adam, frame backtracking and exact offline resume.
+General source reverse AD, frozen-weight specialization, explicit build-stage
+training and an integrated continuous learning lifecycle remain open. See the
+[phase and lifecycle requirements](docs/learning-lifecycle.md). Learning
 capabilities, rollback and exact snapshots are validated across CPU targets and
 GPU-host execution, with a separate eligible device call.
 

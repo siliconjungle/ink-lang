@@ -213,3 +213,13 @@ copying, retained memory, migration and teardown at the boundary being claimed.
 Unknown memory is not zero. Few-percent differences on a shared desktop can be
 noise. A low structural cost, a correct proof or a larger catalogue is not a
 performance result.
+
+
+## Prepared reverse models
+
+[The matched reverse-learning report](bench/reverse-learning/README.md) compares
+complete four-output losses and 244-parameter gradients with Handwired's own
+executor, including its nonnegative-range specialization, and an independent
+array interpreter. Exact forward/backward results and full model state have
+separate conformance receipts. This delivery adds explicit graph/optimizer
+capabilities; the Handwired matched-speed requirement remains open.

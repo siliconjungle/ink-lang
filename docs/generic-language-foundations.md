@@ -584,3 +584,10 @@ General zero-work range laws are published under `libraries/proofs/bulk-zero-ran
 `history-buffer-laws.ink` checks the general append accumulator decoder: freezing a Buffer push-fold equals a List singleton-concat fold for arbitrary element type, initial buffer and input list. The proof uses generalized list induction and the checked push decoder `e5d575...`; accumulator equality is `63bb8ebb5c0136b575b7e43a0a9daa3748e2b212f54ab3228af9efd6f8ae5813`, under optional `libraries/proofs/history-buffer`. Missing or reversed appends reject (0.042s). This is reusable accumulation knowledge, not a CRDT-specific compiler rewrite or a proof of the guarded duplicate/merge loop.
 
 General Rust snapshot emission now uses a type-directed direct writer for finite ordinary schemas, backed by ink-native-support. Fixed portable bytes and budgets retain the independent shared codec meaning; recursive/physical-column schemas fall back. There is no CRDT recognition, syntax or proof-authority change. Exact five-target and hostile-budget checks plus actual device regression gates pass; restore still constructs JSON and remains an independent performance target.
+
+
+Nonescaping callback templates may capture an owned temporary for checked readonly
+observations. The general affine analysis must establish the loan; consuming,
+mutating or escaping a captured owner still rejects. Collection and borrowed-range
+callbacks receive their lexical parameter types before payload matching is
+elaborated. These are general source mechanisms used by prepared reverse graphs.

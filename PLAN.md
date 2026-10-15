@@ -140,3 +140,25 @@ storage with checked affine source use. Compact words/Bytes, broader borrowing,
 efficient physical updates and static refinements remain acceptance work. Fallible pre/postcondition
 validation and external theorem authoring are implemented through ordinary checked
 values/evidence; neither silently grants assumptions or rewrite authority. Totality is not weakened to admit unrestricted loops or closures.
+
+Prepared reverse graphs now have an authored VJP, explicit sparse/hard-gradient
+policies and a 244-parameter ReGLU example with F32 Adam/backtracking state and
+exact offline resume. See [scope and validation](docs/reverse-learning.md). This
+advances the learning programme without closing source-wide reverse AD, frozen
+model specialization, device graph training, certified approximation or the
+Handwired matched-speed requirement. F64 text-layout fidelity, broader call facts
+and the other Pretext/Freerange/Handwired acceptance gates remain required work.
+
+James additionally requires every [learning phase](docs/learning-lifecycle.md):
+pre-compilation fitting, explicit build-stage training/packaging, adaptive runtime
+updates and integrated continuous observation/training/publication. A repeated
+update call alone does not complete continuous lifecycle support. Queue capacity,
+work budgets, publication cadence, serving versions, cancellation, durable progress
+and exact recovery must be explicit and tested. Preserve shared objectives,
+constraints and full optimizer lineage across phases.
+
+Training orchestration must remain programmable: ordinary source policies and
+learning actions can configure and trigger other learners, with full explicit
+context, declared capabilities and transactional rollback. The checked
+`examples/learning-orchestration.ink` demonstrates this across targets; it does
+not close build-stage training or continuous queue/publication/recovery work.
