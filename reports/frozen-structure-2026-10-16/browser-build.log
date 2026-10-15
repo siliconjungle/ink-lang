@@ -1,0 +1,375 @@
+   Compiling compiled-state v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-structure-parity/gpu-module/cpu)
+warning: unused imports: `ink_parallel_map` and `ink_parallel_update`
+   --> src/lib.rs:704:35
+    |
+704 | use temporary::{OwnedMap,InkTable,ink_parallel_map,ink_parallel_update};
+    |                                   ^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `temporary::TableCapacity`
+   --> src/lib.rs:706:5
+    |
+706 | use temporary::TableCapacity;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `compiled-state` (lib) generated 2 warnings (run `cargo fix --lib -p compiled-state` to apply 2 suggestions)
+    Finished `release` profile [optimized] target(s) in 2.76s
+   Compiling ink-packed-cpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-structure-parity/gpu-module/gpu/f0/cpu)
+warning: unused import: `std::collections::BTreeMap`
+ --> src/lib.rs:9:5
+  |
+9 | use std::collections::BTreeMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `InkTable`, `ink_parallel_map`, and `ink_parallel_update`
+   --> src/lib.rs:704:26
+    |
+704 | use temporary::{OwnedMap,InkTable,ink_parallel_map,ink_parallel_update};
+    |                          ^^^^^^^^ ^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `temporary::TableCapacity`
+   --> src/lib.rs:706:5
+    |
+706 | use temporary::TableCapacity;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unreachable statement
+    --> src/lib.rs:1488:715
+     |
+1488 | ..._bytes())?;match &event.data{_=>unreachable!("empty event type"),}prior=Some((event.commit,event.position));}writer.finish(&lay...
+     |               -------------------------------------------------------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |               |
+     |               any code following this `match` expression is unreachable, as all arms diverge
+     |
+     = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable statement
+    --> src/lib.rs:1490:453
+     |
+1490 | ...ta=match channel{_=>return Err("unknown snapshot event channel".into())};if commit==0||commit>state.version||prior.is_some_and(|p|p>=(commit,position)){return Err("invalid snapshot event sequence".into())}pri...
+     |       --------------------------------------------------------------------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |       |
+     |       any code following this `match` expression is unreachable, as all arms diverge
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1488:376
+     |
+1488 | ...e_bytes())?;writer.count(self.outbox.len())?;let mut prior=None;for event in &self.outbox{if event.commit==0||event.commit>self...
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1490:263
+     |
+1490 | ...n=reader.u64()?;let count=reader.sequence()?;let mut prior=None;for _ in 0..count{let commit=reader.u64()?;let position=reader....
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+
+warning: value assigned to `cursor` is never read
+    --> src/lib.rs:2646:209
+     |
+2646 | ...};let hi={let v=unsafe{input.add(cursor).read_unaligned()};cursor+=1;v};u64::from(lo)|(u64::from(hi)<<32)};let result=State::ne...
+     |                                                               ^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink-packed-cpu` (lib) generated 8 warnings (run `cargo fix --lib -p ink-packed-cpu` to apply 5 suggestions)
+    Finished `release` profile [optimized] target(s) in 2.22s
+   Compiling ink-packed-cpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-structure-parity/gpu-module/gpu/f2/cpu)
+warning: unused import: `std::collections::BTreeMap`
+ --> src/lib.rs:9:5
+  |
+9 | use std::collections::BTreeMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `InkTable`, `ink_parallel_map`, and `ink_parallel_update`
+   --> src/lib.rs:704:26
+    |
+704 | use temporary::{OwnedMap,InkTable,ink_parallel_map,ink_parallel_update};
+    |                          ^^^^^^^^ ^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `temporary::TableCapacity`
+   --> src/lib.rs:706:5
+    |
+706 | use temporary::TableCapacity;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unreachable statement
+    --> src/lib.rs:1510:715
+     |
+1510 | ..._bytes())?;match &event.data{_=>unreachable!("empty event type"),}prior=Some((event.commit,event.position));}writer.finish(&lay...
+     |               -------------------------------------------------------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |               |
+     |               any code following this `match` expression is unreachable, as all arms diverge
+     |
+     = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable statement
+    --> src/lib.rs:1512:453
+     |
+1512 | ...ta=match channel{_=>return Err("unknown snapshot event channel".into())};if commit==0||commit>state.version||prior.is_some_and(|p|p>=(commit,position)){return Err("invalid snapshot event sequence".into())}pri...
+     |       --------------------------------------------------------------------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |       |
+     |       any code following this `match` expression is unreachable, as all arms diverge
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1510:376
+     |
+1510 | ...e_bytes())?;writer.count(self.outbox.len())?;let mut prior=None;for event in &self.outbox{if event.commit==0||event.commit>self...
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1512:263
+     |
+1512 | ...n=reader.u64()?;let count=reader.sequence()?;let mut prior=None;for _ in 0..count{let commit=reader.u64()?;let position=reader....
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+
+warning: value assigned to `cursor` is never read
+    --> src/lib.rs:2685:599
+     |
+2685 | ...};let hi={let v=unsafe{input.add(cursor).read_unaligned()};cursor+=1;v};u64::from(lo)|(u64::from(hi)<<32)}};let input=unsafe{*d...
+     |                                                               ^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `cursor` is never read
+    --> src/lib.rs:2685:1246
+     |
+2685 | ...};let hi={let v=unsafe{input.add(cursor).read_unaligned()};cursor+=1;v};u64::from(lo)|(u64::from(hi)<<32)}};let result=State::n...
+     |                                                               ^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+
+warning: `ink-packed-cpu` (lib) generated 9 warnings (run `cargo fix --lib -p ink-packed-cpu` to apply 5 suggestions)
+    Finished `release` profile [optimized] target(s) in 2.31s
+   Compiling ink-packed-cpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-structure-parity/gpu-module/gpu/f3/cpu)
+warning: unused import: `std::collections::BTreeMap`
+ --> src/lib.rs:9:5
+  |
+9 | use std::collections::BTreeMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `InkTable`, `ink_parallel_map`, and `ink_parallel_update`
+   --> src/lib.rs:704:26
+    |
+704 | use temporary::{OwnedMap,InkTable,ink_parallel_map,ink_parallel_update};
+    |                          ^^^^^^^^ ^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `temporary::TableCapacity`
+   --> src/lib.rs:706:5
+    |
+706 | use temporary::TableCapacity;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unreachable statement
+    --> src/lib.rs:1499:715
+     |
+1499 | ..._bytes())?;match &event.data{_=>unreachable!("empty event type"),}prior=Some((event.commit,event.position));}writer.finish(&lay...
+     |               -------------------------------------------------------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |               |
+     |               any code following this `match` expression is unreachable, as all arms diverge
+     |
+     = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable statement
+    --> src/lib.rs:1501:453
+     |
+1501 | ...ta=match channel{_=>return Err("unknown snapshot event channel".into())};if commit==0||commit>state.version||prior.is_some_and(|p|p>=(commit,position)){return Err("invalid snapshot event sequence".into())}pri...
+     |       --------------------------------------------------------------------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |       |
+     |       any code following this `match` expression is unreachable, as all arms diverge
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1499:376
+     |
+1499 | ...e_bytes())?;writer.count(self.outbox.len())?;let mut prior=None;for event in &self.outbox{if event.commit==0||event.commit>self...
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1501:263
+     |
+1501 | ...n=reader.u64()?;let count=reader.sequence()?;let mut prior=None;for _ in 0..count{let commit=reader.u64()?;let position=reader....
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+
+warning: value assigned to `cursor` is never read
+    --> src/lib.rs:2665:599
+     |
+2665 | ...};let hi={let v=unsafe{input.add(cursor).read_unaligned()};cursor+=1;v};u64::from(lo)|(u64::from(hi)<<32)}};let result=State::n...
+     |                                                               ^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink-packed-cpu` (lib) generated 8 warnings (run `cargo fix --lib -p ink-packed-cpu` to apply 5 suggestions)
+    Finished `release` profile [optimized] target(s) in 2.20s
+   Compiling ink-packed-cpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-structure-parity/gpu-module/gpu/f4/cpu)
+warning: unused import: `std::collections::BTreeMap`
+ --> src/lib.rs:9:5
+  |
+9 | use std::collections::BTreeMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `InkTable`, `ink_parallel_map`, and `ink_parallel_update`
+   --> src/lib.rs:704:26
+    |
+704 | use temporary::{OwnedMap,InkTable,ink_parallel_map,ink_parallel_update};
+    |                          ^^^^^^^^ ^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `temporary::TableCapacity`
+   --> src/lib.rs:706:5
+    |
+706 | use temporary::TableCapacity;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unreachable statement
+    --> src/lib.rs:1499:715
+     |
+1499 | ..._bytes())?;match &event.data{_=>unreachable!("empty event type"),}prior=Some((event.commit,event.position));}writer.finish(&lay...
+     |               -------------------------------------------------------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |               |
+     |               any code following this `match` expression is unreachable, as all arms diverge
+     |
+     = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable statement
+    --> src/lib.rs:1501:453
+     |
+1501 | ...ta=match channel{_=>return Err("unknown snapshot event channel".into())};if commit==0||commit>state.version||prior.is_some_and(|p|p>=(commit,position)){return Err("invalid snapshot event sequence".into())}pri...
+     |       --------------------------------------------------------------------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |       |
+     |       any code following this `match` expression is unreachable, as all arms diverge
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1499:376
+     |
+1499 | ...e_bytes())?;writer.count(self.outbox.len())?;let mut prior=None;for event in &self.outbox{if event.commit==0||event.commit>self...
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1501:263
+     |
+1501 | ...n=reader.u64()?;let count=reader.sequence()?;let mut prior=None;for _ in 0..count{let commit=reader.u64()?;let position=reader....
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+
+warning: value assigned to `cursor` is never read
+    --> src/lib.rs:2665:603
+     |
+2665 | ...};let hi={let v=unsafe{input.add(cursor).read_unaligned()};cursor+=1;v};u64::from(lo)|(u64::from(hi)<<32)}};let result=State::n...
+     |                                                               ^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `ink-packed-cpu` (lib) generated 8 warnings (run `cargo fix --lib -p ink-packed-cpu` to apply 5 suggestions)
+    Finished `release` profile [optimized] target(s) in 2.20s
+     Locking 25 packages to highest compatible versions
+      Adding serde_json v1.0.151 (available: v1.0.154)
+   Compiling version_check v0.9.5
+   Compiling typenum v1.20.1
+   Compiling generic-array v0.14.7
+   Compiling autocfg v1.5.1
+   Compiling num-traits v0.2.19
+   Compiling zmij v1.0.23
+   Compiling serde_core v1.0.229
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling serde_json v1.0.151
+   Compiling digest v0.10.7
+   Compiling num-integer v0.1.47
+   Compiling cfg-if v1.0.5
+   Compiling ink-packed-cpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-structure-parity/gpu-module/gpu/f5/cpu)
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling sha2 v0.10.9
+   Compiling num-bigint v0.4.8
+warning: unused import: `std::collections::BTreeMap`
+ --> src/lib.rs:9:5
+  |
+9 | use std::collections::BTreeMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `InkTable`, `ink_parallel_map`, and `ink_parallel_update`
+   --> src/lib.rs:704:26
+    |
+704 | use temporary::{OwnedMap,InkTable,ink_parallel_map,ink_parallel_update};
+    |                          ^^^^^^^^ ^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `temporary::TableCapacity`
+   --> src/lib.rs:706:5
+    |
+706 | use temporary::TableCapacity;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unreachable statement
+    --> src/lib.rs:1488:715
+     |
+1488 | ..._bytes())?;match &event.data{_=>unreachable!("empty event type"),}prior=Some((event.commit,event.position));}writer.finish(&lay...
+     |               -------------------------------------------------------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |               |
+     |               any code following this `match` expression is unreachable, as all arms diverge
+     |
+     = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable statement
+    --> src/lib.rs:1490:453
+     |
+1490 | ...ta=match channel{_=>return Err("unknown snapshot event channel".into())};if commit==0||commit>state.version||prior.is_some_and(|p|p>=(commit,position)){return Err("invalid snapshot event sequence".into())}pri...
+     |       --------------------------------------------------------------------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+     |       |
+     |       any code following this `match` expression is unreachable, as all arms diverge
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1488:376
+     |
+1488 | ...e_bytes())?;writer.count(self.outbox.len())?;let mut prior=None;for event in &self.outbox{if event.commit==0||event.commit>self...
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:1490:263
+     |
+1490 | ...n=reader.u64()?;let count=reader.sequence()?;let mut prior=None;for _ in 0..count{let commit=reader.u64()?;let position=reader....
+     |                                                     ----^^^^^
+     |                                                     |
+     |                                                     help: remove this `mut`
+
+warning: `ink-packed-cpu` (lib) generated 7 warnings (run `cargo fix --lib -p ink-packed-cpu` to apply 5 suggestions)
+    Finished `release` profile [optimized] target(s) in 6.06s
