@@ -38,6 +38,7 @@ jobs:
         python3 reports/prepared-text-2026-10-16/audit.py
         python3 bench/prepared-loops/analyse.py reports/prepared-loops-2026-10-16 --check
         python3 reports/binary64-literals-2026-10-16/audit.py
+        python3 reports/source-reverse-2026-10-16/audit.py
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -134,10 +135,12 @@ jobs:
         cargo test --manifest-path core/Cargo.toml --offline
         python3 - <<'PYCORE'
         import json, subprocess
-        r=json.load(open('reports/binary64-2026-10-16/core-package.json'))
+        r=json.load(open('reports/source-reverse-2026-10-16/core-package.json'))
+        actual=subprocess.check_output(['git','rev-parse','HEAD:core'],text=True).strip()
+        assert actual==r['core_tree'], 'distribution core differs from standalone package pin'
         subprocess.run(['git','fetch','--no-recurse-submodules','--depth=1','origin',r['commit'],r['source']],check=True)
         PYCORE
-        python3 tools/check_core_package.py reports/binary64-2026-10-16/core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
+        python3 tools/check_core_package.py reports/source-reverse-2026-10-16/core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
         # The whole suite: fuzz_logic_objects re-declares every first-order
@@ -1183,11 +1186,12 @@ jobs:
         INK_TEST_WASM=1 cargo test --test lowering_parity resident_collection_lengths_survive_feedback -- --exact --nocapture
         INK_TEST_WASM=1 cargo test --test physical_capabilities semantic_word_parity -- --nocapture --test-threads=1
         cargo test --test source_reverse -- --nocapture --test-threads=1
-        python3 tools/build_gpu_wasm.py build/source-reverse-parity/gpu-module
+        python3 tools/build_gpu_wasm.py build/source-reverse-parity/gpu-module build/source-reverse-until-parity/gpu-module
         python bench/gpu/prepare-lowering-parity-browser.py
         python bench/gpu/prepare-word-parity-browser.py
         npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)"
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/source-reverse-until-parity build/source-reverse-until-browser.json
         node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
         INK_TEST_WGPU=1 cargo test --test database_planning recursive_database_plan_preserves_every_observation_and_original_checkpoints -- --exact --nocapture
         python bench/gpu/prepare-database-plan-browser.py
