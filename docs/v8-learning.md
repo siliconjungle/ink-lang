@@ -256,3 +256,25 @@ target times are not comparable. This single workload does not establish broad
 language speedups or automatic plan selection. The new mandatory CPU suite
 checks 72 cases including raw floating-point boundary values and nested captures;
 all 295 planner tests passed after materializing two exact legacy test inputs.
+
+The sixth frozen corpus run compiled all ten unchanged programs, selected three
+alternatives, admitted 38 laws and reused seven across programs. All ten exhausted
+the quick budget. A separate discovery diagnostic on the exact captured cores
+found zero callback-hoisting proposals, so this corpus supplies no cross-program
+generalization evidence for the new producer. The direct installed-catalogue
+regression fixture independently admits twelve hoisting laws across eleven
+functions; it is a purpose-built validation input. See the retained
+`corpus-invariants-summary.json` and `corpus-invariants-proposals.json`. Concurrent
+database/evidence-gate changes and the binder fix prevent attributing aggregate
+corpus count differences to any one change. The default structural model also
+ranks the measured guarded hoist worse; addressing that search limitation remains
+separate from the explicit selected-plan runtime control.
+
+A follow-up proposal restriction accepts only reviewed numeric/list operation
+trees and declines nested string construction or unanalysed source helpers. A
+scalar result alone does not establish that its nested work is total: string
+concatenation has a fixed U32 length failure boundary. The kernel still replays
+the same equality proof. Both the measured proposal and all twelve numeric CPU
+fixture proposals are byte-identical after this restriction, and the hardened
+72-case CPU suite passes. The frozen corpus above predates this restriction;
+post-run discovery on its exact captured cores remains zero for this producer.
