@@ -248,3 +248,13 @@ Six checked database laws cover object-list lookup, projection and fusion; core
 adds stable payload identities and shared recursive-type facts. Codec/lowering
 correctness remains operationally trusted; no speedup or zero-copy execution is
 claimed by these conformance results.
+
+### Programmable portfolio objectives
+
+An ordinary compiled Ink function can rank the complete eligible portfolio using
+explicit typed application/model context. Offline planning and native/JavaScript
+adaptive hosts share the Rust/Wasm decision contract. Applications can publish
+new goal revisions without repeating actions or waiving correctness, evidence,
+migration and resource gates. See [authored and learned objectives](docs/programmable-objectives.md)
+and the [complete source example](examples/programmable-objective.ink). General
+compiler search does not yet learn its objective automatically.

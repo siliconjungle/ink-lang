@@ -23,9 +23,11 @@ The complete example defines all referenced declarations. Its learning action
 compares paired, bounded observations using the current authored objective.
 `retarget` changes weights, increments an objective version and resets accumulated
 scores. Old-version feedback rejects atomically. Another controller or learner can
-call these ordinary actions. This demonstrates a programmable application target;
-the compiler planner's general admission, measurement and runtime decision
-contracts have not acquired arbitrary learned objectives.
+call these ordinary actions. This demonstrates a programmable application target.
+The separate [authored objective controller](programmable-objectives.md) now also
+ranks already checked compiled portfolios offline and at runtime using ordinary
+Ink code and captured typed context. General compiler search heuristics and
+correctness/measurement admission retain their existing contracts.
 
 A learner that changes objectives needs its own authored outer goal and bounds
 on permitted reconfiguration. A lower score under a different objective does not

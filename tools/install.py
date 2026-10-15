@@ -66,7 +66,7 @@ def main():
                         'lowerings/js', 'lowerings/wasm', 'lowerings/gpu']:
             committed(root / package, ['LICENSE'], resources / 'licenses' / package)
         committed(root / 'planner', ['LICENSE', 'ink_planner', *planner_scripts], resources / 'planner')
-        committed(root / 'runtime', ['hosts/adaptive-state.mjs', 'hosts/adaptive-profile.mjs', 'hosts/usage-window.mjs', 'hosts/adaptive-collections.mjs'], resources / 'runtime')
+        committed(root / 'runtime', ['hosts/adaptive-state.mjs', 'hosts/adaptive-profile.mjs', 'hosts/usage-window.mjs', 'hosts/adaptive-collections.mjs', 'hosts/objective.mjs'], resources / 'runtime')
         committed(root / 'abi', ['src/selection.mjs', 'selection.wasm'], resources / 'abi')
         # Package pinned authoring modules and their shared helpers together.
         committed(root / 'knowledge', ['LICENSE', 'ink_knowledge', 'store', 'research/general-laws',

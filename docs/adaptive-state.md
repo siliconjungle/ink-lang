@@ -4,6 +4,8 @@ Ink can observe recent usage and change between **already compiled, checked** st
 implementations. This is a host policy, not a language annotation or runtime proof
 search. Defaults remain fixed. The controller never trials an update, runs an
 unselected variant for comparison, fits a model, or infers a correctness premise.
+Applications can opt into [authored or learned objectives](programmable-objectives.md)
+and explicitly retarget an existing host; the default time policy remains available.
 
 ## Workflow
 
