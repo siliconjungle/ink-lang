@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "heads": {
+    ".": "f33a5266ec188fabbbe1b60d7c6a378db6bf99d9",
+    "knowledge": "f8a3b39daea470300a0c5fcf8668f4edf3764527",
+    "planner": "33fa0285462e61260ae5a60e23eff9cf8a39e8e3",
+    "runtime": "f9deb29f4af1950a8109186f5117419ccda8c24b"
+  },
+  "upstream": {
+    "root": "c3315ae88f5b797997ef4c2ac0d8419152491f9d",
+    "knowledge": "5af9748634b197b2ffe2ff615c397dc1d764a5aa",
+    "planner": "3658092c17349f9c7f8967ba9abd795ac6bba6a9"
+  },
+  "core_tree": "f645487ff0c0d6ed28004a29b007c2801958c38a",
+  "compiler_sha256": "00698bac39c7685b24d36651ea7bf6110fff037af5d271440e27d6ce0a1fe72f",
+  "validation": {
+    "merged_suite": {
+      "tests": 136,
+      "log": "work/whole-selection-merged-regression-v1.log"
+    },
+    "ci_failure_tail": {
+      "tests": 47,
+      "log": "work/conditional-adapter-ci-tail-regression-v2.log"
+    },
+    "targeted": {
+      "tests": 11,
+      "log": "work/conditional-adapter-final-regression-v1.log"
+    },
+    "partition_tests": 4,
+    "locked_build": "passed; savedcompiler and mergedbuild byte-identical",
+    "installed_package": {
+      "passed": true,
+      "modules": 15,
+      "frozen_word_laws": 56,
+      "source": "installed wheel, outside source checkout",
+      "wheel": "ink_knowledge-0.1.0-py3-none-any.whl",
+      "wheel_sha256": "dcdbae8edf3f1f51b960703a547c60736585ab343669b5bca9bba9d2f1ddd899"
+    }
+  },
+  "ci_failure": {
+    "run": 38651914515,
+    "head": "7373d4f5c2bc21b57b2bd96a38936e004be1c16a",
+    "job": 116152486281,
+    "test": "CapturedFolds.test_shared_adapter_does_not_discharge_conditions",
+    "cause": "Obsolete assertion expected the adapter to decline every conditional law. The intended implementation retains instantiated conditions and explicit Hypothesis premises.",
+    "fix": "Retain the condition-preservation check and add actual kernel checks: true explicit premise accepted; missing premise and a false equality rejected after head reduction. Mandatory CI now also runs selection-composition tests, including alpha-renamed RUP premises."
+  },
+  "corpus": {
+    "revision": "7373d4f5c2bc21b57b2bd96a38936e004be1c16a",
+    "programs": 10,
+    "heldout": 9,
+    "development": 1,
+    "all_compiled": true,
+    "all_admitted_alternatives": true,
+    "selected_alternatives": 0,
+    "measured_candidates_per_program": 8,
+    "scope": "Discovery/selection evidence for the earlier frozen revision; no full-library performance claim. Budget-limited measurement does not rule out useful unmeasured candidates."
+  },
+  "remaining": "Fresh mixed-grid experiment and full combined-revision CI remain required before claiming profitability or main publication."
+}

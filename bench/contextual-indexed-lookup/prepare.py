@@ -25,7 +25,9 @@ def main():
  files={str(p.relative_to(d)):hashlib.sha256(p.read_bytes()).hexdigest()for folder in ['knowledge/producers','knowledge/ink_knowledge','planner/ink_planner']for p in (d/folder).rglob('*.py')}
  files.update({f:hashlib.sha256((d/f).read_bytes()).hexdigest()for f in ['source.ink','ink','prepare.py','run.mjs','order.mjs']})
  bank=Store(d/'knowledge');initial=bank.snapshot_id
- registration=dict(schema=1,seed_offset=a.seed_offset,training_grid=a.training_grid,at=datetime.datetime.now(datetime.timezone.utc).isoformat(),files=files,knowledge_snapshot=initial,
+ env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(d/'planner'),str(d/'knowledge')]))
+ authoring=subprocess.check_output([sys.executable,'-c','from ink_planner.compiled_planning import code_fingerprint;print(code_fingerprint())'],cwd=ROOT,env=env,text=True).strip()
+ registration=dict(schema=1,authoring_sha256=authoring,python=sys.version,seed_offset=a.seed_offset,training_grid=a.training_grid,at=datetime.datetime.now(datetime.timezone.utc).isoformat(),files=files,knowledge_snapshot=initial,
   scope='Development fixture for contextual membership indexing; not an unseen library. Default registry and balanced planning; no forced producer or candidate. Complete call includes index construction, all query results and full consumption. Import, input generation and compilation excluded. Explicit indexed control is checked separately and never supplies selection authority. All held-out cells are reported, including losses outside a selected workload.',
   selection='Independent large and small workload plans, each with three timing processes and rejection-only validation; evaluation never selects or repairs a plan.',
   evaluation=dict(sizes=[0,1,31,257,4097],queries=[0,1,17,257],shapes=['unique','repeated16'],processes=3,rounds=8,batch_ns=3000000,seed=733+a.seed_offset))
@@ -33,7 +35,6 @@ def main():
   registration['selection']='Independent mixed-size and small plans; mixed training and rejection-only validation use independently registered Cartesian grids. Evaluation never selects or repairs a plan.'
   registration['grids']=dict(training=dict(keys=[0,3,97,1537],queries=[0,3,193]),validation=dict(keys=[0,7,149,2053],queries=[0,7,263]))
  (d/'registration.json').write_text(json.dumps(registration,indent=2)+'\n')
- env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(d/'planner'),str(d/'knowledge')]))
  def run(command,log):
   start=time.monotonic()
   with log.open('w')as stream:r=subprocess.run(list(map(str,command)),cwd=ROOT,env=env,stdout=stream,stderr=subprocess.STDOUT)
