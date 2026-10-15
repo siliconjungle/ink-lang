@@ -76,8 +76,10 @@ the explicitly mutable data. Changing program structure, replacing exact code wi
 an approximate model and choosing an implementation for performance still need
 their own contracts and ordinary proof/applicability/profitability gates.
 
-Automatic differentiation through general source, nonlinear neural model libraries,
-explicit hard-decision gradient policies and frozen-weight compiler specialization
+[Differentiation through supported pure computation](differentiable-computation.md)
+now generates gradients/JVPs through helpers, records, lists and bounded loops,
+with an explicit piecewise policy for hard decisions. General effectful/recursive
+source AD, broader neural libraries and frozen-weight compiler specialization
 remain open work. F32 arithmetic here keeps its existing rounding semantics; an
 analytic real-valued derivative must not be described as the exact derivative of
 rounded machine arithmetic.

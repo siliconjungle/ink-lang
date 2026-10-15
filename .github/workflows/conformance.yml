@@ -27,6 +27,8 @@ jobs:
         python3 bench/conditional-facts/analyse.py reports/conditional-facts-2026-10-15 --check
         python3 bench/prepared-tables/analyse.py reports/prepared-tables-2026-10-15
         python3 tools/audit_learning_receipts.py reports/adaptive-learning-2026-10-15
+        python3 tools/audit_whole_computation_learning.py reports/whole-computation-learning-2026-10-15
+        python3 bench/differentiable-preparation/analyse.py reports/differentiable-preparation-2026-10-15
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -129,7 +131,7 @@ jobs:
         cargo test --manifest-path native-support/Cargo.toml
         CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
         cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation --test reference_evaluation_budget --test automatic_compilation
-        cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning
+        cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning --test differentiation
         cargo test --test physical_capabilities --test gpu
         cargo build --bin ink --offline
         python3 tools/check_bit_circuit_laws.py --receipt build/bit-circuit-replay.json
@@ -1010,7 +1012,7 @@ jobs:
     - name: Install pinned proof authoring
       run: python -m pip install python-sat==1.9.dev5
     - name: Required GPU dispatch, exact u64 and binary32
-      run: cargo test --test feature_parity --test database_planning --test physical_capabilities --test proved_refinement_parity --test adaptive_learning -- --nocapture --test-threads=1
+      run: cargo test --test feature_parity --test database_planning --test physical_capabilities --test proved_refinement_parity --test adaptive_learning --test differentiation -- --nocapture --test-threads=1
     - name: Imported proof composition on the actual device
       run: cargo test --test composable_knowledge imported_algorithms -- --nocapture
     - name: Actual wgpu dispatch and resident feedback

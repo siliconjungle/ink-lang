@@ -337,3 +337,6 @@ mod parameter_cache;
 
 #[path = "support/loop_invariants.rs"]
 mod loop_invariants;
+
+#[path="support/call_facts.rs"]
+mod call_facts;
