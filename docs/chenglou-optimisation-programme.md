@@ -128,6 +128,36 @@ shows search gains, with separate CPU losses and first-call limitations. No
 Freerange-derived compiler optimisation, Pretext-compatible Ink layout engine or
 new cross-domain performance gain is claimed by this design document.
 
+## Delivery checklist
+
+This is one workstream across all three projects. Adding website dependencies,
+publishing this inventory, or completing F64 alone does not finish it. The search
+milestone was published in distribution `a0a4fa0f` with local validation; its
+GitHub conformance run was still queued when this checklist was recorded.
+
+| Work package | Remaining delivery | Current status |
+| --- | --- | --- |
+| Source and experiment coverage | Map upstream modules, examples, research decisions and failed experiments to an Ink mechanism, an existing equivalent or an explicit reason not to transfer it. Retain revision, evidence and acceptance condition. | Initial mechanism inventory exists; exhaustive coverage audit remains open |
+| Inferred facts and requirements | Forward numeric/branch facts, backward missing premises, source-bound call summaries and useful diagnostics; replay evidence before facts authorize optimisations. Start with existing integer domains as well as floats. | Existing checked bounds/refinement foundations; general Freerange-inspired inference remains open |
+| Precision | Faithful F64 semantics across reference/CPU/JS/Wasm and their ABI, followed by checked narrowing and whole-region guarded fallback with rounding/error propagation. | Design only; does not block integer, ownership or preparation work |
+| Fact-driven compact execution | General checked bit/grid/exclusivity transport; integer and packed representations; one-hot selection to gathers; reject fractional bits, multiple active choices and invalid nonfinite premises. | Authored bit-state algorithms and eight scalar laws delivered; automatic general consumption remains open |
+| Circuit and loop scheduling | Pure-term sharing, liveness, sparse versus dense execution, bounded reusable loops, checked associative scans and transition composition; retain simultaneous assignment and rounding points. | Existing loops/scans/last-use foundations; general proposals and comparison remain open |
+| Preparation and specialisation | Separate stable inputs from varying inputs, reuse kernels with parameters as data, compare staged and direct execution, bound caches and bind all invalidation dependencies. | Existing const parameters, keeps and resident sessions; automatic preparation remains open |
+| Requested observations | Compute count/exists/height, selected fields or output windows without building unnecessary full results. Preserve observable failures, effects and ordering. | Existing query/fusion/codec foundations; general observation-directed optimisation remains open |
+| Incremental work and placement | Maintain item/paragraph/batch changes, share derived state, upload changed regions and keep intermediate values resident. Compose query/ordinary code/device plans and price I/O. | Partial maintained-state and GPU foundations; broader composition, transfer planning and external storage remain open |
+| Ownership and execution overhead | Remove measured helper/capture clones, reuse searchers/prepared inputs, compare layouts and allocation behavior across target engines. | UTF-8 and primitive borrowing improvements delivered; native whole-workload ownership gap remains open |
+| Behavioral contracts | Explicit permitted staleness, capacity, first/any/tie selection and fallback; preserve transaction and observation meaning. | Partial specification foundations; relevant source contracts and consumers remain open |
+| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Research design only |
+| Cross-domain and lifecycle acceptance | Real layout/prepared computation, JSON/structured data, relational/bitset and sparse numeric workloads; matched first-call, steady-state, edits, memory and adverse cases against strong controls. | Complete-count search evidence delivered; broader parity/performance and comparable first-call evidence remain open |
+
+The next implementation priorities are reusable checked facts and their consumers,
+preparation plus requested-output execution, and the measured ownership/transfer
+gaps. F64 establishes fidelity for binary64 workloads alongside those priorities.
+Circuit scheduling and differentiation need separate executable milestones; they
+must not disappear behind the search milestone or be renamed complete because
+their foundations exist. Introduce syntax when a concrete general mechanism needs
+it, rather than assigning a source keyword to every upstream implementation trick.
+
 Next acceptance work should include repeated prepared queries/layout, cold and
 single-use controls, changed-input histories, dense/sparse numeric cases and
 different requested output sizes. Preserve strong handwritten and upstream
