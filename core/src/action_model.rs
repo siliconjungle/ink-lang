@@ -225,6 +225,10 @@ pub struct Projection {
     pub source_preconditions: BTreeMap<String, String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub source_domain: Vec<crate::logic::Equation>,
+    /// Fixed-root equalities derived only from checked immutable source rows.
+    /// Unlike source predicates, these need no invariant-preservation premise.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub frozen_domain: Vec<crate::logic::Equation>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub initial_state: Option<Term>,
 }
@@ -710,6 +714,11 @@ impl Lower<'_> {
                 let y=if name=="f32_div"{self.expr(body,arguments[1],env,state)?}else{Term::U64(0)};
                 Ok(b(&format!("f32:{}",if name=="f32_div"{"div"}else{name}),x,y))
             }
+            Kind::Builtin { name, arguments } if name == "word_and" && arguments.len() == 2 && matches!(ty, Type::U64 | Type::U32 | Type::I32) => {
+                let x = self.expr(body, arguments[0], env, state)?;
+                let y = self.expr(body, arguments[1], env, state)?;
+                self.operator(ty, "&", x, y)
+            }
             Kind::Builtin { name, arguments } if name == "list" => {
                 let sort = self.sort(ty)?;
                 let xs = arguments.iter().map(|i| self.expr(body, *i, env, state)).collect::<LangResult<Vec<_>>>()?;
@@ -1135,6 +1144,7 @@ impl Projection {
                 .filter(|(name, _)| p.actions.iter().any(|a| &a.name == *name))
                 .map(|(n, g)| (n.clone(), g.clone())).collect(),
             source_domain: vec![],
+            frozen_domain: vec![],
             initial_state,
         };
         let (domain_objects,domain)=crate::contracts::state::source_domain(p)?;
@@ -1144,12 +1154,13 @@ impl Projection {
         if let Some(Term::Construct{arguments,..})=&out.initial_state {
             let bindings=(0..out.tables.len()).map(|i|format!("__frozen_root_{i}")).collect::<Vec<_>>();
             for (index,_) in p.states.iter().enumerate().filter(|(_,s)|p.frozen.contains_key(&s.name)) {
-                out.source_domain.push(crate::logic::Equation {
+                out.frozen_domain.push(crate::logic::Equation {
                     from:Term::Match {scrutinee:Box::new(v("initial")),branches:vec![Branch{bindings:bindings.clone(),body:v(&bindings[index])}]},
                     to:arguments[index].clone(),
                 });
             }
         }
+        out.source_domain.extend(out.frozen_domain.iter().cloned());
         if registry::canonical(&out)?.len() > crate::core::MAX_BYTES {
             return Err("action model byte limit".into());
         }
@@ -1299,13 +1310,16 @@ pub(crate) fn check(
             return Err("source transition must be an enabled database root".into());
         }
         let args = a.params.iter().map(|(n, _)| v(n)).collect::<Vec<_>>();
-        let hypotheses = match &sorted {
+        let mut hypotheses = match &sorted {
             Some(sorted) => before.sorted_hypotheses(
                 sorted,
                 v(&a.params.first().ok_or("action without state")?.0),
             ),
             None => vec![],
         };
+        // Re-derived from the checked input, never copied from proposal data.
+        // Keep sorted premises first so existing proof indices stay stable.
+        hypotheses.extend(before.frozen_domain.iter().cloned());
         context
             .check(
                 &a.params,
