@@ -63,14 +63,16 @@ Pure proof preconditions cannot silently disappear: reverse translation currentl
 rejects an objective/helper with such requirements. Checked fallible source
 interfaces keep their explicit branch behavior. Abstract/refined parameters need
 a plain numeric view. Recursive shapes/call graphs, F64 differentiation, owned
-parameter/context storage and unsupported operations reject explicitly. Effectful
+source values (including temporary buffers/maps) and unsupported operations reject explicitly. Effectful
 application state must enter the pure objective through declared reads and
 explicit immutable arguments.
 
 ## Ownership, checks and execution targets
 
-A variant fold selects one arm and runs it once. That arm may now consume captured
-temporary storage. A move in either arm invalidates the outer owner. Repeated
+A variant fold selects one arm and runs it once. When it returns an owned carrier,
+that arm may consume captured temporary storage. Plain-valued observations retain
+readonly captures, including source contract checks. A move in either arm
+invalidates the outer owner. Repeated
 callbacks and borrowed stop/range callbacks retain their capture restrictions;
 this is a general ownership fact, not an AD-specific exemption.
 
