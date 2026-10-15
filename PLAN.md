@@ -166,3 +166,9 @@ bounded source queues, candidate progress, version-checked publication and durab
 recovery on a compiled JavaScript host. [Adaptive build-stage packages](docs/trained-builds.md) now capture fitting inputs
 and compile a bound startup checkpoint across targets. Parallel workers, device
 training, frozen specialization and trained implementation selection remain required.
+
+[Discrete policy learning](docs/policy-learning.md) now adds categorical scores,
+authored reward feedback, reward-to-go and trajectory gradients. A contextual source
+AD example preserves policy tickets, pending feedback, full Adam state and rollback.
+Objectives and invariants belong to the application; no product goal is built in.
+This does not close off-policy algorithms, frozen specialization or device training.

@@ -341,8 +341,16 @@ fn trained_gpu_module_initializes_the_same_state_and_dispatches_numeric_work() {
     verify(&directory);
     let project = directory.join("program/native");
     let target = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/parity-gpu-target");
+    // This package captures its own dependency resolution. CI's prefetched host
+    // template can resolve different transitive versions; fetch the actual lock
+    // before requiring an offline, locked build of the published package.
     ok(Command::new(env!("CARGO"))
-        .args(["build", "--offline", "--quiet", "--manifest-path"])
+        .args(["fetch", "--locked", "--manifest-path"])
+        .arg(project.join("Cargo.toml"))
+        .output()
+        .unwrap());
+    ok(Command::new(env!("CARGO"))
+        .args(["build", "--locked", "--offline", "--quiet", "--manifest-path"])
         .arg(project.join("Cargo.toml"))
         .arg("--target-dir")
         .arg(&target)

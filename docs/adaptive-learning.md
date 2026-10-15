@@ -62,6 +62,10 @@ errors, event publication, rollback and checkpoints retain ordinary Ink semantic
 No training runs during a query or merely because an adaptive function executes.
 Host snapshot restoration remains an explicit state replacement boundary.
 
+[Policy-gradient learning](policy-learning.md) also supports discrete choices and
+delayed rewards. Goals, rewards and hard constraints are authored application code;
+Ink has no built-in engagement or other product objective.
+
 ## Constraints and mathematical scope
 
 The example fits squared error using an authored SGD update, validates finite

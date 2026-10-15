@@ -6,12 +6,17 @@ share authored objectives, permitted changes, validation and complete optimizer
 state. They differ in their inputs, scheduling, publication and lifetime. This is
 an implementation requirement, not a claim that every phase is already integrated.
 
+The application author owns the objective, reward, observations, permitted changes
+and invariants. Ink provides learning mechanisms without a built-in product goal.
+[Discrete policy gradients](policy-learning.md) complement differentiable objectives
+with authored reward-to-go, baselines and versioned feedback.
+
 | Phase | Required behavior | Current implementation |
 | --- | --- | --- |
 | Pre-compilation training | Fit from a declared dataset, validate and export a source-bound model artifact | `ink train`, portable complete-state checkpoints and exact resume |
 | Training during a build | Run an explicitly requested training stage; bind dataset/configuration/model lineage and package the result; freeze only when requested | `build-model` captures/trains/compiles a bound adaptive package; frozen specialization remains required |
 | Adaptive runtime learning | Train on declared feedback or drift triggers, under bounded work and acceptance rules | Explicit `learn change`; authored objectives, updates, validation, backtracking and rollback; source-authored trigger/configuration policy; cooperative scheduled actions on a compiled durable host |
-| Continuous learning | Consume an ongoing observation stream while serving predictions; schedule bounded work and publish accepted model versions | Authored bounded sessions, separate serving/candidate versions, explicit cadence and cooperative compiled JavaScript service with durable recovery; parallel worker/device execution remains open |
+| Continuous learning | Consume an ongoing observation stream while serving predictions; schedule bounded work and publish accepted model versions | Authored bounded sessions, separate serving/candidate versions, explicit cadence and cooperative compiled JavaScript/Wasm service with durable recovery; parallel worker/device execution remains open |
 
 Training control is general application logic. A pure function can inspect full
 context, another learner's outcomes, state summaries and configuration, then return
