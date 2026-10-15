@@ -23,6 +23,7 @@ def audit(catalog, scope):
     if catalog["schema"] != 1 or catalog["complete_cpu_targets"] != cpu or catalog["gpu_targets"] != gpu:
         raise ValueError("parity target inventory changed or omits a required target")
     required_suites = {
+        "binary64",
         "reverse_learning",
         "differentiation",
         "adaptive_learning",
@@ -76,7 +77,7 @@ def audit(catalog, scope):
     if covered != variants:
         raise ValueError("uncovered executable source types: " + str(sorted(variants - covered)))
     contract=catalog["gpu_contract"]
-    if contract["semantics"] != "eligible-pure-exact-v1" or set(contract["host_only"]) != {"stateful-transactions","arbitrary-size-integers","general-dynamic-maps","recursive-physical-definitions"}:
+    if contract["semantics"] != "eligible-pure-exact-v1" or set(contract["host_only"]) != {"stateful-transactions","arbitrary-size-integers","general-dynamic-maps","recursive-physical-definitions","binary64-arithmetic"}:
         raise ValueError("GPU execution contract changed without a coverage update")
     if set(contract["capabilities"]) != {"exact-u64","exact-binary32","actual-eligible-dispatch","required-gpu-no-fallback"}:
         raise ValueError("missing required GPU contract capability")

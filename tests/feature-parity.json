@@ -15,6 +15,7 @@
       "U32",
       "I32",
       "F32",
+      "F64",
       "Vector",
       "Int",
       "Unit",
@@ -32,6 +33,7 @@
     "Expr": [
       "Num",
       "Float",
+      "Double",
       "Neg",
       "Let",
       "Bool",
@@ -116,6 +118,34 @@
         "wgpu": {
           "status": "partial",
           "reason": "Exact arithmetic is implemented using integer lanes; not every enclosing value shape or computation is GPU-admitted."
+        }
+      }
+    },
+    {
+      "id": "binary64",
+      "types": [
+        "F64"
+      ],
+      "tests": [
+        "binary64"
+      ],
+      "targets": {
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "unsupported",
+          "reason": "Binary64 arithmetic executes on the compiled CPU host; WGSL has no admitted binary64 device lane."
+        },
+        "wgpu": {
+          "status": "unsupported",
+          "reason": "Binary64 arithmetic executes on the compiled CPU host; WGSL has no admitted binary64 device lane."
         }
       }
     },
@@ -738,7 +768,8 @@
     "state_protocol",
     "trained_build",
     "policy_learning",
-    "frozen_state"
+    "frozen_state",
+    "binary64"
   ],
   "gpu_contract": {
     "semantics": "eligible-pure-exact-v1",
@@ -746,7 +777,8 @@
       "stateful-transactions",
       "arbitrary-size-integers",
       "general-dynamic-maps",
-      "recursive-physical-definitions"
+      "recursive-physical-definitions",
+      "binary64-arithmetic"
     ],
     "capabilities": {
       "exact-u64": {

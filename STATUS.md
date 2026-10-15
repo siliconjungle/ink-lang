@@ -13,6 +13,15 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Explicit binary64](docs/binary64.md) adds suffixed literals, typed computation,
+exact state/snapshots and shared native/JavaScript transport. The 65-case history
+and a separate frozen-state history compare complete CPU/Wasm/native-GPU-host
+observations, with an actual F32 dispatch in each. All 420 isolated core checks,
+independent package checks and existing learning regressions pass. F64 proof
+terms fail closed; source AD/neural libraries remain F32, and binary64 device
+execution retains CPU fallback. This is Pretext precision groundwork; full text
+behavior, general source reverse AD and broad performance parity remain open.
+
 [Whole-computation differentiation](docs/differentiable-computation.md) adds source
 `gradient`, `jvp` and `linearize`, including explicit piecewise policies, structured
 numeric data and bounded authored rollouts. Existing learning contracts enforce
@@ -310,6 +319,7 @@ It grants no additional production optimisation authority. See the
 [trust scope and evidence](docs/parallel-execution.md).
 
 ## Work being integrated
+
 
 These are active implementation/research lanes, not additional guarantees of the
 currently pinned distribution. Consult their eventual integration receipts and

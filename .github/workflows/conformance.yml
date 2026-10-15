@@ -34,6 +34,7 @@ jobs:
         python3 bench/structured-preparation/analyse.py reports/structured-preparation-2026-10-16 --check
         python3 bench/staged-initializers/analyse.py reports/prepared-initializers-2026-10-16 --check
         python3 bench/prepared-helpers/analyse.py reports/prepared-helpers-2026-10-16 --check
+        python3 reports/binary64-2026-10-16/audit.py
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -130,10 +131,10 @@ jobs:
         cargo test --manifest-path core/Cargo.toml --offline
         python3 - <<'PYCORE'
         import json, subprocess
-        r=json.load(open('reports/prepared-initializers-2026-10-16/core-package.json'))
+        r=json.load(open('reports/binary64-2026-10-16/core-package.json'))
         subprocess.run(['git','fetch','--no-recurse-submodules','--depth=1','origin',r['commit'],r['source']],check=True)
         PYCORE
-        python3 tools/check_core_package.py reports/prepared-initializers-2026-10-16/core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
+        python3 tools/check_core_package.py reports/binary64-2026-10-16/core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
         # The whole suite: fuzz_logic_objects re-declares every first-order
@@ -143,17 +144,22 @@ jobs:
         cargo test --manifest-path native-support/Cargo.toml
         CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
         cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation --test reference_evaluation_budget --test automatic_compilation
-        cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test policy_learning --test differentiation --test reverse_learning --test scalable_state
+        cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test policy_learning --test differentiation --test reverse_learning --test scalable_state --test binary64
         cargo test --test physical_capabilities --test gpu
         cargo build --bin ink --offline
         target/debug/ink verify-model reports/prepared-initializers-2026-10-16/neural --replay
         target/debug/ink build reports/prepared-initializers-2026-10-16/frozen/source.core.json --core --target javascript --initial-state reports/prepared-initializers-2026-10-16/frozen/model.snapshot -o build/staged-frozen.mjs
         node bench/staged-initializers/check-frozen.mjs build/staged-frozen.mjs reports/prepared-initializers-2026-10-16/neural reports/prepared-initializers-2026-10-16/frozen/model.snapshot
-        mkdir -p build/retained-prepared-helpers
-        target/debug/ink build reports/prepared-helpers-2026-10-16/source.core.json --core --target javascript -o build/retained-prepared-helpers/program.mjs
-        cmp build/retained-prepared-helpers/program.mjs reports/prepared-helpers-2026-10-16/current.mjs
+        # Audit historical bytes above, then validate both that retained emitter
+        # and today's literal emitter against the same complete reference cases.
+        # Future compiler features may legitimately change emitted source bytes.
+        mkdir -p build/retained-prepared-helpers build/current-prepared-helpers
+        cp reports/prepared-helpers-2026-10-16/current.mjs build/retained-prepared-helpers/program.mjs
         cp reports/prepared-helpers-2026-10-16/reference-cases.json build/retained-prepared-helpers/cases.json
         node tests/fixtures/prepared-network.mjs build/retained-prepared-helpers
+        target/debug/ink build reports/prepared-helpers-2026-10-16/source.core.json --core --target javascript -o build/current-prepared-helpers/program.mjs
+        cp reports/prepared-helpers-2026-10-16/reference-cases.json build/current-prepared-helpers/cases.json
+        node tests/fixtures/prepared-network.mjs build/current-prepared-helpers
         python3 tools/check_bit_circuit_laws.py --receipt build/bit-circuit-replay.json
     - name: Retain reproducible programs, seeds and expected outcomes
       if: always()

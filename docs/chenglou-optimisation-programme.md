@@ -61,6 +61,11 @@ rounding points also constrain deductions. Importing Freerange's result as
 rewrite authority would bypass Ink's checker; use it as an inference design,
 not a trusted certificate format.
 
+The [binary64 foundation](binary64.md) now runs through ordinary
+source, transport, state and CPU execution. It removes the need to silently round
+Pretext measurements to F32, while leaving text preparation/layout fidelity,
+binary64 proof inference and device execution as separate requirements.
+
 Acceptance needs arithmetic-boundary counterexamples, invalid/stale facts and
 independent reference results. At least one packed numeric, one index/buffer and
 one layout workload should consume the same general fact mechanism. Search
