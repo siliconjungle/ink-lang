@@ -136,6 +136,12 @@ fn total(xs: List<u64>, scale: u64) -> u64 {
 }
 ```
 
+[Typed ordered queries](docs/query-expressions.md) compose `from`, `where`,
+duplicate-preserving `join`, correlated generators and short-circuit `exists`.
+They elaborate to existing checked operations and run in pure functions or
+transactional actions. Bag/set queries and database pushdown remain part of the
+[larger implementation programme](docs/optimisation-language-programme.md).
+
 Compile it, or enable search over the pinned knowledge snapshot:
 
 ```sh

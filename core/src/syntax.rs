@@ -1,4 +1,5 @@
 pub use crate::surface::SurfaceProgram;
+mod query;
 use crate::LangResult;
 use sha2::{Digest, Sha256};
 // Compatibility re-exports: the parser no longer owns executable IR types.
@@ -449,7 +450,12 @@ impl Parser {
         if self.depth > 128 {
             return Err(self.err("expression nesting limit exceeded"));
         }
-        let mut lhs = if self.eat("match") {
+        let mut lhs = if self.ordered_query_start() {
+            self.ordered_query()?
+        } else if self.peek() == "exists" && self.ts.get(self.at + 1).is_some_and(|t| t.text == "{") {
+            self.take();
+            self.query_expression(None)?
+        } else if self.eat("match") {
             self.match_expression()?
         } else if self.eat("~") {
             Expr::Call("word_not".into(), vec![self.expr(11)?])

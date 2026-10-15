@@ -604,6 +604,11 @@ impl Uses {
                     f.params.iter().map(|(_, t)| t.clone()).collect::<Vec<_>>()
                 } else if crate::word::primitive(n) {
                     crate::word::arguments(n, &t)
+                } else if crate::primitives::primitive(n) {
+                    let first = if crate::primitives::bit_count(n) {
+                        a.first().map(|e|check::infer(e,env,p)).transpose()?
+                    } else {None};
+                    crate::primitives::signature(n,first.as_ref())?.0
                 } else if n == "buffer" {
                     let Type::Buffer(t) = &t else { unreachable!() };
                     vec![Type::List(t.clone())]

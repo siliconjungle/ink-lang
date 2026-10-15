@@ -3,6 +3,23 @@
 use crate::core::Expr;
 use std::collections::{BTreeMap, BTreeSet};
 
+// Names borrow the query's immutable AST/parameters. Entering a lexical scope
+// changes only its binder; restore even when a bounded traversal returns None.
+type Env<'a> = BTreeMap<&'a str, usize>;
+fn with_binding<'a, R>(
+    env: &mut Env<'a>, name: &'a str, id: usize,
+    visit: impl FnOnce(&mut Env<'a>) -> R,
+) -> R {
+    let previous = env.insert(name, id);
+    let result = visit(env);
+    if let Some(previous) = previous {
+        env.insert(name, previous);
+    } else {
+        env.remove(name);
+    }
+    result
+}
+
 /// Sites refer to this borrowed expression tree only; they are never proof IDs.
 #[derive(Default)]
 pub struct LastUses {
@@ -37,37 +54,33 @@ pub fn analyse<'a>(body: &'a Expr, parameters: impl IntoIterator<Item = &'a str>
         finished: Vec<(usize, BTreeSet<usize>)>,
         captured: BTreeSet<usize>,
     }
-    fn visit(e: &Expr, env: &BTreeMap<String, usize>, w: &mut Walk, depth: usize) -> Option<()> {
+    fn visit<'a>(e: &'a Expr, env: &mut Env<'a>, w: &mut Walk, depth: usize) -> Option<()> {
         w.nodes += 1;
         if depth > 256 || w.nodes > 1_000_000 {
             return None;
         }
         match e {
             Expr::Var(n) => {
-                if let Some(id) = env.get(n) {
+                if let Some(id) = env.get(n.as_str()) {
                     w.finals.insert(*id, [e as *const Expr as usize].into_iter().collect());
                 }
             }
             Expr::Let(n, _, a, b) => {
                 visit(a, env, w, depth + 1)?;
-                let mut local = env.clone();
                 let id=w.next;
-                local.insert(n.clone(), id);
                 w.next += 1;
-                visit(b, &local, w, depth + 1)?;
+                with_binding(env, n, id, |env| visit(b, env, w, depth + 1))?;
                 if let Some(sites)=w.finals.remove(&id){w.finished.push((id,sites));}
             }
             Expr::Lambda(n, b) => {
                 for name in crate::analysis::free_variables(e) {
-                    if let Some(id) = env.get(&name) {
+                    if let Some(id) = env.get(name.as_str()) {
                         w.captured.insert(*id);
                     }
                 }
-                let mut local = env.clone();
                 let id=w.next;
-                local.insert(n.clone(), id);
                 w.next += 1;
-                visit(b, &local, w, depth + 1)?;
+                with_binding(env, n, id, |env| visit(b, env, w, depth + 1))?;
                 if let Some(sites)=w.finals.remove(&id){w.finished.push((id,sites));}
             }
             Expr::Call(name,args) if finite_callbacks(name,args).is_some()=>{
@@ -107,8 +120,8 @@ pub fn analyse<'a>(body: &'a Expr, parameters: impl IntoIterator<Item = &'a str>
                 let mut arms=Vec::new();
                 for arg in args {
                     let Expr::Lambda(name,body)=arg else{unreachable!()};
-                    let id=w.next;w.next+=1;let mut local=env.clone();local.insert(name.clone(),id);
-                    visit(body,&local,w,depth+1)?;
+                    let id=w.next;w.next+=1;
+                    with_binding(env,name,id,|env|visit(body,env,w,depth+1))?;
                     if let Some(sites)=w.finals.remove(&id){w.finished.push((id,sites));}
                     arms.push(std::mem::replace(&mut w.finals,before.clone()));
                 }
@@ -131,10 +144,10 @@ pub fn analyse<'a>(body: &'a Expr, parameters: impl IntoIterator<Item = &'a str>
     }
     let parameters:Vec<_>=parameters.into_iter().collect();
     let fields=analyse_fields(body,parameters.iter().copied());
-    let env: BTreeMap<_, _> = parameters
+    let mut env: Env<'_> = parameters
         .into_iter()
         .enumerate()
-        .map(|(i, n)| (n.to_owned(), i))
+        .map(|(i, n)| (n, i))
         .collect();
     let mut w = Walk {
         next: env.len(),
@@ -143,7 +156,7 @@ pub fn analyse<'a>(body: &'a Expr, parameters: impl IntoIterator<Item = &'a str>
         finished: vec![],
         captured: BTreeSet::new(),
     };
-    if visit(body, &env, &mut w, 0).is_none() {
+    if visit(body, &mut env, &mut w, 0).is_none() {
         return LastUses::default();
     }
     let sites=w.finished.into_iter().chain(w.finals)
@@ -169,14 +182,14 @@ fn analyse_fields<'a>(body:&'a Expr,parameters:impl IntoIterator<Item=&'a str>)-
     type Key=(usize,Vec<String>);
     struct Walk{next:usize,nodes:usize,finals:BTreeMap<Key,BTreeSet<usize>>,
         finished:Vec<(Key,BTreeSet<usize>)>,captured:BTreeSet<usize>}
-    fn projection(e:&Expr,env:&BTreeMap<String,usize>)->Option<Key>{
+    fn projection(e:&Expr,env:&Env<'_>)->Option<Key>{
         match e{
-            Expr::Var(name)=>env.get(name).map(|id|(*id,vec![])),
+            Expr::Var(name)=>env.get(name.as_str()).map(|id|(*id,vec![])),
             Expr::Field(parent,field)=>projection(parent,env).map(|(id,mut path)|{path.push(field.clone());(id,path)}),
             _=>None,
         }
     }
-    fn visit(e:&Expr,env:&BTreeMap<String,usize>,w:&mut Walk,depth:usize)->Option<()>{
+    fn visit<'a>(e:&'a Expr,env:&mut Env<'a>,w:&mut Walk,depth:usize)->Option<()>{
         w.nodes+=1;if depth>256 || w.nodes>1_000_000{return None;}
         if let Some(key)=projection(e,env){
             w.finals.retain(|(id,path),_|*id!=key.0 || !(path.starts_with(&key.1) || key.1.starts_with(path)));
@@ -185,15 +198,15 @@ fn analyse_fields<'a>(body:&'a Expr,parameters:impl IntoIterator<Item=&'a str>)-
         match e{
             Expr::Let(name,_,value,body)=>{
                 visit(value,env,w,depth+1)?;
-                let id=w.next;w.next+=1;let mut local=env.clone();local.insert(name.clone(),id);
-                visit(body,&local,w,depth+1)?;
+                let id=w.next;w.next+=1;
+                with_binding(env,name,id,|env|visit(body,env,w,depth+1))?;
                 let keys=w.finals.keys().filter(|(owner,_)|*owner==id).cloned().collect::<Vec<_>>();
                 for key in keys{let sites=w.finals.remove(&key)?;w.finished.push((key,sites));}
             }
             Expr::Lambda(name,body)=>{
-                for free in crate::analysis::free_variables(e){if let Some(id)=env.get(&free){w.captured.insert(*id);}}
-                let id=w.next;w.next+=1;let mut local=env.clone();local.insert(name.clone(),id);
-                visit(body,&local,w,depth+1)?;
+                for free in crate::analysis::free_variables(e){if let Some(id)=env.get(free.as_str()){w.captured.insert(*id);}}
+                let id=w.next;w.next+=1;
+                with_binding(env,name,id,|env|visit(body,env,w,depth+1))?;
                 let keys=w.finals.keys().filter(|(owner,_)|*owner==id).cloned().collect::<Vec<_>>();
                 for key in keys{let sites=w.finals.remove(&key)?;w.finished.push((key,sites));}
             }
@@ -222,8 +235,8 @@ fn analyse_fields<'a>(body:&'a Expr,parameters:impl IntoIterator<Item=&'a str>)-
                 let mut arms=Vec::new();
                 for arg in args{
                     let Expr::Lambda(name,body)=arg else{unreachable!()};
-                    let id=w.next;w.next+=1;let mut local=env.clone();local.insert(name.clone(),id);
-                    visit(body,&local,w,depth+1)?;
+                    let id=w.next;w.next+=1;
+                    with_binding(env,name,id,|env|visit(body,env,w,depth+1))?;
                     let keys=w.finals.keys().filter(|(owner,_)|*owner==id).cloned().collect::<Vec<_>>();
                     for key in keys{let sites=w.finals.remove(&key)?;w.finished.push((key,sites));}
                     arms.push(std::mem::replace(&mut w.finals,before.clone()));
@@ -243,9 +256,9 @@ fn analyse_fields<'a>(body:&'a Expr,parameters:impl IntoIterator<Item=&'a str>)-
         }
         Some(())
     }
-    let env:BTreeMap<_,_>=parameters.into_iter().enumerate().map(|(id,name)|(name.to_owned(),id)).collect();
+    let mut env:Env<'_>=parameters.into_iter().enumerate().map(|(id,name)|(name,id)).collect();
     let mut w=Walk{next:env.len(),nodes:0,finals:BTreeMap::new(),finished:vec![],captured:BTreeSet::new()};
-    if visit(body,&env,&mut w,0).is_none(){return BTreeSet::new();}
+    if visit(body,&mut env,&mut w,0).is_none(){return BTreeSet::new();}
     w.finished.into_iter().chain(w.finals).filter(|((id,path),_)|!path.is_empty() && !w.captured.contains(id)).flat_map(|(_,sites)|sites).collect()
 }
 
@@ -375,6 +388,30 @@ mod tests {
         let e=Expr::Let("r".into(),None,Box::new(field("r","a")),Box::new(field("r","b")));
         let facts=analyse(&e,["r"]);let Expr::Let(_,_,a,b)=&e else{unreachable!()};
         assert!(facts.contains_field(a));assert!(facts.contains_field(b));
+    }
+    #[test]
+    fn shadowed_scopes_restore_outer_bindings_before_eager_siblings() {
+        let scopes = [
+            Expr::Let("r".into(), None, Box::new(Expr::Unit), Box::new(field("r", "a"))),
+            Expr::Call("repeat".into(), vec![Expr::Num(1), Expr::Num(0),
+                Expr::Lambda("r".into(), Box::new(Expr::Lambda("acc".into(),
+                    Box::new(field("r", "a")))))]),
+            Expr::Method(Box::new(v("result")), "fold".into(), vec![
+                Expr::Lambda("r".into(), Box::new(field("r", "a"))),
+                Expr::Lambda("r".into(), Box::new(field("r", "a")))]),
+        ];
+        for scope in scopes {
+            // The first and final reads share the outer identity. A local
+            // binder in any eager sibling must neither kill nor replace it.
+            for read in [field("r", "a"), v("r")] {
+                let e = Expr::Call("pair".into(), vec![read.clone(), scope.clone(), read]);
+                let facts = analyse(&e, ["r", "result"]);
+                let Expr::Call(_, args) = &e else { unreachable!() };
+                assert!(!facts.contains(&args[0]));
+                assert!(!facts.contains_field(&args[0]));
+                assert!(facts.contains(&args[2]) || facts.contains_field(&args[2]));
+            }
+        }
     }
     fn loop_read(root:&str)->Expr{
         Expr::Call("repeat".into(),vec![Expr::Num(3),Expr::Num(0),

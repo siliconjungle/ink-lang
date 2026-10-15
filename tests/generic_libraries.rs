@@ -138,3 +138,6 @@ mod bulk_workloads;
 
 #[path = "support/competitive_workloads.rs"]
 mod competitive_workloads;
+
+#[path = "support/query_expressions.rs"]
+mod query_expressions;
