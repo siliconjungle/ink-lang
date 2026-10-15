@@ -1,0 +1,1400 @@
+{
+  "actions": [
+    {
+      "fallback_reason": "transactional state, domain errors and ordered event publication execute on the host",
+      "gpu": false,
+      "name": "current"
+    },
+    {
+      "fallback_reason": "transactional state, domain errors and ordered event publication execute on the host",
+      "gpu": false,
+      "name": "half"
+    },
+    {
+      "fallback_reason": "transactional state, domain errors and ordered event publication execute on the host",
+      "gpu": false,
+      "name": "replace"
+    }
+  ],
+  "core_semantics": "ink-executable-core-v15",
+  "core_sha256": "32354f837b9f5a1e1595022b70170798397c114b22b54cca80a5f919836ab417",
+  "cpu": "cpu/compiled_state.wasm",
+  "functions": [
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "arithmetic"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "ratio"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "root"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "rounded"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "equal"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: binary64 device arithmetic is unsupported; retain the CPU implementation",
+      "gpu": false,
+      "name": "same_measurement"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "flip"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "bits"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: primitive f64_from_bits requires host value execution",
+      "gpu": false,
+      "name": "from_bits"
+    },
+    {
+      "fallback_reason": "packed compute values must be flat numeric components",
+      "gpu": false,
+      "name": "from_int"
+    },
+    {
+      "fallback_reason": "packed compute values must be flat numeric components",
+      "gpu": false,
+      "name": "to_int"
+    },
+    {
+      "fallback_reason": "packed compute values must be flat numeric components",
+      "gpu": false,
+      "name": "to_word"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: primitive f64_from_f32 requires host value execution",
+      "gpu": false,
+      "name": "widen"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "narrow"
+    },
+    {
+      "fallback_reason": "unsupported GPU layout; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "ratios"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: unsupported GPU layout",
+      "gpu": false,
+      "name": "total"
+    },
+    {
+      "bundle": "gpu/f16/",
+      "fallback_reason": null,
+      "gpu": true,
+      "name": "numeric",
+      "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+    }
+  ],
+  "javascript": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v15",
+    "core_sha256": "32354f837b9f5a1e1595022b70170798397c114b22b54cca80a5f919836ab417",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "exact-u32-bits",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "arithmetic",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 1,
+        "internal": false,
+        "name": "ratio",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 2,
+        "internal": false,
+        "name": "root",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 3,
+        "internal": false,
+        "name": "rounded",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 4,
+        "internal": false,
+        "name": "equal",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "bool"
+        }
+      },
+      {
+        "destination": null,
+        "index": 5,
+        "internal": false,
+        "name": "same_measurement",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "fields": [
+                {
+                  "name": "width",
+                  "type": {
+                    "kind": "f64"
+                  }
+                },
+                {
+                  "name": "count",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Measurement"
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "fields": [
+                {
+                  "name": "width",
+                  "type": {
+                    "kind": "f64"
+                  }
+                },
+                {
+                  "name": "count",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Measurement"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "bool"
+        }
+      },
+      {
+        "destination": null,
+        "index": 6,
+        "internal": false,
+        "name": "flip",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 7,
+        "internal": false,
+        "name": "bits",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 8,
+        "internal": false,
+        "name": "from_bits",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 9,
+        "internal": false,
+        "name": "from_int",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "int"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 10,
+        "internal": false,
+        "name": "to_int",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "int"
+          },
+          "kind": "option"
+        }
+      },
+      {
+        "destination": null,
+        "index": 11,
+        "internal": false,
+        "name": "to_word",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u64"
+          },
+          "kind": "option"
+        }
+      },
+      {
+        "destination": null,
+        "index": 12,
+        "internal": false,
+        "name": "widen",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 13,
+        "internal": false,
+        "name": "narrow",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f32"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 14,
+        "internal": false,
+        "name": "ratios",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "f64"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "f64"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 15,
+        "internal": false,
+        "name": "total",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "f64"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f64"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 16,
+        "internal": false,
+        "name": "numeric",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "javascript_sha256": "994e340d9ebf66cb9671fc841fa3a31b8545bd68ab0fde91b21e3765769e669b",
+    "named_types": {
+      "Measurement": {
+        "fields": [
+          {
+            "name": "width",
+            "type": {
+              "kind": "f64"
+            }
+          },
+          {
+            "name": "count",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Measurement"
+      }
+    },
+    "owned_result_contract": {
+      "functions": 17,
+      "inputs": "same trusted caller contract",
+      "results": "canonical detached values with ABI byte/node/depth limits",
+      "unsupported": []
+    },
+    "prepared_compiled": {
+      "evaluation": "lazy source-order; successful bindings only",
+      "functions": [
+        {
+          "factory": false,
+          "function": "arithmetic",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "ratio",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "root",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "rounded",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "equal",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "same_measurement",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "flip",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "bits",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "from_bits",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "from_int",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "to_int",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "to_word",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "widen",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "narrow",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "ratios",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "total",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "numeric",
+          "reason": "no reusable lexical bindings"
+        }
+      ],
+      "lifetime": "prepared token",
+      "semantics": "sealed-value-residual-v1"
+    },
+    "private_record_elisions": [],
+    "private_sum_spines": [],
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": {
+      "actions": [
+        {
+          "change": false,
+          "directKeep": null,
+          "fallible": false,
+          "flatFailure": false,
+          "freshResult": false,
+          "index": 0,
+          "name": "current",
+          "params": [],
+          "precondition": null,
+          "result": {
+            "kind": "f64"
+          },
+          "roots": [
+            0
+          ],
+          "singleCell": true
+        },
+        {
+          "change": false,
+          "directKeep": null,
+          "fallible": false,
+          "flatFailure": false,
+          "freshResult": false,
+          "index": 1,
+          "name": "half",
+          "params": [],
+          "precondition": null,
+          "result": {
+            "kind": "f64"
+          },
+          "roots": [
+            0
+          ],
+          "singleCell": true
+        },
+        {
+          "change": true,
+          "directKeep": null,
+          "fallible": true,
+          "flatFailure": false,
+          "freshResult": true,
+          "index": 2,
+          "name": "replace",
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "f64"
+              }
+            },
+            {
+              "name": "abort",
+              "type": {
+                "kind": "bool"
+              }
+            }
+          ],
+          "precondition": null,
+          "result": {
+            "error": {
+              "kind": "string"
+            },
+            "kind": "result",
+            "ok": {
+              "kind": "unit"
+            }
+          },
+          "roots": [
+            0
+          ],
+          "singleCell": true
+        }
+      ],
+      "compactCommits": false,
+      "eventColumns": false,
+      "eventRuns": false,
+      "events": [
+        {
+          "name": "changed",
+          "snapshotType": {
+            "kind": "f64"
+          },
+          "type": {
+            "kind": "f64"
+          }
+        }
+      ],
+      "invariantChecks": [],
+      "keepInvalidations": [
+        []
+      ],
+      "keeps": [
+        {
+          "cached": true,
+          "name": "DefaultWidth"
+        },
+        {
+          "cached": true,
+          "name": "__ink_prepared_initializer_0"
+        }
+      ],
+      "lazyMaintenance": true,
+      "outputPublication": false,
+      "roots": [
+        {
+          "key": {
+            "kind": "u32"
+          },
+          "name": "Width",
+          "snapshotKey": {
+            "kind": "u32"
+          },
+          "snapshotValue": {
+            "kind": "f64"
+          },
+          "value": {
+            "kind": "f64"
+          }
+        }
+      ],
+      "snapshot": {
+        "program": [
+          139,
+          11,
+          3,
+          181,
+          118,
+          65,
+          188,
+          108,
+          246,
+          116,
+          123,
+          213,
+          24,
+          222,
+          165,
+          102,
+          97,
+          234,
+          166,
+          64,
+          23,
+          90,
+          154,
+          45,
+          15,
+          238,
+          169,
+          153,
+          39,
+          99,
+          128,
+          123
+        ],
+        "schema": [
+          35,
+          255,
+          18,
+          41,
+          173,
+          15,
+          78,
+          159,
+          16,
+          145,
+          17,
+          20,
+          51,
+          73,
+          143,
+          136,
+          135,
+          62,
+          63,
+          19,
+          77,
+          163,
+          219,
+          69,
+          238,
+          75,
+          161,
+          122,
+          105,
+          161,
+          130,
+          130
+        ]
+      },
+      "snapshotRows": false
+    },
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "arithmetic": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "de2b22f0352ab5f6d42d231525c8380dac663c3e347813bb8e02bbed567d9bd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "081b7ebb8399381d2b15563997bcd9e2a9bfe2aa069502c6663cbda217b039d2",
+            "named": {},
+            "root": {
+              "kind": "f64"
+            }
+          }
+        },
+        "bits": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "472d19f2127f1316b16f49e96065b408f4e7270c1da4072dd74ece88bf21dcd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "equal": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "de2b22f0352ab5f6d42d231525c8380dac663c3e347813bb8e02bbed567d9bd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "32f3d3b2f14a1a5d5ed940c0f1126e8a0b1b1f76ff20ac48fac23528d7033176",
+            "named": {},
+            "root": {
+              "kind": "bool"
+            }
+          }
+        },
+        "flip": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "472d19f2127f1316b16f49e96065b408f4e7270c1da4072dd74ece88bf21dcd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "081b7ebb8399381d2b15563997bcd9e2a9bfe2aa069502c6663cbda217b039d2",
+            "named": {},
+            "root": {
+              "kind": "f64"
+            }
+          }
+        },
+        "from_bits": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "2f49badaf8d383057bffd360aec0fee334901d2adf83089b589ef69b2a638e1b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "081b7ebb8399381d2b15563997bcd9e2a9bfe2aa069502c6663cbda217b039d2",
+            "named": {},
+            "root": {
+              "kind": "f64"
+            }
+          }
+        },
+        "from_int": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "e8ac5f1e85714acd583fd30786ec1ef0e4acca92acd0aa56ce80316fa8261a7c",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "int"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "081b7ebb8399381d2b15563997bcd9e2a9bfe2aa069502c6663cbda217b039d2",
+            "named": {},
+            "root": {
+              "kind": "f64"
+            }
+          }
+        },
+        "narrow": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "472d19f2127f1316b16f49e96065b408f4e7270c1da4072dd74ece88bf21dcd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "fde3b27ba939906c22dbea906c407580e89648dd4d5a55c4f4001e45157ebe45",
+            "named": {},
+            "root": {
+              "kind": "f32"
+            }
+          }
+        },
+        "numeric": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "7d522496fa90814f2f1e12091142cca8648a00e9c787d158636f57940650d4e4",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "0cbb9d1ff6b72318080ea11a6297b384d97178624f821e3901cca51ec8ad4477",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "ratio": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "de2b22f0352ab5f6d42d231525c8380dac663c3e347813bb8e02bbed567d9bd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "081b7ebb8399381d2b15563997bcd9e2a9bfe2aa069502c6663cbda217b039d2",
+            "named": {},
+            "root": {
+              "kind": "f64"
+            }
+          }
+        },
+        "ratios": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "0b69ff4dcdb1d6bbb28477df20642d1e80062f6025ebbd7f1dc071f1f4a655ee",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "f64"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "152a8177038a47dcbc6416cb2d7d38cc76c42d7e55613dee4787f2dfb646e9e7",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "f64"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "root": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "472d19f2127f1316b16f49e96065b408f4e7270c1da4072dd74ece88bf21dcd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "081b7ebb8399381d2b15563997bcd9e2a9bfe2aa069502c6663cbda217b039d2",
+            "named": {},
+            "root": {
+              "kind": "f64"
+            }
+          }
+        },
+        "rounded": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "472d19f2127f1316b16f49e96065b408f4e7270c1da4072dd74ece88bf21dcd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "081b7ebb8399381d2b15563997bcd9e2a9bfe2aa069502c6663cbda217b039d2",
+            "named": {},
+            "root": {
+              "kind": "f64"
+            }
+          }
+        },
+        "same_measurement": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "441dbefb4a1c154e54d719baa197ae255906ebd749e562bd9c7454148febf8ca",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "width",
+                        "type": {
+                          "kind": "f64"
+                        }
+                      },
+                      {
+                        "name": "count",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "Measurement"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "width",
+                        "type": {
+                          "kind": "f64"
+                        }
+                      },
+                      {
+                        "name": "count",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "Measurement"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "32f3d3b2f14a1a5d5ed940c0f1126e8a0b1b1f76ff20ac48fac23528d7033176",
+            "named": {},
+            "root": {
+              "kind": "bool"
+            }
+          }
+        },
+        "to_int": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "472d19f2127f1316b16f49e96065b408f4e7270c1da4072dd74ece88bf21dcd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "d68a67b68e81edc78e48c5e637922cf8f8d5d8b17fbc81154e57e974e6c08378",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "int"
+              },
+              "kind": "option"
+            }
+          }
+        },
+        "to_word": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "472d19f2127f1316b16f49e96065b408f4e7270c1da4072dd74ece88bf21dcd6",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "0305e803f64a0a23648567beb000c1dea81770b5c3bde316e21797e173184372",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "option"
+            }
+          }
+        },
+        "total": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "0b69ff4dcdb1d6bbb28477df20642d1e80062f6025ebbd7f1dc071f1f4a655ee",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "f64"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "081b7ebb8399381d2b15563997bcd9e2a9bfe2aa069502c6663cbda217b039d2",
+            "named": {},
+            "root": {
+              "kind": "f64"
+            }
+          }
+        },
+        "widen": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "3d9fa005996e654b10e4e749ab0e2c4a9988b4ba944f21f1019c2132cbcb62b2",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "081b7ebb8399381d2b15563997bcd9e2a9bfe2aa069502c6663cbda217b039d2",
+            "named": {},
+            "root": {
+              "kind": "f64"
+            }
+          }
+        }
+      }
+    }
+  },
+  "runtime_abi": "ink-module-v1",
+  "schema": 3,
+  "trust": "literal source closures, target emission, host adapters, runtimes and toolchains remain trusted; capability is not a proof or profitability claim"
+}

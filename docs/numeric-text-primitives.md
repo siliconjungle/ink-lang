@@ -7,6 +7,11 @@ root; generated programs execute literal primitives without a source evaluator.
 
 ## Exact binary32 operations
 
+[Explicit binary64](binary64.md) adds a separate F64 domain in executable core
+V15: suffixed literals, typed arithmetic/conversions and exact state/transport
+across CPU targets. It does not widen the F32 libraries below, supply F64 source
+AD or establish universal approximation/error contracts.
+
 `sqrt(x:f32)->f32` rounds to nearest, ties to even. `sqrt(-0)` is `-0`,
 `sqrt(+infinity)` is `+infinity`; negative nonzero arguments and all NaNs produce
 canonical `F32Bits:2143289344` (`0x7fc00000`).

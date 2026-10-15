@@ -213,3 +213,16 @@ input requires fresh primals; opaque graph records remain untrusted ABI data.
 This is literal execution support, separate from proof-backed graph rewriting
 and profitability. Keep complete-result controls and ordinary/setup regressions
 visible; stateful learning does not silently acquire this pure-call lane.
+
+Binary64 uses explicit suffixed literals, raw u64 storage/transport and V15 core
+meaning (V4 action trees). Keep scalar IEEE equality separate from structural
+stored-bit identity. Reference square root uses independent integer significands;
+CPU targets use literal binary64 arithmetic. JavaScript finite values use Numbers,
+while immutable private tags preserve NaN payloads through copies and negation.
+Validate bounded decimal bit strings before BigInt conversion, including changing
+host getters. GPU binary64 work retains compiled CPU fallback. No F32/word law,
+NaN reflexivity, precision narrowing or physical layout gains authority from the
+new type. Semantic F64 proof terms currently fail closed, including closed nested
+subterms; source AD and neural/Adam libraries remain F32 until explicitly extended.
+Keep that scope distinct from general whole-application differentiation and the
+remaining Pretext/Handwired performance requirements. See docs/binary64.md.

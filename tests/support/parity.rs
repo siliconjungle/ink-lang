@@ -223,12 +223,33 @@ fn conformance_inner(
         if packed_pure {
             command.arg("--script");
         }
-        let out = command.arg(root.join("gpu-script.json")).output().unwrap();
+        command.arg(root.join("gpu-script.json"));
+        if !packed_pure{command.arg("--snapshot-out").arg(root.join("gpu-final.snapshot"));}
+        let out = command.output().unwrap();
         assert!(
             out.status.success(),
             "{}",
             String::from_utf8_lossy(&out.stderr)
         );
+        if !packed_pure{
+            if let Some(final_state)=expected.last(){
+                let snapshot:Vec<u8>=serde_json::from_value(final_state["snapshot"].clone()).unwrap();
+                assert_eq!(fs::read(root.join("gpu-final.snapshot")).unwrap(),snapshot,"GPU host final portable checkpoint");
+            }
+            // The native module CLI validates a restore before creating its
+            // state. Exercise malformed/fixed-row inputs through that actual
+            // host, rather than inferring rejection from the separate CPU run.
+            for (index,step)in steps.iter().enumerate().filter(|(_,s)|s["reject_restore"].is_array()){
+                let bytes:Vec<u8>=serde_json::from_value(step["reject_restore"].clone()).unwrap();
+                let path=root.join(format!("gpu-invalid-restore-{index}.snapshot"));fs::write(&path,bytes).unwrap();
+                let script=root.join("gpu-empty-script.json");fs::write(&script,"[]").unwrap();
+                let rejected=Command::new(target.join("debug/ink-module-program")).arg(&script).arg("--restore").arg(&path).output().unwrap();
+                assert!(!rejected.status.success(),"GPU host accepted an invalid restored checkpoint");
+                let message=String::from_utf8_lossy(&rejected.stderr);
+                assert!(message.contains(step["restore_error"].as_str().unwrap_or("invariant")),"GPU host failed for a different reason: {message}");
+                fs::write(root.join(format!("gpu-invalid-restore-{index}.log")),rejected.stderr).unwrap();
+            }
+        }
         // Hosts may return one ordered array or packed receipts per line.
         // Decode the complete array before interpreting individual lines.
         let actual: Vec<Value> = if let Ok(receipts) = serde_json::from_slice(&out.stdout) {

@@ -1326,16 +1326,18 @@ fn run() -> LangResult<()> {
             } else {
                 verified_language::action_ir::CheckedActions::elaborate_with_frozen_roots(&module)?
             };
+            let action_bytes=actions.bytes()?;
+            let action_metadata:serde_json::Value=serde_json::from_slice(&action_bytes).map_err(|e|e.to_string())?;
             if cmd == "emit-actions" {
                 let out = arg_value(&args, "-o")?.ok_or("emit-actions requires -o ACTIONS.json")?;
                 write(
                     &out,
-                    &String::from_utf8(actions.bytes()?).map_err(|e| e.to_string())?,
+                    std::str::from_utf8(&action_bytes).map_err(|e| e.to_string())?,
                 )?;
             }
             println!(
                 "{}",
-                serde_json::json!({"status":"checked","semantics":verified_language::action_ir::SEMANTICS,"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
+                serde_json::json!({"status":"checked","semantics":action_metadata["semantics"],"source":actions.source_identity(),"actions_sha256":actions.identity()?,"trust":"Source checking, typed elaboration and execution adapters remain trusted; no action-body refinement proof"})
             );
         }
         "emit-sum-codecs" => {

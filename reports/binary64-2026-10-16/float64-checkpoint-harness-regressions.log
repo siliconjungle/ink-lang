@@ -1,0 +1,68 @@
+   Compiling ink v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang)
+    Finished `test` profile [unoptimized] target(s) in 1.32s
+     Running tests/adaptive_learning.rs (target/debug/deps/adaptive_learning-8569f4feff629cb0)
+
+running 9 tests
+test learning_metadata_survives_imports_and_generic_instantiation ... ok
+test learning_capabilities_are_checked_after_transport ... ok
+test offline_training_learns_interactions_and_restores_exactly ... ok
+test offline_cli_exports_a_portable_model_and_receipt ... ok
+Compiled continuous learning: serving, queued work, exact recovery and ambiguous publication passed (4 histories, including offline CLI bootstrap).
+
+test compiled_continuous_service_recovers_durable_training_and_serves_predictions ... ok
+wgpu: 24 results matched; 1 GPU calls
+rust Wasm: 24 values/outcomes and exact snapshots matched
+
+test online_learning_preserves_values_errors_events_and_snapshots_across_targets ... ok
+wgpu: 8 results matched; 1 GPU calls
+rust Wasm: 8 values/outcomes and exact snapshots matched
+
+test source_logic_configures_and_triggers_another_learner_transactionally ... ok
+wgpu: 2 results matched; 1 GPU calls
+rust Wasm: 2 values/outcomes and exact snapshots matched
+
+test queued_learning_rejects_forged_shapes_and_counter_exhaustion ... ok
+wgpu: 39 results matched; 1 GPU calls
+rust Wasm: 39 values/outcomes and exact snapshots matched
+
+test continuous_sessions_preserve_serving_queue_versions_and_recovery_across_targets ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 28.38s
+
+     Running tests/binary64.rs (target/debug/deps/binary64-ed0993c2e5db5c19)
+
+running 4 tests
+test action_cli_reports_the_actual_checked_transport_version ... ok
+test pure_binary64_javascript_preserves_payloads_across_every_value_boundary ... ok
+wgpu: 3 results matched; 1 GPU calls
+rust Wasm: 3 values/outcomes and exact snapshots matched
+
+test frozen_binary64_rebind_preserves_payloads_and_rejects_changed_rows ... ok
+wgpu: 65 results matched; 1 GPU calls
+rust Wasm: 65 values/outcomes and exact snapshots matched
+
+test binary64_matches_reference_values_events_and_exact_snapshots_across_targets ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.02s
+
+     Running tests/frozen_state.rs (target/debug/deps/frozen_state-f8280290ae73baf5)
+
+running 4 tests
+test restricting_one_learner_preserves_other_training_and_the_complete_state_payload ... ok
+javascript: frozen startup, live application updates, withdrawn writer and exact restore matched
+
+test neural_and_reward_models_freeze_complete_optimizer_and_control_state ... ok
+native: frozen startup, ordinary application updates and exact checkpoint matched
+rust: frozen startup, ordinary application updates and exact checkpoint matched
+wasm32: frozen startup, live application updates, withdrawn writer and exact restore matched
+
+webgpu: frozen startup, ordinary application updates and exact checkpoint matched
+test trained_frozen_packages_start_and_preserve_remaining_capabilities_across_targets ... ok
+test frozen_initial_data_and_restore_boundaries_match_all_targets has been running for over 60 seconds
+wgpu: 9 results matched; 1 GPU calls
+rust Wasm: 9 values/outcomes and exact snapshots matched
+
+test frozen_initial_data_and_restore_boundaries_match_all_targets ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 63.67s
+
