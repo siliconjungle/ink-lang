@@ -46,3 +46,15 @@ fn automatic_choices_preserve_wrapping_float_order_errors_and_snapshots() {
         parity::conformance_planned("automatic-compilation-alternative",&alternate,&fs::read_to_string(&source).unwrap(),steps,expected);
     }
 }
+
+#[test]
+fn automatic_contract_probes_validate_source_domains_and_preserve_required_phases() {
+    let root=Path::new(env!("CARGO_MANIFEST_DIR"));
+    let evidence=root.join("build/automatic-contract-probes");
+    fs::create_dir_all(&evidence).unwrap();
+    let result=Command::new("python3").current_dir(root)
+        .env("PYTHONPATH",format!("{}:{}",root.join("knowledge").display(),root.join("planner").display()))
+        .arg(root.join("planner/tests/automatic_contract_measurement_integration.py"))
+        .arg(env!("CARGO_BIN_EXE_ink")).arg(evidence.join("validation.json")).output().unwrap();
+    assert!(result.status.success(),"{}\n{}",String::from_utf8_lossy(&result.stdout),String::from_utf8_lossy(&result.stderr));
+}

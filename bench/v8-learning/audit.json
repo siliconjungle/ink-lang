@@ -16,17 +16,6 @@
       "note": "Full file read. Dominator-layer facts, replay after cloning, switch/branch/select folding, guarded trap/deopt behavior, small-block threading and return duplication. Existing arbitrary-carrier control_choice_templates already cover repeated branches; consolidate duplicate word instances rather than counting these as new generalization. Further control equivalences require ordinary Cases proofs; clone budgets are search policy."
     },
     {
-      "path": "src/compiler/turboshaft/late-load-elimination-reducer.h",
-      "sha256": "25d69b9ef9673230e563f88035bb18b3a26da08a515ed799dc9a703dd1f0ceac",
-      "inclusive_lines": [
-        [
-          1,
-          180
-        ]
-      ],
-      "review_status": "partial"
-    },
-    {
       "path": "src/compiler/turboshaft/machine-optimization-reducer.h",
       "sha256": "9239724610a1736a1168ffd5c3409bc448f2ba1f06c709ea7b84ea499c866484",
       "inclusive_lines": [
@@ -217,6 +206,90 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read. Tier/OSR requests, concurrent compilation deduplication, urgency saturation, bytecode-size and battery/efficiency gates, allocation of feedback on demand, PGO cached decisions and delayed optimization after IC changes. Candidate scheduling/hotness feedback supplies no correctness premise. Compare Ink bounded offline planning, cache provenance and lifecycle costs; dynamic OSR/feedback-vector applicability remains open."
+    },
+    {
+      "path": "src/compiler/turboshaft/late-load-elimination-reducer.h",
+      "sha256": "25d69b9ef9673230e563f88035bb18b3a26da08a515ed799dc9a703dd1f0ceac",
+      "inclusive_lines": [
+        [
+          1,
+          1111
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Address/representation identity, no-alias fresh allocations and escape invalidation, conservative dynamic-index/inner-pointer invalidation, map-hash disjointness hints, atomic/SeqCst and external-load restrictions, GC map invalidation, narrowing-compatible replacements, and loop fixed-point weakening of forward snapshots to avoid repeated exponential revisits. Existing Ink checked root dependencies and ordinary database access-cache/point-delta/field-preservation/reactive-factorization laws reviewed. Parameterized query specialization now uses checked exact argument guards with original-query fallback; ordinary universal representation equations and explicit bit-vector witnesses admit it. CPU histories and workload-specific lifecycle evidence retained. Alias/loop/general load elimination assessment remains open."
+    },
+    {
+      "path": "src/compiler/turboshaft/late-load-elimination-reducer.cc",
+      "sha256": "f002028b9a54c5db17c527ea12265f0358793ecd6e4781973a791da6bf7455f5",
+      "inclusive_lines": [
+        [
+          1,
+          865
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Address/representation identity, no-alias fresh allocations and escape invalidation, conservative dynamic-index/inner-pointer invalidation, map-hash disjointness hints, atomic/SeqCst and external-load restrictions, GC map invalidation, narrowing-compatible replacements, and loop fixed-point weakening of forward snapshots to avoid repeated exponential revisits. Existing Ink checked root dependencies and ordinary database access-cache/point-delta/field-preservation/reactive-factorization laws reviewed. Parameterized query specialization now uses checked exact argument guards with original-query fallback; ordinary universal representation equations and explicit bit-vector witnesses admit it. CPU histories and workload-specific lifecycle evidence retained. Alias/loop/general load elimination assessment remains open."
+    },
+    {
+      "path": "src/compiler/turboshaft/memory-optimization-reducer.h",
+      "sha256": "e5caf50d32c20e0f3f022d61847f6b9538b964e815efcc5366b46677a5bb0f2c",
+      "inclusive_lines": [
+        [
+          1,
+          570
+        ]
+      ],
+      "review_status": "file-read; allocation-family assessment open",
+      "note": "Full file read. Dominating same-generation constant-size allocation folding, bounded reservation sums, reset on allocating operations, conservative merge and loop backedge revisit, scalar/immortal pointer and most-recent-young allocation write-barrier removal, isolate-specific external pointer table/tag checks. Ink JavaScript relies on the host V8 GC allocator/barriers; Rust/Rust-Wasm use non-GC typed ownership/Vec storage. Existing checked capacity reservations, affine partitions and last-use moves are separate mechanisms. No speculative object/alias or GC fact imported into source equality; arena folding requires further backend/resource assessment."
+    },
+    {
+      "path": "src/compiler/turboshaft/memory-optimization-reducer.cc",
+      "sha256": "4cc74c3a61130393e46af85a7fa06de7f5f8ffdbc61b2416959eb20f8a69c01e",
+      "inclusive_lines": [
+        [
+          1,
+          187
+        ]
+      ],
+      "review_status": "file-read; allocation-family assessment open",
+      "note": "Full file read. Dominating same-generation constant-size allocation folding, bounded reservation sums, reset on allocating operations, conservative merge and loop backedge revisit, scalar/immortal pointer and most-recent-young allocation write-barrier removal, isolate-specific external pointer table/tag checks. Ink JavaScript relies on the host V8 GC allocator/barriers; Rust/Rust-Wasm use non-GC typed ownership/Vec storage. Existing checked capacity reservations, affine partitions and last-use moves are separate mechanisms. No speculative object/alias or GC fact imported into source equality; arena folding requires further backend/resource assessment."
+    },
+    {
+      "path": "src/compiler/turboshaft/load-store-simplification-reducer.h",
+      "sha256": "89bc44a047e4115cb98d27780d8e1094e0b828fca93026e746c364c32e2f580a",
+      "inclusive_lines": [
+        [
+          1,
+          214
+        ]
+      ],
+      "review_status": "file-read; addressed by selected host machine lowering",
+      "note": "Full file read. Target-dependent displacement/scaled-index bounds, tagged-base adjustment, atomic addressing restrictions and raw base+index hoisting. Ink has no source pointer/addressing-mode primitive. Selected native/Rust-Wasm code is lowered by the Rust host toolchain; JavaScript is lowered by its host engine. Such instruction legalization remains the host responsibility, subject to selected target/optimization flags; no source algebraic fact follows and debug builds promise no optimized addressing. Packed-layout codecs and bounds stay independently checked."
+    },
+    {
+      "path": "src/maglev/maglev-graph-optimizer.h",
+      "sha256": "88cd3462bd9613786851a26bed8e907dbbd43e5b996f3522782d688a6c1a9b2e",
+      "inclusive_lines": [
+        [
+          1,
+          263
+        ]
+      ],
+      "review_status": "partial Maglev family review",
+      "note": "Header complete; implementation review through line 300. Known-node facts are cloned/scoped around synthesized subgraphs, can-allocate/deopt/throw clear allocation-folding blocks including reducer-created nodes, eager deopt requires a reconstructible frame, and range comparisons distinguish signed/unsigned validity. No V8 type/range/profile premise imported into Ink; guarded source proof and exact reconstruction remain mandatory. Remaining implementation not yet read."
+    },
+    {
+      "path": "src/maglev/maglev-graph-optimizer.cc",
+      "sha256": "7ae23d4e2ec6407b622babe93944410ca775fa7473459c62826d361953c25d85",
+      "inclusive_lines": [
+        [
+          1,
+          300
+        ]
+      ],
+      "review_status": "partial Maglev family review",
+      "note": "Header complete; implementation review through line 300. Known-node facts are cloned/scoped around synthesized subgraphs, can-allocate/deopt/throw clear allocation-folding blocks including reducer-created nodes, eager deopt requires a reconstructible frame, and range comparisons distinguish signed/unsigned validity. No V8 type/range/profile premise imported into Ink; guarded source proof and exact reconstruction remain mandatory. Remaining implementation not yet read."
     }
   ],
   "families": [
@@ -242,7 +315,7 @@
       "name": "load-elimination",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/late-load-elimination-reducer.h",
-      "note": "Alias, call invalidation and loop-backedge requirements identified; no new stateful optimization admitted"
+      "note": "Full late-load implementation/header reviewed. Existing coarse and keyed preservation plus guarded U64/Bool tuple query specialization with original fallback. All laws remain in knowledge; no new core recognizer. CPU conformance and held-out JavaScript lifecycle evidence retained. General alias and loop-load elimination remain open."
     },
     {
       "name": "store-elimination",
@@ -294,9 +367,9 @@
     },
     {
       "name": "maglev",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/maglev/maglev-graph-builder.cc",
-      "note": "Audit graph construction, known-node facts, inlining and representation selection"
+      "note": "Optimizer header read in full and implementation lines 1..300 read; facts/scoping, deopt use accounting, subgraph splicing and signed/unsigned range guards assessed. Remaining optimizer, graph builder, known-node aspects and representation/inlining passes remain open."
     },
     {
       "name": "pipeline-infrastructure",

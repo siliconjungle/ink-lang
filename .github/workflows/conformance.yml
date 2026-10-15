@@ -121,7 +121,7 @@ jobs:
         cargo test --test rust_cpu_adapters --test javascript_package --test literal_collections_package --test javascript_word_collections
         cargo test --manifest-path native-support/Cargo.toml
         CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
-        cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation --test reference_evaluation_budget
+        cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation --test reference_evaluation_budget --test automatic_compilation
         cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity
         cargo test --test physical_capabilities --test gpu
     - name: Retain reproducible programs, seeds and expected outcomes
@@ -130,6 +130,11 @@ jobs:
       with:
         name: cpu-foundations-evidence
         path: |
+          build/automatic-contract-probes/*.json
+          build/automatic-compilation-parity/*.json
+          build/automatic-compilation-parity/source.ink
+          build/automatic-compilation-alternative/*.json
+          build/automatic-compilation-alternative/source.ink
           build/lowering-residency/*.json
           build/lowering-residency/*.wgsl
           build/generated-parity-f32/source.ink
@@ -453,6 +458,12 @@ jobs:
         python -m unittest discover -s knowledge/tests -p test_generic_extensions.py
         python -m unittest discover -s knowledge/tests -p test_point_authoring_hygiene.py
         python -m unittest discover -s planner/tests -p test_proposal_recipe.py
+        python -m unittest discover -s knowledge/tests -p test_selection_probes.py
+        python -m unittest discover -s planner/tests -p test_probe_validation.py
+        python -m unittest discover -s planner/tests -p test_offline_measurements.py
+        python -m unittest discover -s planner/tests -p test_maintained_evidence.py
+        python -m unittest discover -s planner/tests -p test_refinement_measurements.py
+        python -m unittest discover -s planner/tests -p test_representation_selection.py
     - name: Retain reproducible programs, seeds and expected outcomes
       if: always()
       uses: actions/upload-artifact@v4

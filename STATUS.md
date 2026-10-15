@@ -13,6 +13,15 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Approximation contracts](docs/approximation-contracts.md) lower explicit integer
+absolute/rational-relative and finite-f32 ULP bounds to ordinary proof obligations.
+Twelve error/finite-probability laws and three discovery templates live in the
+database; the twelve laws also pass independent Lean replay. Pure JS/Rust
+calibration validates inexact refinements against each checked plan's reference
+execution. Maintained-fold selection now requires lifecycle evidence or a validated
+work model; the former asymptotic-only exception is removed. These additions do
+not certify transcendental real-error bounds or the entire compiler.
+
 [Database planning](docs/database-planning.md) recursively composes independently
 checked transformation layers and physical strategies. [Observed usage](docs/proved-usage-planning.md)
 guides offline exploration and measured lifecycle selection; resource plans bind
