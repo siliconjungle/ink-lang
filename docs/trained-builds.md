@@ -131,6 +131,8 @@ are bounded to 64 MB. Inventories reject symlinks, compiler cache directories,
 depth above 48, more than 8192 directory entries or more than 1 GiB total files.
 Complete source projects capture dependency locks before publication. Build them
 with `--locked` and an external target directory to keep the package verifiable.
+Dependency archives are not vendored: prefetch the generated project's exact lock
+before requiring an offline build, rather than relying on a host-template cache.
 The compiler's shared generated-code cache stays outside the artifact, with an OS
 file lock retained through compilation and copying its output.
 

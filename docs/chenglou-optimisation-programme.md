@@ -203,8 +203,8 @@ remaining roadmap acceptance criteria remain open; an inventory is not a port.
 learning may change and provide offline replay plus explicit online updates. A
 contextual interaction model, held-out predictions, failed-update rollback, module
 transport and complete-target conformance establish this initial path. Updates and
-objectives are authored Ink code. Broader source AD, discrete
-training policies and frozen-model specialization remain open; this does not close
+objectives are authored Ink code. Broader source AD, additional discrete
+training algorithms and frozen-model specialization remain open; this does not close
 the broader Handwired or eight-package programme.
 
 ## Whole-computation training and further reuse
@@ -274,3 +274,11 @@ training result. Startup and continued learning have complete CPU/Wasm compariso
 native durable recovery and actual native/browser GPU dispatch. This adds a build
 phase to the lifecycle, without claiming frozen specialization or a new throughput
 win. Pure invocation holders avoid retaining a deployed state they cannot observe.
+
+[Authored discrete policies](policy-learning.md) now add categorical score-function
+gradients, masks, reward-to-go and trajectory reduction. The contextual example
+uses source AD, delayed feedback tickets, full Adam continuation and rollback.
+The application defines every objective, reward, constraint and acceptance rule;
+no engagement or other product goal belongs in the compiler. This source-library
+delivery does not establish convergence, universal machine-level unbiasedness,
+PPO/off-policy correction, device training or the outstanding performance target.

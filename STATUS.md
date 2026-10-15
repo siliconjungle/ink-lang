@@ -461,3 +461,10 @@ records gains from local adaptation and wide-object JSON lookup, plus losses fro
 cheap operations and overly responsive switching. Defaults and proof authority are
 unchanged; none of this introduces AI, inferred state partitioning or automatic
 JSON source rewrites.
+
+[Authored reward learning](docs/policy-learning.md) adds generic categorical policy
+gradients and delayed trajectory returns. The example combines whole-context source
+AD, constrained updates, versioned pending feedback and exact optimizer resume.
+Goals and invariants remain application-defined; no product objective is built in.
+This does not close frozen specialization, off-policy or device training, or broad
+Handwired/Pretext/Freerange performance and fidelity requirements.
