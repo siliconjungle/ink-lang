@@ -174,3 +174,39 @@ corpus runs retain their original sparse scope in
 `bench/v8-learning/corpus-sparse-scope.json`; they should not be described as full
 source-checkout evaluations. Remote CI is tracked separately from these local
 results.
+
+## Guarded parameter caches
+
+The late-load-elimination review exposed a gap in database authoring: existing
+query-cache proposals required parameterless queries. `producers.parameter_cache`
+now specializes one exact tuple of one to four U64/Bool arguments. The emitted
+query checks the tuple, uses its maintained reply on a hit, and executes the
+original query on every miss. Queries retain the same physical cache after cold
+calls. Existing universal relation, preservation, snapshot and migration equations
+are checked normally; explicit Boolean splits and scalar equality certificates
+justify argument substitution. No source assumption, alias fact or optimization
+recognizer was added to core. Compositions with delta repair, compact query
+protocols and action replacements currently decline explicitly.
+
+The knowledge recipe supplies at most four boundary/source-literal tuples across
+queries. These are bounded discovery hints; they do not assert that arguments are
+hot. The command-line author accepts any exact supported tuple with
+`--cache-query NAME --cache-arguments '[7,true]' --preserve-cache`.
+
+`bench/v8-learning/parameter-cache` retains a source-bound representation,
+independent oracle packets, emitted JavaScript and three fresh-process sample sets
+for each split. On its declared read-heavy lifecycle, weighted time improved about
+13.2 times in training and 12.3 times on held-out rows/histories. Initialization,
+cold queries and writes were slower, so the existing requirement for comparable
+lifecycle evidence remains. Weights include module load, initialization with
+setup, hot/cold histories, edits, checkpoint and restore. These shared-host Node
+26.1.0 measurements establish no universal or native speedup. Separate native,
+JavaScript and Rust-Wasm conformance covers hot/cold values, rollback, events,
+exhausted counters, portable snapshots, restoration and migration. A rehashed
+wrong-argument guard is rejected mathematically.
+
+The frozen fourth corpus run compiled all ten programs, selected alternatives for
+three, admitted 37 laws and reused seven across programs. Every program exhausted
+its quick search budget. It predates parameter caches and includes the explicitly
+materialized legacy hardening inputs; see `corpus-circuits-summary.json`. Search
+counts do not isolate runtime gains or close the remaining V8 audit.

@@ -274,3 +274,6 @@ packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['inpu
     }
     parity::conformance_selected("v8-word-parity", &selected, source, steps, expected);
 }
+
+#[path = "support/parameter_cache.rs"]
+mod parameter_cache;
