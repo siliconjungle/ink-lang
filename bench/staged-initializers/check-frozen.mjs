@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import{readFile}from'node:fs/promises';import{resolve,join}from'node:path';import{pathToFileURL}from'node:url';
+import{logicalSnapshot,digest}from'./common.mjs';
+const[modulePath,adaptivePath,frozenSnapshot]=process.argv.slice(2);
+const fixed=await(await import(pathToFileURL(resolve(modulePath)).href)).createState();
+const adaptive=await(await import(pathToFileURL(join(resolve(adaptivePath),'program.mjs')).href)).createState();
+const initial=Buffer.from(await fixed.checkpoint());assert.deepEqual(initial,await readFile(frozenSnapshot));
+for(const[name,args]of[['model',[]],['control',[]],['predict',[Array(10).fill(0.2)]],['objective',[Array(10).fill(0.2),Array(4).fill(0.1)]]])assert.deepEqual(fixed.invoke(name,args),adaptive.invoke(name,args));
+const model=fixed.invoke('model',[]).result;model.Ok.weights.fill(99);assert.notDeepEqual(fixed.invoke('model',[]).result,model);
+assert.throws(()=>fixed.invoke('observe',[Array(10).fill(0.2),Array(4).fill(0.1),2]));
+assert.deepEqual(Buffer.from(await fixed.checkpoint()),initial);
+const foreign=Buffer.from(await adaptive.checkpoint());assert.notDeepEqual(foreign,initial);assert.deepEqual(logicalSnapshot(foreign),logicalSnapshot(initial));
+await assert.rejects(()=>fixed.restore(foreign));await fixed.restore(initial);assert.deepEqual(Buffer.from(await fixed.checkpoint()),initial);
+console.log(JSON.stringify({status:'checked',source_restriction:'all three model roots fixed',queries:4,public_model_detached:true,writer_withdrawn:true,foreign_restore_rejected:true,checkpoint_sha256:digest(initial),scope:'Compiled JavaScript startup/inference/ownership/restriction with exact checked complete state; no graph specialization, GPU training or compiler-correctness proof.'}));

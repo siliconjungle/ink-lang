@@ -663,6 +663,33 @@
           "reason": "Immutable keeps and training run on CPU hosts; a separate eligible numeric kernel exercises actual GPU dispatch."
         }
       }
+    },
+    {
+      "id": "prepared-state-initializers",
+      "types": [],
+      "tests": [
+        "scalable_state",
+        "reverse_learning"
+      ],
+      "targets": {
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Prepared value-state defaults use immutable CPU-host keeps; training remains on CPU hosts, with a separate actual eligible numeric GPU call."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Prepared value-state defaults use immutable CPU-host keeps; training remains on CPU hosts, with a separate actual eligible numeric GPU call."
+        }
+      }
     }
   ],
   "cpu_suites": [

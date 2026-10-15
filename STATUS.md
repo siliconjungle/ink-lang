@@ -491,3 +491,16 @@ native/device speed conclusion follows. The independent core package now has a
 private-checkout/private-target validation path, avoiding shared-build evidence
 contamination. General staging/specialization, source reverse AD and the full
 Handwired/Pretext/Freerange requirements remain open.
+
+
+[Prepared value-state defaults](docs/prepared-initializers.md) now compose explicit
+state-independent keeps with mutable/trainable cells, without another keyword.
+Bounded transitive dependency checks, hygienic scopes and derived interface reads
+preserve source contracts. The complete staged neural/default histories match all
+CPU targets and GPU-host execution; separate numeric calls dispatch on GPU.
+[Measured JavaScript lifecycles](reports/prepared-initializers-2026-10-16/README.md)
+show a further 1.19× prediction gain over structured keeps, with slightly slower
+cold prediction and higher observed heap use. Private standalone core validation,
+exact training replay and frozen-source composition strengthen specific evidence.
+Automatic stage selection, native performance ranking, source reverse AD,
+graph/arithmetic specialization, F64/Pretext fidelity and upstream parity remain open.

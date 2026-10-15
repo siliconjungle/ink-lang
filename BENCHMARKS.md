@@ -223,3 +223,16 @@ executor, including its nonnegative-range specialization, and an independent
 array interpreter. Exact forward/backward results and full model state have
 separate conformance receipts. This delivery adds explicit graph/optimizer
 capabilities; the Handwired matched-speed requirement remains open.
+
+## Prepared defaults and continued learning
+
+The [prepared-default study](reports/prepared-initializers-2026-10-16/README.md)
+compares three JavaScript sources/emitters with the same complete trained logical
+state. Explicit keeps in value-state defaults reduce held-out prediction latency
+from 11.12 to 9.38 µs, a further 1.19× beyond structured keeps; the scalar-only
+control takes 38.08 µs. Training-turn gains over structured keeps range from
+1.03× to 1.10× in this study. Cold prediction and observed heap use increase.
+The separate dense kernel remains about 28× faster with a narrower boundary.
+Source identities differ; independent training, exact payloads, complete results,
+private-core validation, fresh emission and compiled frozen startup are retained.
+These are authored staging results, without automatic selection or upstream parity.

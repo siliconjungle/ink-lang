@@ -32,6 +32,7 @@ jobs:
         python3 bench/batched-differentiation/analyse.py reports/batched-differentiation-2026-10-15
         python3 reports/frozen-deployment-2026-10-15/audit.py
         python3 bench/structured-preparation/analyse.py reports/structured-preparation-2026-10-16 --check
+        python3 bench/staged-initializers/analyse.py reports/prepared-initializers-2026-10-16 --check
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -128,10 +129,11 @@ jobs:
         cargo test --manifest-path core/Cargo.toml --offline
         python3 - <<'PYCORE'
         import json, subprocess
-        r=json.load(open('reports/structured-preparation-2026-10-16/core-package.json'))
+        r=json.load(open('reports/prepared-initializers-2026-10-16/core-package.json'))
         subprocess.run(['git','fetch','--no-recurse-submodules','--depth=1','origin',r['commit'],r['source']],check=True)
         PYCORE
-        python3 tools/check_core_package.py reports/structured-preparation-2026-10-16/core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
+        python3 tools/check_core_package.py reports/prepared-initializers-2026-10-16/core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
+        cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
         # The whole suite: fuzz_logic_objects re-declares every first-order
         # knowledge object, so checker changes cannot silently strand proofs.
@@ -143,6 +145,9 @@ jobs:
         cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test policy_learning --test differentiation --test reverse_learning --test scalable_state
         cargo test --test physical_capabilities --test gpu
         cargo build --bin ink --offline
+        target/debug/ink verify-model reports/prepared-initializers-2026-10-16/neural --replay
+        target/debug/ink build reports/prepared-initializers-2026-10-16/frozen/source.core.json --core --target javascript --initial-state reports/prepared-initializers-2026-10-16/frozen/model.snapshot -o build/staged-frozen.mjs
+        node bench/staged-initializers/check-frozen.mjs build/staged-frozen.mjs reports/prepared-initializers-2026-10-16/neural reports/prepared-initializers-2026-10-16/frozen/model.snapshot
         python3 tools/check_bit_circuit_laws.py --receipt build/bit-circuit-replay.json
     - name: Retain reproducible programs, seeds and expected outcomes
       if: always()

@@ -190,3 +190,13 @@ losses retained. Next preparation work must choose profitable lifecycles, reduce
 unobserved representation/output construction, specialize graphs through ordinary
 proofs and close the remaining query/pure-method surface differences. This is not
 completion of universal staging or the matched upstream performance requirement.
+
+
+[Prepared defaults](docs/prepared-initializers.md) now reuse explicit state-independent
+keeps while retaining mutable model/optimizer state. Source admission, lexical
+hygiene, transitive interfaces, whole-state continuation and explicit freezing are
+validated. The retained lifecycle report includes setup/memory costs and a distinct
+source identity; it grants no automatic selection. The next frozen staging input
+is retained with real checked row bindings. General proof-backed partial evaluation
+and observation-directed/borrowed execution must close the remaining large gap to
+the dense numeric control; this milestone does not complete the programme.
