@@ -12,6 +12,91 @@ mod parity;
 fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf()
 }
+
+#[test]
+fn approximation_database_laws_replay_and_false_composition_is_rejected() {
+    use verified_language::law_author;
+    let source=fs::read_to_string(root().join("knowledge/libraries/approximation-laws.ink")).unwrap();
+    let proofs=serde_json::from_slice::<std::collections::BTreeMap<String,law_author::Evidence>>(&fs::read(root().join("knowledge/libraries/approximation-laws.proofs.json")).unwrap()).unwrap();
+    let admitted=law_author::compile_source(syntax::parse_law_source(&source).unwrap(),proofs.clone(),None).unwrap();
+    assert_eq!(admitted.names.len(),12);
+    for false_source in [source.replace("a-c<=first+second","a-c<=first+second-1"),source.replace("requires bc:b-c<=second;","requires bc:b-c<=second+1;"),source.replace("requires wider:small<=large;","requires wider:small<=large+1;")] {
+        assert!(law_author::compile_source(syntax::parse_law_source(&false_source).unwrap(),proofs.clone(),None).is_err());
+    }
+}
+
+#[test]
+fn approximation_contracts_refine_within_budget_and_preserve_complete_execution() {
+    let (program,_) = author("examples/approximation.ink", "approximation-baseline-proofs");
+    let input=CheckedModule::from_source(program).unwrap();
+    let bodies=std::collections::BTreeMap::from([("coarse".into(),contracts::Body::Pure(syntax::Expr::Var("x".into())))]);
+    let refined=contracts::prepare(&input,&bodies).unwrap();
+    let evidence=contracts::Evidence{schema:1,semantics:contracts::SEMANTICS.into(),source_sha256:contracts::subject_identity(&refined).unwrap(),proofs:Default::default(),state_proofs:Default::default(),knowledge:None,state_knowledge:None};
+    let mut package:optimisation::Package=serde_json::from_value(json!({"schema":1,"semantics":"ink-evidence-v1","input_core_sha256":input.identity().unwrap(),"knowledge":registry::from_catalogue(&verified_language::laws::Catalogue{schema:1,semantics:verified_language::laws::SEMANTICS.into(),roots:vec![],objects:Default::default()}).unwrap(),"applications":[]})).unwrap();
+    package.contract_refinement=Some(contracts::Refinement{bodies,evidence});
+    let selected=optimisation::check(&input,&package).unwrap();
+    let snapshot=Runtime::new_selected(&selected).unwrap().checkpoint_portable().unwrap();
+    let values=[-100i64,-1,0,1,100];
+    let mut steps=vec![];let mut expected=vec![];
+    for x in values {
+        steps.push(json!({"pure":"coarse","args":[x],"cpu_only":true}));
+        expected.push(json!({"reply":{"value":{"Int":x.to_string()}},"snapshot":snapshot}));
+    }
+    for name in ["half_success","relative_example"] {
+        steps.push(json!({"pure":name,"args":[],"cpu_only":true}));
+        expected.push(json!({"reply":{"value":true},"snapshot":snapshot}));
+    }
+    let source=fs::read_to_string(root().join("examples/approximation.ink")).unwrap();
+    parity::conformance_selected("checked-approximation-refinement",&selected,&source,steps,expected);
+    let mut false_package=package.clone();
+    false_package.contract_refinement.as_mut().unwrap().bodies.insert("coarse".into(),contracts::Body::Pure(syntax::Expr::Binary("-".into(),Box::new(syntax::Expr::Var("x".into())),Box::new(syntax::Expr::Num(1)))));
+    let changed=contracts::prepare(&input,&false_package.contract_refinement.as_ref().unwrap().bodies).unwrap();
+    false_package.contract_refinement.as_mut().unwrap().evidence.source_sha256=contracts::subject_identity(&changed).unwrap();
+    assert!(optimisation::check(&input,&false_package).is_err(),"rehashing cannot widen the error budget");
+}
+
+#[test]
+fn approximation_predicates_match_independent_integer_and_finite_space_oracles() {
+    use syntax::{Function,Type};
+    let source="module approximation_oracles;import \"std:approximation\" as approx;fn probability(space:List<u32>,num:Int,den:Int)->Bool{return approx.probability_at_least<u32>(space,fn(seed)=>seed==0,num,den);}";
+    let dir=root().join("build/approximation-oracles");fs::create_dir_all(&dir).unwrap();
+    fs::write(dir.join("source.ink"),source).unwrap();
+    let mut p=verified_language::modules::load(dir.join("source.ink")).unwrap().program;
+    // Compile the parser's actual postcondition expansions as ordinary Boolean
+    // observers, then check target execution against independent host arithmetic.
+    for (name,ty,clause) in [("absolute",Type::U64,"approximates reference within absolute budget"),("relative",Type::Int,"approximates reference within relative(budget,denominator)"),("ulps",Type::F32,"approximates reference within ulps budget")] {
+        let typename=match ty{Type::U64=>"u64",Type::Int=>"Int",_=>"f32"};
+        let parsed=syntax::parse(&format!("module observer;spec fn f(reference:{typename},budget:Int,denominator:Int)->{typename} {clause};implementation placeholder for f{{return reference;}}")).unwrap();
+        p.functions.push(Function{name:name.into(),params:vec![("result".into(),ty.clone()),("reference".into(),ty),("budget".into(),Type::Int),("denominator".into(),Type::Int)],result:Type::Bool,body:parsed.contracts.specifications[0].ensures[0].clone()});
+    }
+    let mut cases=vec![];
+    for a in [0u64,1,255,u32::MAX as u64,u64::MAX-1,u64::MAX] {
+        for b in [0u64,1,u64::MAX] {
+            for budget in [-1i128,0,1,255] {
+                let good=budget>=0 && (a as i128-b as i128).abs()<=budget;
+                cases.push(("absolute",json!([a,b,{"Int":budget.to_string()},{"Int":"1"}]),good));
+            }
+        }
+    }
+    for space in [vec![],vec![0],vec![1],vec![0,0,0,1],vec![0,1,2,3]] {
+        for (num,den) in [(0i128,1i128),(1,2),(3,4),(1,1),(-1,2),(1,0),(3,2)] {
+            let passed=space.iter().filter(|&&n|n==0).count() as i128;
+            let good=!space.is_empty() && num>=0 && den>0 && num<=den && passed*den>=space.len() as i128*num;
+            cases.push(("probability",json!([space,{"Int":num.to_string()},{"Int":den.to_string()}]),good));
+        }
+    }
+    for (a,b,n,d) in [(99i128,100i128,1i128,100i128),(-99,-100,1,100),(1,0,1,100),(0,0,1,100),(100,100,1,0)] {
+        let good=n>=0&&d>0&&(a-b).abs()*d<=b.abs()*n;
+        cases.push(("relative",json!([{"Int":a.to_string()},{"Int":b.to_string()},{"Int":n.to_string()},{"Int":d.to_string()}]),good));
+    }
+    for (a,b,budget,good) in [(0u32,0x80000000u32,0,true),(1,0,1,true),(0x80000001,1,1,false),(0x80000001,1,2,true),(0x3f800001,0x3f800000,1,true),(0x7f800000,0x7f800000,0,false),(0x7fc00000,0x7fc00000,0,false)] {
+        cases.push(("ulps",json!([{"F32Bits":a},{"F32Bits":b},{"Int":budget.to_string()},{"Int":"1"}]),good));
+    }
+    let snapshot=Runtime::new(p.clone()).unwrap().checkpoint_portable().unwrap();
+    let steps=cases.iter().map(|(name,args,_)|json!({"pure":name,"args":args,"cpu_only":true})).collect();
+    let expected=cases.iter().map(|(_,_,good)|json!({"reply":{"value":good},"snapshot":snapshot})).collect();
+    parity::conformance("approximation-independent-oracles",p,source,steps,expected);
+}
 #[test]
 fn public_compiler_calibrates_checked_candidates_and_rejects_overlapping_holdout() {
     let output=Command::new("python3").current_dir(root())

@@ -85,6 +85,10 @@ and retains the worst observed error. This is tested accuracy coverage, not a
 kernel-certified universal numerical error bound. Exact source semantics are the
 stated ordered F32 polynomial/range-reduction computations; optimisation cannot
 silently substitute these approximations for an exact expression or host `sin`.
+Explicit [approximation contracts](approximation-contracts.md) now support
+integer absolute/rational-relative bounds and finite-f32 ULP bounds against a
+declared binary32 reference. They do not turn the sampled transcendental targets
+above into universal real-number bounds.
 
 `import "std:text" as text` loads ordinary chunked immutable text algorithms:
 construction, append, fallible byte length, flatten, slice, search and insertion. This is
