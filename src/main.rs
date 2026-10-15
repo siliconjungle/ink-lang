@@ -217,6 +217,7 @@ fn run() -> LangResult<()> {
         "--measure-timeout",
         "--reference-budget",
         "--evaluation-budget",
+        "--input-receipt",
         "--measurement-mode",
         "--planning-cache",
         "--cargo",
@@ -269,6 +270,10 @@ fn run() -> LangResult<()> {
         if arg.starts_with("--") && !OPTIONS.contains(&arg.as_str()) {
             return Err(format!("unknown option {arg}"));
         }
+    }
+    let input_receipt = args.iter().any(|arg| arg == "--input-receipt");
+    if input_receipt && cmd != "run" {
+        return Err("--input-receipt is available only for reference run".into());
     }
     if cmd == "--version" || cmd == "version" {
         println!("ink {} ({})", env!("CARGO_PKG_VERSION"), core::SEMANTICS);
@@ -830,7 +835,7 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
-        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] (1..10000000000; default100000000)\nink build SOURCE [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -841,6 +846,7 @@ fn run() -> LangResult<()> {
         return Err("--capture-sources requires literal emit-core from source".into());
     }
     let mut captured_files = None;
+    let mut decoded_input_identity = None;
     let mut p = if capture_path.is_some() {
         let loaded = if arg_value(&args, "--termination-proofs")?.is_some() {
             verified_language::modules::load_for_termination(path)?
@@ -850,7 +856,9 @@ fn run() -> LangResult<()> {
         captured_files = Some(loaded.files);
         loaded.program
     } else if cmd == "check-core" || args.iter().any(|arg| arg == "--core") {
-        core::CheckedModule::from_bytes(&read_bounded(path, core::MAX_BYTES)?)?.into_program()
+        let checked = core::CheckedModule::from_bytes(&read_bounded(path, core::MAX_BYTES)?)?;
+        if input_receipt { decoded_input_identity = Some(checked.identity()?); }
+        checked.into_program()
     } else if cmd=="emit-termination-obligations" || arg_value(&args,"--termination-proofs")?.is_some() {
         verified_language::modules::load_for_termination(path)?.program
     } else {
@@ -858,10 +866,12 @@ fn run() -> LangResult<()> {
     };
     if let Some(file)=arg_value(&args,"--termination-proofs")? {
         p.termination.knowledge=Some(serde_json::from_slice(&read_bounded(&file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?);
+        decoded_input_identity = None;
     }
     if let Some(file)=arg_value(&args,"--contract-proofs")? {
         let evidence=serde_json::from_slice(&read_bounded(&file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?;
         verified_language::contracts::attach(&mut p,evidence)?;
+        decoded_input_identity = None;
     }
     if cmd=="emit-termination-obligations" {
         let output=arg_value(&args,"-o")?.ok_or("emit-termination-obligations requires -o FILE.json")?;
@@ -960,7 +970,7 @@ fn run() -> LangResult<()> {
         println!("{}",serde_json::json!({"status":"checked","input":module.identity()?,"core_sha256":selected.identity()?,"scope":"Conservative typed definitions; no source replacement authority"}));return Ok(());
     }
 
-    let input_module = if cmd == "explain" {
+    let input_module = if cmd == "explain" || (input_receipt && decoded_input_identity.is_none()) {
         Some(core::CheckedModule::from_source(p.clone())?)
     } else {
         None
@@ -1537,7 +1547,31 @@ fn run() -> LangResult<()> {
             if !(1..=10_000_000_000).contains(&budget) {
                 return Err("evaluation budget must be between 1 and 10000000000".into());
             }
-            println!("{}", eval::call(&p, name, vs, &mut budget)?.json());
+            let receipt = if input_receipt {
+                use sha2::{Digest, Sha256};
+                let original = match &decoded_input_identity {
+                    Some(identity) => identity.clone(),
+                    None => input_module.as_ref().unwrap().identity()?,
+                };
+                let selected = match &semantic_selection {
+                    Some(selection) => selection.module().identity()?,
+                    None => original.clone(),
+                };
+                // Hash the values accepted by the actual reference decoder.
+                // JSON spelling is not value identity (notably for F32).
+                let input = serde_json::json!({"schema":1,"semantics":"ink-reference-call-input-v1",
+                    "source":selected,"function":name,"arguments":vs.iter().map(eval::Value::json).collect::<Vec<_>>()});
+                let bytes = serde_json::to_vec(&input).map_err(|e|e.to_string())?;
+                Some((original, selected, format!("{:x}",Sha256::digest(bytes))))
+            } else { None };
+            let value = eval::call(&p, name, vs, &mut budget)?.json();
+            if let Some((original, selected, fingerprint)) = receipt {
+                println!("{}",serde_json::json!({"schema":1,"semantics":"ink-reference-call-v1",
+                    "input_core_sha256":original,"selected_core_sha256":selected,"function":name,
+                    "input_sha256":fingerprint,"value":value}));
+            } else {
+                println!("{value}");
+            }
         }
         "build" | "emit-rust" => {
             let input_core = core::CheckedModule::from_source(p.clone())?;

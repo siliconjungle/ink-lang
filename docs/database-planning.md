@@ -134,12 +134,30 @@ memory evidence. Native builds remain outside the host's memory measurement.
 The Linux units follow the [Linux system-call documentation](https://www.man7.org/linux/man-pages/man2/getrusage.2.html);
 Darwin reports Mach resident bytes directly in [XNU's resource accounting](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_resource.c).
 
-The native JSON measurement boundary is version 2: integer outputs compare and
+The native JSON measurement boundary is version 3. Integer outputs compare and
 consume exact integer bits, rather than converting through `f64`. Float outputs
 retain bit comparisons, including signed zero. Different integer/float JSON
 categories decline validation. This prevents rounded wide-word counterexamples
 from receiving cost observations. It does not change compiled application code;
 older measurement boundary identities remain distinct.
+
+`ink run SOURCE FUNCTION ARGS.json --input-receipt` returns the ordinary reference
+result together with the exact original/selected core identities, function and a
+fingerprint of the reference-decoded input values. The fingerprint is framed by
+the selected core and function. It preserves float rounding, signed zero, NaN
+payloads, wide words and nested typed values; it does not hash JSON spelling or
+add an unused argument. Plain reference execution keeps its existing output.
+These receipts are observations for offline acquisition, never equality proofs
+or applicability premises.
+
+The native Rust adapter uses those receipts for explicit independent holdouts.
+Typed overlap rejects before native holdout compilation, timing or cost
+publication. Every fresh native process checks the exact prepared request hash
+and reports the same source-bound fingerprints. Training and holdout use fresh
+artifact/project directories; the shared Cargo executable remains locked through
+execution. JavaScript retains its backend-normalized fingerprint checks and also
+rejects overlap before publishing holdout observations. The supplied lifecycle
+objective and the existing profitability/rejection gates are unchanged.
 
 ## Pure placement with maintained state
 
