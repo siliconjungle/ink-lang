@@ -174,7 +174,8 @@ fn header(path: PathBuf, text: String) -> LangResult<Node> {
             end,
         });
     }
-    let private_states=ts.windows(3).filter(|w|w[0].text=="private" && w[1].text=="state").map(|w|w[2].text.clone()).collect();
+    let private_states=ts.windows(3).filter(|w|w[0].text=="private" && w[1].text=="state").map(|w|w[2].text.clone())
+        .chain(ts.windows(4).filter(|w| w[0].text=="private" && w[1].text=="trainable" && w[2].text=="state").map(|w|w[3].text.clone())).collect();
     let mut exports = BTreeSet::new();
     let mut records = BTreeSet::new();
     let mut depth = 0i32;
@@ -461,6 +462,7 @@ fn link(
     for imp in &mut p.contracts.implementations {renamed(&mut imp.name,names);renamed(&mut imp.specification,names);}
     for e in &mut p.contracts.invariants{expr(e,names,&BTreeSet::new(),aliases)?;}
     for n in &mut p.contracts.private_states{renamed(n,names);}
+    for n in p.contracts.learning.trainable.iter_mut().chain(&mut p.contracts.learning.adaptive).chain(&mut p.contracts.learning.learn) { renamed(n,names); }
     Ok(p)
 }
 struct Loader {
@@ -775,6 +777,9 @@ fn load_impl(path:impl AsRef<Path>,authoring:bool)->LangResult<Loaded> {
         program.contracts.implementations.extend(p.contracts.implementations);
         program.contracts.invariants.extend(p.contracts.invariants);
         program.contracts.private_states.extend(p.contracts.private_states);
+        program.contracts.learning.trainable.extend(p.contracts.learning.trainable);
+        program.contracts.learning.adaptive.extend(p.contracts.learning.adaptive);
+        program.contracts.learning.learn.extend(p.contracts.learning.learn);
         program.contracts.value_invariants.extend(p.contracts.value_invariants);
         program.termination.measures.extend(p.termination.measures);
         program.functions.extend(p.functions);

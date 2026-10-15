@@ -160,6 +160,7 @@ fn conformance_inner(
     }
     if std::env::var_os("INK_TEST_WGPU").is_some()
         && (name == "lowering-parity"
+            || steps.iter().any(|s| s["expect_gpu"] == true)
             || name == "universal-control"
             || name.starts_with("generated-parity")
             || name == "modules-parity"

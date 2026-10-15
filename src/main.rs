@@ -835,7 +835,7 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
-        println!("ink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+        println!("ink train SOURCE TRACE.json -o MODEL.snapshot (offline authored learning; restore snapshot in compiled hosts)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -1510,6 +1510,22 @@ fn run() -> LangResult<()> {
                 "{}",
                 serde_json::to_string_pretty(&output).map_err(|e| e.to_string())?
             );
+        }
+        "train" => {
+            if semantic_selection.is_some() { return Err("train the source module before selecting implementations".into()); }
+            let trace_path = args.get(2).ok_or("train requires TRACE.json")?;
+            let trace: verified_language::training::Trace = serde_json::from_slice(&read_bounded(trace_path, 16_000_000)?)
+                .map_err(|e| e.to_string())?;
+            let module = core::CheckedModule::from_source(p.clone())?;
+            let trained = verified_language::training::replay(&module, &trace)?;
+            let out = arg_value(&args, "-o")?.ok_or("train requires -o MODEL.snapshot")?;
+            let receipt = serde_json::to_string_pretty(&trained.receipt).map_err(|e| e.to_string())?;
+            if let Some(parent) = Path::new(&out).parent() {
+                if !parent.as_os_str().is_empty() { fs::create_dir_all(parent).map_err(|e| e.to_string())?; }
+            }
+            fs::write(&out, trained.snapshot).map_err(|e| e.to_string())?;
+            write(&format!("{out}.receipt.json"), &receipt)?;
+            println!("{receipt}");
         }
         "check" => {
             core::CheckedModule::from_source(p.clone())?;

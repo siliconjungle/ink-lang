@@ -13,6 +13,20 @@ Historical counts and milestone receipts are preserved in
 
 ## Recent integrated capabilities
 
+[Explicit adaptive learning](docs/adaptive-learning.md) adds checked `trainable
+state`, `adaptive fn` / `adaptive query` and `learn change` declarations, offline
+training traces with portable model snapshots, and explicit online learning events.
+The contextual example fits interacting inputs with an authored update rule;
+automatic differentiation and frozen-weight specialization remain open. Learning
+capabilities, rollback and exact snapshots are validated across CPU targets and
+GPU-host execution, with a separate eligible device call.
+
+[Numeric table preparation](docs/prepared-numeric-tables.md) proposes sharing
+invariant table construction across a map with ordinary whole-function proofs.
+The measured large case improves substantially while a small case regresses;
+[retained evidence](bench/prepared-tables/README.md) keeps both visible. This is
+an initial preparation mechanism rather than full Pretext text-layout parity.
+
 [Conditional unsigned facts](docs/conditional-word-facts.md) extend the existing
 word analyser with excluded values and comparisons between ranges. Offline
 acquisition replays whole-function proofs and publishes four new reusable laws

@@ -23,6 +23,7 @@ def audit(catalog, scope):
     if catalog["schema"] != 1 or catalog["complete_cpu_targets"] != cpu or catalog["gpu_targets"] != gpu:
         raise ValueError("parity target inventory changed or omits a required target")
     required_suites = {
+        "adaptive_learning",
         "lowering_parity", "generated_parity", "durability", "modules",
         "selected_checkpoint", "action_optimisation", "action_transitions",
         "numerical_state", "mixed_durability", "bend_features", "feature_parity",

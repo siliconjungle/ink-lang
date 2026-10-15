@@ -70,3 +70,5 @@ pub mod modules;
 pub mod representations;
 
 pub mod compiled_plans;
+
+pub mod training;
