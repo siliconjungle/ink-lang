@@ -238,8 +238,8 @@ Source reverse differentiation uses fresh bounded owned tapes and fixed F32
 operation/adjoint order. Preserve primal evaluation, lazy branches/defaults,
 repeat_until's exclusive stop and fold_until's inclusive terminal step. Capacity
 and zero-cotangent policy are explicit; never substitute reverse for forward AD
-by equality or silently drop proof preconditions. Variant fold arms run once:
-consumed captures invalidate the outer owner across either arm, while repeated
+by equality or silently drop proof preconditions. Variant fold arms returning owned carriers run once; plain-valued contract
+observations retain readonly captures. Consumed captures invalidate the outer owner across either arm, while repeated
 and borrowed callbacks retain their restrictions. Normal helpers remain checked;
 no AD transform, provenance or sampled gradient grants rewrite authority. CPU
 host tape execution is distinct from actual eligible GPU dispatch. See
