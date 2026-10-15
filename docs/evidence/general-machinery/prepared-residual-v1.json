@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "input": "025df44aee47883b37303cfc70047425916b600234e81430df0e6a32f2c996c9",
+  "selected": "e7caad7f552fc68b33afb650f7c1945a3dd53f5109c3580f316b7ae0f1810019",
+  "plan_sha256": "931f1cf96956faa8d754e702b5821d07e43a3f97392be931af8199c535bfa393",
+  "ordinary_function_bodies_byte_identical": true,
+  "emitted_sha256": "1fc395b75a78a396be7cb84ebdb56a2b530a27db287f9a2c09b4db4bc572168f",
+  "plan_file_sha256": "931f1cf96956faa8d754e702b5821d07e43a3f97392be931af8199c535bfa393",
+  "scope": "Actual previously checked database indexing plan, unchanged guards and algorithms. Stable sealed inputs retain private readonly maps across changing query handles. Constructor counts are mechanism evidence, not latency, heap allocation or profitability measurements.",
+  "results": [
+    {
+      "function": "records",
+      "calls": 6,
+      "retained_index_constructions": 1,
+      "source_guard_preserved": true
+    },
+    {
+      "function": "predicate",
+      "calls": 6,
+      "retained_index_constructions": 2,
+      "source_guard_preserved": true
+    },
+    {
+      "function": "nested",
+      "calls": 6,
+      "retained_index_constructions": 1,
+      "source_guard_preserved": true
+    }
+  ],
+  "feature": "JavaScript sealed prepared calls with checked readonly residual reuse",
+  "packages": {
+    "lowerings/js": "a24cd0a0df9e35645cd9d3d255e30ac5a8fe1bc0",
+    "lowerings/gpu": "2ae1cafe3e0ff7677ae18cbed475afa5d3d352a6",
+    "runtime": "3f6210cfee2ee41ec798f5e40c7345886177bc0f"
+  },
+  "validation": {
+    "standalone_javascript_tests": 44,
+    "cpu_reference_native_javascript_wasm_cases_with_exact_snapshots": 183,
+    "root_prepared_calls": 126,
+    "standalone_prepared_calls": 168,
+    "actual_database_plan_calls": 18,
+    "logs": [
+      "work/prepared-residual-all-js-v1.log",
+      "work/prepared-residual-final-cpu-v1.log",
+      "work/prepared-residual-tests-v4.log",
+      "work/prepared-residual-checked-index-test.log"
+    ]
+  },
+  "limits": [
+    "Explicit JavaScript host API; not automatically selected.",
+    "No new syntax, core primitive, algorithm matcher or proof authority.",
+    "Constructor reuse verifies mechanism; no prepared-call latency or whole-workload profitability claim.",
+    "Does not implement arbitrary persistent public Set representations or GPU prepared calls."
+  ]
+}

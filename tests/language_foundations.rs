@@ -207,3 +207,6 @@ fn new_surface_and_value_operations_have_complete_backend_parity() {
 
 #[path = "support/count_comparisons.rs"]
 mod count_comparisons;
+
+#[path = "support/prepared_residual.rs"]
+mod prepared_residual;

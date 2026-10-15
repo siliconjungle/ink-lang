@@ -99,3 +99,30 @@ with inputs and outputs. Slot arrays remain privately owned; split-range growth
 detaches. Structural equality uses declared fields and an aggregate identity
 fast path, retaining stored float bits. Host state replies detach their reachable
 values. See [snapshot updates](internal-snapshots.md) for the ownership and private-delta contract.
+
+## Sealed partial calls
+
+`prepareCompiled(name, [[parameterIndex, handle], ...])` binds existing immutable
+`compiledValues` handles. `callPreparedCompiled(token, remainingHandles)` supplies
+unbound parameters in declaration order and returns a normal private result handle.
+Capture and materialisation retain the existing checked type and ownership boundary.
+Tokens belong to their emitted module and have no mutable payload surface.
+
+The lowerer emits bounded residual functions for lexical `let` bindings and lazy
+branches. A binding is retained only when its transitive parameter dependencies
+are bound. Temporary owners additionally need the core's existing readonly-loan
+analysis for their remaining scope. Each residual cut treats earlier values as
+shared inputs, preventing in-place operations from mutating retained lists.
+Branches stay lazy; preconditions run before cached computation; thrown errors
+are retried. There is no global result cache. Dropping the token releases its
+retained inputs and computations when garbage collection permits.
+
+This implementation reuses the exact already-selected source, including any
+ordinary database equality proofs that introduced an index. It adds no syntax,
+algorithm matcher or kernel rule. Ordinary calls keep their function bodies and
+do not use these caches. Recursive or oversized residuals and unsupported residual
+shapes fall back to ordinary compiled calls; capability metadata records the
+bounded optional lane. This first host implementation is JavaScript. It is not a
+persistent replacement for arbitrary public Set values or automatic prepared-call
+selection. Prepared capture, first call, updates, memory, module load and teardown
+need lifecycle evidence before a planner may select this execution boundary.
