@@ -32,6 +32,14 @@ A core-only build needs neither knowledge nor backend checkouts:
 cargo build --manifest-path core/Cargo.toml --offline
 ```
 
+Standalone backend dependency pins use the exact core-only package created by
+`tools/core_package_snapshot.py`. Its `core` tree must equal a committed
+distribution-main `core` tree; the receipt records both identities. This dedicated
+package branch excludes distribution files and submodules, avoiding recursive
+Cargo downloads of the knowledge repository. It is package storage, not a feature
+branch replacing publication on distribution main. Tree identity does not replace
+standalone tests or locked integration checks.
+
 The full CLI needs its backend submodules. Integration tests additionally need
 knowledge. New code-generation primitives belong in the relevant backend; new
 optimisation laws and representation choices belong in knowledge.

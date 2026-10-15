@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {resolve,join} from 'node:path';
+import {pathToFileURL} from 'node:url';
+const [folder,casesPath]=process.argv.slice(2),root=resolve(folder);
+const manifest=JSON.parse(await readFile(join(root,'artifact.json'),'utf8'));
+const {createState,restoreState}=await import(pathToFileURL(join(root,manifest.entry)).href);
+const state=await createState(),seed=await readFile(join(root,'deployment.snapshot'));
+const snapshot=state=>state.checkpoint?state.checkpoint():state.snapshot();
+const plain=value=>JSON.parse(JSON.stringify(value,(_,v)=>typeof v==='bigint'?Number(v):v));
+assert.deepEqual(Buffer.from(await snapshot(state)),seed);
+const cases=JSON.parse(await readFile(casesPath,'utf8'));
+for(const step of cases){assert.deepEqual(plain(await state.invoke(step.call,step.args)),step.outcome);assert.deepEqual([...await snapshot(state)],step.snapshot);}
+const before=await snapshot(state);
+assert.throws(()=>state.invoke('observe',[{width:0.5,length:0.5},0.2,0.1]));
+assert.deepEqual(Buffer.from(await snapshot(state)),Buffer.from(before));
+await assert.rejects(restoreState(await readFile(join(root,'model.snapshot'))));
+const restored=await restoreState(before);assert.deepEqual(Buffer.from(await snapshot(restored)),Buffer.from(before));restored.dispose?.();
+const second=await createState();assert.deepEqual(Buffer.from(await snapshot(second)),seed);second.dispose?.();state.dispose?.();
+console.log(manifest.target+': frozen startup, live application updates, withdrawn writer and exact restore matched');

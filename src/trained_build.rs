@@ -87,6 +87,25 @@ pub fn build_model(
     destination: &Path,
     cargo: Option<&str>,
 ) -> LangResult<Value> {
+    build_model_restricted(
+        module,
+        trace_bytes,
+        initial,
+        target,
+        destination,
+        cargo,
+        &[],
+    )
+}
+pub fn build_model_restricted(
+    module: &CheckedModule,
+    trace_bytes: &[u8],
+    initial: Option<&[u8]>,
+    target: &str,
+    destination: &Path,
+    cargo: Option<&str>,
+    frozen: &[String],
+) -> LangResult<Value> {
     if trace_bytes.len() > 16_000_000 || initial.is_some_and(|bytes| bytes.len() > 64_000_000) {
         return Err("trained build input byte limit".into());
     }
@@ -114,6 +133,36 @@ pub fn build_model(
     let destination = parent.join(name);
     let trace: training::Trace = serde_json::from_slice(trace_bytes).map_err(|e| e.to_string())?;
     let trained = training::replay_from(module, &trace, initial)?;
+    let restricted = if frozen.is_empty() {
+        None
+    } else {
+        Some(crate::freezing::restrict(
+            module,
+            &trained.snapshot,
+            frozen,
+        )?)
+    };
+    let compiled_module = restricted.as_ref().map(|r| &r.module).unwrap_or(module);
+    let startup = restricted
+        .as_ref()
+        .map(|r| r.snapshot.as_slice())
+        .unwrap_or(&trained.snapshot);
+    let startup_sha256 = format!("{:x}", Sha256::digest(startup));
+    let mode = if restricted.is_some() {
+        "frozen"
+    } else {
+        "adaptive"
+    };
+    let source_file = if restricted.is_some() {
+        "compiled.core.json"
+    } else {
+        "source.core.json"
+    };
+    let startup_file = if restricted.is_some() {
+        "deployment.snapshot"
+    } else {
+        "model.snapshot"
+    };
     let stamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_err(|e| e.to_string())?
@@ -126,6 +175,10 @@ pub fn build_model(
     write("source.core.json", &module.bytes()?)?;
     write("trace.json", trace_bytes)?;
     write("model.snapshot", &trained.snapshot)?;
+    if restricted.is_some() {
+        write(source_file, &compiled_module.bytes()?)?;
+        write(startup_file, startup)?;
+    }
     write(
         "training.receipt.json",
         &serde_json::to_vec_pretty(&trained.receipt).map_err(|e| e.to_string())?,
@@ -149,10 +202,10 @@ pub fn build_model(
     let mut command = Command::new(&compiler);
     command
         .arg("build")
-        .arg(staging.0.join("source.core.json"))
+        .arg(staging.0.join(source_file))
         .arg("--core")
         .arg("--initial-state")
-        .arg(staging.0.join("model.snapshot"))
+        .arg(staging.0.join(startup_file))
         .arg("--target")
         .arg(target)
         .arg("-o")
@@ -208,13 +261,13 @@ pub fn build_model(
     };
     let mut plan: Value = serde_json::from_slice(&fs::read(&plan_path).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
-    if plan["input_core_sha256"] != module.identity()?
-        || plan["initial_state"]["snapshot_sha256"] != trained.receipt["snapshot_sha256"]
+    if plan["input_core_sha256"] != compiled_module.identity()?
+        || plan["initial_state"]["snapshot_sha256"] != startup_sha256
     {
         return Err("compiled trained artifact binding mismatch".into());
     }
     if plan.get("source").is_some() {
-        plan["source"] = json!("source.core.json");
+        plan["source"] = json!(source_file);
         fs::write(
             plan_path,
             serde_json::to_vec_pretty(&plan).map_err(|e| e.to_string())?,
@@ -229,7 +282,7 @@ pub fn build_model(
     };
     let mut inventory = BTreeMap::new();
     files(&staging.0, &staging.0, &mut inventory)?;
-    let manifest = json!({"schema":1,"semantics":"ink-trained-artifact-v1","mode":"adaptive","target":target,"entry":entry,"source_core_sha256":module.identity()?,"compiler_sha256":hash(&compiler)?,"training":trained.receipt,"files":inventory,"scope":"Captured checked module, explicit trace, complete optimizer/application checkpoint and compiled startup factory. Runtime learning remains enabled. No frozen specialization, convergence, approximation or compiler-correctness proof."});
+    let manifest = json!({"schema":1,"semantics":"ink-trained-artifact-v1","mode":mode,"target":target,"entry":entry,"source_core_sha256":module.identity()?,"compiled_core_sha256":compiled_module.identity()?,"startup_snapshot_sha256":startup_sha256,"restriction":restricted.as_ref().map(|r|&r.receipt),"compiler_sha256":hash(&compiler)?,"training":trained.receipt,"files":inventory,"scope":"Captured checked source, explicit trace, complete optimizer/application state and compiled startup factory. An explicit restriction withdraws selected mutable degrees of freedom; retained capabilities remain available. No convergence, approximation or compiler-correctness proof."});
     write(
         "artifact.json",
         &serde_json::to_vec_pretty(&manifest).map_err(|e| e.to_string())?,
@@ -241,7 +294,7 @@ pub fn build_model(
     }
     fs::rename(&staging.0, &destination).map_err(|e| e.to_string())?;
     Ok(
-        json!({"status":"published","directory":destination,"manifest_sha256":manifest_sha256,"source_core_sha256":module.identity()?,"snapshot_sha256":manifest["training"]["snapshot_sha256"],"target":target,"mode":"adaptive"}),
+        json!({"status":"published","directory":destination,"manifest_sha256":manifest_sha256,"source_core_sha256":module.identity()?,"compiled_core_sha256":compiled_module.identity()?,"snapshot_sha256":startup_sha256,"training_snapshot_sha256":manifest["training"]["snapshot_sha256"],"target":target,"mode":mode}),
     )
 }
 pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
@@ -261,7 +314,7 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
         serde_json::from_slice(&read("artifact.json", 16_000_000)?).map_err(|e| e.to_string())?;
     if manifest["schema"] != 1
         || manifest["semantics"] != "ink-trained-artifact-v1"
-        || manifest["mode"] != "adaptive"
+        || !matches!(manifest["mode"].as_str(), Some("adaptive" | "frozen"))
     {
         return Err("trained artifact format".into());
     }
@@ -288,6 +341,45 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
     {
         return Err("trained artifact source/checkpoint binding mismatch".into());
     }
+    let restricted = if manifest["mode"] == "frozen" {
+        let roots: Vec<String> =
+            serde_json::from_value(manifest["restriction"]["frozen_roots"].clone())
+                .map_err(|e| e.to_string())?;
+        let expected = crate::freezing::restrict(&module, &seed, &roots)?;
+        if expected.receipt != manifest["restriction"]
+            || expected.module.bytes()?
+                != CheckedModule::from_bytes(&read(
+                    "compiled.core.json",
+                    crate::core::MAX_BYTES as u64,
+                )?)?
+                .bytes()?
+            || expected.snapshot != read("deployment.snapshot", 64_000_000)?
+        {
+            return Err("frozen source or complete-state restriction mismatch".into());
+        }
+        Some(expected)
+    } else {
+        if !manifest["restriction"].is_null() {
+            return Err("unexpected source restriction in adaptive artifact".into());
+        }
+        None
+    };
+    let compiled_module = restricted.as_ref().map(|r| &r.module).unwrap_or(&module);
+    let startup = restricted
+        .as_ref()
+        .map(|r| r.snapshot.as_slice())
+        .unwrap_or(&seed);
+    let startup_sha256 = format!("{:x}", Sha256::digest(startup));
+    let compiled_identity = compiled_module.identity()?;
+    if manifest
+        .get("compiled_core_sha256")
+        .is_some_and(|v| v != &compiled_identity)
+        || manifest
+            .get("startup_snapshot_sha256")
+            .is_some_and(|v| v != &startup_sha256)
+    {
+        return Err("trained artifact compiled binding mismatch".into());
+    }
     let plan_path = match manifest["target"].as_str() {
         Some("javascript") => "program.mjs.plan.json",
         Some("wasm32") => "program.wasm.plan.json",
@@ -303,14 +395,14 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
     };
     let plan: Value =
         serde_json::from_slice(&read(plan_path, 64_000_000)?).map_err(|e| e.to_string())?;
-    if plan["input_core_sha256"] != module.identity()?
-        || plan["selected_core_sha256"] != module.identity()?
-        || plan["initial_state"]["snapshot_sha256"] != receipt["snapshot_sha256"]
+    if plan["input_core_sha256"] != compiled_module.identity()?
+        || plan["selected_core_sha256"] != compiled_module.identity()?
+        || plan["initial_state"]["snapshot_sha256"] != startup_sha256
     {
         return Err("compiled initial state binding mismatch".into());
     }
     for (name, binding) in &inventory {
-        if name.ends_with("initial.snapshot") && binding["sha256"] != receipt["snapshot_sha256"] {
+        if name.ends_with("initial.snapshot") && binding["sha256"] != startup_sha256 {
             return Err("compiled initial checkpoint binding mismatch".into());
         }
     }
@@ -326,7 +418,7 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
         let javascript = inventory
             .get("program/program.mjs")
             .ok_or("GPU JavaScript entry binding")?;
-        if gpu["initial_state"]["sha256"] != receipt["snapshot_sha256"]
+        if gpu["initial_state"]["sha256"] != startup_sha256
             || gpu["initial_state"]["bytes"] != binding["bytes"]
             || gpu["initial_state"]["sha256"] != binding["sha256"]
             || gpu["javascript_sha256"] != javascript["sha256"]
@@ -365,6 +457,6 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
         }
     }
     Ok(
-        json!({"status":"checked","mode":"adaptive","source_core_sha256":module.identity()?,"snapshot_sha256":receipt["snapshot_sha256"],"files":inventory.len(),"training_replayed":replay,"scope":"Local artifact integrity, checked source and typed checkpoint; optional deterministic training replay. No authenticity, compiler-correctness or convergence proof."}),
+        json!({"status":"checked","mode":manifest["mode"],"source_core_sha256":module.identity()?,"compiled_core_sha256":compiled_module.identity()?,"snapshot_sha256":startup_sha256,"files":inventory.len(),"training_replayed":replay,"restriction_replayed":restricted.is_some(),"scope":"Local artifact integrity, checked source and typed checkpoint; optional deterministic training replay and mandatory requested restriction replay. No authenticity, compiler-correctness or convergence proof."}),
     )
 }

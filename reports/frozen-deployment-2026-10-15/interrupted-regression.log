@@ -1,0 +1,97 @@
+   Compiling ink-core v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/core)
+   Compiling ink-lowering-rust v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/lowerings/rust)
+   Compiling ink-lowering-js v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/lowerings/js)
+   Compiling ink-lowering-gpu v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/lowerings/gpu)
+   Compiling ink-lowering-wasm v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/lowerings/wasm)
+   Compiling ink-runtime v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/runtime)
+   Compiling ink v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang)
+    Finished `test` profile [unoptimized] target(s) in 15.58s
+     Running tests/adaptive_learning.rs (target/debug/deps/adaptive_learning-8569f4feff629cb0)
+
+running 9 tests
+test learning_metadata_survives_imports_and_generic_instantiation ... ok
+test learning_capabilities_are_checked_after_transport ... ok
+test offline_training_learns_interactions_and_restores_exactly ... ok
+test offline_cli_exports_a_portable_model_and_receipt ... ok
+Compiled continuous learning: serving, queued work, exact recovery and ambiguous publication passed (4 histories, including offline CLI bootstrap).
+
+test compiled_continuous_service_recovers_durable_training_and_serves_predictions ... ok
+wgpu: 24 results matched; 1 GPU calls
+rust Wasm: 24 values/outcomes and exact snapshots matched
+
+test online_learning_preserves_values_errors_events_and_snapshots_across_targets ... ok
+wgpu: 8 results matched; 1 GPU calls
+rust Wasm: 8 values/outcomes and exact snapshots matched
+
+test source_logic_configures_and_triggers_another_learner_transactionally ... ok
+wgpu: 2 results matched; 1 GPU calls
+rust Wasm: 2 values/outcomes and exact snapshots matched
+
+test queued_learning_rejects_forged_shapes_and_counter_exhaustion ... ok
+wgpu: 39 results matched; 1 GPU calls
+rust Wasm: 39 values/outcomes and exact snapshots matched
+
+test continuous_sessions_preserve_serving_queue_versions_and_recovery_across_targets ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 28.97s
+
+     Running tests/frozen_state.rs (target/debug/deps/frozen_state-f8280290ae73baf5)
+
+running 3 tests
+test restricting_one_learner_preserves_other_training_and_the_complete_state_payload ... ok
+javascript: frozen startup, live application updates, withdrawn writer and exact restore matched
+
+native: frozen startup, ordinary application updates and exact checkpoint matched
+rust: frozen startup, ordinary application updates and exact checkpoint matched
+wasm32: frozen startup, live application updates, withdrawn writer and exact restore matched
+
+test frozen_initial_data_and_restore_boundaries_match_all_targets has been running for over 60 seconds
+test trained_frozen_packages_start_and_preserve_remaining_capabilities_across_targets has been running for over 60 seconds
+
+thread 'trained_frozen_packages_start_and_preserve_remaining_capabilities_across_targets' (138386978) panicked at tests/frozen_state.rs:173:5:
+
+error: trained artifact compilation failed: error:     Blocking waiting for file lock on package cache
+    Updating crates.io index
+error: failed to write /Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-build-validation-41361/.ink-model-44591-1792068723987007000/program/cpu/Cargo.lock
+
+Caused by:
+  failed to open: /Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-build-validation-41361/.ink-model-44591-1792068723987007000/program/cpu/Cargo.lock
+
+Caused by:
+  No space left on device (os error 28)
+
+
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test trained_frozen_packages_start_and_preserve_remaining_capabilities_across_targets ... FAILED
+
+thread 'frozen_initial_data_and_restore_boundaries_match_all_targets' (138386975) panicked at tests/support/parity.rs:186:9:
+warning: unused imports: `ink_parallel_map` and `ink_parallel_update`
+   --> /Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-state-parity/gpu-module/cpu/src/lib.rs:666:35
+    |
+666 | use temporary::{OwnedMap,InkTable,ink_parallel_map,ink_parallel_update};
+    |                                   ^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `temporary::TableCapacity`
+   --> /Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/frozen-state-parity/gpu-module/cpu/src/lib.rs:668:5
+    |
+668 | use temporary::TableCapacity;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: failed to write /Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/parity-gpu-target/debug/deps/rustcrLeQDT/lib.rmeta: No space left on device (os error 28)
+
+error: could not compile `compiled-state` (lib) due to 1 previous error; 2 warnings emitted
+
+test frozen_initial_data_and_restore_boundaries_match_all_targets ... FAILED
+
+failures:
+
+failures:
+    frozen_initial_data_and_restore_boundaries_match_all_targets
+    trained_frozen_packages_start_and_preserve_remaining_capabilities_across_targets
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 117.70s
+
+error: test failed, to rerun pass `--test frozen_state`

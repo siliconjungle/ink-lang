@@ -15,7 +15,7 @@ function capture(v,t){
 const normalize=v=>typeof v==='bigint'?v.toString():typeof v==='number'&&Number.isInteger(v)?(Object.is(v,-0)?'negative zero':String(v)):Array.isArray(v)?v.map(normalize):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,normalize(x)])):v;
 const state=program.createState?.();let index=0;
 for(const step of steps){
- if(step.reject_restore){const before=await state.checkpoint();await assert.rejects(state.restore(step.reject_restore.map(Number)),/invariant/);assert.deepEqual(await state.checkpoint(),before);continue;}
+ if(step.reject_restore){const before=await state.checkpoint();await assert.rejects(state.restore(step.reject_restore.map(Number)),new RegExp(step.restore_error??'invariant'));assert.deepEqual(await state.checkpoint(),before);continue;}
  if(step.restore){await state.restore(step.restore.map(Number));continue;}
  const decl=step.pure?metadata.functions.find(f=>f.name===step.pure):metadata.state.actions.find(a=>a.name===step.call);
  const before=program.parallelStatistics?.();

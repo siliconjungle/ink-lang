@@ -41,7 +41,7 @@ reverse graphs and 244-parameter ReGLU models are available through
 explicit gradient policies, F32 Adam, frame backtracking and exact offline resume.
 A [cooperative continuous service](docs/continuous-learning.md) now adds generic
 queued sessions, serving/candidate versions and durable progress, including offline
-CLI bootstrap. General source reverse AD, frozen specialization, trained implementation selection and parallel/device training
+CLI bootstrap. General source reverse AD, frozen arithmetic/graph specialization, trained implementation selection and parallel/device training
 remain open. [Adaptive build-stage packaging](docs/trained-builds.md) now supports
 complete trained startup and continued learning across targets. See the
 [phase and lifecycle requirements](docs/learning-lifecycle.md). Learning
@@ -466,5 +466,15 @@ JSON source rewrites.
 gradients and delayed trajectory returns. The example combines whole-context source
 AD, constrained updates, versioned pending feedback and exact optimizer resume.
 Goals and invariants remain application-defined; no product objective is built in.
-This does not close frozen specialization, off-policy or device training, or broad
+This does not close frozen arithmetic/graph specialization, off-policy or device training, or broad
 Handwired/Pretext/Freerange performance and fidelity requirements.
+
+
+[Immutable deployment state](docs/frozen-state.md) and explicit build-stage
+`--freeze` / `--freeze-roots` now bind trained rows in a new checked source,
+withdraw writers/callers and preserve complete logical checkpoint payloads.
+Rust/JavaScript/Wasm restore rejects changed fixed rows, including raw F32 bits.
+Partial freezing retains other learning and application actions. Mandatory artifact
+verification replays the restriction, including against rehashed tampering.
+The transition model derives fixed-value equalities for ordinary proof consumers;
+automatic neural/arithmetic specialization and measured speed gains remain open.

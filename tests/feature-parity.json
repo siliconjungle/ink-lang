@@ -610,6 +610,32 @@
           "reason": "Value predicates validate on the host; unrelated eligible pure numeric work still dispatches."
         }
       }
+    },
+    {
+      "id": "immutable-trained-state",
+      "types": [],
+      "tests": [
+        "frozen_state"
+      ],
+      "targets": {
+        "rust": {
+          "status": "implemented"
+        },
+        "javascript": {
+          "status": "implemented"
+        },
+        "rust-wasm": {
+          "status": "implemented"
+        },
+        "webgpu": {
+          "status": "partial",
+          "reason": "Frozen state is initialized and checked on CPU hosts; eligible numeric work can still dispatch to GPU."
+        },
+        "wgpu": {
+          "status": "partial",
+          "reason": "Frozen state is initialized and checked on CPU hosts; eligible numeric work can still dispatch to GPU."
+        }
+      }
     }
   ],
   "cpu_suites": [
@@ -657,7 +683,8 @@
     "recursive_value_validation",
     "state_protocol",
     "trained_build",
-    "policy_learning"
+    "policy_learning",
+    "frozen_state"
   ],
   "gpu_contract": {
     "semantics": "eligible-pure-exact-v1",
