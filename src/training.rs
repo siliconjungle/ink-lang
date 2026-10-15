@@ -4,6 +4,7 @@ use ink_core::{core::CheckedModule, stateful::Runtime, LangResult};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
+pub use crate::trained_build::{build_model,verify_model};
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]

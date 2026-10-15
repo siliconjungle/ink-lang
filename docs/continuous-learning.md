@@ -60,8 +60,8 @@ Existing durable state takes precedence over the seed checkpoint. Compile and tr
 the same checked source: normal restore validates its identity. A trace may leave
 an unfinished candidate; queue position, candidate model and serving model survive
 the transition. This is explicit pre-compilation fitting followed by runtime
-continuation. Integrated training as a build stage and frozen-value specialization
-remain open.
+continuation. [Training as a build stage](trained-builds.md) is now available through
+`build-model`; frozen-value specialization remains open.
 
 ## Session data and operations
 
@@ -140,7 +140,7 @@ tests cover quiescence, pending-plan invalidation, cooperative yielding, abort,
 explicit errors and no overlapping service runs. These are implementation checks,
 not proofs of all schedulers, optimizers, storage systems or convergence.
 
-Build-stage training/packaging, frozen specialization, parallel worker promotion,
+Frozen specialization, trained implementation selection, parallel worker promotion,
 device training and the broader Handwired performance target remain required work.
 
 [Retained source, checkpoints, target logs and corpus audit](../reports/continuous-learning-2026-10-15/README.md).

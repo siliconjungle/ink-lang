@@ -41,8 +41,9 @@ reverse graphs and 244-parameter ReGLU models are available through
 explicit gradient policies, F32 Adam, frame backtracking and exact offline resume.
 A [cooperative continuous service](docs/continuous-learning.md) now adds generic
 queued sessions, serving/candidate versions and durable progress, including offline
-CLI bootstrap. General source reverse AD, frozen-weight specialization, explicit
-build-stage training and parallel/device training remain open. See the
+CLI bootstrap. General source reverse AD, frozen specialization, trained implementation selection and parallel/device training
+remain open. [Adaptive build-stage packaging](docs/trained-builds.md) now supports
+complete trained startup and continued learning across targets. See the
 [phase and lifecycle requirements](docs/learning-lifecycle.md). Learning
 capabilities, rollback and exact snapshots are validated across CPU targets and
 GPU-host execution, with a separate eligible device call.

@@ -1,0 +1,796 @@
+{
+  "applied_rule_ids": [],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v10",
+    "core_sha256": "0731331c5e261b7870f1f3e5ddba3392b2c5fed491c1018714078e4d0e406290",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "exact-u32-bits",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "initial",
+        "parallel": false,
+        "params": [],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "bias",
+              "type": {
+                "kind": "f32"
+              }
+            },
+            {
+              "name": "width",
+              "type": {
+                "kind": "f32"
+              }
+            },
+            {
+              "name": "length",
+              "type": {
+                "kind": "f32"
+              }
+            },
+            {
+              "name": "interaction",
+              "type": {
+                "kind": "f32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "Weights"
+        }
+      },
+      {
+        "destination": null,
+        "index": 1,
+        "internal": false,
+        "name": "score",
+        "parallel": false,
+        "params": [
+          {
+            "name": "c",
+            "type": {
+              "fields": [
+                {
+                  "name": "width",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "length",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Context"
+            }
+          },
+          {
+            "name": "w",
+            "type": {
+              "fields": [
+                {
+                  "name": "bias",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "width",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "length",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "interaction",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Weights"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 2,
+        "internal": false,
+        "name": "legal",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f32"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 3,
+        "internal": false,
+        "name": "batch",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "weight",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "javascript_sha256": "cc8afe4229954877a59f48e3823f31e5104da3458f7e46db6b4c76d7334820cc",
+    "named_types": {
+      "Context": {
+        "fields": [
+          {
+            "name": "width",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "length",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Context"
+      },
+      "Weights": {
+        "fields": [
+          {
+            "name": "bias",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "width",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "length",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "interaction",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Weights"
+      }
+    },
+    "owned_result_contract": {
+      "functions": 4,
+      "inputs": "same trusted caller contract",
+      "results": "canonical detached values with ABI byte/node/depth limits",
+      "unsupported": []
+    },
+    "prepared_compiled": {
+      "evaluation": "lazy source-order; successful bindings only",
+      "functions": [
+        {
+          "factory": false,
+          "function": "initial",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "score",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "legal",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "batch",
+          "reason": "no reusable lexical bindings"
+        }
+      ],
+      "lifetime": "prepared token",
+      "semantics": "sealed-value-residual-v1"
+    },
+    "private_record_elisions": [],
+    "private_sum_spines": [],
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": {
+      "actions": [
+        {
+          "change": false,
+          "directKeep": null,
+          "fallible": false,
+          "flatFailure": false,
+          "freshResult": false,
+          "index": 0,
+          "name": "suggest",
+          "params": [
+            {
+              "name": "c",
+              "type": {
+                "fields": [
+                  {
+                    "name": "width",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "length",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Context"
+              }
+            }
+          ],
+          "precondition": null,
+          "result": {
+            "kind": "f32"
+          },
+          "roots": [
+            0
+          ],
+          "singleCell": true
+        },
+        {
+          "change": true,
+          "directKeep": null,
+          "fallible": true,
+          "flatFailure": false,
+          "freshResult": false,
+          "index": 1,
+          "name": "observe",
+          "params": [
+            {
+              "name": "c",
+              "type": {
+                "fields": [
+                  {
+                    "name": "width",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "length",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "Context"
+              }
+            },
+            {
+              "name": "target",
+              "type": {
+                "kind": "f32"
+              }
+            },
+            {
+              "name": "rate",
+              "type": {
+                "kind": "f32"
+              }
+            }
+          ],
+          "precondition": null,
+          "result": {
+            "error": {
+              "kind": "string"
+            },
+            "kind": "result",
+            "ok": {
+              "kind": "f32"
+            }
+          },
+          "roots": [
+            0
+          ],
+          "singleCell": true
+        },
+        {
+          "change": true,
+          "directKeep": null,
+          "fallible": true,
+          "flatFailure": false,
+          "freshResult": true,
+          "index": 2,
+          "name": "authored",
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "precondition": null,
+          "result": {
+            "error": {
+              "kind": "string"
+            },
+            "kind": "result",
+            "ok": {
+              "kind": "unit"
+            }
+          },
+          "roots": [
+            1
+          ],
+          "singleCell": true
+        }
+      ],
+      "compactCommits": false,
+      "eventColumns": false,
+      "eventRuns": false,
+      "events": [
+        {
+          "name": "learned",
+          "snapshotType": {
+            "kind": "f32"
+          },
+          "type": {
+            "kind": "f32"
+          }
+        }
+      ],
+      "invariantChecks": [],
+      "keepInvalidations": [
+        [],
+        []
+      ],
+      "keeps": [],
+      "lazyMaintenance": true,
+      "outputPublication": false,
+      "roots": [
+        {
+          "key": {
+            "kind": "u32"
+          },
+          "name": "Model",
+          "snapshotKey": {
+            "kind": "u32"
+          },
+          "snapshotValue": {
+            "fields": [
+              {
+                "name": "bias",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "width",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "length",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "interaction",
+                "type": {
+                  "kind": "f32"
+                }
+              }
+            ],
+            "kind": "record"
+          },
+          "value": {
+            "fields": [
+              {
+                "name": "bias",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "width",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "length",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "interaction",
+                "type": {
+                  "kind": "f32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Weights"
+          }
+        },
+        {
+          "key": {
+            "kind": "u32"
+          },
+          "name": "Authored",
+          "snapshotKey": {
+            "kind": "u32"
+          },
+          "snapshotValue": {
+            "kind": "u32"
+          },
+          "value": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "snapshot": {
+        "program": [
+          246,
+          68,
+          91,
+          119,
+          91,
+          188,
+          24,
+          71,
+          246,
+          125,
+          37,
+          182,
+          183,
+          250,
+          36,
+          89,
+          222,
+          195,
+          62,
+          255,
+          152,
+          66,
+          48,
+          23,
+          154,
+          111,
+          66,
+          161,
+          217,
+          52,
+          194,
+          252
+        ],
+        "schema": [
+          81,
+          105,
+          254,
+          179,
+          165,
+          30,
+          203,
+          108,
+          1,
+          231,
+          183,
+          19,
+          99,
+          83,
+          145,
+          240,
+          150,
+          77,
+          77,
+          15,
+          136,
+          108,
+          67,
+          114,
+          68,
+          33,
+          216,
+          65,
+          179,
+          30,
+          70,
+          51
+        ]
+      },
+      "snapshotRows": false
+    },
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "batch": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "8518fbca99641619abfdf4e89a694e390a8712d381c7e5a41a46b35d5b78efb1",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "weight",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "0cbb9d1ff6b72318080ea11a6297b384d97178624f821e3901cca51ec8ad4477",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "initial": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "3720cf83cb9a672c0c70e7f80cfe0abe0bf9b7df73d40a9def0c7436234026b2",
+            "named": {},
+            "root": {
+              "fields": [],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "5b650b9f57d3287349d5b82f7a02760c028a9c403f0c90d30264abca49d5b2fe",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "bias",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "width",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "length",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "interaction",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Weights"
+            }
+          }
+        },
+        "legal": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "3d9fa005996e654b10e4e749ab0e2c4a9988b4ba944f21f1019c2132cbcb62b2",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "fde3b27ba939906c22dbea906c407580e89648dd4d5a55c4f4001e45157ebe45",
+            "named": {},
+            "root": {
+              "kind": "f32"
+            }
+          }
+        },
+        "score": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "1bb6f948302e95044a66db40cc2742a181dbcfe5e8d88ace61e77f4a1e70dca7",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "c",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "width",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "length",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "Context"
+                  }
+                },
+                {
+                  "name": "w",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "bias",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "width",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "length",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "interaction",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "Weights"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "fde3b27ba939906c22dbea906c407580e89648dd4d5a55c4f4001e45157ebe45",
+            "named": {},
+            "root": {
+              "kind": "f32"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "initial_state": {
+    "bytes": 552,
+    "factory": "await createState()",
+    "mode": "adaptive",
+    "schema": 1,
+    "scope": "Complete initial logical state; runtime learning and explicit restore remain available. Not frozen specialization.",
+    "snapshot_sha256": "fd177d98dedb8b06fb13221f00a3960be21073b881e42d3b944c9ef1d6f198a1",
+    "source_core_sha256": "0731331c5e261b7870f1f3e5ddba3392b2c5fed491c1018714078e4d0e406290"
+  },
+  "input_core_sha256": "0731331c5e261b7870f1f3e5ddba3392b2c5fed491c1018714078e4d0e406290",
+  "selected_core_sha256": "0731331c5e261b7870f1f3e5ddba3392b2c5fed491c1018714078e4d0e406290",
+  "semantic_package": null,
+  "semantic_selection": null,
+  "source": "source.core.json",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}
