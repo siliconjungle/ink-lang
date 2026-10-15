@@ -40,3 +40,26 @@ await assert.rejects(loadInk(base,{placementProfile:profile,targetKey:'wrong'}),
     assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
     fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn complete_module_installs_planner_in_each_eligible_gpu_bundle() {
+    let program=parse(r#"module mixed;
+fn named(text:String)->String{return text;}
+fn inc(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}
+"#).unwrap();
+    let dir=std::env::temp_dir().join(format!("ink-nested-planner-{}",std::process::id()));
+    verified_language::runtime::emit_gpu(&program,&dir).unwrap();
+    let manifest:serde_json::Value=serde_json::from_slice(&fs::read(dir.join("manifest.json")).unwrap()).unwrap();
+    let bundles:Vec<_>=manifest["functions"].as_array().unwrap().iter().filter_map(|f|f["bundle"].as_str()).collect();
+    assert!(!bundles.is_empty());
+    for bundle in bundles {
+        let path=dir.join(bundle);
+        let bytes=fs::read(path.join("pipeline-selection.mjs")).unwrap();
+        assert_eq!(bytes,include_bytes!("../planner/browser/pipeline-selection.mjs"));
+        let child:serde_json::Value=serde_json::from_slice(&fs::read(path.join("manifest.json")).unwrap()).unwrap();
+        use sha2::{Digest,Sha256};
+        assert_eq!(child["pipeline_planner_sha256"],format!("{:x}",Sha256::digest(&bytes)));
+        assert!(fs::read_to_string(path.join("native/src/assets.rs")).unwrap().contains(child["pipeline_planner_sha256"].as_str().unwrap()));
+    }
+    fs::remove_dir_all(dir).unwrap();
+}

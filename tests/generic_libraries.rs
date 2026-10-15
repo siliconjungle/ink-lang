@@ -141,3 +141,6 @@ mod competitive_workloads;
 
 #[path = "support/query_expressions.rs"]
 mod query_expressions;
+
+#[path = "support/bit_automata.rs"]
+mod bit_automata;

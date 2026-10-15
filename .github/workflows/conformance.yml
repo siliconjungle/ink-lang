@@ -20,6 +20,8 @@ jobs:
       run: python3 tools/check_feature_parity.py --scope contract --receipt build/enforced-parity/contract-audit.json
     - name: Audit resident measurement report provenance
       run: python3 -m unittest discover -s bench/gpu -p 'test_analyse_resident_profile.py'
+    - name: Audit packed-circuit benchmark receipts
+      run: python3 bench/handwired/analyse.py reports/handwired-packed-circuits-2026-10-15 --check
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -124,6 +126,8 @@ jobs:
         cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation --test reference_evaluation_budget --test automatic_compilation
         cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity
         cargo test --test physical_capabilities --test gpu
+        cargo build --bin ink --offline
+        python3 tools/check_bit_circuit_laws.py --receipt build/bit-circuit-replay.json
     - name: Retain reproducible programs, seeds and expected outcomes
       if: always()
       uses: actions/upload-artifact@v4

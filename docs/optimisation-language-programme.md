@@ -58,6 +58,16 @@ application code. Keep the storage boundary explicit so memory/disk/database
 implementations can be compared, with recovery/durability and transport costs in
 acceptance evidence. Surface-query milestones do not close this storage work.
 
+The [contract-guided circuit investigation](contract-guided-circuits.md) records
+James's further request to study neural representations deeply: exact circuit
+compilation, differentiable composition and learned approximations have separate
+contracts. The first matched Handwired/Ink search measurements are retained in
+the [packed-circuit report](../reports/handwired-packed-circuits-2026-10-15/README.md).
+The [contracts and preparation programme](chenglou-optimisation-programme.md)
+adds Freerange's inference/requirements and Pretext's preparation/projection
+mechanisms. These investigations do not close the physical, refinement,
+algebraic or numerical requirements above.
+
 ## Milestones
 
 - Typed ordered query expressions: implemented with existing map/filter, folds,

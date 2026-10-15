@@ -179,6 +179,14 @@ before extrapolating.
 
 ## Earlier evidence and historical paths
 
+The [matched Handwired investigation](reports/handwired-packed-circuits-2026-10-15/README.md)
+retains complete literal counts, warm and paused GPU calls, input-size controls,
+held-out documents, JavaScript before/after and borrowed native Rust controls.
+It establishes narrow search gains with explicit ownership and lifecycle gaps;
+it does not establish general neural or cross-domain superiority. The
+[contracts and preparation programme](docs/chenglou-optimisation-programme.md)
+adds Freerange and Pretext mechanisms to the broader acceptance work.
+
 | Report | Scope |
 | --- | --- |
 | [Collection proofs](reports/collection-proof-phase1/REPORT.md), [filtered pipelines](reports/filter-proof-phase1/REPORT.md) | Induction-checked collection fusion against matched native controls |

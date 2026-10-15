@@ -1,0 +1,2173 @@
+{
+  "abi": "packed little-endian 32-bit lanes; GPU lists carry a length header; records in declaration order; vectors unpadded",
+  "backend": "webgpu-wgpu-v2",
+  "collection_strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured",
+  "core_semantics": "ink-executable-core-v8",
+  "core_sha256": "59c1c836a8fccb2ace5a928022b160dd52cd05239c269e4cf1676c2a52520ecb",
+  "cpu_rust_sha256": "5886b4da3ccb47275745504f3db5a71cb3156978ac3fd771c9ddb9dcacbe2710",
+  "destination_abi": {
+    "aliasing": "destination-disjoint-from-all-reachable-inputs",
+    "alignment": 8,
+    "capacity": "trusted",
+    "count": "words32",
+    "name": "ink-packed-into-v1",
+    "ownership": "caller-owned",
+    "prepared_instance": "exclusive",
+    "scratch_lifetime": "call-mark-rewind",
+    "symbol": "ink_compute_into"
+  },
+  "float_contract": "integer-lane binary32; round-to-nearest ties-to-even, gradual underflow, signed zero, source operation order and canonical arithmetic NaN; pass-through/negation retain payload bits",
+  "functions": [
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 4
+              },
+              {
+                "param": 1
+              },
+              {
+                "param": 3
+              },
+              {
+                "param": 2
+              },
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [
+                1
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "map",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-0-0.wgsl",
+            "workgroup_size": 64
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 0,
+      "lengths": [
+        1
+      ],
+      "name": "counts_packed",
+      "params": [
+        {
+          "name": "data",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "ids",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "row_count",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "masks",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "accept",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-0.wgsl"
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 1
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-1-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 1,
+      "lengths": [],
+      "name": "ink_mb7b482fed72f9d4e90d40622a6a7f8d0176b50e01b1996d980ee86bf305a9260",
+      "params": [
+        {
+          "name": "active",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "mask",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "fields": [
+                  {
+                    "name": "active",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "matches",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-2-0.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "node": 0
+              },
+              {
+                "param": 1
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 1,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-2-1.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 2
+              },
+              {
+                "node": 1
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 2,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "bool"
+            },
+            "shader": "graph-2-2.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "fields": [
+                  {
+                    "name": "active",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "matches",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+              },
+              {
+                "kind": "bool"
+              }
+            ],
+            "args": [
+              {
+                "node": 1
+              },
+              {
+                "param": 0
+              },
+              {
+                "node": 2
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 3,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "fields": [
+                {
+                  "name": "active",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "matches",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+            },
+            "shader": "graph-2-3.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 3
+        },
+        "result": {
+          "fields": [
+            {
+              "name": "active",
+              "type": {
+                "kind": "u32"
+              }
+            },
+            {
+              "name": "matches",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 2,
+      "lengths": [],
+      "name": "ink_m8ab4cacf20eecb4fee875528024144a68d3f9eaa7673bbd7f932545e35cb4475",
+      "params": [
+        {
+          "name": "cursor",
+          "type": {
+            "fields": [
+              {
+                "name": "active",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "matches",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+          }
+        },
+        {
+          "name": "mask",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "accept",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "fields": [
+          {
+            "name": "active",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "matches",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 1
+              },
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-3-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 3,
+      "lengths": [],
+      "name": "ink_m3f5d05703911b0eb15ee581488a98b251814750b46ca863aeb6a945320eba720",
+      "params": [
+        {
+          "name": "word",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "lane",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 1
+              },
+              {
+                "param": 5
+              },
+              {
+                "param": 0
+              },
+              {
+                "param": 2
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-4-0.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 5
+              },
+              {
+                "node": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 1,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-4-1.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 3
+              },
+              {
+                "node": 1
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 2,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-4-2.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "fields": [
+                  {
+                    "name": "active",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "matches",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+              }
+            ],
+            "args": [
+              {
+                "param": 6
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 3,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-4-3.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "node": 3
+              },
+              {
+                "node": 2
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 4,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-4-4.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 4
+              },
+              {
+                "node": 4
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 5,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "bool"
+            },
+            "shader": "graph-4-5.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "fields": [
+                  {
+                    "name": "active",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "matches",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+              },
+              {
+                "kind": "bool"
+              }
+            ],
+            "args": [
+              {
+                "node": 4
+              },
+              {
+                "param": 6
+              },
+              {
+                "node": 5
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 6,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "fields": [
+                {
+                  "name": "active",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "matches",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+            },
+            "shader": "graph-4-6.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 6
+        },
+        "result": {
+          "fields": [
+            {
+              "name": "active",
+              "type": {
+                "kind": "u32"
+              }
+            },
+            {
+              "name": "matches",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 4,
+      "lengths": [],
+      "name": "ink_mdf37b800aaf2013864279ab27755634ee6b6233e6a64713acf215b2b9e270b80",
+      "params": [
+        {
+          "name": "words",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "base",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "word_stride",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "masks",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "accept",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "i",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "cursor",
+          "type": {
+            "fields": [
+              {
+                "name": "active",
+                "type": {
+                  "kind": "u32"
+                }
+              },
+              {
+                "name": "matches",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "fields": [
+          {
+            "name": "active",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "matches",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 4
+              },
+              {
+                "param": 1
+              },
+              {
+                "param": 3
+              },
+              {
+                "param": 2
+              },
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [
+                1
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "map",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-5-0.wgsl",
+            "workgroup_size": 64
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 5,
+      "lengths": [
+        1
+      ],
+      "name": "__ink_instance_19b1c466ac74c2ce04e5173ff9a855626951dba578da68a022acff1990bc081a",
+      "params": [
+        {
+          "name": "words",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "ids",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "row_count",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "masks",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "accept",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-5.wgsl"
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u32"
+              },
+              {
+                "element": {
+                  "kind": "u32"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 4
+              },
+              {
+                "param": 1
+              },
+              {
+                "param": 3
+              },
+              {
+                "param": 2
+              },
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-6-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 6,
+      "lengths": [],
+      "name": "__ink_instance_e08797ea2dca2a2ceccfd9b7eea06e4ded02ea347beb776c97f823b145b23aed",
+      "params": [
+        {
+          "name": "words",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "base",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "word_stride",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "masks",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "accept",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    }
+  ],
+  "gpu_list_abi": "ink-gpu-list-v3",
+  "javascript": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v8",
+    "core_sha256": "59c1c836a8fccb2ace5a928022b160dd52cd05239c269e4cf1676c2a52520ecb",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "native-number-with-exact-nonfinite-tags",
+    "functions": [
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 0,
+        "internal": false,
+        "name": "counts_packed",
+        "parallel": false,
+        "params": [
+          {
+            "name": "data",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "ids",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "row_count",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "masks",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "accept",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 1,
+        "internal": false,
+        "name": "ink_mb7b482fed72f9d4e90d40622a6a7f8d0176b50e01b1996d980ee86bf305a9260",
+        "parallel": false,
+        "params": [
+          {
+            "name": "active",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "mask",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 2,
+        "internal": false,
+        "name": "ink_m8ab4cacf20eecb4fee875528024144a68d3f9eaa7673bbd7f932545e35cb4475",
+        "parallel": false,
+        "params": [
+          {
+            "name": "cursor",
+            "type": {
+              "fields": [
+                {
+                  "name": "active",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "matches",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+            }
+          },
+          {
+            "name": "mask",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "accept",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "active",
+              "type": {
+                "kind": "u32"
+              }
+            },
+            {
+              "name": "matches",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+        }
+      },
+      {
+        "destination": null,
+        "index": 3,
+        "internal": false,
+        "name": "ink_m3f5d05703911b0eb15ee581488a98b251814750b46ca863aeb6a945320eba720",
+        "parallel": false,
+        "params": [
+          {
+            "name": "word",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "lane",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 4,
+        "internal": false,
+        "name": "ink_mdf37b800aaf2013864279ab27755634ee6b6233e6a64713acf215b2b9e270b80",
+        "parallel": false,
+        "params": [
+          {
+            "name": "words",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "base",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "word_stride",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "masks",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "accept",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "i",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "cursor",
+            "type": {
+              "fields": [
+                {
+                  "name": "active",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "matches",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "active",
+              "type": {
+                "kind": "u32"
+              }
+            },
+            {
+              "name": "matches",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 5,
+        "internal": false,
+        "name": "__ink_instance_19b1c466ac74c2ce04e5173ff9a855626951dba578da68a022acff1990bc081a",
+        "parallel": false,
+        "params": [
+          {
+            "name": "words",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "ids",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "row_count",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "masks",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "accept",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 6,
+        "internal": false,
+        "name": "__ink_instance_e08797ea2dca2a2ceccfd9b7eea06e4ded02ea347beb776c97f823b145b23aed",
+        "parallel": false,
+        "params": [
+          {
+            "name": "words",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "base",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "word_stride",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "masks",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "accept",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      }
+    ],
+    "javascript_sha256": "e0c8cd4d1d4eb827aeda66ecf0699585db62fe547a2f70fb6be88c885b4a1a4a",
+    "named_types": {
+      "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1": {
+        "fields": [
+          {
+            "name": "active",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "matches",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+      }
+    },
+    "owned_result_contract": {
+      "functions": 7,
+      "inputs": "same trusted caller contract",
+      "results": "canonical detached values with ABI byte/node/depth limits",
+      "unsupported": []
+    },
+    "prepared_compiled": {
+      "evaluation": "lazy source-order; successful bindings only",
+      "functions": [
+        {
+          "factory": false,
+          "function": "counts_packed",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "ink_mb7b482fed72f9d4e90d40622a6a7f8d0176b50e01b1996d980ee86bf305a9260",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": true,
+          "function": "ink_m8ab4cacf20eecb4fee875528024144a68d3f9eaa7673bbd7f932545e35cb4475",
+          "retained_bindings": 2
+        },
+        {
+          "factory": false,
+          "function": "ink_m3f5d05703911b0eb15ee581488a98b251814750b46ca863aeb6a945320eba720",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": true,
+          "function": "ink_mdf37b800aaf2013864279ab27755634ee6b6233e6a64713acf215b2b9e270b80",
+          "retained_bindings": 2
+        },
+        {
+          "factory": false,
+          "function": "__ink_instance_19b1c466ac74c2ce04e5173ff9a855626951dba578da68a022acff1990bc081a",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "__ink_instance_e08797ea2dca2a2ceccfd9b7eea06e4ded02ea347beb776c97f823b145b23aed",
+          "reason": "no reusable lexical bindings"
+        }
+      ],
+      "lifetime": "prepared token",
+      "semantics": "sealed-value-residual-v1"
+    },
+    "private_record_elisions": [],
+    "private_sum_spines": [],
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "__ink_instance_19b1c466ac74c2ce04e5173ff9a855626951dba578da68a022acff1990bc081a": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "4de6aa8da6cc05f0be0b9145896d54fa0f5b18c75811858eaefe01cb66e05fc3",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "words",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "ids",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "row_count",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "masks",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "accept",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "69ebf947aa59a2546656d1976b0baa6e56e7182d989425379b31e3bff74168ca",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "__ink_instance_e08797ea2dca2a2ceccfd9b7eea06e4ded02ea347beb776c97f823b145b23aed": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "e4c13fc50b2da8a24977087a3c9e58400703220ab1e479561410ee8358d7af67",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "words",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "base",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "word_stride",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "masks",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "accept",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "counts_packed": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "0e5072f8d1f8354768cbd93693c0412b463326f3638430ff65f19aec81f5c6f0",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "data",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "ids",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "row_count",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "masks",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "accept",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "69ebf947aa59a2546656d1976b0baa6e56e7182d989425379b31e3bff74168ca",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "ink_m3f5d05703911b0eb15ee581488a98b251814750b46ca863aeb6a945320eba720": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "e85a05574645f99bf8fd515b5309bf78d3676adb486f2dd07717c4397734219c",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "word",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "lane",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "ink_m8ab4cacf20eecb4fee875528024144a68d3f9eaa7673bbd7f932545e35cb4475": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "efc7f5e16a95426e8d839fdf1823171425a7c2c3b0a15499a7c7c1462926b505",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "cursor",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "active",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      },
+                      {
+                        "name": "matches",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+                  }
+                },
+                {
+                  "name": "mask",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "accept",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "cf7e4ba02ca57a0a3b86a014ad8f31b08a0b11d4f366c73fcfe66471de838133",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "active",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "matches",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+            }
+          }
+        },
+        "ink_mb7b482fed72f9d4e90d40622a6a7f8d0176b50e01b1996d980ee86bf305a9260": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "077bc605907e102c37a522455484aad0dee226edd6de374f6a17278d95d4f91c",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "active",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "mask",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "ink_mdf37b800aaf2013864279ab27755634ee6b6233e6a64713acf215b2b9e270b80": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "11b32376a05dba3e4037cf30f2bd31d0a5a9b523b04bf07fc63b9d22c4b27347",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "words",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "base",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "word_stride",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "masks",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "accept",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "i",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "cursor",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "active",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      },
+                      {
+                        "name": "matches",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "cf7e4ba02ca57a0a3b86a014ad8f31b08a0b11d4f366c73fcfe66471de838133",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "active",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "matches",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "ink_m729891450174d55faffdbc30f0efebb05416ad4eb4a04ced8c58b454005637e1"
+            }
+          }
+        }
+      }
+    }
+  },
+  "javascript_sha256": "e0c8cd4d1d4eb827aeda66ecf0699585db62fe547a2f70fb6be88c885b4a1a4a",
+  "proof_claim": "no backend correctness proof or optimisation theorem; saved profiles estimate profitability only",
+  "runtime_abi": "ink-packed-pipeline-v2",
+  "runtime_host_sha256": "2b45fd84528bdce905dbdc215561733d38533d41fcaf146ee06121e830a22ca8",
+  "schema": 2,
+  "shaders": {
+    "compute-0.wgsl": "ba8881a05edce9f79be4198cd8010be76154fe8ab9ff1e37d392f480cda4d1dd",
+    "compute-5.wgsl": "6ad2b2e1adfe14b34ab8d40d79cc4319f4f41367e33c6178e9cdb1a8906759bd",
+    "graph-0-0.wgsl": "a3fcd8fe0ef662f4d1e95b447bf747aebe14fcce1ceb3b99fb7844064adb791f",
+    "graph-1-0.wgsl": "b75602a11ae343243fe1bc230d83c8a26aceef1ed7f8f0b61ca02ef3747dd6fe",
+    "graph-2-0.wgsl": "9ac56e5fe772fc5a18d4a18e0c42de852981ade6061f0e3f18cbe28b7bddeadf",
+    "graph-2-1.wgsl": "b75602a11ae343243fe1bc230d83c8a26aceef1ed7f8f0b61ca02ef3747dd6fe",
+    "graph-2-2.wgsl": "18e3c8823fedfedf00e0a0d4ceff955b8f05cad9b1edf9f864247af0a8645a2e",
+    "graph-2-3.wgsl": "854b146397f0bb3e0b7de815fb9fcfb9734cf5b84c4552561b1f66a7995d34f7",
+    "graph-3-0.wgsl": "ee4ad9b0572bde49e7f52f97a3f5072db7ceb69d7f02bbf1bd90de452aa0e986",
+    "graph-4-0.wgsl": "ed334d97b45272b9ed7ddd6130b16abe85fe6bfc5c476a39f47f756d60f98e37",
+    "graph-4-1.wgsl": "ee4ad9b0572bde49e7f52f97a3f5072db7ceb69d7f02bbf1bd90de452aa0e986",
+    "graph-4-2.wgsl": "0c54fc2e151b45988e464f5536e484d5dea2762f7d4213049adc854c3182194d",
+    "graph-4-3.wgsl": "9ac56e5fe772fc5a18d4a18e0c42de852981ade6061f0e3f18cbe28b7bddeadf",
+    "graph-4-4.wgsl": "b75602a11ae343243fe1bc230d83c8a26aceef1ed7f8f0b61ca02ef3747dd6fe",
+    "graph-4-5.wgsl": "18e3c8823fedfedf00e0a0d4ceff955b8f05cad9b1edf9f864247af0a8645a2e",
+    "graph-4-6.wgsl": "854b146397f0bb3e0b7de815fb9fcfb9734cf5b84c4552561b1f66a7995d34f7",
+    "graph-5-0.wgsl": "a3fcd8fe0ef662f4d1e95b447bf747aebe14fcce1ceb3b99fb7844064adb791f",
+    "graph-6-0.wgsl": "e2e17e2579004bb59182b84405dea7700809460367fe9c17380b74b302e01e52"
+  },
+  "trust": [
+    "type checker",
+    "literal C and WGSL lowering",
+    "packed ABI and host pipeline execution",
+    "C/LLVM, WebGPU/wgpu and drivers"
+  ]
+}
