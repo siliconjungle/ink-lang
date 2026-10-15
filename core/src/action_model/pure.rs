@@ -213,6 +213,21 @@ impl Lower<'_> {
                 .cloned()
                 .ok_or("unbound action model pure index".into()),
             Node::Op(op, args) => {
+                if op == "enum" {
+                    let [name, variant] = args.as_slice() else {
+                        return Err("pure enum literal arity".into());
+                    };
+                    let (Node::String(name), Node::String(variant)) = (&name.node, &variant.node) else {
+                        return Err("pure enum literal names".into());
+                    };
+                    if ty != &Type::Named(name.clone()) {
+                        return Err("pure enum literal type".into());
+                    }
+                    let index = self.program.enums.get(name)
+                        .and_then(|variants| variants.iter().position(|v| v == variant))
+                        .ok_or("unknown pure enum literal")?;
+                    return Ok(c(id(&sort)?, index, vec![]));
+                }
                 if op=="method:borrow_range" {
                     let reduced=crate::owned_semantic::reduce(t)?.ok_or("borrow_range correspondence")?;
                     return self.pure_term(&reduced,env,bound,depth+1);
@@ -298,6 +313,9 @@ impl Lower<'_> {
                     .map(|x| self.pure_term(x, env, bound, depth + 1))
                     .collect::<LangResult<Vec<_>>>()?;
                 match op.as_str() {
+                    "call:word_and" if xs.len() == 2 && matches!(ty, Type::U64 | Type::U32 | Type::I32) => {
+                        self.operator(ty, "&", xs[0].clone(), xs[1].clone())
+                    }
                     "call:None" if matches!(ty,Type::Option(_)) && xs.is_empty() => {
                         Ok(c(id(&sort)?,0,xs))
                     }
