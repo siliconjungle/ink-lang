@@ -25,6 +25,7 @@ def audit(catalog, scope):
     required_suites = {
         "binary64",
         "reverse_learning",
+        "source_reverse",
         "differentiation",
         "adaptive_learning",
         "trained_build",

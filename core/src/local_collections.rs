@@ -452,9 +452,9 @@ impl Uses {
                         _ => unreachable!(),
                     };
                     let mut first = self.clone();
-                    first.callback(&a[0], env, p, &[left], &t, false)?;
+                    first.once_callback(&a[0], env, p, &[left], &t)?;
                     let mut second = self.clone();
-                    second.callback(&a[1], env, p, &[right], &t, false)?;
+                    second.once_callback(&a[1], env, p, &[right], &t)?;
                     self.moved.extend(first.moved);
                     self.moved.extend(second.moved);
                     self.next = first.next.max(second.next);
@@ -686,6 +686,14 @@ impl Uses {
         result: &Type,
         borrow_acc: bool,
     ) -> LangResult<()> {
+        self.callback_mode(e,env,p,params,result,borrow_acc,false)
+    }
+    /// Variant folds select exactly one arm and invoke it once. Their captures
+    /// may be consumed, but a move in either arm invalidates the outer owner.
+    fn once_callback(&mut self,e:&Expr,env:&Env,p:&Program,params:&[Type],result:&Type)->LangResult<()> {
+        self.callback_mode(e,env,p,params,result,false,true)
+    }
+    fn callback_mode(&mut self,e:&Expr,env:&Env,p:&Program,params:&[Type],result:&Type,borrow_acc:bool,consume_captures:bool)->LangResult<()> {
         let captured = self.ids.values().cloned().collect::<Vec<_>>();
         let before = self.moved.clone();
         let mut local = self.clone();
@@ -705,9 +713,9 @@ impl Uses {
         }
         local.walk(body, &ts, p, Some(result), false)?;
         for m in local.moved.difference(&before) {
-            if captured
+            if (!consume_captures && captured
                 .iter()
-                .any(|id| m == id || m.starts_with(&format!("{id}.")))
+                .any(|id| m == id || m.starts_with(&format!("{id}."))))
                 || borrowed_id
                     .as_ref()
                     .is_some_and(|id| m == id || m.starts_with(&format!("{id}.")))
@@ -716,6 +724,9 @@ impl Uses {
                     "callback cannot consume captured or borrowed temporary storage".into(),
                 );
             }
+        }
+        if consume_captures {
+            self.moved.extend(local.moved.difference(&before).filter(|m|captured.iter().any(|id|*m==id||m.starts_with(&format!("{id}.")))).cloned());
         }
         self.next = self.next.max(local.next);
         Ok(())

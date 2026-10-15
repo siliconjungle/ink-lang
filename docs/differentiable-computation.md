@@ -107,9 +107,9 @@ Number/tag conversions without changing any F32 arithmetic operation.
 The [retained comparison](../bench/batched-differentiation/README.md) improves the
 large polynomial gradient from 18.779 to 8.985 ms in fresh held-out JavaScript
 processes. An authored derivative remains about 9× faster. This is one workload,
-not broad training-performance or Handwired parity. Reverse-mode tapes, larger
-model libraries, sparse tangent analysis and frozen-weight specialization remain
-open.
+not broad training-performance or Handwired parity. Source [reverse differentiation](source-reverse-differentiation.md) now adds a
+bounded tape for larger dynamic parameter lists. Larger model libraries, sparse
+tangent analysis and frozen-weight specialization remain open.
 
 Two [database equations](../knowledge/libraries/differential-batching-admission.json)
 prove that batched and separate-direction results agree for specific polynomial
@@ -136,3 +136,5 @@ now supplies an independently authored ordered VJP algorithm over dynamic lists.
 It supports the 244-parameter ReGLU example without the source full-gradient's
 32-coordinate limit. This is a separate graph interface; arbitrary source
 functions do not automatically acquire reverse-mode differentiation.
+
+For source objectives beyond 32 coordinates, use [reverse source differentiation](source-reverse-differentiation.md). It follows authored helpers and loops with an explicit node budget and zero-cotangent policy; the graph-library interface remains separately available.
