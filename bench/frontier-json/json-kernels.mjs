@@ -1,7 +1,7 @@
 import {provenance} from './provenance.mjs';
 import fs from'node:fs';import path from'node:path';import assert from'node:assert/strict';import {fileURLToPath,pathToFileURL}from'node:url';import{createHash}from'node:crypto';import {diff}from'@shapeshift-labs/frontier/diff';import {applyPatch,applyPatchImmutable}from'@shapeshift-labs/frontier/apply';import {assertJsonValue}from'@shapeshift-labs/frontier/validate';import {OP_SET}from'@shapeshift-labs/frontier/constants';import {encodePatch,decodePatch}from'@shapeshift-labs/frontier-codec';
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'),OUT=path.join(ROOT,'reports/frontier-json-2026-10-13');fs.mkdirSync(OUT,{recursive:true});const processIndex=Number(process.argv[2]??0),smoke=process.argv.includes('--smoke'),rounds=smoke?1:9,rows=[],validation=[],sizes=[];
-const provenanceAtStart=provenance(ROOT);
+const provenanceAtStart=provenance(ROOT,{native:false});
 const flag=name=>process.argv.find(a=>a.startsWith('--'+name+'='))?.split('=')[1],fieldFilter=flag('fields'),operationFilter=flag('operation'),laneFilter=flag('lane'),targetMs=Number(flag('target-ms')??10);
 const warmupCalls=Number(flag('warmup-calls')??0);if(!Number.isSafeInteger(warmupCalls)||warmupCalls<0||warmupCalls>10000)throw Error('invalid warmup count');
 const modulePath=flag('ink-module')??'build/frontier-json/ink.mjs';const ink=await import(pathToFileURL(path.resolve(ROOT,modulePath)).href);
@@ -33,6 +33,13 @@ for(const n of (smoke?[4]:[4,64,512]).filter(n=>fieldFilter===undefined||n===Num
  const disjoint=(result,...sources)=>{const objects=identities(result);for(const source of sources)for(const object of identities(source))assert.equal(objects.has(object),false,'owned output aliases caller input');};
  disjoint(ownedEdit(),compiled,value);disjoint(ownedFrontier(),doc,patch);
  assert.equal(applyPatchImmutable(doc,patch,{cloneValues:true}).unknown,doc.unknown);
+ const textPipelines={
+    'ink-json-text-pipeline':()=>json.stringify(ink.call('set_document',[json.parse(text),key,value]).Ok),
+    'ink-binary-pipeline':()=>{const docWire=json.parseBinary(text),request=args.encodeWith(w=>w.frame(w=>{w.bytes(docWire.subarray(40));w.frame(w=>w.bytes(encoder.encode(key)));w.bytes(valueWire.subarray(40));})),reply=ink.callBinary('set_document',request);if(reply[44])throw Error('compiled JSON edit failed');const result=new Uint8Array(40+reply.length-45);result.set(docWire.subarray(0,40));result.set(reply.subarray(45),40);return json.stringifyBinary(result);},
+    'frontier-json-text-known-edit':()=>JSON.stringify(applyPatch(JSON.parse(text),patch,{cloneValues:true})),
+ };
+ for(const render of Object.values(textPipelines))assert.equal(render(),JSON.stringify(target),'full rendered text preflight');
+ const consumeText=text=>{let h=0;for(const byte of encoder.encode(text))h=(Math.imul(h,31)+byte)>>>0;return h;};
  const groups={
   'known-edit-immutable':{
     'ink-js-compiled-json-set':()=>ink.call('set_document',[compiled,key,value]).Ok.payload?next:0,
@@ -48,11 +55,8 @@ for(const n of (smoke?[4]:[4,64,512]).filter(n=>fieldFilter===undefined||n===Num
     'frontier-full-diff-and-apply':()=>{const target={...doc,[key]:next};return applyPatchImmutable(doc,diff(doc,target),{cloneValues:true})[key];},
     'frontier-dirty-diff-and-apply':()=>{const target={...doc,[key]:next};return applyPatchImmutable(doc,diff(doc,target,{dirtyPaths:[[key]]}),{cloneValues:true})[key];},
   },
-  'json-text-input-edit-text-output':{
-    'ink-json-text-pipeline':()=>json.stringify(ink.call('set_document',[json.parse(text),key,value]).Ok).length,
-    'ink-binary-pipeline':()=>{const docWire=json.parseBinary(text),request=args.encodeWith(w=>w.frame(w=>{w.bytes(docWire.subarray(40));w.frame(w=>w.bytes(encoder.encode(key)));w.bytes(valueWire.subarray(40));})),reply=ink.callBinary('set_document',request);if(reply[44])throw Error('compiled JSON edit failed');const result=new Uint8Array(40+reply.length-45);result.set(docWire.subarray(0,40));result.set(reply.subarray(45),40);return json.stringifyBinary(result).length;},
-    'frontier-json-text-known-edit':()=>JSON.stringify(applyPatch(JSON.parse(text),patch,{cloneValues:true})).length,
-  },
+  'json-text-input-edit-text-output':Object.fromEntries(Object.entries(textPipelines).map(([name,run])=>[name,()=>run().length])),
+  'json-text-input-edit-utf8-output':Object.fromEntries(Object.entries(textPipelines).map(([name,run])=>[name,()=>consumeText(run())])),
   'external-document-validate':{
     'ink-binary-json-validate':()=>{json.validateBinary(wire);return n;},
     'frontier-json-text-parse-validate':()=>{assertJsonValue(JSON.parse(text));return n;},
@@ -73,7 +77,7 @@ for(const n of (smoke?[4]:[4,64,512]).filter(n=>fieldFilter===undefined||n===Num
   const counts={};for(const [lane,run]of Object.entries(candidates)){if(warmupCalls)measure(run,warmupCalls);measure(run,3);const pilot=measure(run,10);counts[lane]=smoke?3:Math.max(10,Math.min(100000,Math.ceil(targetMs*1000000/(pilot/10))));}
   for(let round=0;round<rounds;round++)for(const lane of shuffled(Object.keys(candidates))){global.gc?.();const count=counts[lane],elapsed_ns=measure(candidates[lane],count);rows.push({operation,fields:n,lane,process:processIndex,round,calls:count,elapsed_ns:String(elapsed_ns)});}
  }
- validation.push({fields:n,source_unchanged:true,known_edit_value:true,owned_edit_detached:true,binary_pipeline_value:true,edit_message_roundtrip:true});console.error(`${processIndex}: JSON fields=${n} validated and measured`);
+ validation.push({fields:n,source_unchanged:true,known_edit_value:true,owned_edit_detached:true,binary_pipeline_value:true,full_utf8_text_preflight:true,edit_message_roundtrip:true});console.error(`${processIndex}: JSON fields=${n} validated and measured`);
 }
 if(!rows.length)throw Error('no benchmark lanes matched');
 fs.writeFileSync(reportPath,JSON.stringify({schema:1,provenance:provenanceAtStart,instrumented:process.execArgv.some(a=>a.startsWith("--cpu-prof")||a.startsWith("--prof")||a.startsWith("--trace")),node:process.version,process:processIndex,rounds,warmup_calls:warmupCalls,measurements:rows,sizes,validation,sink,capability_gap:'Ink does not currently expose a general arbitrary JSON snapshot diff or the Frontier patch opcode vocabulary. Diff-discovery controls are Frontier-only; compiled Ink receives known source edits.',scope:'Shared safe-integer/Unicode JSON domain; JSON member order and exact number token spelling are additional Ink observations not measured here; binary formats carry distinct schema/protocol overhead. Agreed-schema transport requires exact format/schema negotiation outside the message; portable wire and checkpoints remain separate.'},null,2)+'\n',{flag:'wx'});

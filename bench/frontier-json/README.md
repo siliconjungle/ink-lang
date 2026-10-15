@@ -144,3 +144,9 @@ before timing. `variants.mjs typed-ingress` pairs TypedJsonCodec numeric-list te
 to portable/compact boundaries, consuming every encoded byte and checking reduced
 limits. Both are Ink implementation diagnostics, with separate artifact hashes,
 not Frontier or lifecycle rankings.
+
+The 15 October rerun is retained in `bench/frontier-current/`. The
+`json-text-input-edit-utf8-output` group UTF-8 encodes and digests every output
+byte for each text pipeline, after exact rendered-text preflight. The earlier
+returned-string-length group remains separate. JSON-only and lifecycle provenance
+exclude the unused native executable; state `--javascript-only` does likewise.

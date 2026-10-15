@@ -1,0 +1,246 @@
+{
+  "finding": "F074",
+  "baseline": {
+    "root": "a107bf764139ab6842863c366cb0c046557511f3",
+    "knowledge": "c85f59361f52d03779d4e8da1b2367f570d7483b",
+    "planner": "3658092c17349f9c7f8967ba9abd795ac6bba6a9",
+    "compiler_sha256": "9e0d288ef71ffc999eac7f10646c84a314ecb9c39999a2b168fb5ea9bf08ba5e",
+    "source_sha256": {
+      "planner/README.md": "e83d0ec16e851020bcb2a46ba3a2c08018bb0e3d5d226942c65189851db4ff39",
+      "knowledge/README.md": "fc7fbc57029d91c5221eff829e58866c393f98c9c3fcae337c88003470f37000",
+      "knowledge/ink_knowledge/selection_probes.py": "d219cbeedac7fc53c665b67d14775cb453f60f7626882d99f8701f553db92322",
+      "knowledge/ink_knowledge/automatic-selection.json": "fe292410020c895ccd3c800875a19091fdc9c7c9d2cab59bce47971c2e7d7de2",
+      "planner/ink_planner/compiled_planning.py": "167f51ad3ef8b81ba1fa8dfa6cf60a6cd36aa74a42fa87ef39e1e13dd85eefd3",
+      "planner/ink_planner/offline_measurements.py": "db129d83e253a29b5a0dd0bdbcba719b6f725361c208804938ac97cb63a8e1f0"
+    },
+    "epoch_note": "Integrated incoming a107bf76, including its pinned knowledge, before this change; prior browser benchmark stays at d63372a0. No production Rust/lowering source changed in that integration."
+  },
+  "knowledge_revision": "0d4cd0f42e5bd2eff8f9e79d16a094f021bbde2a",
+  "planner_revision": "55ab791828891b40ecaef8e9a4c9c73d4ad30dfc",
+  "checks": {
+    "knowledge": {
+      "tests": 9,
+      "result": "pass",
+      "sha256": "8fa88321976d6b2f7cd7e3f4588ba297b5be6327fd59463f927e4650289d8db3"
+    },
+    "probe_validation": {
+      "tests": 7,
+      "result": "pass",
+      "sha256": "0797a603f79e55a5612211749887a547eca16fda33260dc9b3baf57657cc4f17"
+    },
+    "offline_measurements": {
+      "tests": 5,
+      "result": "pass",
+      "sha256": "b939026fe6dd24395832e9d973e8f0a8618e95011bc9e773c17e763dd9ee49a5"
+    },
+    "compiled_planning": {
+      "tests": 16,
+      "result": "pass",
+      "sha256": "b6518f574bb58a93ffd34e105a728181415aded27c52ad61b484d52875b20189"
+    },
+    "measured_selection": {
+      "tests": 3,
+      "result": "pass",
+      "sha256": "f97776321b6d5f1db3efd766ff27e384b1098780b3a47b31413c7c947e35e6e5"
+    },
+    "compiled_cache": {
+      "tests": 4,
+      "result": "pass",
+      "sha256": "0292b91377e3f5de5fc72b83a91ddacbecbc2c226b761793f9b4babe85f7ad63"
+    },
+    "automatic_compilation": {
+      "tests": 2,
+      "result": "pass",
+      "sha256": "6a7b73a572e29ddfc879eff13a09e744946ac9af2fde148861c7b3b9b59dac43",
+      "scope": "Actual Rust/JS/Wasm values/errors/snapshots, with INK_TEST_WASM=1 and INK_PARITY_REQUIRE_ALL=1; actual JS and native Rust probe acquisition.",
+      "environment": {
+        "INK_TEST_WASM": "1",
+        "INK_PARITY_REQUIRE_ALL": "1"
+      },
+      "reproducible_probe_receipt_sha256": "720bac8e5002fac9a19c6295d688ed818a6381a7eb43600e1597f5b59f15fb41"
+    },
+    "warm_cache_and_corrupt_proof": {
+      "result": "pass",
+      "heldout_calls": 24,
+      "sha256": "24e96bdf6bddc846d89801f1377eb7466293d0193e14bfb9ed04935c1b10fe0c"
+    }
+  },
+  "actual_integration": {
+    "status": "passed",
+    "forged_guard_rejected": true,
+    "targets": [
+      {
+        "target": "javascript",
+        "observations": 9,
+        "explicit_errors_preserved": true,
+        "empty_phase_declined_without_publication": true,
+        "input_validation": {
+          "proposed_calls": 222,
+          "accepted_calls": 126,
+          "phases": {
+            "call:ordinary:trusted": {
+              "proposed": 24,
+              "accepted": 24
+            },
+            "call:ordinary:portable": {
+              "proposed": 24,
+              "accepted": 24
+            },
+            "call:ordinary:compact": {
+              "proposed": 24,
+              "accepted": 24
+            },
+            "call:positive:trusted": {
+              "proposed": 25,
+              "accepted": 17
+            },
+            "call:positive:portable": {
+              "proposed": 25,
+              "accepted": 17
+            },
+            "call:positive:compact": {
+              "proposed": 25,
+              "accepted": 17
+            },
+            "call:square_domain:trusted": {
+              "proposed": 25,
+              "accepted": 1
+            },
+            "call:square_domain:portable": {
+              "proposed": 25,
+              "accepted": 1
+            },
+            "call:square_domain:compact": {
+              "proposed": 25,
+              "accepted": 1
+            }
+          },
+          "guard_executions": 25,
+          "reference_executions": 6,
+          "reused_calls": 194,
+          "complete": true,
+          "accepted_inputs_sha256": "f02e47f43a5e80e679f3fb14262a331b91d41caef8f2fe2c2994fb58bc33d6c5"
+        }
+      },
+      {
+        "target": "rust",
+        "observations": 3,
+        "explicit_errors_preserved": true,
+        "empty_phase_declined_without_publication": true,
+        "input_validation": {
+          "proposed_calls": 74,
+          "accepted_calls": 42,
+          "phases": {
+            "call:ordinary": {
+              "proposed": 24,
+              "accepted": 24
+            },
+            "call:positive": {
+              "proposed": 25,
+              "accepted": 17
+            },
+            "call:square_domain": {
+              "proposed": 25,
+              "accepted": 1
+            }
+          },
+          "guard_executions": 25,
+          "reference_executions": 6,
+          "reused_calls": 46,
+          "complete": true,
+          "accepted_inputs_sha256": "7d68a4d2ccf93b59d8e7f8d6be32c929a1c2441a7b62bb8032da07ce81243d77"
+        }
+      }
+    ]
+  },
+  "prior_browser_input": {
+    "admitted_states": 311,
+    "selected_steps": 0,
+    "reason": "baseline retained; no robust measured lifecycle improvement",
+    "proposed_calls": 360,
+    "accepted_calls": 333,
+    "required_phases": 36,
+    "reference_executions": 100,
+    "guard_executions": 27,
+    "reused_calls": 252,
+    "matrix_phase_coverage": {
+      "call:matrix:trusted": {
+        "proposed": 10,
+        "accepted": 1
+      },
+      "call:matrix:portable": {
+        "proposed": 10,
+        "accepted": 1
+      },
+      "call:matrix:compact": {
+        "proposed": 10,
+        "accepted": 1
+      }
+    },
+    "scope": "Exact prior12workload core now completes ordinary offline acquisition. No robust>=5%lifecycle gain among8measured candidates, so baseline retained. Matrix proposals only find width1; no claim to model larger matrix regimes. No refreshed browser timing or universal profitability claim."
+  },
+  "corpus": {
+    "before": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 4,
+      "median_seconds": 16.8925,
+      "stopped_by_time": 4,
+      "laws_admitted": 44,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 4,
+        "measurement_budget": 6
+      }
+    },
+    "after": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 5,
+      "median_seconds": 15.713999999999999,
+      "stopped_by_time": 3,
+      "laws_admitted": 45,
+      "laws_admitted_in_multiple_programs": 7,
+      "representations_admitted": 0,
+      "last_gates": {
+        "selected_alternative": 5,
+        "measurement_budget": 5
+      }
+    },
+    "wall_seconds": {
+      "before": 330.5927257919684,
+      "after": 336.0717981250491
+    },
+    "index_membership": {
+      "same_typed_input_fingerprints": true,
+      "admitted_states": [
+        30,
+        30
+      ],
+      "selection_reasons": [
+        "baseline retained; no robust measured lifecycle improvement",
+        "paired complete-lifecycle improvement on selection inputs"
+      ]
+    },
+    "interpretation": "All10 compile in both runs. Observed selected programs4to5 and laws44to45, seven reused laws in both; time-bounded search and measurements under contention prevent causal runtime/generalisation claims. Extra index-membership selection has same typed input fingerprints and30admitted states; not evidence of a new semantic capability."
+  },
+  "mechanism": "Automatic proposals use metadata roles and bounded DB seed cases. Actual checked source guards filter only false synthetic inputs. Every required phase/lifecycle weight remains; explicit workloads, guard errors, body failures, timeouts and Error values retain their meanings. Observations bind retained cohort/source; acquisition-local reference results reuse complete lossless input packets across transport boundaries. No proof gates or runtime strategies changed.",
+  "limits": "Arbitrary preconditions may have no discovered inhabitant; then baseline retained. Matrix proposals currently find width1 only. New12workload acquisition measures8candidates but none clears5%gate; no browser/runtime speedup claim.",
+  "initial_failures": [
+    "Test harness omitted native root and sparse checkout omitted existing correctness fixture; repaired.",
+    "Raw canonical hashing in first candidate rejected floats. Replaced with existing lossless measurement transfer and added signed-zero/word distinctions.",
+    "One unit import required repository root on PYTHONPATH; repaired test invocation."
+  ],
+  "publication_status": "Captured after local validation; distribution commit/remote CI status is recorded separately, not implied.",
+  "ci_wiring": {
+    "foundations": "Explicit automatic_compilation test added under mandatory all-target flags.",
+    "planning": "selection_probes, probe_validation and offline_measurements focused suites added.",
+    "retention": "Automatic source/script/expected/probe receipts retained by foundations artifacts.",
+    "workflow_yaml": "Parsed safely with Ruby Psych and asserted job commands/target environment."
+  }
+}

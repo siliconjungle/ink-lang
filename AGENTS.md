@@ -34,12 +34,11 @@ Planner search and model fitting belong in `ink-planner`. Structural prices,
 immutable measurements and fitted models live in knowledge. Runtime executes
 already eligible implementations, applies the common decision contract, enforces
 resource limits and falls back on device failure. Runtime does not run profitability
-probes. Missing comparable evidence retains the compiled CPU baseline, with one
-exception at James's request: a plan made only of checked maintained folds is
-selected without evidence (planner/ink_planner/static_dominance.py), because group
-folds and grouped query views add constant work per cell write and extremum views
-one logarithmic multiset update, while keep reads and grouped queries stop scanning
-the table. Do not widen that exception without the same asymptotic argument.
+probes. Missing comparable evidence retains the compiled CPU baseline, including
+plans made only of checked maintained folds. At James's request the former
+asymptotic-dominance exception is removed: equal asymptotic write cost does not
+establish profitable setup, constants, memory or migration. Use comparable
+lifecycle evidence or an admitted validated work model for every automatic choice.
 Correctness, applicability and profitability are separate gates.
 
 Legacy aggregate certificates, bounded cache/narrowing, typed storage policies,
