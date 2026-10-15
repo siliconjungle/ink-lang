@@ -37,3 +37,15 @@ paths describe the original acquisition; preparation regenerates local paths.
 Release build flags remain unchanged, and build/startup costs are excluded from
 the steady-state headline. Frozen planning-corpus diagnostics are reported
 separately and do not establish a runtime gain.
+
+The unmeasured default semantic structural score ranks the source at 97 and this
+guarded target at 201: it charges both branches and assumes one loop iteration.
+That ranking remains a limitation for bounded automatic search. The runtime
+control explicitly selects and checks the law; its gain does not establish that
+the default planner selects it on arbitrary workloads.
+
+The current catalogue is additionally restricted to reviewed numeric/list
+operation trees. Nested string construction and unanalysed helper calls decline
+hoisting. `scope-hardening.json` records unchanged numeric proposals and passing
+CPU replay; `catalogue-check.py` independently checks installed discovery. The
+frozen measurement producer is retained solely to reproduce this numeric control.
