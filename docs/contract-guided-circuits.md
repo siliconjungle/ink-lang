@@ -162,7 +162,10 @@ foundation; broad statistical certification remains work.
 5. **A frozen algorithm inside a learned system.** Demonstrate what is trainable,
    the source contract after training and the cost of crossing execution systems.
 
-The first matched search investigation is in progress. Its measurements must
+The first matched search investigation is retained in the
+[packed-circuit report](../reports/handwired-packed-circuits-2026-10-15/README.md).
+The [three-project delivery checklist](chenglou-optimisation-programme.md#delivery-checklist)
+keeps its remaining implementation and evidence work explicit. Search measurements
 remain separate from claims about general neural compilation, complete JSON
 parsing/highlighting, or automatic query optimization. Tests of a concrete
 implementation do not close the trusted compiler, ABI, runtime or driver chain.
