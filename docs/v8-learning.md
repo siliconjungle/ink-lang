@@ -278,3 +278,31 @@ the same equality proof. Both the measured proposal and all twelve numeric CPU
 fixture proposals are byte-identical after this restriction, and the hardened
 72-case CPU suite passes. The frozen corpus above predates this restriction;
 post-run discovery on its exact captured cores remains zero for this producer.
+
+The value-numbering pass also informs bounded invocation-local reuse in the
+database's authoring normalizer. Exact function/argument/depth keys reuse only
+successful results, with a fresh context for each invocation, fresh returned
+containers and unchanged lazy/depth behavior. It activates after 32 expansions
+to avoid structural-key overhead on small jobs. Three fresh processes show
+about 13.1×/22.1× on deliberately repeated helper DAGs; captured obligations are
+approximately unchanged, with about 1–2% overhead on the smallest group. These
+are authoring measurements, not generated-program or whole-compiler speedups.
+All 64 old/new normal forms match; six ordinary Convert theorems replay with
+unchanged limits, and a reauthenticated false result is rejected. The 16 focused
+regressions and all 301 merged planner tests pass. See
+`bench/v8-learning/normalizer` for inputs, raw samples and exact revisions.
+
+At the user's closeout request, the broader audit stops with its explicit partial
+and pending family statuses in `bench/v8-learning/audit.json`. The completed
+changes and selected evidence are retained; unread paths and unassessed domains
+are not claimed as implemented. The new authoring cache is distinct from the
+measured native hoisting improvement, and neither establishes a broad speedup
+across Ink applications.
+
+The final frozen corpus diagnostic compiles all ten unchanged programs, selects
+two alternatives, admits 36 laws and reuses seven across programs, with no
+representation admitted. Every quick budget is exhausted. Compiler/planner
+changes since the prior run and bounded-search variability prevent attributing
+count or elapsed-time differences to authoring reuse. Exact inputs, selected
+plans, near misses and context are retained in `corpus-normalizer`; its private
+knowledge publications are retired after successful completion.
