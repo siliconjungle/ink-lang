@@ -329,7 +329,7 @@ Integer division, remainder and variable shifts use checked library operations. 
 
 Exact arithmetic costs whatever its representation requires. The optimiser may specialise it to bounded machine arithmetic only with a proof or a guard and exact fallback.
 
-Floating-point operations preserve the specified rounding, signed-zero and infinity behaviour. The portable profile canonicalises NaNs and exposes no floating-point exception flags. Contraction into fused operations and reassociation require separate permission: they are not generally exact rewrites. Approximate arithmetic is a future, explicitly different contract with a numerical error bound; it must not enter an exact-equivalence class.
+Floating-point operations preserve the specified rounding, signed-zero and infinity behaviour. The portable profile canonicalises NaNs and exposes no floating-point exception flags. Contraction into fused operations and reassociation require separate permission: they are not generally exact rewrites. Explicit [approximation contracts](approximation-contracts.md) now admit integer absolute/rational-relative error and finite-f32 ULP error against a declared reference, through ordinary proof obligations. General real-valued error bounds remain future work; approximation never enters an exact-equivalence class.
 
 ## 4 Functions and local computation
 
