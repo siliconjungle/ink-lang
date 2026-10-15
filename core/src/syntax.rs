@@ -668,7 +668,27 @@ impl Parser {
                 }
                 self.pure = kind.is_none();
                 let (mut requires, mut ensures) = (vec![], vec![]);
-                while ["requires","ensures"].contains(&self.peek()) {
+                while ["requires","ensures","approximates"].contains(&self.peek()) {
+                    if self.eat("approximates") {
+                        let reference = self.expr(0)?;
+                        self.expect("within")?;
+                        let metric = self.take();
+                        let (budget, denominator) = if metric == "relative" {
+                            self.expect("(")?;
+                            let numerator = self.expr(0)?;
+                            self.expect(",")?;
+                            let denominator = self.expr(0)?;
+                            self.expect(")")?;
+                            (numerator, Some(denominator))
+                        } else { (self.expr(0)?, None) };
+                        self.expect(";")?;
+                        let names = [self.fresh_name(), self.fresh_name(), self.fresh_name(), self.fresh_name()];
+                        ensures.push(if let Some(denominator) = denominator {
+                            crate::approximation::relative(&result, reference, budget, denominator, names)?
+                        } else { crate::approximation::predicate(&result, reference, &metric, budget, names)? });
+                        if requires.len()+ensures.len()>64 { return Err(self.err("specification clause limit")); }
+                        continue;
+                    }
                     let pre = self.take() == "requires";
                     let predicate = self.expr(0)?; self.expect(";")?;
                     if pre { requires.push(predicate); } else { ensures.push(predicate); }
