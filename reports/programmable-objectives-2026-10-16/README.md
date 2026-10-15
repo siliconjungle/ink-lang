@@ -22,6 +22,9 @@ Local validation:
   and disabled restore state. The offline command selects the same smaller
   variant using the compiled goal and shared ABI.
 - Planner profile validation: two tests.
+- Distribution: five adaptive-host tests plus both installation/build tests,
+  including relocation, packaged objective assets and independent offline proof
+  replay after committing the exact component pins.
 
 `goal-parity-*` records full inputs, independent expected results and actual
 native GPU-host receipts. `offline-objective.json` is the offline proposal;
@@ -37,6 +40,10 @@ preserved the user's pre-existing `core/src/syntax/query.rs` edit (diff SHA256
 That edit is excluded from this publication. No whole-toolchain proof follows
 from these tests; compiled adapters, codecs, forecasts and runtime remain in the
 documented trust boundary. Full CI status must be checked separately.
+Implementation source is distribution commit
+`8724aeb5a0cfa4b4a7456adb4d39844bca36a403`; the following report-only commit
+records the completed installation checks. `sha256.json` binds the retained data
+and logs; its hashes are integrity checks, not proof authority.
 
 See [the contract](../../docs/programmable-objectives.md) for APIs and remaining
 integration boundaries.
