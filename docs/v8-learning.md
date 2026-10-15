@@ -234,3 +234,25 @@ seven across programs. No representation was admitted, and all ten exhausted the
 quick search budget. It supplies no broad parameter-cache generalization or V8
 runtime speedup claim; the workload-specific cache evidence remains separate.
 See `bench/v8-learning/corpus-parameter-summary.json`.
+
+V8's scheduler bounds loop hoisting by the earliest valid schedule position and
+requires the original block to execute on every outgoing path. The database's
+new `loop_invariants` producer follows the same demand constraint for strict
+regions of non-stopping map/filter/left-fold/right-fold callbacks. Scalar work
+can move through hygienic lexical binding, with an explicit empty-list guard.
+Conditional-only work and early-stopping callbacks are excluded. Existing
+source binding and Normalize proofs must accept every whole-function proposal;
+there is no new trusted loop rewrite rule. A generic planner extraction fix
+preserves local binders inside captured lambda expressions while still rejecting
+captures of the pattern's binders.
+
+The retained `bench/v8-learning/loop-invariants` control supplies actual compiled
+runtime evidence: three fresh processes per target and disjoint workload split.
+An explicit checked captured-fold hoist improved JavaScript nonempty complete
+calls about 105x in training and 164x in holdout, and native JSON-call medians
+about 1.15x and 1.27x. Every nonempty native process comparison improved; empty
+calls were roughly tied. Native includes typed input conversion, so absolute
+target times are not comparable. This single workload does not establish broad
+language speedups or automatic plan selection. The new mandatory CPU suite
+checks 72 cases including raw floating-point boundary values and nested captures;
+all 295 planner tests passed after materializing two exact legacy test inputs.
