@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "status": "completed",
+  "scope": "Diagnostic shared-machine whole calls, including index construction and result consumption. Existing development fixture and previously selected plan. New registered size/query grid and seed; no plan selection or threshold fitting. No upstream-library, new-library or GPU result. All losses retained.",
+  "conclusion": "Exact finite-carrier lowering removes guard count conversions. Whole-call effect is modest and noisy: about 2% median improvement, 51 raw median losses; no case loses over 5% in every process and no loss has separated full sample ranges. This is not a zero-regression claim, a new algorithm speedup or a repair of index-construction costs.",
+  "registration_sha256": "1d166b60a6f80c18f667f3d384bbadc90c8f0f6b4651cc75dd8651728d9451e5",
+  "checked_selected_module": "e7caad7f552fc68b33afb650f7c1945a3dd53f5109c3580f316b7ae0f1810019",
+  "selected_module_and_plan_identical": true,
+  "baseline_artifact_byte_identical": true,
+  "validation": {
+    "javascript_cases": 2880,
+    "ordinary_binary_compact": true,
+    "state_queries": 2880,
+    "maximum_sparse_array_length": 4294967295,
+    "cpu_cases_with_exact_snapshots": 85,
+    "targets": [
+      "reference",
+      "rust",
+      "javascript",
+      "rust-wasm"
+    ],
+    "events_errors_and_failed_action_rollback": true,
+    "log_sha256": {
+      "count-carrier-js-final.log": "36adf30a178d67689302f48a838ed752aca6c78a6ed24de4ccc8ba5301bbff0b",
+      "count-carrier-cpu-parity-v1.log": "15a6da48b6c6ae2d1b827e59f3d2f8afa1f3df9f9b14a8406bd9fadb878e46fa"
+    }
+  },
+  "conversion_audit": {
+    "cases": 147,
+    "guarded_conversions_per_call": [
+      0,
+      0
+    ],
+    "scope": "Instrumentation counts constructor requests, not allocations or elapsed costs; timing runs use unmodified BigInt."
+  },
+  "package_heads": {
+    "lowerings/js": "0f6ccb5b572373873c3aa398b3e533f68c93509d",
+    "lowerings/gpu": "98438cb0ce237c1c259abd2decff2bfd1e09e976",
+    "runtime": "6755a357b3ebc1f889ae1acb5e0fecc2fc9e60bd"
+  },
+  "summary": {
+    "cases": 168,
+    "median_speedup": 1.0202392638335904,
+    "min_speedup": 0.8791933689812529,
+    "max_speedup": 1.20277215626225,
+    "raw_median_losses": 51,
+    "loss_over_5pct_in_every_process": 0,
+    "sample_range_separated_losses": 0,
+    "unchanged_control_median_ratio": 1.0053806732337849
+  },
+  "by_operation": {
+    "records": {
+      "cases": 56,
+      "median_speedup": 1.010206747961099,
+      "min_speedup": 0.8791933689812529,
+      "max_speedup": 1.0935659930312769,
+      "raw_median_losses": 18,
+      "loss_over_5pct_in_every_process": 0,
+      "sample_range_separated_losses": 0
+    },
+    "predicate": {
+      "cases": 56,
+      "median_speedup": 1.0396565466437413,
+      "min_speedup": 0.9396389196592662,
+      "max_speedup": 1.20277215626225,
+      "raw_median_losses": 16,
+      "loss_over_5pct_in_every_process": 0,
+      "sample_range_separated_losses": 0
+    },
+    "nested": {
+      "cases": 56,
+      "median_speedup": 1.014197117474835,
+      "min_speedup": 0.9413566213697176,
+      "max_speedup": 1.0811801450073364,
+      "raw_median_losses": 17,
+      "loss_over_5pct_in_every_process": 0,
+      "sample_range_separated_losses": 0
+    }
+  }
+}
