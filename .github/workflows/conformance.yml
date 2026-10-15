@@ -23,7 +23,8 @@ jobs:
     - name: Audit packed-circuit benchmark receipts
       run: python3 bench/handwired/analyse.py reports/handwired-packed-circuits-2026-10-15 --check
     - name: Audit conditional word-fact benchmark receipts
-      run: python3 bench/conditional-facts/analyse.py reports/conditional-facts-2026-10-15 --check
+      run: |
+        python3 bench/conditional-facts/analyse.py reports/conditional-facts-2026-10-15 --check
         python3 bench/prepared-tables/analyse.py reports/prepared-tables-2026-10-15
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
