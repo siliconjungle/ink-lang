@@ -1,0 +1,245 @@
+{
+  "schema": 1,
+  "verdict": "Mixed: Ink wins retained/shared JSON edits and query-heavy state; Frontier wins ordinary/prepared updates and complete JSON text pipelines",
+  "processes": [
+    1001,
+    1002,
+    1003
+  ],
+  "pairs": [
+    {
+      "label": "Ordinary row updates",
+      "workload": "replace",
+      "size": 4096,
+      "ink_lane": "ink-js",
+      "frontier_lane": "frontier-state-main-patch",
+      "ink_ns": 2326.076271186441,
+      "frontier_ns": 668.8093428938356,
+      "frontier_over_ink": 0.287526832709016,
+      "process_ratios": {
+        "1001": 0.2920502290059318,
+        "1002": 0.3002953525105654,
+        "1003": 0.24906420756069228
+      },
+      "scope": "Input capture, result/events/version and acknowledgement included"
+    },
+    {
+      "label": "Prepared row updates",
+      "workload": "replace",
+      "size": 4096,
+      "ink_lane": "ink-js-prepared",
+      "frontier_lane": "frontier-state-main-prepared-patch",
+      "ink_ns": 637.0098407451923,
+      "frontier_ns": 432.577883126935,
+      "frontier_over_ink": 0.6790756680005022,
+      "process_ratios": {
+        "1001": 0.6825541995676971,
+        "1002": 0.6292729149865984,
+        "1003": 0.6720726810889632
+      },
+      "scope": "Input capture/preparation excluded for both; setup separately recorded"
+    },
+    {
+      "label": "Mixed state operations",
+      "workload": "mixed",
+      "size": 4096,
+      "ink_lane": "ink-js",
+      "frontier_lane": "frontier-state-main-patch",
+      "ink_ns": 43987.79296875,
+      "frontier_ns": 132139.9765625,
+      "frontier_over_ink": 3.004014696904104,
+      "process_ratios": {
+        "1001": 3.1252000675608755,
+        "1002": 2.957571044828212,
+        "1003": 3.0042070443016193
+      },
+      "scope": "Fixed mix of updates, failures, removals and total queries"
+    },
+    {
+      "label": "Read-heavy state operations",
+      "workload": "read-heavy",
+      "size": 4096,
+      "ink_lane": "ink-js",
+      "frontier_lane": "frontier-state-main-patch",
+      "ink_ns": 135006.07638888888,
+      "frontier_ns": 377240.16319444444,
+      "frontier_over_ink": 2.794245809409299,
+      "process_ratios": {
+        "1001": 2.7876703080494067,
+        "1002": 2.8382477652604856,
+        "1003": 2.828663188120594
+      },
+      "scope": "Fixed mix of two updates and seven total queries per cycle"
+    },
+    {
+      "label": "Known retained immutable JSON edit",
+      "workload": "known-edit-immutable",
+      "size": 512,
+      "ink_lane": "ink-js-compiled-json-set",
+      "frontier_lane": "frontier-immutable-known-patch",
+      "ink_ns": 3088.239065308568,
+      "frontier_ns": 72760.69911504425,
+      "frontier_over_ink": 23.560578561548052,
+      "process_ratios": {
+        "1001": 23.636976106960542,
+        "1002": 23.716516103283166,
+        "1003": 22.471172773130085
+      },
+      "scope": "Prepared representations; unchanged subtrees may be shared; API-return timing with complete-value preflight"
+    },
+    {
+      "label": "Known fully detached JSON edit",
+      "workload": "known-edit-detached",
+      "size": 512,
+      "ink_lane": "ink-js-owned-json-set",
+      "frontier_lane": "frontier-owned-known-patch",
+      "ink_ns": 91095.62033898305,
+      "frontier_ns": 96246.34210526316,
+      "frontier_over_ink": 1.0565419253649446,
+      "process_ratios": {
+        "1001": 1.0716330536427014,
+        "1002": 1.0324645018229175,
+        "1003": 1.0834105458083998
+      },
+      "scope": "Complete mutable results detached from caller inputs; alias-disjointness preflight"
+    },
+    {
+      "label": "JSON text parse/edit/return string",
+      "workload": "json-text-input-edit-text-output",
+      "size": 512,
+      "ink_lane": "ink-json-text-pipeline",
+      "frontier_lane": "frontier-json-text-known-edit",
+      "ink_ns": 448369.22222222225,
+      "frontier_ns": 76589.69465648854,
+      "frontier_over_ink": 0.17081835875551893,
+      "process_ratios": {
+        "1001": 0.17081835875551893,
+        "1002": 0.17592762924837776,
+        "1003": 0.17157752843343943
+      },
+      "scope": "Returned string length consumed; deferred flattening may remain"
+    },
+    {
+      "label": "JSON text parse/edit/UTF-8 output",
+      "workload": "json-text-input-edit-utf8-output",
+      "size": 512,
+      "ink_lane": "ink-json-text-pipeline",
+      "frontier_lane": "frontier-json-text-known-edit",
+      "ink_ns": 507620.8333333333,
+      "frontier_ns": 111187.97674418605,
+      "frontier_over_ink": 0.21903745757253734,
+      "process_ratios": {
+        "1001": 0.2224759669440644,
+        "1002": 0.21903745757253734,
+        "1003": 0.20460974003886934
+      },
+      "scope": "UTF-8 encoding and digest of every output byte included"
+    },
+    {
+      "label": "Explicit indexed plan, row updates",
+      "workload": "replace",
+      "size": 4096,
+      "ink_lane": "ink-js-db-indexed",
+      "frontier_lane": "frontier-state-main-patch",
+      "ink_ns": 24458.3330078125,
+      "frontier_ns": 668.8093428938356,
+      "frontier_over_ink": 0.0273448457292737,
+      "process_ratios": {
+        "1001": 0.0273448457292737,
+        "1002": 0.02354101423063917,
+        "1003": 0.03320412092919049
+      },
+      "scope": "Manually supplied checked database alternative; not default selection"
+    },
+    {
+      "label": "Explicit indexed plan, read-heavy",
+      "workload": "read-heavy",
+      "size": 4096,
+      "ink_lane": "ink-js-db-indexed",
+      "frontier_lane": "frontier-state-main-patch",
+      "ink_ns": 4681.031001984127,
+      "frontier_ns": 377240.16319444444,
+      "frontier_over_ink": 80.58911872930246,
+      "process_ratios": {
+        "1001": 65.95933371373837,
+        "1002": 81.7311938425676,
+        "1003": 81.66340945549352
+      },
+      "scope": "Manually supplied checked database alternative; not default selection"
+    }
+  ],
+  "lifecycle": [
+    {
+      "scenario": "json-tree",
+      "ink": {
+        "heap_delta_bytes": 3766376,
+        "owned_buffer_bytes": null,
+        "retained_phase_peak_rss_bytes": 85442560,
+        "initialise_or_parse_retain_ns": 5069042
+      },
+      "frontier": {
+        "heap_delta_bytes": 790608,
+        "owned_buffer_bytes": null,
+        "retained_phase_peak_rss_bytes": 70074368,
+        "initialise_or_parse_retain_ns": 2197792
+      }
+    },
+    {
+      "scenario": "state",
+      "ink": {
+        "heap_delta_bytes": 3245104,
+        "owned_buffer_bytes": null,
+        "retained_phase_peak_rss_bytes": 83558400,
+        "initialise_or_parse_retain_ns": 14279833
+      },
+      "frontier": {
+        "heap_delta_bytes": 839208,
+        "owned_buffer_bytes": null,
+        "retained_phase_peak_rss_bytes": 72548352,
+        "initialise_or_parse_retain_ns": 4489542
+      }
+    },
+    {
+      "scenario": "transport",
+      "ink": {
+        "heap_delta_bytes": -35024,
+        "owned_buffer_bytes": 727904,
+        "retained_phase_peak_rss_bytes": 82952192,
+        "initialise_or_parse_retain_ns": 13515292
+      },
+      "frontier": {
+        "heap_delta_bytes": -26552,
+        "owned_buffer_bytes": 179840,
+        "retained_phase_peak_rss_bytes": 73089024,
+        "initialise_or_parse_retain_ns": 9063959
+      }
+    },
+    {
+      "scenario": "transport-compact",
+      "ink": {
+        "heap_delta_bytes": -51000,
+        "owned_buffer_bytes": 227872,
+        "retained_phase_peak_rss_bytes": 83820544,
+        "initialise_or_parse_retain_ns": 24487166
+      },
+      "frontier": {
+        "heap_delta_bytes": -26552,
+        "owned_buffer_bytes": 179840,
+        "retained_phase_peak_rss_bytes": 73236480,
+        "initialise_or_parse_retain_ns": 8926708
+      }
+    }
+  ],
+  "aggregation": "Median of per-process medians of rotated timing rounds",
+  "scope": "Current compiled JavaScript on Node 26.1.0 arm64; shared host, three fresh cohorts, nine rotated rounds; no general or causal V8 speedup claim",
+  "limits": [
+    "Shared development host; no exclusive CPU reservation",
+    "Database indexed state is a supplied checked alternative, not the default selection",
+    "JSON binary and Frontier patch formats have different contracts",
+    "No equivalent startup or peak-memory ranking; no general Ink JSON snapshot diff",
+    "Prepared/retained input and ownership contracts labelled separately",
+    "UTF-8 pipeline consumes all bytes; string-return and codec diagnostics have shallower timed consumers",
+    "Forced-GC heap deltas and shared-runtime RSS are diagnostics, not allocation counts or statistical memory bounds",
+    "Fresh comparison against unchanged Frontier controls; not a before/after V8 attribution experiment"
+  ]
+}

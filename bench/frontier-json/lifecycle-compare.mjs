@@ -23,7 +23,7 @@ const text=JSON.stringify({...Object.fromEntries(Array.from({length:fields},(_,i
 if(!child){
  const output=path.join(ROOT,`reports/frontier-json-2026-10-13/lifecycle-${processIndex}.json`);
  if(fs.existsSync(output))throw Error('report exists; choose a fresh process ID');
- const before=provenance(ROOT),moduleHash=hash(path.resolve(ROOT,modulePath));
+ const before=provenance(ROOT,{native:false}),moduleHash=hash(path.resolve(ROOT,modulePath));
  before.hashes[modulePath]=moduleHash;
  for(const name of ['lifecycle-compare.mjs','state-adapters.mjs'])before.hashes['bench/frontier-json/'+name]=hash(path.join(ROOT,'bench/frontier-json',name));
  const measurements=[];
@@ -32,7 +32,7 @@ if(!child){
   if(result.status!==0)throw Error(`${scenario}/${lane}: ${result.stderr||result.stdout}`);
   measurements.push(JSON.parse(result.stdout));
  }
- const after=provenance(ROOT);after.hashes[modulePath]=hash(path.resolve(ROOT,modulePath));
+ const after=provenance(ROOT,{native:false});after.hashes[modulePath]=hash(path.resolve(ROOT,modulePath));
  for(const name of ['lifecycle-compare.mjs','state-adapters.mjs'])after.hashes['bench/frontier-json/'+name]=hash(path.join(ROOT,'bench/frontier-json',name));
  assert.deepEqual(after.hashes,before.hashes);
  assert.deepEqual(after.revisions,before.revisions);assert.equal(hash(path.resolve(ROOT,modulePath)),moduleHash);
