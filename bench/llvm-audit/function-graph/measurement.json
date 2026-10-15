@@ -1,0 +1,471 @@
+{
+  "scope": "Debug actual core with identical optimized allocator-instrumented clients under contention. Performance cases fully admitted before timing; guard cases syntactic only. Sorted-group oracle or exact errors compared. Cumulative allocation volume notRSS and no browser/release-runtime claim.",
+  "baseline": {
+    "root": "8fabcf90692e93ec2732877851fbc2b26fffe2a1",
+    "scope": "Debug core with optimized instrumented identical probe; fully checked source for performance cases, parsed syntax only for limit guards; source preparation outside timer. Cumulative allocator requests notRSS.",
+    "sha256": {
+      "rlib": "a555e359ffba42d5c6a0f630e70f360ded77c6940031059a70166177cce31280",
+      "client": "a6d65df6798eb16d415945072a3a6b4685b02d924a0295480cffd83998dd53cb",
+      "probe": "6098c6a31b8e6a5941975dae1163ace0518c72ca2c3586630b8e9f14c6f7b098",
+      "analysis": "21017d0371b35426549f4007452400ce109821417ddd76488bb7582811f1adef"
+    }
+  },
+  "candidate_analysis_sha256": "ecd3502d4b3b98bd63148bbaaeda725f12a8d38e83fd822048d938aebe72d494",
+  "cases": [
+    {
+      "case": "empty_edges",
+      "mode": "fanout",
+      "count": 512,
+      "degree": 0,
+      "trials": 9,
+      "runs_per_trial": 3,
+      "median_ns": {
+        "before": 122292,
+        "after": 116583
+      },
+      "after_over_before": 0.953316651947797,
+      "allocation_calls": {
+        "before": 567,
+        "after": 567
+      },
+      "requested_bytes": {
+        "before": 80000,
+        "after": 80000
+      },
+      "samples_ns": {
+        "before": [
+          131167,
+          122959,
+          122125,
+          124500,
+          119000,
+          125250,
+          129459,
+          140541,
+          143833,
+          123375,
+          121334,
+          120208,
+          127334,
+          120000,
+          118000,
+          128542,
+          123291,
+          121166,
+          126375,
+          121917,
+          120000,
+          122292,
+          120542,
+          119750,
+          121750,
+          121708,
+          127208
+        ],
+        "after": [
+          121583,
+          120042,
+          115083,
+          154625,
+          116750,
+          117709,
+          122875,
+          116667,
+          113459,
+          128583,
+          120167,
+          112875,
+          116042,
+          113583,
+          111875,
+          113833,
+          111792,
+          111291,
+          117042,
+          114709,
+          113625,
+          121500,
+          115667,
+          114459,
+          122833,
+          118291,
+          116583
+        ]
+      },
+      "result_sha256": "d66a68c4dea8b10632fd0cc0d50f485627b232e2e258bdcfe1add5afcf42a991",
+      "result": "Ok([])",
+      "identical_groups_or_error": true
+    },
+    {
+      "case": "fanout_small",
+      "mode": "fanout",
+      "count": 128,
+      "degree": 8,
+      "trials": 9,
+      "runs_per_trial": 3,
+      "median_ns": {
+        "before": 667375,
+        "after": 661417
+      },
+      "after_over_before": 0.991072485484173,
+      "allocation_calls": {
+        "before": 1638,
+        "after": 1511
+      },
+      "requested_bytes": {
+        "before": 76388,
+        "after": 68484
+      },
+      "samples_ns": {
+        "before": [
+          673750,
+          650875,
+          665708,
+          680375,
+          667375,
+          666208,
+          653083,
+          648917,
+          653583,
+          1009083,
+          688500,
+          670459,
+          693583,
+          669000,
+          714250,
+          693708,
+          649292,
+          637084,
+          753375,
+          673666,
+          652000,
+          671125,
+          664667,
+          662000,
+          667750,
+          664083,
+          636209
+        ],
+        "after": [
+          645917,
+          657458,
+          653208,
+          686334,
+          657166,
+          661375,
+          654500,
+          648416,
+          689333,
+          707708,
+          661750,
+          647250,
+          677875,
+          664250,
+          659042,
+          693375,
+          675959,
+          645709,
+          1152916,
+          837583,
+          682958,
+          711125,
+          667833,
+          655833,
+          661417,
+          644250,
+          647708
+        ]
+      },
+      "result_sha256": "d66a68c4dea8b10632fd0cc0d50f485627b232e2e258bdcfe1add5afcf42a991",
+      "result": "Ok([])",
+      "identical_groups_or_error": true
+    },
+    {
+      "case": "fanout_large",
+      "mode": "fanout",
+      "count": 512,
+      "degree": 8,
+      "trials": 9,
+      "runs_per_trial": 3,
+      "median_ns": {
+        "before": 2897834,
+        "after": 2874750
+      },
+      "after_over_before": 0.9920340502596077,
+      "allocation_calls": {
+        "before": 6667,
+        "after": 6156
+      },
+      "requested_bytes": {
+        "before": 323780,
+        "after": 291300
+      },
+      "samples_ns": {
+        "before": [
+          2944000,
+          2903708,
+          2933292,
+          2997875,
+          2862750,
+          2828708,
+          2905917,
+          2863250,
+          2880708,
+          2897834,
+          2851541,
+          2882667,
+          2971083,
+          2939458,
+          2903625,
+          3053916,
+          2876250,
+          2840792,
+          2975000,
+          2929625,
+          2839667,
+          2786958,
+          2765542,
+          2853917,
+          2921750,
+          2915625,
+          2855834
+        ],
+        "after": [
+          2930375,
+          2892209,
+          2932416,
+          2931750,
+          2819833,
+          2910791,
+          2865292,
+          2786750,
+          2776250,
+          3023500,
+          3026667,
+          2798750,
+          2834333,
+          2882666,
+          2767583,
+          6240459,
+          2943458,
+          3037833,
+          2704167,
+          2733542,
+          2773834,
+          2720916,
+          2874750,
+          2916500,
+          2983208,
+          2824583,
+          2817625
+        ]
+      },
+      "result_sha256": "d66a68c4dea8b10632fd0cc0d50f485627b232e2e258bdcfe1add5afcf42a991",
+      "result": "Ok([])",
+      "identical_groups_or_error": true
+    },
+    {
+      "case": "cycles",
+      "mode": "cycles",
+      "count": 64,
+      "degree": 0,
+      "trials": 9,
+      "runs_per_trial": 3,
+      "median_ns": {
+        "before": 143417,
+        "after": 138167
+      },
+      "after_over_before": 0.9633934610262381,
+      "allocation_calls": {
+        "before": 599,
+        "after": 471
+      },
+      "requested_bytes": {
+        "before": 59948,
+        "after": 58924
+      },
+      "samples_ns": {
+        "before": [
+          149541,
+          143750,
+          141458,
+          142583,
+          142250,
+          139000,
+          146833,
+          146541,
+          141250,
+          144125,
+          140958,
+          138042,
+          145250,
+          143833,
+          139542,
+          148291,
+          142958,
+          144750,
+          161750,
+          187084,
+          148291,
+          145917,
+          141958,
+          139500,
+          143417,
+          140792,
+          142167
+        ],
+        "after": [
+          139292,
+          137708,
+          136083,
+          138875,
+          138667,
+          134625,
+          138709,
+          136708,
+          133958,
+          139917,
+          136792,
+          134708,
+          139583,
+          137084,
+          135875,
+          139208,
+          138167,
+          134791,
+          148250,
+          140083,
+          137666,
+          143792,
+          142292,
+          140375,
+          138917,
+          135125,
+          134333
+        ]
+      },
+      "result_sha256": "1d74aebc18b66285d178e9a383c6d410cb9ad8e70afa9fd6b488ace0f92ac710",
+      "result": "Ok([[0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11], [12, 13], [14, 15], [16, 17], [18, 19], [20, 21], [22, 23], [24, 25], [26, 27], [28, 29], [30, 31], [32, 33], [34, 35], [36, 37], [38, 39], [40, 41], [42, 43], [44, 45], [46, 47], [48, 49], [50, 51], [52, 53], [54, 55], [56, 57], [58, 59], [60, 61], [62, 63], [64, 65], [66, 67], [68, 69], [70, 71], [72, 73], [74, 75], [76, 77], [78, 79], [80, 81], [82, 83], [84, 85], [86, 87], [88, 89], [90, 91], [92, 93], [94, 95], [96, 97], [98, 99], [100, 101], [102, 103], [104, 105], [106, 107], [108, 109], [110, 111], [112, 113], [114, 115], [116, 117], [118, 119], [120, 121], [122, 123], [124, 125], [126, 127]])",
+      "identical_groups_or_error": true
+    },
+    {
+      "case": "depth_guard",
+      "mode": "depth_guard",
+      "count": 130,
+      "degree": 0,
+      "trials": 3,
+      "runs_per_trial": 3,
+      "median_ns": {
+        "before": 123375,
+        "after": 118417
+      },
+      "after_over_before": 0.9598135764944276,
+      "allocation_calls": {
+        "before": 541,
+        "after": 412
+      },
+      "requested_bytes": {
+        "before": 58857,
+        "after": 57825
+      },
+      "samples_ns": {
+        "before": [
+          135333,
+          126250,
+          122791,
+          130916,
+          122708,
+          120125,
+          128625,
+          123125,
+          123375
+        ],
+        "after": [
+          121167,
+          116625,
+          115667,
+          124791,
+          118417,
+          117042,
+          120459,
+          118541,
+          113625
+        ]
+      },
+      "result_sha256": "e9fc36982c9ce8055c2d3185dbdaa8000b39397a9665f3977f70548a0ffc55f4",
+      "result": "Err(\"function graph traversal limit\")",
+      "identical_groups_or_error": true
+    },
+    {
+      "case": "size_guard",
+      "mode": "size_guard",
+      "count": 4097,
+      "degree": 0,
+      "trials": 3,
+      "runs_per_trial": 3,
+      "median_ns": {
+        "before": 125,
+        "after": 83
+      },
+      "after_over_before": 0.664,
+      "allocation_calls": {
+        "before": 1,
+        "after": 1
+      },
+      "requested_bytes": {
+        "before": 25,
+        "after": 25
+      },
+      "samples_ns": {
+        "before": [
+          375,
+          83,
+          0,
+          416,
+          125,
+          42,
+          292,
+          125,
+          42
+        ],
+        "after": [
+          500,
+          42,
+          83,
+          375,
+          41,
+          83,
+          375,
+          42,
+          42
+        ]
+      },
+      "result_sha256": "89acc5bdf2506b8d5830292e1548b606571cdb825cdfa80ccf9dd3feed031130",
+      "result": "Err(\"function graph size limit\")",
+      "identical_groups_or_error": true
+    }
+  ],
+  "complete": true,
+  "artifact_sha256": {
+    "before_client": "a6d65df6798eb16d415945072a3a6b4685b02d924a0295480cffd83998dd53cb",
+    "after_client": "1fd212904a3cfd331575b5e4b20b6b7c4aec754ffc33f5f28184f540c530546d",
+    "work_guard_source": "6b9e4659e74dbfcb946ad3c29bab80f4579bbe9ade1668326f4991f551043aa1",
+    "work_guard_before_client": "e001b89f1a0efa8de11d6c2b91743fac6265dec310b1ca78322fea532c95163e",
+    "work_guard_after_client": "a2f902a2024b3456dad8c614ec7ff8be2a34d0053ac253548b5569ef311a06c4",
+    "candidate_analysis": "ecd3502d4b3b98bd63148bbaaeda725f12a8d38e83fd822048d938aebe72d494",
+    "compiler": "9e0d288ef71ffc999eac7f10646c84a314ecb9c39999a2b168fb5ea9bf08ba5e"
+  },
+  "work_guard": {
+    "count": 852,
+    "degree": 126,
+    "edge_count": 99351,
+    "node_plus_edge_work": 100203,
+    "repetitions": 3,
+    "before_after_exact_error": "Err(\"function graph edge limit\")\nErr(\"function graph edge limit\")\nErr(\"function graph edge limit\")",
+    "input": "Direct Program AST of the actual structural API, not admitted source. The parser1MB/surface-node limits preclude this dense guard source; those failed preparations are retained and excluded as graph validation.",
+    "baseline_core": "Independent core compiled in isolated target; all189tracked baseline core files verified byte-identical to8fabcf90. Candidate guard links actual distribution library.",
+    "before_result_sha256": "3aae85da0973c28072ca23ccca1aa81d0071589307f5c50f8c90859b2be50221",
+    "after_result_sha256": "3aae85da0973c28072ca23ccca1aa81d0071589307f5c50f8c90859b2be50221"
+  },
+  "completion_note": "Six original paired cases completed; edge guard separately exercised on direct structural API input. Original driver failure/results preserved; no completed timing case rerun."
+}

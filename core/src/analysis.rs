@@ -453,7 +453,9 @@ pub fn recursive_function_groups(p: &Program) -> LangResult<Vec<Vec<usize>>> {
             let index = self.next; self.next += 1;
             self.indices[node] = Some(index); self.low[node] = index;
             self.active[node] = true; self.stack.push(node);
-            for &child in &self.edges[node].clone() {
+            // Call edges are immutable; recursion mutates only the SCC state.
+            let edges = self.edges;
+            for &child in &edges[node] {
                 if self.work == 0 { return Err("function graph edge limit".into()); }
                 self.work -= 1;
                 if self.indices[child].is_none() {
