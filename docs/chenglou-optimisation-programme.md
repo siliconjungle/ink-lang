@@ -5,6 +5,18 @@ investigation. This document records mechanisms to integrate into Ink, their
 semantic conditions and measurable acceptance criteria. These are compiler and
 knowledge-library requirements, not a request to add website dependencies.
 
+The implementation scope also includes explicit adaptive/trainable source forms,
+requested on 15 October 2026. Designated parameters or state-to-parameter models
+must support offline fitting before deployment and explicit learning events during
+runtime. Authored rules remain fixed; learning updates only designated state and
+preserves its admitted constraints, transaction/rollback and checkpoint meaning.
+Context-dependent models must be able to learn interactions between inputs, not
+merely one global constant. Training objectives, observation inputs and update
+timing are explicit. Gradient generation, discrete-choice/search policies and
+behavior-preserving implementation tuning require distinct contracts. These are
+additional implementation requirements, not capabilities established by the
+earlier search/fact milestones.
+
 ## Pinned sources and current integration
 
 | Project | Investigated revision | Role |
@@ -146,7 +158,7 @@ GitHub conformance run was still queued when this checklist was recorded.
 | Precision | Faithful F64 semantics across reference/CPU/JS/Wasm and their ABI, followed by checked narrowing and whole-region guarded fallback with rounding/error propagation. | Design only; does not block integer, ownership or preparation work |
 | Fact-driven compact execution | General checked bit/grid/exclusivity transport; integer and packed representations; one-hot selection to gathers; reject fractional bits, multiple active choices and invalid nonfinite premises. | Authored bit-state algorithms and eight scalar laws delivered; automatic general consumption remains open |
 | Circuit and loop scheduling | Pure-term sharing, liveness, sparse versus dense execution, bounded reusable loops, checked associative scans and transition composition; retain simultaneous assignment and rounding points. | Existing loops/scans/last-use foundations; general proposals and comparison remain open |
-| Preparation and specialisation | Separate stable inputs from varying inputs, reuse kernels with parameters as data, compare staged and direct execution, bound caches and bind all invalidation dependencies. | Existing const parameters, keeps and resident sessions; automatic preparation remains open |
+| Preparation and specialisation | Separate stable inputs from varying inputs, reuse kernels with parameters as data, compare staged and direct execution, bound caches and bind all invalidation dependencies. | Invariant numeric-table preparation with checked whole-function equality delivered; broader staging, caches and environment binding remain open |
 | Requested observations | Compute count/exists/height, selected fields or output windows without building unnecessary full results. Preserve observable failures, effects and ordering. | Existing query/fusion/codec foundations; general observation-directed optimisation remains open |
 | Incremental work and placement | Maintain item/paragraph/batch changes, share derived state, upload changed regions and keep intermediate values resident. Compose query/ordinary code/device plans and price I/O. | Partial maintained-state and GPU foundations; broader composition, transfer planning and external storage remain open |
 | Ownership and execution overhead | Remove measured helper/capture clones, reuse searchers/prepared inputs, compare layouts and allocation behavior across target engines. | UTF-8 and primitive borrowing improvements delivered; native whole-workload ownership gap remains open |
@@ -168,3 +180,19 @@ different requested output sizes. Preserve strong handwritten and upstream
 controls, independent complete-output checking, held-out inputs, raw samples and
 per-phase timing/memory. Keep each implemented mechanism and each remaining gap
 visible in published results.
+
+## Prepared numeric tables: initial delivery
+
+The loop-invariant producer now proposes invariant numeric List preparation, with
+ordinary whole-function Normalize proofs and an empty-input guard. The retained
+[benchmark](../bench/prepared-tables/README.md) includes both a large win and a
+small regression; it grants no automatic cost decision. Full required-target
+validation compares 94 cases across Rust/JavaScript/Wasm and GPU-host fallback
+(zero device calls). A separately rerun conditional-fact suite compares 88 cases
+and confirms one actual device dispatch. Both complete-target logs are retained
+in `reports/prepared-tables-2026-10-15`. Earlier smoke invocations did not request
+Wasm/GPU; these explicit full-target reruns close that verification gap.
+
+The pinned [source inventory](../reports/chenglou-source-audit-2026-10-15/README.md)
+catalogues tracked files and subsystem coverage. Semantic extraction and all
+remaining roadmap acceptance criteria remain open; an inventory is not a port.
