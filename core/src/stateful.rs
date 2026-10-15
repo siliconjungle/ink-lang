@@ -17,6 +17,8 @@ pub enum Value {
     I32(i32),
     /// Raw binary32 storage identity; scalar operators use IEEE comparisons.
     F32(u32),
+    /// Raw binary64 identity; scalar operators retain IEEE comparisons.
+    F64(u64),
     Vector(Vec<Value>),
     Int(BigInt),
     String(String),
@@ -40,6 +42,7 @@ impl Value {
                 E::U64(x) => Value::U64(x),
                 E::I32(x) => Value::I32(x),
                 E::F32(x) => Value::F32(x),
+                E::F64(x) => Value::F64(x),
                 E::Bool(x) => Value::Bool(x),
                 E::Opaque(x) => x,
                 E::Buffer(_) | E::Map(_) => {
@@ -76,6 +79,7 @@ impl Value {
                 Value::U64(x) => E::U64(*x),
                 Value::I32(x) => E::I32(*x),
                 Value::F32(x) => E::F32(*x),
+                Value::F64(x) => E::F64(*x),
                 Value::Bool(x) => E::Bool(*x),
                 Value::Record(n, xs) => E::Record(
                     n.clone(),
@@ -107,6 +111,7 @@ impl Value {
             Self::U64(v) => json!(v),
             Self::I32(v) => json!(v),
             Self::F32(bits) => crate::eval::Value::F32(*bits).json(),
+            Self::F64(bits) => crate::float64::json_bits(*bits),
             Self::Vector(xs) => xs.iter().map(Self::json).collect(),
             Self::Int(v) => json!({"Int":v.to_string()}),
             Self::String(v) => json!(v),
@@ -132,7 +137,7 @@ impl Value {
     }
     pub fn from_json(v: &serde_json::Value, t: &Type, p: &Program) -> LangResult<Self> {
         match t {
-            Type::I32 | Type::F32 | Type::Vector(..) => {
+            Type::I32 | Type::F32 | Type::F64 | Type::Vector(..) => {
                 Self::from_eval(crate::eval::Value::from_json(v, t)?)
             }
             Type::Unit if v.is_null() => Ok(Self::Unit),
@@ -542,6 +547,16 @@ impl Runtime {
         Value::from_json(&v.json(), t, &self.program)
     }
     fn binary(op: &str, av: Value, bv: Value) -> Exec<Value> {
+        if let (Value::F64(a),Value::F64(b))=(&av,&bv) {
+            let (a,b)=(f64::from_bits(*a),f64::from_bits(*b));
+            return Ok(match op {
+                "+"=>Value::F64(crate::float64::canonical_bits(a+b)),
+                "-"=>Value::F64(crate::float64::canonical_bits(a-b)),
+                "*"=>Value::F64(crate::float64::canonical_bits(a*b)),
+                "=="=>Value::Bool(a==b),"!="=>Value::Bool(a!=b),"<"=>Value::Bool(a<b),">"=>Value::Bool(a>b),"<="=>Value::Bool(a<=b),">="=>Value::Bool(a>=b),
+                _=>return Err("invalid f64 operator".into()),
+            });
+        }
         if let (Value::F32(a), Value::F32(b)) = (&av, &bv) {
             let (a, b) = (f32::from_bits(*a), f32::from_bits(*b));
             return Ok(match op {
@@ -675,12 +690,15 @@ impl Runtime {
                         Type::U64 => Value::U64(0),
                         Type::I32 => Value::I32(0),
                         Type::F32 => Value::F32(0),
+                        Type::F64 => Value::F64(0),
                         _ => Value::Int(BigInt::from(0)),
                     });
                 }
-                if matches!(result_type, Type::I32 | Type::F32) {
+                if matches!(result_type, Type::I32 | Type::F32 | Type::F64) {
                     let mut s = if *result_type == Type::I32 {
                         Value::I32(0)
+                    } else if *result_type==Type::F64 {
+                        Value::F64(0)
                     } else {
                         Value::F32(0)
                     };
