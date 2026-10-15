@@ -187,6 +187,14 @@ impl Execution {
 }
 impl CheckedActions {
     pub fn elaborate(module: &CheckedModule) -> LangResult<Self> {
+        if !module.program().frozen.is_empty() {
+            return Err("action-IR caller must support frozen-root initialization and restore validation".into());
+        }
+        Self::elaborate_with_frozen_roots(module)
+    }
+    /// Callers accepting this source form must initialize its fixed rows and
+    /// reject changed rows on every restore boundary. Legacy lowerings fail shut.
+    pub fn elaborate_with_frozen_roots(module: &CheckedModule) -> LangResult<Self> {
         let p = module.program();
         let mut remaining = MAX_NODES;
         let mut actions = vec![];
@@ -255,7 +263,7 @@ impl CheckedActions {
         }
         let supplied: Wire =
             serde_json::from_slice(bytes).map_err(|e| format!("invalid action IR: {e}"))?;
-        let checked = Self::elaborate(module)?;
+        let checked = Self::elaborate_with_frozen_roots(module)?;
         if serde_json::to_vec(&supplied).map_err(|e| e.to_string())? != checked.bytes()? {
             return Err("action IR does not describe the checked source".into());
         }

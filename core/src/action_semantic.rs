@@ -248,7 +248,7 @@ fn validate_used(t: &Term, env: &Env, p: &Program, b: &mut Budget) -> LangResult
 }
 impl Regions {
     pub fn derive(module: &CheckedModule, b: &mut Budget) -> LangResult<Self> {
-        let actions = CheckedActions::elaborate(module)?;
+        let actions = CheckedActions::elaborate_with_frozen_roots(module)?;
         let mut entries = BTreeMap::new();
         for (action, count) in [
             (true, module.program().actions.len()),

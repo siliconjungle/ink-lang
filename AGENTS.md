@@ -181,3 +181,14 @@ Derived math/text algorithms and bounded approximations remain knowledge source;
 never substitute them for exact computation without ordinary equality authority.
 GPU numeric operations use integer lanes; host fallback is not device coverage.
 See docs/numeric-text-primitives.md and its required cross-target suites.
+
+Executable core V14 binds immutable typed initial rows in Program.frozen, outside
+erasable proof metadata. Preserve existing source identities when bindings are
+empty. Frozen roots have no writer or trainable capability; every restore boundary
+must compare their exact typed rows, including raw F32 bits. Initial invariant and
+sorted-state obligations use declared rows. Transition-domain equalities derive
+from these checked source bindings, never producer hints. Legacy action-IR callers
+reject frozen modules until they explicitly support initialization and restore.
+Freezing is an authored API restriction with a new source identity; arithmetic
+specialization still requires ordinary database proofs and measured selection.
+See docs/frozen-state.md.

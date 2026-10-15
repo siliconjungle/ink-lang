@@ -692,7 +692,7 @@ mod tests {
     fn exhausted_work_cannot_return_a_partial_access_description() {
         let module=crate::core::CheckedModule::from_source(crate::syntax::parse(
             "module limit;state Rows:Table<u64,u64>=Table.empty();query point()->Option<u64> reads(Rows){return Rows.get(0);}").unwrap()).unwrap();
-        let actions = CheckedActions::elaborate(&module).unwrap();
+        let actions = CheckedActions::elaborate_with_frozen_roots(&module).unwrap();
         let mut checker = Checker {
             actions: &actions,
             remaining: 1,
