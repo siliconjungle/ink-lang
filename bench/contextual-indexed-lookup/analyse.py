@@ -13,6 +13,7 @@ def analyse(directory):
  fingerprint=subprocess.check_output([sys.executable,'-c',
   'from ink_planner.compiled_planning import code_fingerprint;print(code_fingerprint())'],
   cwd=d.resolve(),env=env,text=True).strip()
+ if registration.get('authoring_sha256',fingerprint)!=fingerprint:raise ValueError('preregistered authoring fingerprint changed')
  for label in ['large','small']:
   paths={'baseline':d/'baseline.mjs','selected':d/(label+'.mjs'),'indexed':d/'indexed.mjs'}
   hashes={name:hashlib.sha256(p.read_bytes()).hexdigest()for name,p in paths.items()}

@@ -299,6 +299,7 @@ jobs:
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_indexed_dedup.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_indexed_dedup_discovery.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_guarded_choices.py
+        PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_selection_composition.py
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p 'test_corpus_*.py'
     - name: Retain reproducible programs, seeds and expected outcomes
       if: always()
