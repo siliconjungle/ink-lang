@@ -36,6 +36,8 @@ def audit():
             plans = summary['cohorts'][name]['plans']
             assert len(plans) == 2 and set(plans) == set(r['validated_measurements'])
             assert not set(r['phases']['training']['input_fingerprints']) & set(r['phases']['holdout']['input_fingerprints'])
+            versions = {report['browserVersion'] for phase in r['phases'].values() for report in phase['reports']}
+            assert len(versions) == 1 and next(iter(versions))
             for phase, data in r['phases'].items():
                 process_values = []
                 assert len(data['reports']) == 3 and data['peak_rss_bytes'] is None
@@ -68,7 +70,21 @@ def audit():
     assert len(set(observations)) == 24
     assert set(json.loads((ROOT/'database-readback.json').read_bytes())['observations']) == set(observations)
     assert json.loads((ROOT/'lifecycle-validation.json').read_bytes())['timed_measure_function_unchanged']
-    print('PASS two exact selected cohorts, all archived bytes, 24 canonical costs, paired holdout summaries, actual-device counters and six rejection controls')
+    merged = json.loads((ROOT/'merged-emission.json').read_bytes())
+    assert merged['terminal']['exit_status'] == 0 and merged['terminal']['actual_device_calls'] == 8
+    assert merged['terminal']['exact_original_oracles']
+    assert sha((ROOT/'merged-emission-inputs.tar.gz').read_bytes()) == merged['archive_sha256']
+    for name, expected in merged['harness_sha256'].items():
+        assert sha((ROOT/name).read_bytes()) == expected
+    with tarfile.open(ROOT/'merged-emission-inputs.tar.gz') as archive:
+        assert set(archive.getnames()) == set(merged['files'])
+        for name, expected in merged['files'].items():
+            assert sha(archive.extractfile(name).read()) == expected
+    assert len(merged['report']['results']) == 8
+    for row in merged['report']['results']:
+        assert row['observed']['dispatches'] == row['reported']['dispatches'] > 0
+        assert row['observed']['submissions'] > 0 and row['observed']['readbacks'] > 0
+    print('PASS two measured cohorts, immutable inputs/observations, six rejection controls, and eight exact merged-main device calls')
 
 if __name__ == '__main__':
     audit()

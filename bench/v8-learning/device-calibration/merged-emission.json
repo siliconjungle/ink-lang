@@ -1,0 +1,355 @@
+{
+  "schema": 1,
+  "terminal": {
+    "schema": 1,
+    "exit_status": 0,
+    "compiler_sha256": "730f94f00143abaadfe4b24d3e544bf8645c80a6d601c63f868fca4218dd63ce",
+    "distribution_source": "acf807962ee67b38acecf0fc5edea823fad2af0f",
+    "core_tree": "ba3249174bc751058f8bb9a2faed2d787e93d5d0",
+    "pins": {
+      "knowledge": "0682edb6080a2816af59cd40400bed54ead9434e",
+      "planner": "757984c7fa01dd9c932cc8573c2457c9d5396061",
+      "runtime": "c8ae9ffd6de8e6de12e5f88112469b742eee6425",
+      "lowerings/rust": "ab5d3b1ed2dbecaf411c20f61367d52bc74214e8",
+      "lowerings/js": "5ecb7e7566d61d49c3cacf20f40eb0f4b8e2d4a6",
+      "lowerings/wasm": "1853bb6014ffe8b8ba6f27cf8f968c683b166f3e",
+      "lowerings/gpu": "413bd08f03117df6ecb89a507bef6b44449e3567",
+      "abi": "6356464654b39341d1e442d61c64be1e3a720489",
+      "native-support": "8a87387f9431691eec49439d4a01a9c7eab30bc7"
+    },
+    "exact_original_oracles": true,
+    "actual_device_calls": 8,
+    "scope": "Conformance only; no timings/cost observations or policy changes."
+  },
+  "report": {
+    "schema": 1,
+    "device": {
+      "schema": 1,
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "device": "",
+      "description": "",
+      "isFallbackAdapter": false,
+      "features": [
+        "atomic-vec2u-min-max",
+        "bgra8unorm-storage",
+        "chromium-experimental-subgroup-matrix",
+        "clip-distances",
+        "core-features-and-limits",
+        "depth-clip-control",
+        "depth32float-stencil8",
+        "dual-source-blending",
+        "float32-blendable",
+        "float32-filterable",
+        "indirect-first-instance",
+        "primitive-index",
+        "rg11b10ufloat-renderable",
+        "shader-f16",
+        "subgroup-size-control",
+        "subgroups",
+        "texture-component-swizzle",
+        "texture-compression-astc",
+        "texture-compression-astc-sliced-3d",
+        "texture-compression-bc",
+        "texture-compression-bc-sliced-3d",
+        "texture-compression-etc2",
+        "texture-compression-unaligned",
+        "texture-formats-tier1",
+        "texture-formats-tier2",
+        "timestamp-query"
+      ],
+      "limits": {
+        "maxTextureDimension1D": 16384,
+        "maxTextureDimension2D": 16384,
+        "maxTextureDimension3D": 2048,
+        "maxTextureArrayLayers": 2048,
+        "maxBindGroups": 4,
+        "maxBindGroupsPlusVertexBuffers": 24,
+        "maxBindingsPerBindGroup": 1000,
+        "maxDynamicUniformBuffersPerPipelineLayout": 10,
+        "maxDynamicStorageBuffersPerPipelineLayout": 8,
+        "maxSampledTexturesPerShaderStage": 48,
+        "maxSamplersPerShaderStage": 16,
+        "maxStorageBuffersPerShaderStage": 10,
+        "maxStorageTexturesPerShaderStage": 8,
+        "maxUniformBuffersPerShaderStage": 12,
+        "maxUniformBufferBindingSize": 65536,
+        "maxStorageBufferBindingSize": 4294967292,
+        "minUniformBufferOffsetAlignment": 256,
+        "minStorageBufferOffsetAlignment": 256,
+        "maxVertexBuffers": 8,
+        "maxBufferSize": 4294967292,
+        "maxVertexAttributes": 30,
+        "maxVertexBufferArrayStride": 2048,
+        "maxInterStageShaderVariables": 28,
+        "maxColorAttachments": 8,
+        "maxColorAttachmentBytesPerSample": 128,
+        "maxComputeWorkgroupStorageSize": 32768,
+        "maxComputeInvocationsPerWorkgroup": 1024,
+        "maxComputeWorkgroupSizeX": 1024,
+        "maxComputeWorkgroupSizeY": 1024,
+        "maxComputeWorkgroupSizeZ": 64,
+        "maxComputeWorkgroupsPerDimension": 65535,
+        "maxImmediateSize": 64,
+        "maxStorageBuffersInFragmentStage": 10,
+        "maxStorageTexturesInFragmentStage": 8,
+        "maxStorageBuffersInVertexStage": 10,
+        "maxStorageTexturesInVertexStage": 8
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "requiredLimits": {
+        "maxStorageBufferBindingSize": 268435456,
+        "maxBufferSize": 268435456,
+        "maxStorageBuffersPerShaderStage": 10
+      },
+      "deviceFeatures": [
+        "core-features-and-limits"
+      ]
+    },
+    "results": [
+      {
+        "measurement": "a5bac36feb8535a2f7561091c5c1769079ce8144c589452becd293e80d376a85",
+        "split": "training",
+        "input_sha256": "cb181859ffe51049a59f434f860097a06c3ffd180f91080dd2a198d98a1b8284",
+        "observed": {
+          "dispatches": 2,
+          "submissions": 2,
+          "readbacks": 1
+        },
+        "reported": {
+          "upload_bytes": 1032,
+          "readback_bytes": 8,
+          "dispatches": 2,
+          "live_buffer_bytes": 1056,
+          "resident_copy_bytes": 0
+        }
+      },
+      {
+        "measurement": "a5bac36feb8535a2f7561091c5c1769079ce8144c589452becd293e80d376a85",
+        "split": "training",
+        "input_sha256": "db8d8c57e89972038fbd64d88a2afd0728e76218976f025f3e5c81a54f5883be",
+        "observed": {
+          "dispatches": 2,
+          "submissions": 2,
+          "readbacks": 1
+        },
+        "reported": {
+          "upload_bytes": 4096,
+          "readback_bytes": 8,
+          "dispatches": 2,
+          "live_buffer_bytes": 4120,
+          "resident_copy_bytes": 0
+        }
+      },
+      {
+        "measurement": "a5bac36feb8535a2f7561091c5c1769079ce8144c589452becd293e80d376a85",
+        "split": "holdout",
+        "input_sha256": "7c2fae5af55c301491255fba3435aa9be01c487226dda7ba29e0e0bdda407d30",
+        "observed": {
+          "dispatches": 2,
+          "submissions": 2,
+          "readbacks": 1
+        },
+        "reported": {
+          "upload_bytes": 2064,
+          "readback_bytes": 8,
+          "dispatches": 2,
+          "live_buffer_bytes": 2088,
+          "resident_copy_bytes": 0
+        }
+      },
+      {
+        "measurement": "a5bac36feb8535a2f7561091c5c1769079ce8144c589452becd293e80d376a85",
+        "split": "holdout",
+        "input_sha256": "cea9e571942846e363f995fd873236b9aed768b870216fadd1b676bf112e881d",
+        "observed": {
+          "dispatches": 2,
+          "submissions": 2,
+          "readbacks": 1
+        },
+        "reported": {
+          "upload_bytes": 6160,
+          "readback_bytes": 8,
+          "dispatches": 2,
+          "live_buffer_bytes": 6184,
+          "resident_copy_bytes": 0
+        }
+      },
+      {
+        "measurement": "88d9e3c82c0da0f7680d872e77c4bdc53116976be6241085d408e781cbd49811",
+        "split": "training",
+        "input_sha256": "cb181859ffe51049a59f434f860097a06c3ffd180f91080dd2a198d98a1b8284",
+        "observed": {
+          "dispatches": 2,
+          "submissions": 2,
+          "readbacks": 1
+        },
+        "reported": {
+          "upload_bytes": 1032,
+          "readback_bytes": 8,
+          "dispatches": 2,
+          "live_buffer_bytes": 1056,
+          "resident_copy_bytes": 0
+        }
+      },
+      {
+        "measurement": "88d9e3c82c0da0f7680d872e77c4bdc53116976be6241085d408e781cbd49811",
+        "split": "training",
+        "input_sha256": "db8d8c57e89972038fbd64d88a2afd0728e76218976f025f3e5c81a54f5883be",
+        "observed": {
+          "dispatches": 2,
+          "submissions": 2,
+          "readbacks": 1
+        },
+        "reported": {
+          "upload_bytes": 4096,
+          "readback_bytes": 8,
+          "dispatches": 2,
+          "live_buffer_bytes": 4120,
+          "resident_copy_bytes": 0
+        }
+      },
+      {
+        "measurement": "88d9e3c82c0da0f7680d872e77c4bdc53116976be6241085d408e781cbd49811",
+        "split": "holdout",
+        "input_sha256": "7c2fae5af55c301491255fba3435aa9be01c487226dda7ba29e0e0bdda407d30",
+        "observed": {
+          "dispatches": 2,
+          "submissions": 2,
+          "readbacks": 1
+        },
+        "reported": {
+          "upload_bytes": 2064,
+          "readback_bytes": 8,
+          "dispatches": 2,
+          "live_buffer_bytes": 2088,
+          "resident_copy_bytes": 0
+        }
+      },
+      {
+        "measurement": "88d9e3c82c0da0f7680d872e77c4bdc53116976be6241085d408e781cbd49811",
+        "split": "holdout",
+        "input_sha256": "cea9e571942846e363f995fd873236b9aed768b870216fadd1b676bf112e881d",
+        "observed": {
+          "dispatches": 2,
+          "submissions": 2,
+          "readbacks": 1
+        },
+        "reported": {
+          "upload_bytes": 6160,
+          "readback_bytes": 8,
+          "dispatches": 2,
+          "live_buffer_bytes": 6184,
+          "resident_copy_bytes": 0
+        }
+      }
+    ],
+    "browserVersion": "Chrome/155.0.8059.82",
+    "request_sha256": "d27cdde2b1ed0c898c05a1a30915a24fa49d1a98735af678deede296c9e7b374",
+    "scope": "Exact merged-emitter source/oracle and actual provided-device conformance; no performance samples or automatic selection authority."
+  },
+  "archive_sha256": "ef4bc075b51d4d4b807b0a7524a25bd3d1b6f4febe4cc292a1a7f7aea765d457",
+  "files": {
+    "artifact-0/backend-selection.mjs": "a2a41beb4b75726c1add6a71bc5e3faca77248bf043e434ef0525c6a21221ec4",
+    "artifact-0/complete-session.mjs": "77553f3024bd17448eb17f3ad4c099893c50e203a341f4fa8fe4c01454b757cc",
+    "artifact-0/cpu/Cargo.lock": "c842397c6d5dfb084c644a749e01c66f6dccd0cf9c37f77c77a7dbeb198dd708",
+    "artifact-0/cpu/Cargo.toml": "31bc4e97ca9450b0d65ccc929056e4bebfe0c37efbcd1afa6d8657236ad4d56b",
+    "artifact-0/cpu/build.rs": "81602ab733d7bfdb25cbfd750cd57dcebe183417f46064be8711cdf95b806d7e",
+    "artifact-0/cpu/src/lib.rs": "add0d71c44ad93aaab6a83c36c2b9d6c13f3406ee94a3e33469896cf33ee95ca",
+    "artifact-0/cpu.wasm": "257065315e4c1e30da5e9424bc2bd8d68ef80ca6e2e55d48cf4db9b3f8da74ad",
+    "artifact-0/graph-0-0.wgsl": "74db3975ab1a20414a7fa37b9c81366a11d7b92a33f492fa60808364e479fabc",
+    "artifact-0/graph-0-1.wgsl": "34c45b4b21abf017b120fe47942c1bd9ad76699b0cf91ba1a96389de19d1bff6",
+    "artifact-0/graph-1-0.wgsl": "74db3975ab1a20414a7fa37b9c81366a11d7b92a33f492fa60808364e479fabc",
+    "artifact-0/graph-1-1.wgsl": "34c45b4b21abf017b120fe47942c1bd9ad76699b0cf91ba1a96389de19d1bff6",
+    "artifact-0/ink-abi.mjs": "3917a709f14f4ad5b9e44b3c2279690a203758e354016df38d283537122d8417",
+    "artifact-0/ink-device.mjs": "727a0925c2b36fafca54b70f3a9f2a2c1cd16952d66e24e3e523e01bd30a5bd7",
+    "artifact-0/ink-gpu.mjs": "35f9c9bfd46877d94c2186793aded33eb6d2d9e01b166a1f1945d7a2cabec553",
+    "artifact-0/ink-selection.mjs": "bbd63dfd959c06658dde1f5da743af125e5394171202e865a07de7826166afd5",
+    "artifact-0/ink-selection.wasm": "1597f63e25b60e0b0b92486c5b370a01f3828603a47149efe9f953099bb1e6b0",
+    "artifact-0/manifest.json": "c710741715e220bfa9a36f796b9cecac1a9ebfba151a24d8dfcd8b151b7f0c8e",
+    "artifact-0/native/Cargo.lock": "a3e70a36a46d7a88eba1ccf6a1dcbb01cb637830423547042688220d0fefe47f",
+    "artifact-0/native/Cargo.toml": "a7b6ffff76a4a1c501c3c91b217b36cc9ddd926138edaf228fa87096336f96ec",
+    "artifact-0/native/src/assets.rs": "0f3c5da8607c7863974d4e12a0f03ce547ef56af6044270274cfa3e266e8ffff",
+    "artifact-0/native/src/backend.rs": "5a2466b9e4191ca66234adb1f7c06fa82734b28ecd00af434333c2fe92b550fd",
+    "artifact-0/native/src/cpu.rs": "add0d71c44ad93aaab6a83c36c2b9d6c13f3406ee94a3e33469896cf33ee95ca",
+    "artifact-0/native/src/device.rs": "65ec6639957e7b07b1e84e3cef1dbaa415dd3acef1c7bb68b56b353513afdab9",
+    "artifact-0/native/src/lib.rs": "249a33a9377d310cb729f4590c4da49fdad4c0898226b14d8f3b5e496b62b770",
+    "artifact-0/native/src/main.rs": "248aec1abf7d1471064bdba291451534cf16b996f0b95ab116d882acacc725ad",
+    "artifact-0/pipeline-contract.mjs": "40c347af629cf19ceb35a197343bfa0057daa54fe618e47ac784e0e2b59b63a5",
+    "artifact-0/pipeline-profile.mjs": "6e302b624979c317a47d2413d84b9ebfc4ea9ffffe756d45cf82a51f2d101cfe",
+    "artifact-0/pipeline-selection.mjs": "7011d6da8f4bdd27d78011be19f2f1bb38bb748611553b2ec2206bd7fd1b74e0",
+    "artifact-0/pipeline-worker.mjs": "eb7609cd6751c276f7edb1c9b56aec08b6d15ee955917362b174db9516d77336",
+    "artifact-0/pipeline-workers.mjs": "ce2acfcfb75d6c8c6c5ae4e03727ffa3a1a6160782f691ae9dd6449655119430",
+    "artifact-0/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "artifact-0/program.mjs": "11125980795e2c13ad88f395edcc90951f4bb26bea7e52c80155883bd5aa0f3c",
+    "artifact-0/usage-profile.mjs": "42087f6de268e704be5851654945f27c05bbd392930dd4a69045f6a5e34736bb",
+    "artifact-0.plan-receipt.json": "46f4a05b92c499bdd610d2409a3bbf8f712611bcc93cee65b07e4705fc40aca7",
+    "artifact-0.plan.json": "a5bac36feb8535a2f7561091c5c1769079ce8144c589452becd293e80d376a85",
+    "artifact-1/backend-selection.mjs": "a2a41beb4b75726c1add6a71bc5e3faca77248bf043e434ef0525c6a21221ec4",
+    "artifact-1/complete-session.mjs": "77553f3024bd17448eb17f3ad4c099893c50e203a341f4fa8fe4c01454b757cc",
+    "artifact-1/cpu/Cargo.lock": "c842397c6d5dfb084c644a749e01c66f6dccd0cf9c37f77c77a7dbeb198dd708",
+    "artifact-1/cpu/Cargo.toml": "31bc4e97ca9450b0d65ccc929056e4bebfe0c37efbcd1afa6d8657236ad4d56b",
+    "artifact-1/cpu/build.rs": "81602ab733d7bfdb25cbfd750cd57dcebe183417f46064be8711cdf95b806d7e",
+    "artifact-1/cpu/src/lib.rs": "561baaa59828ca62cdb54f17c0fefc606699e368ac60a176243a372249cbc16f",
+    "artifact-1/cpu.wasm": "257065315e4c1e30da5e9424bc2bd8d68ef80ca6e2e55d48cf4db9b3f8da74ad",
+    "artifact-1/graph-0-0.wgsl": "74db3975ab1a20414a7fa37b9c81366a11d7b92a33f492fa60808364e479fabc",
+    "artifact-1/graph-0-1.wgsl": "959114b6a62e399691e4c093048c97af974e4bcb52c58eacd94a769e3501fa17",
+    "artifact-1/graph-1-0.wgsl": "74db3975ab1a20414a7fa37b9c81366a11d7b92a33f492fa60808364e479fabc",
+    "artifact-1/graph-1-1.wgsl": "959114b6a62e399691e4c093048c97af974e4bcb52c58eacd94a769e3501fa17",
+    "artifact-1/ink-abi.mjs": "3917a709f14f4ad5b9e44b3c2279690a203758e354016df38d283537122d8417",
+    "artifact-1/ink-device.mjs": "727a0925c2b36fafca54b70f3a9f2a2c1cd16952d66e24e3e523e01bd30a5bd7",
+    "artifact-1/ink-gpu.mjs": "35f9c9bfd46877d94c2186793aded33eb6d2d9e01b166a1f1945d7a2cabec553",
+    "artifact-1/ink-selection.mjs": "bbd63dfd959c06658dde1f5da743af125e5394171202e865a07de7826166afd5",
+    "artifact-1/ink-selection.wasm": "1597f63e25b60e0b0b92486c5b370a01f3828603a47149efe9f953099bb1e6b0",
+    "artifact-1/manifest.json": "1fb298a114f241fc95cf5024492d7f7df8f024642451c117cb34bec6585e8d73",
+    "artifact-1/native/Cargo.lock": "a3e70a36a46d7a88eba1ccf6a1dcbb01cb637830423547042688220d0fefe47f",
+    "artifact-1/native/Cargo.toml": "a7b6ffff76a4a1c501c3c91b217b36cc9ddd926138edaf228fa87096336f96ec",
+    "artifact-1/native/src/assets.rs": "46d35c312563f0d92ff427066de9dbe182cc26590a648a78c79ac1573a0a5799",
+    "artifact-1/native/src/backend.rs": "5a2466b9e4191ca66234adb1f7c06fa82734b28ecd00af434333c2fe92b550fd",
+    "artifact-1/native/src/cpu.rs": "561baaa59828ca62cdb54f17c0fefc606699e368ac60a176243a372249cbc16f",
+    "artifact-1/native/src/device.rs": "65ec6639957e7b07b1e84e3cef1dbaa415dd3acef1c7bb68b56b353513afdab9",
+    "artifact-1/native/src/lib.rs": "249a33a9377d310cb729f4590c4da49fdad4c0898226b14d8f3b5e496b62b770",
+    "artifact-1/native/src/main.rs": "248aec1abf7d1471064bdba291451534cf16b996f0b95ab116d882acacc725ad",
+    "artifact-1/pipeline-contract.mjs": "40c347af629cf19ceb35a197343bfa0057daa54fe618e47ac784e0e2b59b63a5",
+    "artifact-1/pipeline-profile.mjs": "6e302b624979c317a47d2413d84b9ebfc4ea9ffffe756d45cf82a51f2d101cfe",
+    "artifact-1/pipeline-selection.mjs": "7011d6da8f4bdd27d78011be19f2f1bb38bb748611553b2ec2206bd7fd1b74e0",
+    "artifact-1/pipeline-worker.mjs": "eb7609cd6751c276f7edb1c9b56aec08b6d15ee955917362b174db9516d77336",
+    "artifact-1/pipeline-workers.mjs": "ce2acfcfb75d6c8c6c5ae4e03727ffa3a1a6160782f691ae9dd6449655119430",
+    "artifact-1/prepared-wasm.mjs": "cfd128e081b2fab9c35012878255af7f79a7720427c7b94363b0112d67289f06",
+    "artifact-1/program.mjs": "d55f89c4421754b2f252e14eae1524cdc18fe5b036d4b8ec368cdb6d38ab39e4",
+    "artifact-1/usage-profile.mjs": "42087f6de268e704be5851654945f27c05bbd392930dd4a69045f6a5e34736bb",
+    "artifact-1.plan-receipt.json": "12a6dd4d80c5f562269baa538aea9edb3df00f71ded51db3e7ed8133aa719595",
+    "artifact-1.plan.json": "88d9e3c82c0da0f7680d872e77c4bdc53116976be6241085d408e781cbd49811",
+    "build-0.stderr": "05cc72ff06b76ab9a43ef91dbd572e35822c2cf0a6ff928e350fac1c5419f96e",
+    "build-0.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build-1.stderr": "0c546d490cbc4beb5d137af46187cacb57f79c80a9612b35b5e8eaf7fae008d0",
+    "build-1.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "device.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "device.stdout": "350fe0f73864a8abe5f25b43d9cbebb925bc49a135cc1d11c6204c3810c7b021",
+    "emit-0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "emit-0.stdout": "df17e3ed21bbb24b89328b3c3426069737ec8eeb1fa721fd081ea16fbe36deca",
+    "emit-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "emit-1.stdout": "37a7eb4cf6cd1cbd25e89569c3429f50ac6915ff66beec5b4030ed82a2d33be6",
+    "holdout.workload.json": "4eb97d5b459115a88569d547b541120429d60bd906738ef7709c850efb9e8f22",
+    "oracle-args.json": "54310b928613a7fa51a100ccbfc49d88fd9ebae42489f1741f6e2960865ded42",
+    "oracle-holdout-0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "oracle-holdout-0.stdout": "cc4dbd7b67a80526ef812990d0730b7f7025aebe1339633ee8a4fa43b0d3a3d2",
+    "oracle-holdout-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "oracle-holdout-1.stdout": "29a79536690740ae8201fd17aadaeb7b2e27ef2cddc777eb759735be28e1cbe8",
+    "oracle-training-0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "oracle-training-0.stdout": "9855fa702ec7552a14e9d9f4cd774e11244c0185598fce659260a8fd78962834",
+    "oracle-training-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "oracle-training-1.stdout": "28350d576da0de08980318e78199caca9a696a8be02d2323a072839d51494445",
+    "plan-0.json": "a5bac36feb8535a2f7561091c5c1769079ce8144c589452becd293e80d376a85",
+    "plan-1.json": "88d9e3c82c0da0f7680d872e77c4bdc53116976be6241085d408e781cbd49811",
+    "request.json": "d27cdde2b1ed0c898c05a1a30915a24fa49d1a98735af678deede296c9e7b374",
+    "source.core.json": "b0f54a7fff3d69a1e93145958d85f872cc7958c13b7e67689457d65dac668b2d",
+    "storage-retention.json": "bff40cd5cd0045c6f2674a08db94f73d634bcec77736c50a9966a4ea42918cb8",
+    "terminal.json": "28f38d0d391616098bdbb118fc18118ad2110d303d1c7434ca6c5df2923fc2d1",
+    "training.workload.json": "dcf6e5de598dce3c60df2ee71d2e2ff30ecbd3c8ace1e485f0ae7c74cc270475"
+  },
+  "harness_sha256": {
+    "validate_emitted.mjs": "0ebc19edb98e9f5d13594db26a21de9d87d42c7ec316278ab9f8b46996b0e5cf",
+    "validate_merged.py": "5f4ec80a32ed9c7d6e5909e3b636bf5341aa776e6bc72fe2e8d913b3cf2031a7"
+  }
+}
