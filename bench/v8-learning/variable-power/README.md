@@ -205,3 +205,53 @@ evidence and every quick search exhausts its time budget. Its median is
 changes are not a causal compiler-speed comparison. All earlier eager/indexed
 cohorts remain retained. A separate merged-main integration follows with its own
 compiler/core/package identities.
+
+## Merged-main integration
+
+The separately rebuilt merged compiler is
+`31925a41d50962dc385248ac5c03b93e46587bda38f96997ee4af64d2beb6027`,
+from distribution `2f6f164e058e8aa450de37af8314e7dd1b0f442a` and knowledge
+`1c6e117b07b7283218f902801f5472652f89f16b`. It preserves upstream core
+`d5b69b52c3761a7e1d21dd02971cef37cb2b0425` and standalone package
+`c13434ded048ef948c8f74396ddc238b72c8700c`. All 227 current core files match
+the retained upstream 486-test receipt; those tests were run upstream. The local
+locked build uses the identical upstream resolution lock, debug0/incremental0
+and two Cargo jobs. Historical cost observations keep the earlier ed3 compiler.
+
+The 31 intended proof tests are all covered successfully. The first combined
+run took 716.971s and reported one setup error because a copied frozen executable
+lacked its execute bit; its other 30 methods passed, and the affected method
+passed separately after correcting the mode without changing image bytes.
+Both logs and the complete expected inventory are retained. The 72 separate
+index/publication/upstream integration methods pass in 46.003s. Fresh literal
+JS/Rust-Wasm baseline/rewritten lanes each pass all 19 complete-result calls.
+
+Both full GPU artifact trees are byte-identical to the historical measured
+images: 34 files per plan, including complete shaders, hosts and CPU Wasm.
+Twelve actual nonfallback GPU calls cover powers, nonpowers and zero defaults
+across both splits and plans. Independent dispatch/submission/readback counters
+and complete source-oracle results pass. Six uniquely retained current source
+oracle receipts also match the historical raw receipts exactly; the original
+GPU runner reused a receipt label between phases, so these independent replays
+retain each split/phase separately. The corrected reproducing runner now uses
+unique labels. Both the installed guard and zero-first prototype plans replay
+under the merged kernel. These are finite conformance checks, with no new cost
+observations, automatic selection or timing transfer.
+
+The final stable merged corpus compiles all ten programs and finds alternatives
+for all ten, with 23 law identities and six reused across programs. Those 23
+identities are a subset of the preceding adaptive cohort's 25. It selects no
+alternative or representation: all ten final gates require measurement evidence,
+and all quick searches exhaust their time budgets. Median planning duration is
+51.3645s excluding preparation; this unpaired shared-host cohort is not a causal
+speed comparison. Its complete context and unfavorable differences are retained
+in `../corpus-variable-power-merged`.
+
+`merged-validation.json` records these distinct source/test/device scopes;
+`merged-inputs.tar.gz` retains new receipts and controls. Its index references
+132 exact source/plan/emitted-image files in the existing selected archive rather
+than copying identical revisions or generated targets. `audit_merged.py` checks
+all sources, archives/references, test coverage, complete image hashes, counters,
+oracles and final corpus context. `validate_merged.py` and `replay_merged.py`
+reproduce the finite device and kernel/oracle checks. Initial setup logs are
+retained; no failed setup is represented as a passing combined test run.
