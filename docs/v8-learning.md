@@ -417,3 +417,13 @@ emitted through the existing packed two-lane GPU ABI. Widening writes a zero hig
 word; narrowing selects the low word. These fixed primitive mappings grant no
 range, check-removal or profitable-selection authority. Detailed evidence and
 scope are retained in `bench/v8-learning/strict-inlining`.
+
+Combined knowledge integration also includes the concurrently published generic
+first-order call-exposure strategy. It preserves a reusable call on one side
+while trying at most sixteen existing fixed head reductions on the other, then
+compares every argument through ordinary congruence. The call name stops search;
+it grants no equality. This subsumes the overlapping local closed-control probe,
+which is retired. Existing definition typing/termination, shared work/depth
+bounds and ordinary proof replay remain mandatory. Unknown branches and changed
+captures are not erased. The frozen corpus and lifecycle controls above predate
+this final integration strategy; their exact contexts remain separately recorded.
