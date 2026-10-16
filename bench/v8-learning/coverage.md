@@ -2,7 +2,7 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 177 full files, 4 partial files, 428 unread files; 609 inventoried files total.
+Source receipts: 184 full files, 1 partial files, 424 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
@@ -513,8 +513,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/wasm-optimize-phase.h` — unread; 0/24 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-revec-phase.cc` — unread; 0/33 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-revec-phase.h` — unread; 0/37 lines recorded
-- [ ] `src/compiler/turboshaft/wasm-revec-reducer.cc` — partial; 465/1790 lines recorded
-- [ ] `src/compiler/turboshaft/wasm-revec-reducer.h` — partial; 110/1506 lines recorded
+- [x] `src/compiler/turboshaft/wasm-revec-reducer.cc` — read; 1790/1790 lines recorded
+- [x] `src/compiler/turboshaft/wasm-revec-reducer.h` — read; 1506/1506 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-shuffle-reducer.cc` — unread; 0/1087 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-shuffle-reducer.h` — unread; 0/862 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-simd-phase.cc` — unread; 0/23 lines recorded
@@ -624,8 +624,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/maglev/maglev-kna-processor.h` — unread; 0/578 lines recorded
 - [x] `src/maglev/maglev-known-node-aspects.cc` — read; 1159/1159 lines recorded
 - [x] `src/maglev/maglev-known-node-aspects.h` — read; 1176/1176 lines recorded
-- [ ] `src/maglev/maglev-loop-peeler.cc` — unread; 0/1417 lines recorded
-- [ ] `src/maglev/maglev-loop-peeler.h` — unread; 0/120 lines recorded
+- [x] `src/maglev/maglev-loop-peeler.cc` — read; 1417/1417 lines recorded
+- [x] `src/maglev/maglev-loop-peeler.h` — read; 120/120 lines recorded
 - [ ] `src/maglev/maglev-map-inference.h` — unread; 0/121 lines recorded
 - [x] `src/maglev/maglev-node-type.cc` — read; 162/162 lines recorded
 - [x] `src/maglev/maglev-node-type.h` — read; 197/197 lines recorded
@@ -640,7 +640,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `src/maglev/maglev-range-verification.cc` — read; 66/66 lines recorded
 - [x] `src/maglev/maglev-range-verification.h` — read; 38/38 lines recorded
 - [x] `src/maglev/maglev-range.h` — read; 473/473 lines recorded
-- [ ] `src/maglev/maglev-reducer-inl.h` — partial; 3200/7191 lines recorded
+- [x] `src/maglev/maglev-reducer-inl.h` — read; 7191/7191 lines recorded
 - [x] `src/maglev/maglev-reducer.h` — read; 2023/2023 lines recorded
 - [ ] `src/maglev/maglev-regalloc-data.h` — unread; 0/99 lines recorded
 - [ ] `src/maglev/maglev-regalloc-node-info.h` — unread; 0/387 lines recorded
@@ -661,8 +661,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/maglev/s390/maglev-assembler-s390-inl.h` — unread; 0/1624 lines recorded
 - [ ] `src/maglev/s390/maglev-assembler-s390.cc` — unread; 0/606 lines recorded
 - [ ] `src/maglev/s390/maglev-ir-s390.cc` — unread; 0/1091 lines recorded
-- [ ] `src/maglev/turbolev-escape-analysis.cc` — unread; 0/2077 lines recorded
-- [ ] `src/maglev/turbolev-escape-analysis.h` — unread; 0/289 lines recorded
+- [x] `src/maglev/turbolev-escape-analysis.cc` — read; 2077/2077 lines recorded
+- [x] `src/maglev/turbolev-escape-analysis.h` — read; 289/289 lines recorded
 - [ ] `src/maglev/x64/maglev-assembler-x64-inl.h` — unread; 0/1615 lines recorded
 - [ ] `src/maglev/x64/maglev-assembler-x64.cc` — unread; 0/635 lines recorded
 - [ ] `src/maglev/x64/maglev-ir-x64.cc` — unread; 0/1276 lines recorded

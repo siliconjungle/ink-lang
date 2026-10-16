@@ -645,15 +645,11 @@
       "inclusive_lines": [
         [
           1,
-          210
-        ],
-        [
-          1536,
           1790
         ]
       ],
-      "review_status": "partial source read; family assessment open",
-      "note": "Partial source read only. Op-kind compatibility and checked offset arithmetic; graph/seed aggregation and profitability require savings greater than packing/extract costs. External-use extract is charged once because emitted IR shares it; force packs do not count as vectorized operations. Adjacent stores retain earlier effects if the higher address traps. Tree dependency/scheduling legality and most opcode patterns (211..1535) remain unread. Ink host Rust-Wasm does not promise SIMD128/256 lowering; explicit source order, errors and physical evidence remain necessary."
+      "review_status": "file-read; family assessment open",
+      "note": "Partial source read only. Op-kind compatibility and checked offset arithmetic; graph/seed aggregation and profitability require savings greater than packing/extract costs. External-use extract is charged once because emitted IR shares it; force packs do not count as vectorized operations. Adjacent stores retain earlier effects if the higher address traps. Tree dependency/scheduling legality and most opcode patterns (211..1535) remain unread. Ink host Rust-Wasm does not promise SIMD128/256 lowering; explicit source order, errors and physical evidence remain necessary. All remaining lines211..1535 now read. Exact load/store base/index/offset/representation compatibility, strict ordering keys, effect/trapping-load scheduling, force/intersect dependency closure, lane extraction/sign/conversion/order checks, bounded SLP recursion and explicit supported operations assessed. Shared shuffle loads are emitted at their original positions, with same-block guards against intervening stores. Physical SIMD packing must preserve exact lanes and traps and have independent target profitability; relaxed/fused operations do not become Ink exact arithmetic laws."
     },
     {
       "path": "src/compiler/turboshaft/wasm-revec-reducer.h",
@@ -661,11 +657,11 @@
       "inclusive_lines": [
         [
           1,
-          110
+          1506
         ]
       ],
-      "review_status": "partial source read; family assessment open",
-      "note": "Partial operation mapping read only: 128-to-256 arithmetic, comparison, conversion and saturating/relaxed op families. Mapping table is not assessment of Ink exact floating semantics or actual target support. Remaining header unread."
+      "review_status": "file-read; family assessment open",
+      "note": "Partial operation mapping read only: 128-to-256 arithmetic, comparison, conversion and saturating/relaxed op families. Mapping table is not assessment of Ink exact floating semantics or actual target support. Remaining header unread. All remaining lines111..1506 now read. Explicit supported128-to256 mapping, SLP pack/force/intersect/shuffle/bundle graph semantics, original-load-position emission, overflow-safe address arithmetic, loop-phi fixups, half extraction for remaining uses, stable original-order force-input evaluation and exact immutable-base equality assessed. The lower128-bit store is deliberately retained before a256-bit store to preserve memory on upper-half OOB traps. Ink actions additionally require rollback/event/error equivalence; no reordering or widened access follows merely from independent scalar outputs. Integer-to-F32 lane conversion checks both sign extension and conversion mode; relaxed SIMD/FMA/min/max remain semantically distinct."
     },
     {
       "path": "src/compiler/turboshaft/instruction-selection-normalization-reducer.h",
@@ -2181,11 +2177,59 @@
       "inclusive_lines": [
         [
           1,
-          3200
+          7191
         ]
       ],
-      "review_status": "partial read; remaining inline implementation open",
-      "note": "Lines1..800 read: continuation frame construction and receiver materialization, CSE after exact input conversion/options comparison, graph splice ordering, eager/lazy exception info, effect invalidation, truncation range hints, tracked field loads/stores and write barriers, bounded static context-slot handling. Hashes find candidates only; options/inputs are compared. Type/effect/deopt hints rely on V8 runtime contracts and cannot supply Ink equality or unique-ownership facts. Remainder of7191-line implementation remains unread. Lines801..2400 also read: constant-context initialization/TDZ guards, exact field conversions versus mutable HeapNumber materialization, allocation folding and escape dependencies, map/protector guarded array lookup/negative indexing, exact versus lossy conversion alternatives, raw/holey NaN distinctions, abrupt block termination, stable ordered node insertion, recursion/size/frequency inlining gates and constant array bounds. V8 constants may canonicalize NaNs or reinterpret special NaNs as holes; Ink raw stored bits and explicit source errors/defaults must remain distinct. Remaining lines2401..7191 unread. Lines2401..3200 also read: guarded map/value constants, Boolean coercion, fresh/stable prototype-chain dependencies, bounded bound-function instance checks and exact SameValue distinctions for NaN and signed zeros. V8 SameValue may identify arbitrary NaNs and must not replace Ink stored-bit equality; type-equivalent numeric constants also do not imply Smi tagging. Remaining lines3201..7191 unread."
+      "review_status": "file-read; family assessment open",
+      "note": "Lines1..800 read: continuation frame construction and receiver materialization, CSE after exact input conversion/options comparison, graph splice ordering, eager/lazy exception info, effect invalidation, truncation range hints, tracked field loads/stores and write barriers, bounded static context-slot handling. Hashes find candidates only; options/inputs are compared. Type/effect/deopt hints rely on V8 runtime contracts and cannot supply Ink equality or unique-ownership facts. Remainder of7191-line implementation remains unread. Lines801..2400 also read: constant-context initialization/TDZ guards, exact field conversions versus mutable HeapNumber materialization, allocation folding and escape dependencies, map/protector guarded array lookup/negative indexing, exact versus lossy conversion alternatives, raw/holey NaN distinctions, abrupt block termination, stable ordered node insertion, recursion/size/frequency inlining gates and constant array bounds. V8 constants may canonicalize NaNs or reinterpret special NaNs as holes; Ink raw stored bits and explicit source errors/defaults must remain distinct. Remaining lines2401..7191 unread. Lines2401..3200 also read: guarded map/value constants, Boolean coercion, fresh/stable prototype-chain dependencies, bounded bound-function instance checks and exact SameValue distinctions for NaN and signed zeros. V8 SameValue may identify arbitrary NaNs and must not replace Ink stored-bit equality; type-equivalent numeric constants also do not imply Smi tagging. Remaining lines3201..7191 unread. Lines3201..4200 also read: bottom-type contradictions deopt before unsafe conversions, exact signed/unsigned comparisons, eager pre-call Wasm conversion frames, overflow/minus-zero guards, constant magic-number division plus exact-divisibility check, truncation identity preservation for later user analysis, and float min/max/identity NaN silencing. Ink wrapping words do not inherit JS integer-exact division or negative-zero deopts; an identity simplification must retain any conversion/check work. Host transcendental folding and arbitrary-NaN equivalence are not raw-bit proof authority. Remaining lines4201..7191 unread. Lines4201..7191 finish the file: type/receiver/coercion reductions; bit-test branch fusion; signed min/max/sign with NaN/signed-zero pass-through; rounding/clz/imul/fround with retained conversions; conservative property-key invalidation; DataView bounds/detachment/mutability/endian checks; UTF-16 string indexing/clamping/prototype guards; virtual object/closure/iterator construction; date/Intl configuration dependencies; promise then/species/hook/identity guards; regexp exec/lastIndex checks; subgraph predecessor trimming and representation-sensitive inlining limits. These JS heap, promise, Unicode and host contracts are not Ink UTF-8/typed-value laws. Imul with one argument deliberately falls back to preserve ToNumber effects, reinforcing strict unused-work requirements. Literal virtualisation and structural bit-test lowering are distinct from algebraic database authority. No complete family or backend-equivalence claim follows from this file read."
+    },
+    {
+      "path": "src/maglev/turbolev-escape-analysis.h",
+      "sha256": "2a4ee039a8468960782720b67a9987cb94d431b4582340c26f124039dfcc7324",
+      "inclusive_lines": [
+        [
+          1,
+          289
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read: cheap prepass, candidate field tracking and elision separated; unresolved exception predecessors disable the pass. Loads snapshot at definition before intervening stores, nested escape dependencies propagate, and defining-loop boundaries control revisits. Allocation identity and hidden stack-trace uses are distinct from immutable structural value equality. Implementation reviewed separately."
+    },
+    {
+      "path": "src/maglev/turbolev-escape-analysis.cc",
+      "sha256": "13dc43eaf52722a4a9e2901a4cabd1d1efa6db8b26dfad087ed6737ed5c493ee",
+      "inclusive_lines": [
+        [
+          1,
+          2077
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full implementation read: conservative unknown-op escape defaults and synchronized analysis/elision handlers; exact base/field snapshot keys; cyclic map/frame traversal; eager tagged-load resolution; dependency propagation; conservative missing-field/map and representation-mismatch fallback; loop predecessor-specific values, phi reuse/patching and backedge escape before stack pop; two-phase recursive object reconstruction and stack-trace receiver/function retention. Restoration precedes elision, which precedes deopt-frame repair. V8 dead-path assumptions and crash placeholders do not provide Ink proof premises. Ink immutable local field reuse already preserves evaluation snapshots; future owned-buffer/state scalar replacement needs explicit alias/effect/rollback and universal representation obligations, not this JS heap analysis copied as a rewrite."
+    },
+    {
+      "path": "src/maglev/maglev-loop-peeler.h",
+      "sha256": "c76f01bd4b2374792c00cfce4f1e1434cc9a0480c853f757aa98d69ba509540b",
+      "inclusive_lines": [
+        [
+          1,
+          120
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read: explicit loop body/exits, per-exit split kind, immutable original topology, peel-exit-merge predecessor slots and header-phi correspondence. Implementation assessed separately; no general multi-exit transformation authority inferred."
+    },
+    {
+      "path": "src/maglev/maglev-loop-peeler.cc",
+      "sha256": "a530341daa21f658d3506d4c0979138077b51671e1b2f2fcc7555eb96301dec8",
+      "inclusive_lines": [
+        [
+          1,
+          1417
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full non-eager peeling implementation read: recover post-inline headers using compilation-unit identity and bytecode offset, conservative innermost/resumable/handler/side-table/value-dominance gates, clone original control before mutating exits, remap all deopt/exception metadata and use counts, preserve checkpointed forward jumps, exact predecessor slots, simultaneous phi cross-reference rewiring and downward deopt liveness. Shared no-phi exit targets use2K predecessor merges; arbitrary distinct exits remain unsupported. Interrupt/OSR markers are V8 runtime-specific, not erasable Ink work. Ink loop unfolding already has explicit database proofs; broader first-iteration peeling must prove source condition/count/index, lexical captures, strict work and all early/error/rollback paths, then measure code-growth profitability."
     }
   ],
   "families": [
@@ -2332,7 +2376,7 @@
     "first_batch": "Scoped structural work prices through lazy branch contexts; ordinary proofs and measured selection remain unchanged",
     "evidence": "bench/v8-learning/branch-cardinality",
     "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open.",
-    "coverage_followup": "132 full source receipts, three partial, 474 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
+    "coverage_followup": "184 full source receipts, one partial, 424 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
     "second_batch": "Range-guided word representation proposals plus three independently replayed whole-branch laws. 28 related tests, three final range regressions and 88 CPU comparisons pass; measured JS/native controls retain baseline. Matched 32-check control improves one rewritten function to two. Frozen corpus: 10 compile, 24 laws, six reused, zero representation/selection, no new range-law attribution; all quick budgets exhausted.",
     "next_followups": [
       {
@@ -2345,7 +2389,7 @@
       },
       {
         "area": "coverage",
-        "task": "Continue unread428 files plus four partial files/ranges (including Maglev reducer inline lines3201..7191) and optimizer dependencies outside selected inventory.177full files reviewed; every family remains partial. Source reading alone is not implementation or performance evidence."
+        "task": "Continue 424 unread files plus the partial JS call reducer and optimizer dependencies outside the selected inventory. 184 full files reviewed, including Maglev reducer/loop peeling, Turbolev escape analysis and Wasm revectorization; every family remains partial. Source reading alone is not implementation or performance evidence."
       },
       {
         "area": "signed-range-and-integer",
@@ -2391,8 +2435,7 @@
       "Representation-change, Maglev phi selection and simplified-lowering/verifier now have full receipts. Continue the remaining type/range/demand implementations and conditional refinements; assess which generic fixed-meaning proof/representation machinery Ink lacks, especially explicit exact F64 capability and source multiply-high expressibility. Preserve raw bits, source evaluation and unsupported-mode rejection.",
       "Use the reviewed use-map, snapshots and graph-reducer mechanics only with bounded immutable contexts, unknown-at-join and demand-driven revisiting. Previous eager memo-wave prototype is retired; retain real frozen-corpus controls for any new scheduling change.",
       "Full operation typers/type-cache/TurboFan and Turboshaft type domains now reviewed. Any modular-range proposal work must independently check small-width containment, treat disconnected intersections conservatively, keep false IEEE comparison/NaN cases and full-width truncation facts separate, and emit ordinary source proofs; no interval or inferred type becomes a trusted premise.",
-      "Full TurboFan typer now reviewed: map its prefixed-point induction validation to ordinary Ink initial/guarded-step invariant witnesses, preserving wrapping/overflow, terminal overshoot and lazy defaults. Do not create a trusted interval-rule shortcut. F64 proof support also needs semantic-term/correspondence capability design, not merely widening existing32-bit gates; old domains must retain fail-closed unsupported nested terms.",
-      "Investigate generic indexed frozen-proof dependency closure: self-contained assisted laws currently inline quotient witnesses. A combined quotient+remainder catalogue may duplicate large witnesses and hit unchanged object/catalogue budgets. First reproduce the composition boundary, then retain exact Use dependencies through untrusted discovery metadata and ordinary checking; do not raise limits or infer authority from index hashes."
+      "Full TurboFan typer now reviewed: map its prefixed-point induction validation to ordinary Ink initial/guarded-step invariant witnesses, preserving wrapping/overflow, terminal overshoot and lazy defaults. Do not create a trusted interval-rule shortcut. F64 proof support also needs semantic-term/correspondence capability design, not merely widening existing32-bit gates; old domains must retain fail-closed unsupported nested terms."
     ],
     "eighth_batch": {
       "improvement": "Generic explicit source-checked complete-call GPU calibration companion with independent actual-device counters and exact typed validation; default automatic acquisition/selection/cache unchanged.",
@@ -2422,6 +2465,12 @@
       "database": "340/340 integer proposals, both missing U64 remainder laws added;338 previous proof identities preserved. Self-contained inlined quotient witnesses fit16MB and complete shared20M circuit/RUP budgets.",
       "validation": "14 regression methods pass in563.352s: all340 integer laws, independent integer oracle, strict/lazy/fullwidth source selections and authentic false-premise/corruption controls. Fresh authoring reproduces exact installed proofs. Stable final frozen10-program corpus compiles all10/admit alternatives,24oldlaws/sixreused/zerochoices, all final measurement-evidence gates and quick timeouts, median52.6435sec; no new remainder attribution. Corrected GPU holdout4.6925ms to0.601875ms, paired median7.4792626728 with all six process guards; CPU controls retain baseline.36 exact observations published/readback, proof snapshot/policy unchanged. No broad/automatic/cold performance claim.",
       "evidence": "bench/v8-learning/remainder-facts"
+    },
+    "eleventh_batch": {
+      "mechanism": "Generic optional V2 frozen proof-dependency index and bounded child-first closure; existing ordinary Use shares checked quotient witnesses without core/semantic/budget/policy changes.",
+      "database": "The same340 root statements remain; only the two newest remainder proof bodies change. All338 earlier proof identities preserved. Exact three-rewrite source selection shrinks18432155 to10130196 bytes/four objects and passes unchanged16MB input/catalogue limits.",
+      "validation": "All28 focused regression methods pass in672.141s, including340 integer laws, word/float replay, definition-context retargeting and authentic false supporting proof rejection. Fresh authoring and historical boundary recipes reproduce exact identities/selection. JS/native complete-call controls retain baseline. Explicit GPU holdout7.2225ms to0.63375ms, paired median12.0832755581/all six extrema guards; no broad/automatic/cold claim. Final stable frozen corpus:10 compile/all10 alternatives,22 old law identities (subset of preceding24),six reused,zero selections/representations/all measurement-evidence gates and quick timeouts,median51.696sec; no new remainder attribution or causal timing comparison.36 exact observations published/readback; proof snapshot/policy unchanged. Full integrity audit passes;186-file minimal archive3824293bytes.",
+      "evidence": "bench/v8-learning/proof-dependencies"
     }
   },
   "scope_boundaries": [
