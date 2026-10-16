@@ -22,9 +22,11 @@ pub enum BitVectorSemantics {
     OpaqueV1,
     FixedWordsV2,
     FixedScalarsV3,
+    FixedScalarsV4,
 }
 impl BitVectorSemantics {
     fn is_legacy(&self) -> bool { *self == Self::OpaqueV1 }
+    fn floats(&self) -> bool { matches!(self, Self::FixedScalarsV3 | Self::FixedScalarsV4) }
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -35,6 +37,9 @@ pub enum Proof {
         semantics: BitVectorSemantics,
         hypotheses: Vec<usize>, certificate: crate::bitproof::Certificate
     },
+    /// Exact fixed-width words agree when checked masks cover every bit.
+    /// Each part proves the complete masked endpoints, with shared budgets.
+    WordExtensionality { parts: Vec<(u64,Proof)> },
     AssertEquality {
         equality: Equation,
         premise: Box<Proof>,
@@ -196,6 +201,7 @@ fn general_proof(p: &Proof) -> bool {
         Proof::Sym(p) => general_proof(p),
         Proof::Trans { left, right, .. } => general_proof(left) || general_proof(right),
         Proof::Congruence(ps) => ps.iter().any(general_proof),
+        Proof::WordExtensionality { parts } => parts.iter().any(|(_,p)|general_proof(p)),
         Proof::Forall { body, .. } => general_proof(body),
         Proof::Cases { on_false, on_true, .. } => general_proof(on_false) || general_proof(on_true),
         Proof::Induction { base, step, .. } | Proof::GeneralizedInduction { base, step, .. } => {
@@ -227,6 +233,19 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
     struct Lower{atoms:BTreeMap<String,String>,env:BTreeMap<String,S>,semantics:BitVectorSemantics}
     fn bin(op:&str,left:L,right:L)->L{L::Binary{op:op.into(),left:Box::new(left),right:Box::new(right)}}
     impl Lower {
+        fn copy_image(t:&L,b:&mut Budget)->LangResult<L>{
+            let mut pending=vec![t];
+            while let Some(term)=pending.pop(){
+                b.step(0)?;
+                match term {
+                    L::Binary{left,right,..}=>pending.extend([left.as_ref(),right.as_ref()]),
+                    L::If{condition,on_true,on_false}=>pending.extend([condition.as_ref(),on_true.as_ref(),on_false.as_ref()]),
+                    L::Var(_) | L::U64(_) | L::Bool(_)=>(),
+                    _=>return Err("unsupported source circuit image copy".into()),
+                }
+            }
+            Ok(t.clone())
+        }
         fn atom(&mut self,t:&Term,kind:S)->LangResult<L>{
             let key=serde_json::to_string(t).map_err(|e|e.to_string())?;
             if key.len()>1_000_000 || (!self.atoms.contains_key(&key) && self.atoms.len()>=128){return Err("source bit circuit atom limit".into());}
@@ -239,21 +258,22 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                 Sort::Value(Type::U64)=>S::U64,
                 Sort::Value(Type::U32)=>S::U64,
                 Sort::Value(Type::Bool)=>S::Bool,
-                Sort::Value(Type::F32) if self.semantics==BitVectorSemantics::FixedScalarsV3=>S::U64,
+                Sort::Value(Type::F32) if self.semantics.floats()=>S::U64,
+                Sort::Value(Type::I32) if self.semantics==BitVectorSemantics::FixedScalarsV4=>S::U64,
                 _=>return Err("source bit circuit carrier is unsupported in selected semantics".into()),
             };
             let raw=match &t.node{
                 Node::Word(n)=>L::U64(*n),Node::Bool(v)=>L::Bool(*v),
-                Node::Float(bits) if self.semantics==BitVectorSemantics::FixedScalarsV3=>L::U64(*bits as u64),
-                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV3 &&
+                Node::Float(bits) if self.semantics.floats()=>L::U64(*bits as u64),
+                Node::Op(n,args) if self.semantics.floats() &&
                     ["call:f32_bits","call:f32_from_bits"].contains(&n.as_str()) && args.len()==1=>self.lower(&args[0],b,d+1)?,
-                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV3 &&
+                Node::Op(n,args) if self.semantics.floats() &&
                     n=="neg" && t.sort==value(Type::F32) && args.len()==1=>
                     bin("f32:neg",self.lower(&args[0],b,d+1)?,L::U64(0)),
-                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV3 &&
+                Node::Op(n,args) if self.semantics.floats() &&
                     ["call:is_nan","call:is_finite"].contains(&n.as_str()) && args.len()==1 && args[0].sort==value(Type::F32)=>
                     bin(&format!("f32:{}",&n[5..]),self.lower(&args[0],b,d+1)?,L::U64(0)),
-                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV3 &&
+                Node::Op(n,args) if self.semantics.floats() &&
                     n.starts_with("binary:") && args.len()==2 && args[0].sort==value(Type::F32)=>{
                     let op=&n[7..];
                     if ["==","!=","<",">","<=",">="].contains(&op){
@@ -266,6 +286,25 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                     on_false:Box::new(self.lower(&args[2],b,d+1)?),
                 },
                 Node::Op(n,args) if n=="unary:!" && args.len()==1=>bin("==",self.lower(&args[0],b,d+1)?,L::Bool(false)),
+                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV4 &&
+                    n=="neg" && t.sort==value(Type::I32) && args.len()==1=>
+                    bin("-",L::U64(0),self.lower(&args[0],b,d+1)?),
+                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV4 &&
+                    ["call:quot_or","call:rem_or"].contains(&n.as_str()) && args.len()==3=>{
+                    let a=self.lower(&args[0],b,d+1)?;let divisor=self.lower(&args[1],b,d+1)?;
+                    let fallback=self.lower(&args[2],b,d+1)?;
+                    let signed=t.sort==value(Type::I32);
+                    let mut valid=bin("!=",Self::copy_image(&divisor,b)?,L::U64(0));
+                    if signed {
+                        let overflow=bin("&&",bin("==",Self::copy_image(&a,b)?,L::U64(1<<31)),
+                            bin("==",Self::copy_image(&divisor,b)?,L::U64(u32::MAX as u64)));
+                        valid=bin("&&",valid,bin("==",overflow,L::Bool(false)));
+                    }
+                    let width=if t.sort==value(Type::U64){64}else{32};
+                    let operation=if n=="call:quot_or"{"div"}else{"rem"};
+                    let division=bin(&format!("word{width}.{}{operation}",if signed{"s"}else{"u"}),a,divisor);
+                    L::If{condition:Box::new(valid),on_true:Box::new(division),on_false:Box::new(fallback)}
+                },
                 Node::Op(n,args) if ["call:word_and","call:word_or","call:word_xor"].contains(&n.as_str()) && args.len()==2=>{
                     bin(match n.as_str(){"call:word_and"=>"&","call:word_or"=>"|",_=>"^"},self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
                 },
@@ -274,16 +313,21 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                 Node::Op(n,args) if n.starts_with("binary:") && args.len()==2=>{
                     let op=&n[7..];
                     if !["+","-","*","&","|","^","==","!=","<",">","<=",">=","&&","||"].contains(&op){return Err("unsupported source bit circuit operator".into());}
-                    bin(op,self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
+                    let a=self.lower(&args[0],b,d+1)?;let c=self.lower(&args[1],b,d+1)?;
+                    if self.semantics==BitVectorSemantics::FixedScalarsV4 && args[0].sort==value(Type::I32)
+                        && ["<",">","<=",">="].contains(&op) {
+                        bin(op,bin("^",a,L::U64(1<<31)),bin("^",c,L::U64(1<<31)))
+                    }else{bin(op,a,c)}
                 },
                 Node::Op(n,args) if (n=="call:wrapping_shl" || n=="call:wrapping_shr") && args.len()==2=>{
-                    let width=if t.sort==value(Type::U32){"word32"}else{"word64"};
-                    let op=format!("{width}.{}",if n.ends_with("shl"){"shl"}else{"shr"});
+                    let width=if t.sort==value(Type::U32) || t.sort==value(Type::I32){"word32"}else{"word64"};
+                    let op=format!("{width}.{}",if n.ends_with("shl"){"shl"}
+                        else if t.sort==value(Type::I32){"sar"}else{"shr"});
                     bin(&op,self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
                 },
                 Node::Op(n,args) if self.semantics!=BitVectorSemantics::OpaqueV1 &&
                     ["call:rotate_left","call:rotate_right"].contains(&n.as_str()) && args.len()==2=>{
-                    let width=if t.sort==value(Type::U32){"word32"}else{"word64"};
+                    let width=if t.sort==value(Type::U32) || t.sort==value(Type::I32){"word32"}else{"word64"};
                     let op=format!("{width}.{}",if n.ends_with("left"){"rol"}else{"ror"});
                     bin(&op,self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
                 },
@@ -296,7 +340,7 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                 },
                 _=>return Err("unsupported source bit circuit term".into()),
             };
-            Ok(if t.sort==value(Type::U32) || t.sort==value(Type::F32){bin("&",raw,L::U64(u32::MAX as u64))}else{raw})
+            Ok(if t.sort==value(Type::U32) || t.sort==value(Type::F32) || t.sort==value(Type::I32){bin("&",raw,L::U64(u32::MAX as u64))}else{raw})
         }
         fn equation(&mut self,e:&Equation,p:&Program,env:&Env,b:&mut Budget)->LangResult<E>{
             validate(&e.from,env,p,b)?;validate(&e.to,env,p,b)?;
@@ -563,6 +607,23 @@ impl CheckedCatalogue {
             }
         }
         match proof {
+            Proof::WordExtensionality { parts } => {
+                let ty=match &goal.from.sort {
+                    Sort::Value(t @ (Type::U32|Type::I32|Type::U64))=>t,
+                    _=>return Err("word extensionality requires fixed integer words".into()),
+                };
+                let full=if *ty==Type::U64{u64::MAX}else{u32::MAX as u64};
+                if parts.is_empty() || parts.len()>64 || parts.iter().any(|(mask,_)|*mask==0 || mask&!full!=0)
+                    || parts.iter().fold(0,|covered,(mask,_)|covered|mask)!=full {
+                    return Err("word extensionality requires bounded masks covering every source bit".into());
+                }
+                for (mask,proof) in parts {
+                    let from=op(goal.from.sort.clone(),"call:word_and",vec![s::checked_copy(&goal.from,b)?,word(ty.clone(),*mask)]);
+                    let to=op(goal.to.sort.clone(),"call:word_and",vec![s::checked_copy(&goal.to,b)?,word(ty.clone(),*mask)]);
+                    self.prove_inner(p,env,hyp,schemas,&Equation{from,to},proof,b,d+1)?;
+                }
+                Ok(())
+            }
             Proof::BitVector { semantics, hypotheses, certificate } => {
                 if hypotheses.len()>128{return Err("bit proof hypothesis count limit".into());}
                 let selected=hypotheses.iter().map(|i|hyp.get(*i).cloned().ok_or_else(||"unknown bit proof hypothesis".to_owned())).collect::<LangResult<Vec<_>>>()?;
@@ -3028,6 +3089,9 @@ pub fn open_proof(proof: &Proof, scope: &[(String, Sort)], b: &mut Budget) -> La
             })
         };
         Ok(match proof {
+            Proof::WordExtensionality { parts } => Proof::WordExtensionality {
+                parts:parts.iter().map(|(mask,p)|Ok((*mask,go(p,scope,b,d+1)?))).collect::<LangResult<_>>()?,
+            },
             Proof::BitVector { semantics, hypotheses, certificate } => Proof::BitVector { semantics:*semantics,hypotheses:hypotheses.clone(),certificate:certificate.clone() },
             Proof::Linear { premises } => Proof::Linear { premises: premises.clone() },
             Proof::Word { hypotheses, certificate } => Proof::Word { hypotheses: hypotheses.clone(), certificate: certificate.clone() },
