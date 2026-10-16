@@ -23,7 +23,8 @@ TOOL_SOURCES = {'knowledge': ['ink_knowledge', 'producers', 'libraries'],
                 'planner': ['ink_planner', 'browser', 'plan.py', 'compile_plan.py']}
 IMAGES = ['source.core.json', 'compiled.core.json',
           'model.snapshot', 'deployment.snapshot', 'trace.json', 'program.mjs',
-          'program.mjs.source.mjs', 'program.mjs.initial-state.mjs', 'program.mjs.initial.snapshot']
+          'program.mjs.source.mjs', 'program.mjs.initial-state.mjs', 'program.mjs.initial.snapshot',
+          'program.mjs.plan.json']
 
 
 def digest(data):

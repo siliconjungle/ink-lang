@@ -109,6 +109,24 @@ first establish equal scrutinees before sharing payload variables. Factored
 lemmas fit the existing checker limits; no resource budget is increased and no
 producer hash or cached verdict authorizes a rewrite.
 
+Closed scalar computations can now become exact constants, including the
+instruction counter in this example. The untrusted producer evaluates binary32
+operations with integer arithmetic, preserving rounding, signed zero and NaN
+rules; the ordinary checker independently establishes every proposed result.
+Dynamic weights, inputs and arithmetic retain their original operation order.
+Long closed traversals use balanced helper definitions as proof witnesses even
+when the executable action no longer calls those helpers. Short traversals can
+use ordinary conversion. Already literal library initializers are kept behind
+their existing function boundaries when no newly known argument justifies
+expansion; this avoids duplicating unchanged code in multiple callers.
+
+Trained artifacts keep the complete checked package once in `selection.json`.
+The generated descriptor binds those exact bytes through a fixed local
+`specialization_package` reference. Verification replays the package, checks the
+source, evidence and initial state, and rejects alternate paths or ambiguous
+embedded packages. This reduces duplicate proof storage; it grants no new
+rewrite authority and makes no runtime-memory claim.
+
 This is explicit checked specialization. It does not prove that the selected
 layout is profitable or change automatic planner selection. State and learning
 actions execute on CPU hosts. Eligible pure specialized numeric roots can run
@@ -131,6 +149,12 @@ replays the complete frozen plan. Cross-target checks cover reference, Rust,
 JavaScript, Wasm and the GPU host, with actual device work on the specialized
 pure root. These establish finite implementation conformance, not correctness of
 the whole compiler, AD transform, learning algorithm or toolchain.
+
+The [closed-computation report](../reports/closed-learned-computations-2026-10-17/README.md)
+retains the exact artifacts, isolated-process measurements, earlier noisy runs,
+proof-package tampering checks and fresh committed-source image comparison.
+Its request timings exclude construction, proof checking and startup; those
+boundaries must remain separate when assessing profitability.
 
 General learned representations, broader graph/tape specialization, learned goal
 policies with admitted profitability evidence, parallel/device training and the

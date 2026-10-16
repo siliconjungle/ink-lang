@@ -10,6 +10,8 @@ const [baselinePath,selectedPath,order='baseline,selected']=process.argv.slice(2
 if(!baselinePath||!selectedPath||!['baseline,selected','selected,baseline'].includes(order))
  throw Error('Usage: sample.mjs BASELINE_ARTIFACT SELECTED_ARTIFACT [baseline,selected|selected,baseline]');
 const paths={baseline:resolve(baselinePath),selected:resolve(selectedPath)},modules={},results={},images={};
+const scale=Number(process.env.INK_BENCH_SCALE??1);
+if(!Number.isInteger(scale)||scale<1||scale>32)throw Error('INK_BENCH_SCALE must be an integer from 1 to 32');
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex'),now=()=>process.hrtime.bigint();
 for(const name of order.split(',')){
  const begin=now(),folder=paths[name];modules[name]=await import(pathToFileURL(join(folder,'program.mjs')));
@@ -31,6 +33,7 @@ const samples=5,phases=[
  {name:'loss',reads:5000,warmup:500,query:'loss',retune:0,retarget:0},
  {name:'loss-retarget-64',reads:5000,warmup:500,query:'loss',retune:0,retarget:64},
 ];
+for(const phase of phases){phase.reads*=scale;phase.warmup*=scale;}
 for(const phase of phases){
  const checks={};
  for(const name of order.split(',')){
@@ -66,6 +69,6 @@ for(const phase of phases){
  assert.deepEqual(checks.baseline,checks.selected,phase.name+': complete outputs/checkpoints');
 }
 console.log(JSON.stringify({schema:1,node:process.version,platform:process.platform,arch:process.arch,cpu:os.cpus()[0].model,
- processId:process.pid,order:order.split(','),samples,phases,typedBoundCalls:true,resultOnly:true,
+ processId:process.pid,order:order.split(','),samples,scale,phases,typedBoundCalls:true,resultOnly:true,
  eventAcknowledgementIncluded:true,completeChecksumsAndCheckpointsAgree:true,images,results,
  scope:'Paired complete bound query calls on one finite learned program. Warm samples include the stated weight/goal changes; startup is separate. Instruction count is not a latency model; no automatic profitable selection or upstream parity follows.'}));
