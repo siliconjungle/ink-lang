@@ -419,3 +419,14 @@ standalone core tests cover the bounded conversion change. The unrolled record
 pilot lost performance, and projected/unrolled composition still exhausts proof
 resources. Profitable automatic representation selection, broad graph/tape
 compilation, device training and full upstream parity remain required.
+
+The speculative conversion extension's existing eight-operation CI regression is
+repaired by checking necessary outer syntax before copying arguments. All 488
+core tests, the complete legacy first-order corpus check and the existing
+144-outcome native/JS/Wasm history pass locally without higher limits. Exact
+native JavaScript F32 literal emission passes all 44 integration targets; six
+paired Adam update measurements give 1.068× median throughput while small map
+changes remain near control variation. The
+[retained report](reports/conversion-and-f32-literals-2026-10-17/README.md)
+separates these bounded results from general training, held-out profitability,
+device execution and full upstream parity.

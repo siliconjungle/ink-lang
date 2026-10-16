@@ -196,3 +196,13 @@ premises after rebinding source identities. Knowledge tests cover effectful
 arguments, events/rollback, eager fallbacks and mutable near misses. Distribution
 tests cover changing objectives, stale feedback, rehashed proof tampering and
 selected cross-target checkpoints. Performance needs separate lifecycle evidence.
+
+The owned-continuation conversion extension initially exhausted the existing
+eight-operation action's proof budget in CI. Necessary outer-syntax checks now
+avoid incompatible speculative reductions before copying their arguments. The
+same compact equation passes without raising limits, and removing its frozen
+premise still rejects. All 488 standalone core tests and the existing 144-outcome
+native/JavaScript/Wasm history pass locally. The
+[regression report](../reports/conversion-and-f32-literals-2026-10-17/README.md)
+retains the failures, exact proof and source-bound validation. Larger combined
+projection/unrolling remains resource-limited.
