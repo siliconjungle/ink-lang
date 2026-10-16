@@ -477,3 +477,19 @@ missing embedded ABI resource is documented in its historical resource supplemen
 Automatic opportunity discovery, profitable learned representation selection,
 device training and the complete Handwired/Pretext/Freerange performance programme
 remain required; this milestone makes no new performance claim.
+
+The next lifecycle cohort now measures generated guards on JavaScript. Eight
+groups of four fresh processes compare generic, guarded, projected and composed
+plans with matching/early-mismatch/late-mismatch/empty graphs, three input sizes,
+short lifetimes and live graph/weight learning writes. The guard loses: the
+baseline/guard median ratio is 0.657 for one input and 0.858 for 64. Projection
+alone gives 1.106 and 1.064 respectively; composition still loses. All variants
+check 96 independent finite reference values and the 335-outcome exact-snapshot
+history in each process. These shared-host diagnostics are not admitted planner
+evidence. See the [complete lifecycle report](reports/guarded-specialization-lifecycle-2026-10-17/README.md).
+An explicit `--prefix-plan` now composes checked preparation before guard
+generation and exactly reproduces the measured six-step plan. Legacy feature
+version rebinding and canonical empty proof-map handling are fixed; all 26
+related knowledge regressions pass. Moving stable guard work to configuration
+changes, useful learned representation search and matched native/GPU/upstream
+performance remain active requirements.
