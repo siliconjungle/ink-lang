@@ -91,6 +91,128 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
     })).map_err(|e|e.to_string())?)
 }
 
+pub(crate) fn specialization_evidence(plan: &CheckedPlan) -> LangResult<serde_json::Value> {
+    Ok(
+        serde_json::json!({"semantics":ink_core::planning::SEMANTICS,
+        "input_core_sha256":plan.original().identity()?,"selected_core_sha256":plan.module().identity()?,
+        "plan_sha256":ink_core::registry::identity(plan.package())?,"steps":plan.package().steps.len()}),
+    )
+}
+
+/// Initialize an ordinary extension/rewrite plan with the original logical
+/// checkpoint namespace. No physical/routing choice may silently disappear.
+pub fn build_initialized(
+    plan: &CheckedPlan,
+    target: &str,
+    output: &Path,
+    seed: &[u8],
+    cargo: Option<&str>,
+) -> LangResult<()> {
+    if plan.package().steps.iter().any(|step| {
+        !matches!(
+            step,
+            ink_core::planning::Step::Extension(_) | ink_core::planning::Step::Rewrite(_)
+        )
+    }) {
+        return Err(
+            "initialized composed artifacts currently require extension/rewrite plans".into(),
+        );
+    }
+    crate::stateful::Runtime::restore_portable_checked(plan.original(), seed)?;
+    let target = if target == "gpu" { "webgpu" } else { target };
+    let cargo = cargo
+        .map(String::from)
+        .or_else(|| std::env::var("INK_CARGO").ok())
+        .unwrap_or_else(|| "cargo".into());
+    match target {
+        "javascript" => {
+            let code = ink_lowering_js::lower_planned(plan)?.javascript;
+            crate::initial_state::javascript(output, &code, seed)?;
+        }
+        "rust" | "native" | "wasm32" => {
+            let project = if target == "rust" {
+                output.to_path_buf()
+            } else {
+                std::path::PathBuf::from(format!("{}.project", output.display()))
+            };
+            crate::runtime::emit_rust_program(
+                &ink_lowering_rust::state_native::emit_planned(plan)?,
+                &project,
+            )?;
+            crate::runtime::emit_initial_state(&project, Some(seed))?;
+            if target != "rust" {
+                crate::runtime::toolchain::complete_program(
+                    &project,
+                    target == "wasm32",
+                    output,
+                    &cargo,
+                )?;
+                if target == "wasm32" {
+                    crate::initial_state::wasm(output, seed)?;
+                }
+            }
+        }
+        "webgpu" => {
+            crate::runtime::emit_planned(plan, output)?;
+            crate::initial_state::gpu(output, seed)?;
+            build_gpu_fallbacks(output, &cargo)?;
+        }
+        _ => return Err("unsupported initialized composed artifact target".into()),
+    }
+    let evidence = specialization_evidence(plan)?;
+    let binding = serde_json::json!({"target":target,"input_core_sha256":plan.original().identity()?,
+        "selected_core_sha256":plan.module().identity()?,"compiled_plan":plan.package(),"specialization":evidence,
+        "initial_state":{"source_core_sha256":plan.original().identity()?,
+            "snapshot_sha256":crate::initial_state::descriptor("",seed)["sha256"]},
+        "trust":"Complete plan replay; literal emission, runtimes and target toolchains remain trusted"});
+    let path = if matches!(target, "rust" | "webgpu") {
+        output.join("plan.json")
+    } else {
+        std::path::PathBuf::from(format!("{}.plan.json", output.display()))
+    };
+    write(
+        &path,
+        serde_json::to_vec(&binding).map_err(|e| e.to_string())?,
+    )
+}
+
+// Complete the browser bundle before its artifact inventory is sealed. Cargo
+// targets live outside the published directory (the build driver supplies the
+// shared target/lock); CPU fallback modules themselves are included and hashed.
+fn build_gpu_fallbacks(bundle: &Path, cargo: &str) -> LangResult<()> {
+    let project = bundle.join("cpu");
+    if project.join("Cargo.toml").is_file() {
+        let manifest: serde_json::Value = serde_json::from_slice(
+            &fs::read(bundle.join("manifest.json")).map_err(|e| e.to_string())?,
+        )
+        .map_err(|e| e.to_string())?;
+        if manifest["runtime_abi"] == "ink-module-v1" {
+            crate::runtime::toolchain::complete_program(
+                &project,
+                true,
+                &project.join("compiled_state.wasm"),
+                cargo,
+            )?;
+        } else {
+            crate::runtime::toolchain::gpu_cpu_wasm_with_cargo(&project, &bundle.join("cpu.wasm"), cargo)?;
+        }
+    }
+    let directory = bundle.join("gpu");
+    if directory.is_dir() {
+        let mut children = fs::read_dir(directory)
+            .map_err(|e| e.to_string())?
+            .map(|e| e.map(|e| e.path()).map_err(|e| e.to_string()))
+            .collect::<LangResult<Vec<_>>>()?;
+        children.sort();
+        for child in children {
+            if child.join("manifest.json").is_file() {
+                build_gpu_fallbacks(&child, cargo)?;
+            }
+        }
+    }
+    Ok(())
+}
+
 /// One application facade joins independent pure-entry placement and maintained
 /// transactional state. Calls inside transactions remain literal host calls;
 /// the checked route controls the public pure entry, as in the routing contract.

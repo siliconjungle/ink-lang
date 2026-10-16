@@ -1128,6 +1128,44 @@ fn run() -> LangResult<()> {
         let result=verified_language::training::build_model_specialized(&module,&trace_bytes,initial.as_deref(),&target,Path::new(&out),arg_value(&args,"--cargo")?.as_deref(),&frozen,args.iter().any(|arg|arg=="--specialize-frozen"),arg_value(&args,"--python")?.as_deref())?;
         println!("{result}");return Ok(());
     }
+    if cmd == "build" {
+        if let Some(file) = arg_value(&args, "--plan")? {
+            for arg in &args {
+                if arg.starts_with("--")
+                    && ![
+                        "--plan",
+                        "--initial-state",
+                        "--core",
+                        "--target",
+                        "--cargo",
+                        "--contract-proofs",
+                        "--termination-proofs",
+                    ]
+                    .contains(&arg.as_str())
+                {
+                    return Err(format!("unsupported initialized plan build option {arg}"));
+                }
+            }
+            let seed = arg_value(&args,"--initial-state")?.ok_or("build --plan requires --initial-state; use compile --plan for uninitialized emission")?;
+            let module = core::CheckedModule::from_source(p)?;
+            let package = serde_json::from_slice(&read_bounded(
+                &file,
+                verified_language::registry::MAX_VIEW_BYTES,
+            )?)
+            .map_err(|e| e.to_string())?;
+            let plan = verified_language::planning::check(&module, &package)?;
+            let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
+            let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT")?;
+            verified_language::compiled_plans::build_initialized(
+                &plan,
+                &target,
+                Path::new(&out),
+                &read_bounded(&seed, 64_000_000)?,
+                arg_value(&args, "--cargo")?.as_deref(),
+            )?;
+            return Ok(());
+        }
+    }
     let semantic_selection = prepare_selection(&args, &p)?;
     if let Some(selected) = &semantic_selection {
         p = selected.module().program().clone();
