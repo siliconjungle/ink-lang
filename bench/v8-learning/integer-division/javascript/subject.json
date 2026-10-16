@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "semantics": "ink-semantic-terms-v1",
+  "input_core_sha256": "b0f54a7fff3d69a1e93145958d85f872cc7958c13b7e67689457d65dac668b2d",
+  "functions": {
+    "reduce": {
+      "sort": {
+        "Value": "U64"
+      },
+      "node": {
+        "Op": [
+          "call:foldl",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U64"
+                }
+              },
+              "node": {
+                "Free": "xs"
+              }
+            },
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Word": 0
+              }
+            },
+            {
+              "sort": {
+                "Arrow": [
+                  {
+                    "Value": "U64"
+                  },
+                  {
+                    "Arrow": [
+                      {
+                        "Value": "U64"
+                      },
+                      {
+                        "Value": "U64"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "node": {
+                "Lambda": {
+                  "sort": {
+                    "Arrow": [
+                      {
+                        "Value": "U64"
+                      },
+                      {
+                        "Value": "U64"
+                      }
+                    ]
+                  },
+                  "node": {
+                    "Lambda": {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Op": [
+                          "binary:+",
+                          [
+                            {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Bound": 0
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Op": [
+                                  "call:quot_or",
+                                  [
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Bound": 1
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Word": 8
+                                      }
+                                    },
+                                    {
+                                      "sort": {
+                                        "Value": "U64"
+                                      },
+                                      "node": {
+                                        "Word": 73
+                                      }
+                                    }
+                                  ]
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "score": {
+      "sort": {
+        "Value": "U64"
+      },
+      "node": {
+        "Op": [
+          "call:reduce",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U64"
+                }
+              },
+              "node": {
+                "Free": "xs"
+              }
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "unavailable": []
+}
