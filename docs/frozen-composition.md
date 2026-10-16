@@ -132,8 +132,9 @@ baseline. Wider capture abstraction and lifecycle profitability remain open.
 
 Browser checks additionally execute a 64-operation pure model prefix for eleven
 raw F32 input/coefficient classes on the actual GPU, comparing against the
-original evaluator. The full 128-operation pure root remains outside the graph
-stage budget; complete stateful serving and learning execute on the CPU. This
+original evaluator. At that milestone the full 128-operation pure root exceeded
+the graph stage budget; scalar grouping below removes that limit. Complete
+stateful serving and learning still execute on the CPU. This
 is finite backend evidence, not a GPU performance or training claim.
 
 The earlier [expanded-layout acquisition](../reports/frozen-composition-2026-10-16/README.md)
@@ -207,10 +208,17 @@ to one; 128/256/512-operation helpers previously exceeded the stage budget and
 now each use one stage. Limits remain unchanged. State, serving actions and
 learning still run on the CPU; this does not implement device training.
 
-Six paired fresh browser processes measure 1.81× faster complete GPU calls for
+Six paired fresh browser processes measure 1.84× faster complete GPU calls for
 the 64-operation helper, including upload, dispatch, readback, result decoding
 and full-value checking. The 512-operation scalar request still strongly favors
-CPU/JavaScript: roughly 513 microseconds on GPU versus 8/7 microseconds on
+CPU/JavaScript: roughly 499 microseconds on GPU versus 8/6 microseconds on
 Wasm CPU/JavaScript at this asynchronous host boundary. These finite workstation
 measurements do not establish upstream parity or automatic profitability.
 Large batches/resident application pipelines require separate measurements.
+
+
+The [scalar GPU stage acquisition](../reports/scalar-gpu-stages-2026-10-16/README.md)
+retains both acquisitions (including the initial GPU-contended set), complete
+artifacts/histories, exact source-image receipts and every raw timing sample.
+The independent rebuild reproduces all 30 WGSL files and 140 host/descriptor
+images; it is finite implementation assurance, not a backend correctness proof.

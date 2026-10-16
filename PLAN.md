@@ -357,7 +357,7 @@ of 7/31. Separate paired comparisons measure smaller JavaScript and improved
 warm serving/import/first-binding diagnostics; the unspecialized baseline still
 has lower startup costs. Expanded code remains an explicit checked layout option.
 Actual GPU prefix checks cover 64 operations and eleven raw F32 input/weight
-classes. The 128-operation pure root still exceeds the graph stage budget;
+classes. At that milestone the 128-operation pure root exceeded the graph stage budget;
 source/dispatch fusion, broader graph/tape domains and device training remain
 required. Prefix proof views are still substantial (3.29 MB for the 128 case).
 
@@ -376,7 +376,7 @@ Eligible scalar helper graphs now share a literal ordered GPU stage. Full
 32/128/512-operation roots pass actual GPU execution with exceptional F32 classes;
 wide-word, signed, record and lazy-default cases also pass. The 64-operation
 helper falls from 64 stages to one and paired complete GPU calls improve about
-1.81×. CPU/JavaScript remain much faster for a single scalar request. Collection
+1.84×. CPU/JavaScript remain much faster for a single scalar request. Collection
 stages, state/learning execution and arithmetic contracts are unchanged. Next,
 measure batched/resident whole-application pipelines and extend proof-backed
 query/state fusion, learned representation/goal selection and device training.
