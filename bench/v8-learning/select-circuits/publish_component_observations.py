@@ -1,0 +1,21 @@
+"""Store exact external-producer component measurements, never Ink runtime evidence."""
+from pathlib import Path
+from decimal import Decimal
+import hashlib,json
+from types import SimpleNamespace
+from ink_knowledge import Store,canonical,identity
+from ink_planner.corpus import execution_context
+ROOT=Path(__file__).resolve().parents[3];HERE=Path(__file__).resolve().parent;BASE=ROOT/'build/v8-select-circuits'
+context=json.loads((BASE/'dense-inputs.json').read_bytes());comparison=json.loads((BASE/'dense-comparison.json').read_bytes());assert not comparison['adopt'];corpus=json.loads((BASE/'corpus/context.json').read_bytes())
+args=SimpleNamespace(knowledge_root=(ROOT/'knowledge').resolve(),target='javascript',planning_effort='quick',timeout=600,compiler=(BASE/'final-frozen/ink-integrated').resolve(),manifest=ROOT/'bench/planning-corpus/corpus.json',expansion_limit=None)
+inputs=SimpleNamespace(manifest_bytes=args.manifest.read_bytes(),context=lambda:corpus['corpus_inputs']);before=execution_context(args,inputs)
+for key in ['compiler_sha256','snapshot','registry_sha256','producer_source_sha256','planner_source_sha256','manifest_sha256']:assert before[key]==corpus[key],key
+program=identity(dict(identity_kind='external-python-component-program-v1',driver_sha256=context['runner_hashes']['bench_dense.py'],proposal_driver_sha256=context['runner_hashes']['probe_dense.py'],inputs=context['inputs']));store=Store(ROOT/'knowledge');snapshot=store.snapshot_id;objects=[]
+for row in comparison['rows']:
+ for variant in ['baseline','dense']:
+  implementation=row['baseline_source_sha256']if variant=='baseline'else context['runner_hashes']['dense-proposal.py'];plan=identity(dict(identity_kind='external-python-component-invocation-v1',program=program,variant=variant,implementation_sha256=implementation));samples=row['samples'][variant]
+  obj=dict(schema=1,program=program,entries=[],plan=plan,target=dict(hardware=context['hardware']+'; hardware read back after benchmark on the same local host; power state not captured',driver='CPython perf_counter; external producer CPU component',toolchain=context['python'],backend='external-python-rup-hint-construction',bridge='Complete cold builder creation plus all18 proof-hint traces; expected complete hints checked after timing'),workload=dict(shape=dict(protocol='external-producer-component-v1',identity_scope='External Python code/input/invocation hashes, not checked Ink source or runtime plans',implementation=variant,process=row['process'],input_context_sha256=hashlib.sha256((BASE/'dense-inputs.json').read_bytes()).hexdigest(),implementation_sha256=implementation,raw_seconds=[str(sample)for sample in samples],conversion='perf_counter seconds multiplied by1e9, truncated to integer ns',rounds=11,paired_order='alternating baseline/dense each round'),distribution='Same18 retained V3 obligations and retained clause sequences; no held-out program claim',concurrency=1,residency='Inputs parsed and one untimed comparison before timing; each full pass creates fresh builders. SAT solving, kernel replay and result equality excluded; complete returned hints consumed.'),metrics=dict(complete_call_ns=[str(int(Decimal(str(sample))*Decimal(1000000000)))for sample in samples],peak_bytes=None))
+  Store.validate_observation(obj);ident=store.observe(obj);assert ident==identity(obj);assert json.loads((store.data/'observations'/(ident+'.json')).read_bytes())==obj;objects.append(obj)
+assert len(objects)==6 and store.snapshot_id==snapshot and execution_context(args,inputs)==before
+(HERE/'component-observations.json').write_bytes(canonical(dict(schema=1,objects=objects)))
+(HERE/'component-database-readback.json').write_text(json.dumps(dict(schema=1,count=6,observations=[identity(obj)for obj in objects],proof_snapshot=snapshot,proof_snapshot_unchanged=True,compiler_registry_producer_planner_manifest_components_unchanged=True,before_after_observation_context_equal=True,scope='Distinct external-Python program/invocation identities and backend. Exact3x11 paired complete helper samples, unknown memory. No checked Ink program/plan or runtime evidence claim; no selection policy/model change.'),indent=2)+'\n');print('Published/read back6 external producer component observations; source context and proof snapshot unchanged')

@@ -42,6 +42,8 @@ def main():
  library=read('count-library/index.json');assert len(library['rows'])==18;entries=[]
  for row in library['rows']:
   law=json.loads(gzip.decompress(raw('count-library/'+row['sha256']+'.json.gz')));assert identity(law)==row['sha256']and law['from']==row['from']and law['params']==row['params'];entries.append(semantic_entry(law))
+ roots={identity(entry)for entry in entries}|{row['sha256']for row in library['rows']}
+ assert not roots&set(read('count-corpus/report.json')['attribution'])
  if a.compiler:
   assert a.scratch,'fresh --scratch required for replay';scratch=a.scratch.resolve();scratch.mkdir(parents=True,exist_ok=False);(scratch/'storage-retention.json').write_text(json.dumps(dict(schema=1,keep=[dict(path='.',reason='Required selected count/quotient source proof replay')],safe_to_remove=[]),indent=2)+'\n');store=Store.publish(scratch/'library',entries);(scratch/'all-counts.json').write_bytes(canonical(store.bundle([identity(e)for e in entries])));(scratch/'core.json').write_bytes(raw('core.json'))
   for name in ['program','count-program']:
