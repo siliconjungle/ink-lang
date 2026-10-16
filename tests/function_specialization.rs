@@ -18,15 +18,23 @@ fn check_mutable_graph_specialization(generated_guard: bool) {
     let literal = (0..32).map(|i| format!("Node{{kind:Kind.{},wire:{i},weight:{}}}",
         if i%2==0 {"Add"} else {"Multiply"},i%2)).collect::<Vec<_>>().join(",");
     let mut source = include_str!("../knowledge/tests/fixtures/owned-frozen-source.ink").to_owned();
+    if generated_guard {
+        source = source.replace("state Code:", "trainable state Code:");
+    }
     if !generated_guard {
         source = source.replace("return evaluate(Code.get", "return adaptive(Code.get")
             .replace("let result=evaluate(Code.get", "let result=adaptive(Code.get");
         source += &format!("\nfn chosen(weights:List<f32>,input:List<f32>)->List<f32>{{return evaluate([{literal}],weights,input);}}\n");
         source += &format!("fn adaptive(code:List<Node>,weights:List<f32>,input:List<f32>)->List<f32>{{return choose(code==[{literal}],chosen(weights,input),evaluate(code,weights,input));}}\n");
     }
-    source += "change recode(code:List<Node>)->Unit writes(Code){Code.put(0,code);return ();}\n";
+    source += if generated_guard {"learn change recode(code:List<Node>)->Unit writes(Code){Code.put(0,code);return ();}\n"}
+        else {"change recode(code:List<Node>)->Unit writes(Code){Code.put(0,code);return ();}\n"};
     let module = CheckedModule::from_source(syntax::parse(&source).unwrap()).unwrap();
     assert!(module.program().frozen.is_empty());
+    if generated_guard {
+        assert!(module.program().contracts.learning.trainable.iter().any(|name|name=="Code"));
+        assert!(module.program().contracts.learning.learn.iter().any(|name|name=="recode"));
+    }
     let distribution = std::env::var_os("INK_DISTRIBUTION").map(std::path::PathBuf::from)
         .unwrap_or_else(||Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf());
     let label = if generated_guard {"generated-guard-specialization"} else {"mutable-function-specialization"};
