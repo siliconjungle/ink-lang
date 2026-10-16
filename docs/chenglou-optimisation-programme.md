@@ -425,3 +425,13 @@ The [retained acquisition](../reports/factored-literal-proofs-2026-10-16/README.
 includes fresh committed compiler reproduction and complete browser histories;
 it makes no new serving-performance claim. Typed composition for larger generated
 computations remains the next structural specialization step.
+
+[Balanced typed helper composition](frozen-composition.md) now advances that
+step for closed `foldl` computations. Complete 32/128-operation programs retain
+live weights and the original checkpoint namespace through conservative helper
+extensions and ordinary prefix/action proofs. Balanced trees replace a linear
+chain that overflowed the larger execution test. Warm JavaScript serving improves
+about 1.38×/1.30× in six paired processes, with larger code and slower first
+binding/import. This is an explicit composed-plan path; integration into normal
+trained-artifact publication, broader graph/tape compilation and upstream parity
+remain required work.
