@@ -52,6 +52,12 @@ def main():
         assert len(timing['records'])==3*3*3*15
         assert {row['name']for row in timing['records']}=={'pretext','ordinary','prepared'}
         assert all(row['calls']==128 for row in timing['records'])
+    corpus=read('corpus/report.json')['headline']
+    assert corpus['programs']==corpus['compiled']==10
+    assert corpus['programs_with_rewrite_alternative']==10 and corpus['programs_selecting_alternative']==0
+    assert corpus['laws_admitted']==26 and corpus['laws_admitted_in_multiple_programs']==7
+    assert '2 passed; 0 failed'in(ROOT/'install-tests.log').read_text()
+    assert read('relocated-core.json')['core_sha256']==identity
     print(json.dumps(dict(status='passed',oracle_cases=1680,geometry_observations=13002,lifecycle_observations=53,
         scope='Retained source/observation bindings; no correctness, authenticity, browser accuracy or profitability proof.')))
 if __name__=='__main__':main()

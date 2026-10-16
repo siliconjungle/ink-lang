@@ -65,9 +65,24 @@ semantics changed. The user's existing `core/src/syntax/query.rs` edit (diff SHA
 local builds and is excluded from publication. These tests do not prove the
 checker, source translation, generated implementations or host toolchains.
 
-The default ten-program corpus and relocated-installation evidence are retained
-after the distribution pin is committed. Neither corpus entry counts nor a
-successful installation establish performance parity. The complete
+The default ten-program corpus completed: ten compiled, all had admitted rewrite
+alternatives, none selected an alternative without comparable performance
+evidence, 26 laws were admitted and seven were reused across programs. All runs
+reached the time budget; the median observed time was 45.2305 seconds including
+setup. These are untrained default-planner observations. They overlapped local
+validation and are not comparative speed or learned-generalization evidence.
+Variation from the prior time-limited corpus cannot be attributed to this source
+library. `corpus/` retains complete inputs, plans, receipts and context.
+
+Both distribution tests passed after committing the exact package pins. From
+outside the checkout, the relocated installed compiler emitted the identical
+complete core using the new embedded standard module. The installation also
+checks that its shipped knowledge source contains the new library. An earlier
+attempt correctly refused the not-yet-committed knowledge pin; no compatibility
+exception was added. No all-green remote CI result is claimed by these local logs.
+
+Neither corpus entry counts nor a successful installation establish performance
+parity. The complete
 [three-project programme](../../docs/chenglou-optimisation-programme.md) remains
 active, including preparation/shaping, incremental work, broader facts and
 requirements, learned structural choices, device learning and matched performance.
