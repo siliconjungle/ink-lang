@@ -63,6 +63,11 @@ The restricted source owns the checkpoint namespace; sealed equality selection
 preserves it. Verification always replays restriction and specialization proofs,
 even without replaying training. Rehashing an altered proof does not validate it.
 
+Longer closed traversals now use [typed helper composition](frozen-composition.md)
+through the same build flag. Their `selection.json` contains an
+`ink-compiled-plan-v1` packet; verification replays every source extension and
+complete action rewrite. The direct selection format remains supported.
+
 Separate authoring also uses normal checked selection:
 
 ```sh
