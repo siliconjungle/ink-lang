@@ -389,3 +389,31 @@ map input and output carriers remain distinct. Shader validation covers U32,
 I32, U64 and F32 contexts. This is literal backend correctness support, with no
 new source rewrite or profitability authority. Actual selected F32 bit-copy and
 classification kernels preserve all tested payloads and gradual-underflow bits.
+
+## Strict source-call unfolding
+
+V8's TurboFan and Maglev inliners reuse already-evaluated argument nodes and
+preserve their control/effect context. Ink's database unfolding producer now
+represents the complete argument interface with typed lexical bindings, once
+in declaration order, including unused arguments and repeated U64/composite
+values. Binding a selected scalar subset is insufficient to preserve the full
+call interface. Lazy caller arms keep their own bindings inside their branches.
+The proposal still needs an ordinary checked source equality and measured
+profitability; there is no carrier whitelist or inlining theorem in the compiler.
+
+General Normalize checking compares fixed lexical beta steps before descending
+into unrelated helper computation. This validates curried-to-sequential binding
+reification without expanding a large unchanged argument. Capture-avoiding
+substitution and existing shared work/depth limits still apply; validation runs
+before that comparison, including fail-closed nested F64 terms. The independent
+package test checks identical proof work for 1,000- and 65,536-step helper
+arguments. This does not raise budgets, change certificate identities or prove
+backend correctness.
+
+The required strict-inlining suite covers wrapping U64 boundaries, mixed unused
+arguments, callback capture, caller-arm laziness and exact F32 payload copies.
+Its actual device validation also exercises literal U32/U64 conversions, now
+emitted through the existing packed two-lane GPU ABI. Widening writes a zero high
+word; narrowing selects the low word. These fixed primitive mappings grant no
+range, check-removal or profitable-selection authority. Detailed evidence and
+scope are retained in `bench/v8-learning/strict-inlining`.

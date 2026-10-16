@@ -346,3 +346,6 @@ mod range_conversions;
 
 #[path="support/f32_bits.rs"]
 mod f32_bits;
+
+#[path="support/strict_inlining.rs"]
+mod strict_inlining;
