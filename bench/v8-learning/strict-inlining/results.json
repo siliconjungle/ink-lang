@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "scope": "Required checked strict-unfolding mechanism control, separate from default search and automatic selection. No robust runtime gain shown.",
+  "validation": {
+    "kernel_tests": 457,
+    "gpu_package_tests": 12,
+    "knowledge_tests": 34,
+    "cpu_cases": 50,
+    "native_gpu_host_cases": 50,
+    "actual_gpu_calls": 10
+  },
+  "measurements": {
+    "javascript": {
+      "result": {
+        "schema": 1,
+        "target": "javascript",
+        "selected_functions": [
+          "score"
+        ],
+        "search_checks": 32,
+        "compiler_sha256": "171d39aa4f1e8f6a13be34a5ddeabbb3d0c86e870a52615b75917ee65dfc68f0",
+        "source": "8c4e1052ae682797ab37402838e6ee2a4bb73c827e0770a5e3a62264fcd2ff78",
+        "measurements": [
+          "395bdf56c653f15cf135e06080f7f8d19324db0d8fedbaa17fd24729e1d04dc4",
+          "0c07091bf967afce061aebc4cbd1500c85c97a8f5c691387b99f1543792b16c9"
+        ],
+        "selected_after_independent_rejection": "395bdf56c653f15cf135e06080f7f8d19324db0d8fedbaa17fd24729e1d04dc4",
+        "heldout_accepted": false,
+        "controls": {
+          "processes": 3,
+          "rounds": 11,
+          "minimum_batch_ms": 5,
+          "maximum_calls_per_sample": 1024
+        },
+        "scope": "Explicit checked strict-unfolding mechanism control; default discovery/ranking receipt retained separately and may retain source calls. Two candidates use official complete-call acquisition/rank and disjoint holdout; resident-call objective excludes recorded build/startup; shared host"
+      },
+      "splits": {
+        "training": {
+          "baseline_ns": 174235,
+          "candidate_ns": 170362,
+          "chosen": "395bdf56c653f15cf135e06080f7f8d19324db0d8fedbaa17fd24729e1d04dc4"
+        },
+        "holdout": {
+          "baseline_ns": 159988,
+          "candidate_ns": 160014,
+          "chosen": "395bdf56c653f15cf135e06080f7f8d19324db0d8fedbaa17fd24729e1d04dc4"
+        }
+      },
+      "default_search": {
+        "initial_cost": 128,
+        "selected_cost": 128,
+        "attempts": 15,
+        "near_misses": {
+          "totals": {
+            "matched": 16,
+            "checked": 15,
+            "admitted": 3,
+            "rejected": 12,
+            "duplicate": 1,
+            "unchecked": 0
+          },
+          "matched_laws": 3,
+          "laws_with_admission": 2,
+          "laws_only_rejected": 1,
+          "reasons": {
+            "premise": 12
+          }
+        },
+        "applications": 0
+      }
+    },
+    "rust": {
+      "result": {
+        "schema": 1,
+        "target": "rust",
+        "selected_functions": [
+          "score"
+        ],
+        "search_checks": 32,
+        "compiler_sha256": "171d39aa4f1e8f6a13be34a5ddeabbb3d0c86e870a52615b75917ee65dfc68f0",
+        "source": "8c4e1052ae682797ab37402838e6ee2a4bb73c827e0770a5e3a62264fcd2ff78",
+        "measurements": [
+          "00e1152409f95fd2859080777878a2637e957237f17dbefccc461fbf71820ca3",
+          "62d05a05976b4df8ed774a34b0cfd0d73f712855d3fa2e215f65156032ce1829"
+        ],
+        "selected_after_independent_rejection": "00e1152409f95fd2859080777878a2637e957237f17dbefccc461fbf71820ca3",
+        "heldout_accepted": false,
+        "controls": {
+          "processes": 3,
+          "rounds": 11,
+          "minimum_batch_ms": 5,
+          "maximum_calls_per_sample": 1024
+        },
+        "scope": "Explicit checked strict-unfolding mechanism control; default discovery/ranking receipt retained separately and may retain source calls. Two candidates use official complete-call acquisition/rank and disjoint holdout; resident-call objective excludes recorded build/startup; shared host"
+      },
+      "splits": {
+        "training": {
+          "baseline_ns": 96925,
+          "candidate_ns": 101523,
+          "chosen": "00e1152409f95fd2859080777878a2637e957237f17dbefccc461fbf71820ca3"
+        },
+        "holdout": {
+          "baseline_ns": 107141,
+          "candidate_ns": 107595,
+          "chosen": "00e1152409f95fd2859080777878a2637e957237f17dbefccc461fbf71820ca3"
+        }
+      },
+      "default_search": {
+        "initial_cost": 128,
+        "selected_cost": 128,
+        "attempts": 15,
+        "near_misses": {
+          "totals": {
+            "matched": 16,
+            "checked": 15,
+            "admitted": 3,
+            "rejected": 12,
+            "duplicate": 1,
+            "unchecked": 0
+          },
+          "matched_laws": 3,
+          "laws_with_admission": 2,
+          "laws_only_rejected": 1,
+          "reasons": {
+            "premise": 12
+          }
+        },
+        "applications": 0
+      }
+    }
+  },
+  "integration_validation": {
+    "kernel_tests": 458,
+    "knowledge_tests": 37,
+    "cpu_cases": 50,
+    "native_gpu_host_cases": 50,
+    "actual_gpu_calls": 10,
+    "core_package": "fc55c1540ead3c2f7ec25b9e38a873669866e973",
+    "scope": "Final combined package/core/pins; earlier validation and timing/corpus rows retain historical context."
+  }
+}

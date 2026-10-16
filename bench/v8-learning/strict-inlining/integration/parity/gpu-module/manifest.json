@@ -1,0 +1,1951 @@
+{
+  "abi": "packed little-endian 32-bit lanes; GPU lists carry a length header; records in declaration order; vectors unpadded",
+  "backend": "webgpu-wgpu-v2",
+  "collection_strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured",
+  "core_semantics": "ink-executable-core-v11",
+  "core_sha256": "745a48636d98aca45d140610edb4eec938da7c0291e7221b1e3d9eb16caf1d9d",
+  "cpu_rust_sha256": "f63513e7104595a3bddd8e65feb44c82164448f27ba887fabe225575b93d6d92",
+  "destination_abi": {
+    "aliasing": "destination-disjoint-from-all-reachable-inputs",
+    "alignment": 8,
+    "capacity": "trusted",
+    "count": "words32",
+    "name": "ink-packed-into-v1",
+    "ownership": "caller-owned",
+    "prepared_instance": "exclusive",
+    "scratch_lifetime": "call-mark-rewind",
+    "symbol": "ink_compute_into"
+  },
+  "float_contract": "integer-lane binary32; round-to-nearest ties-to-even, gradual underflow, signed zero, source operation order and canonical arithmetic NaN; pass-through/negation retain payload bits",
+  "functions": [
+    {
+      "capacity_mode": "max",
+      "fallback_reason": "GPU collection unrolling work limit; CPU fallback; literal graph: literal graph does not support this list expression (dynamic list choice remains CPU)",
+      "gpu_max_elements": null,
+      "graph": null,
+      "graph_required": false,
+      "index": 0,
+      "lengths": [],
+      "name": "slow",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "element": {
+          "kind": "u32"
+        },
+        "kind": "list"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-1-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 1,
+      "lengths": [],
+      "name": "slow_word",
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u64"
+              },
+              {
+                "kind": "bool"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 2
+              },
+              {
+                "param": 3
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u64"
+            },
+            "shader": "graph-2-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u64"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 2,
+      "lengths": [],
+      "name": "mix",
+      "params": [
+        {
+          "name": "first",
+          "type": {
+            "kind": "u64"
+          }
+        },
+        {
+          "name": "ignored",
+          "type": {
+            "element": {
+              "kind": "u32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "gate",
+          "type": {
+            "kind": "bool"
+          }
+        },
+        {
+          "name": "last",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u64"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: literal graph does not support this list expression (dynamic list choice remains CPU)",
+      "gpu_max_elements": null,
+      "graph": null,
+      "graph_required": false,
+      "index": 3,
+      "lengths": [],
+      "name": "strict",
+      "params": [
+        {
+          "name": "seed",
+          "type": {
+            "kind": "u64"
+          }
+        },
+        {
+          "name": "gate",
+          "type": {
+            "kind": "bool"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u64"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u64"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 1
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u64"
+            },
+            "shader": "graph-4-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u64"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 4,
+      "lengths": [],
+      "name": "reversed",
+      "params": [
+        {
+          "name": "first",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "last",
+          "type": {
+            "kind": "u64"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u64"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [],
+            "args": [],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-5-0.wgsl",
+            "workgroup_size": 1
+          },
+          {
+            "arg_types": [
+              {
+                "kind": "u32"
+              },
+              {
+                "kind": "u64"
+              }
+            ],
+            "args": [
+              {
+                "node": 0
+              },
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 1,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u64"
+            },
+            "shader": "graph-5-1.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 1
+        },
+        "result": {
+          "kind": "u64"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 5,
+      "lengths": [],
+      "name": "tail",
+      "params": [
+        {
+          "name": "seed",
+          "type": {
+            "kind": "u64"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u64"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u64"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u64"
+            },
+            "shader": "graph-6-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u64"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 6,
+      "lengths": [],
+      "name": "twice",
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "u64"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u64"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u64"
+                },
+                "kind": "list"
+              },
+              {
+                "kind": "u64"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              },
+              {
+                "param": 1
+              }
+            ],
+            "capacity": {
+              "args": [
+                0
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "map",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-7-0.wgsl",
+            "workgroup_size": 64
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u64"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 7,
+      "lengths": [
+        0
+      ],
+      "name": "nested",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u64"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "offset",
+          "type": {
+            "kind": "u64"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "element": {
+          "kind": "u64"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-7.wgsl"
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [],
+        "output": {
+          "param": 0
+        },
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 8,
+      "lengths": [
+        0
+      ],
+      "name": "copy",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "f32"
+            },
+            "kind": "list"
+          }
+        },
+        {
+          "name": "marker",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "element": {
+          "kind": "f32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-8.wgsl"
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [],
+            "args": [],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-9-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "param": 0
+        },
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 9,
+      "lengths": [
+        0
+      ],
+      "name": "untouched",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "f32"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "element": {
+          "kind": "f32"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-9.wgsl"
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [],
+        "output": {
+          "param": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 10,
+      "lengths": [],
+      "name": "first",
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "ignored",
+          "type": {
+            "kind": "u32"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "bool"
+              },
+              {
+                "kind": "u32"
+              }
+            ],
+            "args": [
+              {
+                "param": 1
+              },
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u32"
+            },
+            "shader": "graph-11-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u32"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 11,
+      "lengths": [],
+      "name": "lazy",
+      "params": [
+        {
+          "name": "seed",
+          "type": {
+            "kind": "u32"
+          }
+        },
+        {
+          "name": "gate",
+          "type": {
+            "kind": "bool"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u32"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "kind": "u64"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [],
+              "kind": "one"
+            },
+            "id": 0,
+            "op": "scalar",
+            "ordered": true,
+            "result": {
+              "kind": "u64"
+            },
+            "shader": "graph-12-0.wgsl",
+            "workgroup_size": 1
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "kind": "u64"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": true,
+      "index": 12,
+      "lengths": [],
+      "name": "conversion",
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "u64"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "kind": "u64"
+      },
+      "shader": null
+    },
+    {
+      "capacity_mode": "max",
+      "fallback_reason": null,
+      "gpu_max_elements": null,
+      "graph": {
+        "limitations": [
+          "bounded 64 stages and 24 traversal depth",
+          "parallel schedules support capacities up to 256^3 elements",
+          "ordered float reductions and folds run serially",
+          "exact integer-lane binary32; canonical arithmetic NaN",
+          "feedback requires matching bounded capacities and all stages to have graph descriptors"
+        ],
+        "nodes": [
+          {
+            "arg_types": [
+              {
+                "element": {
+                  "kind": "u64"
+                },
+                "kind": "list"
+              }
+            ],
+            "args": [
+              {
+                "param": 0
+              }
+            ],
+            "capacity": {
+              "args": [
+                0
+              ],
+              "kind": "same"
+            },
+            "id": 0,
+            "op": "map",
+            "ordered": false,
+            "result": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "list"
+            },
+            "shader": "graph-13-0.wgsl",
+            "workgroup_size": 64
+          }
+        ],
+        "output": {
+          "node": 0
+        },
+        "result": {
+          "element": {
+            "kind": "u64"
+          },
+          "kind": "list"
+        },
+        "schema": 1,
+        "semantics": "eager array stages; integer scans/sums (exactly wrapping), stable filters, integer radix sorts and concatenation run as parallel multi-pass schedules; float scans/sums, foldr, foldl and fold_until keep their ordered serial stage; no float reassociation or fusion"
+      },
+      "graph_required": false,
+      "index": 13,
+      "lengths": [
+        0
+      ],
+      "name": "converted",
+      "params": [
+        {
+          "name": "xs",
+          "type": {
+            "element": {
+              "kind": "u64"
+            },
+            "kind": "list"
+          }
+        }
+      ],
+      "precondition": null,
+      "result": {
+        "element": {
+          "kind": "u64"
+        },
+        "kind": "list"
+      },
+      "shader": "compute-13.wgsl"
+    }
+  ],
+  "gpu_list_abi": "ink-gpu-list-v3",
+  "javascript": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v11",
+    "core_sha256": "745a48636d98aca45d140610edb4eec938da7c0291e7221b1e3d9eb16caf1d9d",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "native-number-with-exact-nonfinite-tags",
+    "functions": [
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 0,
+        "internal": false,
+        "name": "slow",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 1,
+        "internal": false,
+        "name": "slow_word",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 2,
+        "internal": false,
+        "name": "mix",
+        "parallel": false,
+        "params": [
+          {
+            "name": "first",
+            "type": {
+              "kind": "u64"
+            }
+          },
+          {
+            "name": "ignored",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "gate",
+            "type": {
+              "kind": "bool"
+            }
+          },
+          {
+            "name": "last",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 3,
+        "internal": false,
+        "name": "strict",
+        "parallel": false,
+        "params": [
+          {
+            "name": "seed",
+            "type": {
+              "kind": "u64"
+            }
+          },
+          {
+            "name": "gate",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 4,
+        "internal": false,
+        "name": "reversed",
+        "parallel": false,
+        "params": [
+          {
+            "name": "first",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "last",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 5,
+        "internal": false,
+        "name": "tail",
+        "parallel": false,
+        "params": [
+          {
+            "name": "seed",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": null,
+        "index": 6,
+        "internal": false,
+        "name": "twice",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 7,
+        "internal": false,
+        "name": "nested",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "offset",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u64"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 8,
+        "internal": false,
+        "name": "copy",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "marker",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 9,
+        "internal": false,
+        "name": "untouched",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 10,
+        "internal": false,
+        "name": "first",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "ignored",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 11,
+        "internal": false,
+        "name": "lazy",
+        "parallel": false,
+        "params": [
+          {
+            "name": "seed",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "gate",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 12,
+        "internal": false,
+        "name": "conversion",
+        "parallel": false,
+        "params": [
+          {
+            "name": "x",
+            "type": {
+              "kind": "u64"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u64"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 13,
+        "internal": false,
+        "name": "converted",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u64"
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "javascript_sha256": "024c5f57578bf428495c6ac128af161dc98901e2f89ccb3d6709dc1ce0e3b0c9",
+    "named_types": {},
+    "owned_result_contract": {
+      "functions": 14,
+      "inputs": "same trusted caller contract",
+      "results": "canonical detached values with ABI byte/node/depth limits",
+      "unsupported": []
+    },
+    "prepared_compiled": {
+      "evaluation": "lazy source-order; successful bindings only",
+      "functions": [
+        {
+          "factory": false,
+          "function": "slow",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "slow_word",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "mix",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "strict",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "reversed",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "tail",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "twice",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "nested",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "copy",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "untouched",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "first",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "lazy",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "conversion",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "converted",
+          "reason": "no reusable captured work"
+        }
+      ],
+      "lifetime": "prepared token",
+      "semantics": "sealed-value-residual-v1"
+    },
+    "private_record_elisions": [],
+    "private_sum_spines": [],
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "conversion": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "2f49badaf8d383057bffd360aec0fee334901d2adf83089b589ef69b2a638e1b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "converted": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "59dc6cc158c2bf630b377f03884dad9e50e345b1aade1d5353f4f11a86fa8329",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u64"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "da5e3e5dcc7a0c92bb66ca9e3365cee597037ddc7b474654d11c585e4ff622af",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "copy": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "fa2a9b263260ef01ef4e4fb1ed65f97c31b15ac56402db0a61ab71073374744b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "marker",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "0cbb9d1ff6b72318080ea11a6297b384d97178624f821e3901cca51ec8ad4477",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "first": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "8e2de46988d7801771d20dc190aa9110dbb0b135fe8a99159d87293729844cb7",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "ignored",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "lazy": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "9eead0befecef76d529633e456f9226cae8005199a0c95093ea9a5bb439fc80b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "seed",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "gate",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "mix": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "f98e73b7fd0067c5f7880b829debaec6bf9538b7fc3f5af0dbc460572ec35495",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "first",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "ignored",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "gate",
+                  "type": {
+                    "kind": "bool"
+                  }
+                },
+                {
+                  "name": "last",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "nested": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "763da3ffb2254fb71b7f83a9389f2ca414dec35391ef5144db35866669aa0b42",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u64"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "offset",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "da5e3e5dcc7a0c92bb66ca9e3365cee597037ddc7b474654d11c585e4ff622af",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u64"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "reversed": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "829cd3aa61569a8eca386a51d5806944b2171195b01711273e1ce14ed05c9706",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "first",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "last",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "slow": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "40c474b26407b61251cf7479f9144e6f4df9a1f1b14620d3209a5615b8fa85a4",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "69ebf947aa59a2546656d1976b0baa6e56e7182d989425379b31e3bff74168ca",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "slow_word": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "cc08f1332c0bbd676577f3e81f06e85cc8ef81a32bcbe10b3177d811cc8e0ae2",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "strict": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "47cb113309b7f27bad867d283f088ef74c1765f4fe3bd1af7f08cd7a0e6aa5ba",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "seed",
+                  "type": {
+                    "kind": "u64"
+                  }
+                },
+                {
+                  "name": "gate",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "tail": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "c6fc90b58871168641aaf813bf2acf18800f4780f6b2fc6313b43245c3bcaca2",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "seed",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "twice": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "2f49badaf8d383057bffd360aec0fee334901d2adf83089b589ef69b2a638e1b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "u64"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "dec7f58c139e3d5ff0527d2e8dff0bd4df23ca8425cf884787a2f3043fbb68bc",
+            "named": {},
+            "root": {
+              "kind": "u64"
+            }
+          }
+        },
+        "untouched": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "7d522496fa90814f2f1e12091142cca8648a00e9c787d158636f57940650d4e4",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "0cbb9d1ff6b72318080ea11a6297b384d97178624f821e3901cca51ec8ad4477",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        }
+      }
+    }
+  },
+  "javascript_sha256": "024c5f57578bf428495c6ac128af161dc98901e2f89ccb3d6709dc1ce0e3b0c9",
+  "pipeline_planner_sha256": "7011d6da8f4bdd27d78011be19f2f1bb38bb748611553b2ec2206bd7fd1b74e0",
+  "proof_claim": "no backend correctness proof or optimisation theorem; saved profiles estimate profitability only",
+  "runtime_abi": "ink-packed-pipeline-v2",
+  "runtime_host_sha256": "062d8799a6ca8aef3e922ec675966ded7695db9d26ca40502f03c113807f75ac",
+  "schema": 2,
+  "shaders": {
+    "compute-13.wgsl": "971464137e23d7f3bc22f65491ff944c3333e327a8562b7e6fd6c43b24673a76",
+    "compute-7.wgsl": "407d54779e963ed64665c13c21dfdc6777e19f30aae49ad643d04cdffbd46238",
+    "compute-8.wgsl": "b5413b2e7dacd66a3a49bcdad2d1da68ae23d365b5d359320b74dbda68d9c9bd",
+    "compute-9.wgsl": "b6bcec93e8b9277133f10694514010aa3aa6b23351c7ff2a258929dda994d754",
+    "graph-1-0.wgsl": "737e27601f380644fef01b21f0996fe86a8cc1c2c702ace688120e4d8c27e458",
+    "graph-11-0.wgsl": "0be2da8157bd866bf5fb1b912c4f6c836e17806b19d3735c0fbd19ad33eff6fa",
+    "graph-12-0.wgsl": "4b63e57e154e0897b9fa5097ca7f39edb071692df2dacd436aca3ee9c724edab",
+    "graph-13-0.wgsl": "ec1491b4b8ccf93376d922025500254b2c8f4e2f10dba406c36890ce0d49819b",
+    "graph-2-0.wgsl": "593c6e1a5a97f23592b45563808ef8e6293ffd5c13a1ba11759830e1f5be68f5",
+    "graph-4-0.wgsl": "321d58b59c8e01d0fde3555065f435b07f9431750d9afdf4756d56deebab8789",
+    "graph-5-0.wgsl": "69bea5e1a0b3d9282ec4c1acbdd7bc5c1f17e0cdf40b83ce7548d2cdad511355",
+    "graph-5-1.wgsl": "321d58b59c8e01d0fde3555065f435b07f9431750d9afdf4756d56deebab8789",
+    "graph-6-0.wgsl": "c79f7219964b33ea958803623db7beb055a9d3479d12b02d7381a4526e5463e7",
+    "graph-7-0.wgsl": "eb56918f9694d9465d1957aa47d5f43419ebb42348a282275f6f461d7e5670a5",
+    "graph-9-0.wgsl": "8ea101795c67215636159c7b725e147413aecdad761aacfdd4b78bb12afb520b"
+  },
+  "trust": [
+    "type checker",
+    "literal C and WGSL lowering",
+    "packed ABI and host pipeline execution",
+    "C/LLVM, WebGPU/wgpu and drivers"
+  ]
+}
