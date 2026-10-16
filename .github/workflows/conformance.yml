@@ -148,16 +148,16 @@ jobs:
         node lowerings/gpu/tests/device_graph.mjs
     - name: Independent core and source-bound value admission
       run: |
-        cargo test --test contract_fixtures --test checked_emission -- --nocapture
-        cargo test --manifest-path core/Cargo.toml --offline
         python3 - <<'PYCORE'
         import json, subprocess
-        r=json.load(open('reports/learned-programs-2026-10-16/integration-core-package.json'))
+        r=json.load(open('core-package.json'))
         actual=subprocess.check_output(['git','rev-parse','HEAD:core'],text=True).strip()
         assert actual==r['core_tree'], 'distribution core differs from standalone package pin'
         subprocess.run(['git','fetch','--no-recurse-submodules','--depth=1','origin',r['commit'],r['source']],check=True)
         PYCORE
-        python3 tools/check_core_package.py reports/learned-programs-2026-10-16/integration-core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
+        cargo test --test contract_fixtures --test checked_emission -- --nocapture
+        cargo test --manifest-path core/Cargo.toml --offline
+        python3 tools/check_core_package.py core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
         python3 reports/learned-programs-2026-10-16/audit.py --ink target/debug/ink
         python3 reports/closed-learned-computations-2026-10-17/audit.py --ink target/debug/ink
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
