@@ -2614,6 +2614,66 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full42-line frame-marking/construction interface read; no separate algorithm or additional gain beyond the implementation assessment."
+    },
+    {
+      "path": "src/compiler/turboshaft/if-else-cascade-to-switch-reducer.h",
+      "sha256": "96a7bb223a00e02c79a8d2d8507ef39fa367cb125747911c95962234af28a1ef",
+      "inclusive_lines": [
+        [
+          1,
+          316
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Switch formation requires identical SSA selector, normalized32-bit equality/zero tests, hoistable-before-branch intermediate operations, more than two cases and no duplicate constants. Branch hints remain heuristics. Ink purity alone does not permit eager evaluation of potentially failing skipped work; preserve lazy arms/strict conditions and use ordinary checked case facts for database alternatives. Literal backend/host switch lowering and measured general source-case opportunities remain open; no imported rewrite authority or gain claim."
+    },
+    {
+      "path": "src/compiler/turboshaft/code-elimination-and-simplification-phase.cc",
+      "sha256": "4f8a501fab64b1e6a41663d7acda8be73263de65b0af980721b04c2695abc9cc",
+      "inclusive_lines": [
+        [
+          1,
+          51
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Store elimination runs with broker scope; debug taggedness verification and Wasm lowering precede load/store simplification, duplication optimization then instruction normalization/value numbering. Phase order preserves the contracts of newly generated operations; no universal repeated-pass speedup or semantic premise follows."
+    },
+    {
+      "path": "src/compiler/turboshaft/load-store-verification-reducer.h",
+      "sha256": "7aef9cd7e47338c6187e627284339c9658dc90757fca278879d5c09a29a15927",
+      "inclusive_lines": [
+        [
+          1,
+          117
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Optional debug load/store checks enforce Smi versus tagged-pointer representations and abort wrong values; restricted-register call descriptors suppress runtime diagnostics while retaining unreachable failure. This is runtime verification of lowering assumptions, not a proof that an optimization is valid. Ink checked codecs/ownership and literal backend value contracts remain authoritative."
+    },
+    {
+      "path": "src/compiler/turboshaft/dataview-lowering-reducer.h",
+      "sha256": "b85ca97df02007aba98478cee5da3702da53cedafd4b0696a5088b608ba6ae2e",
+      "inclusive_lines": [
+        [
+          1,
+          138
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Unaligned external reads/writes are explicitly not load-eliminable, retain the backing owner through access, and reverse exact integer/float bit patterns for requested endianness.32-bit float64 swaps both reversed halves. Ink raw floating bits, explicit endian codecs and owner lifetime must survive any physical alternative; host memory hints do not prove stable source state."
+    },
+    {
+      "path": "src/compiler/turboshaft/growable-stacks-reducer.h",
+      "sha256": "d3963f4bc67087119a459fa37129de734a230d8964eafe957cbda706a279f9a7",
+      "inclusive_lines": [
+        [
+          1,
+          90
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Wasm-only growable stack checks load a thread-mutable stack limit with NotLoadEliminable, preserve call-descriptor slot/return sizes and throwing guard calls, and remap32-bit signatures. Stack/context/environment reads are not immutable merely because source code does not write them. Host/runtime stack support remains separate from Ink source algebraic authority."
     }
   ],
   "families": [
@@ -2627,7 +2687,7 @@
       "name": "branch-control",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/branch-elimination-reducer.h",
-      "note": "Repeated conditions/select proposals admitted; CFG branch threading and merge behavior remain Resumed pass adds database-controlled maximum-arm pricing and scoped zero-extent hypotheses with hygienic binders. Default semantic discovery now selects three guarded callback controls; official native acquisition retains an uncertain smaller cohort and accepts a separate larger workload under unchanged guards. These are untrusted search estimates, never path facts admitted to proofs. Full TurboFan branch elimination/common operators and scoped path-state templates now reviewed: facts require matching branch semantics and control ancestry; trap/effect/strict-condition work remains observable. Generic Ink authoring must transport explicit checked facts, not import CFG metadata as premises."
+      "note": "Repeated conditions/select proposals admitted; CFG branch threading and merge behavior remain Resumed pass adds database-controlled maximum-arm pricing and scoped zero-extent hypotheses with hygienic binders. Default semantic discovery now selects three guarded callback controls; official native acquisition retains an uncertain smaller cohort and accepts a separate larger workload under unchanged guards. These are untrusted search estimates, never path facts admitted to proofs. Full TurboFan branch elimination/common operators and scoped path-state templates now reviewed: facts require matching branch semantics and control ancestry; trap/effect/strict-condition work remains observable. Generic Ink authoring must transport explicit checked facts, not import CFG metadata as premises. Full cascade-to-switch reducer reviewed: same selector, unique constants and branch-hoistable intermediate work are mandatory; skipped throwing work cannot be hoisted using Ink purity alone. Case-dispatch alternatives and whole-workload profitability remain open."
     },
     {
       "name": "value-numbering",
@@ -2639,7 +2699,7 @@
       "name": "load-elimination",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/late-load-elimination-reducer.h",
-      "note": "Full late-load implementation/header reviewed. Existing coarse and keyed preservation plus guarded U64/Bool tuple query specialization with original fallback. All laws remain in knowledge; no new core recognizer. CPU conformance and held-out JavaScript lifecycle evidence retained. General alias and loop-load elimination remain open. Full CSA load elimination implementation/header now read: representation-sensitive forwarding and overlapping-byte invalidation matter; arbitrary field-name equality cannot establish no-alias or portable source preservation. Full TurboFan load elimination/header now reviewed: bounded conservative fact eviction, representation checks, COW/migration, merge intersection and transitive two-stage loop transition invalidation. Current coarse Ink effects stay conservative; finer cache proposals need ordinary source proofs."
+      "note": "Full late-load implementation/header reviewed. Existing coarse and keyed preservation plus guarded U64/Bool tuple query specialization with original fallback. All laws remain in knowledge; no new core recognizer. CPU conformance and held-out JavaScript lifecycle evidence retained. General alias and loop-load elimination remain open. Full CSA load elimination implementation/header now read: representation-sensitive forwarding and overlapping-byte invalidation matter; arbitrary field-name equality cannot establish no-alias or portable source preservation. Full TurboFan load elimination/header now reviewed: bounded conservative fact eviction, representation checks, COW/migration, merge intersection and transitive two-stage loop transition invalidation. Current coarse Ink effects stay conservative; finer cache proposals need ordinary source proofs. DataView and growable-stack lowering explicitly exclude externally mutable storage/stack limits from load elimination and retain backing ownership; physical hints are not source stability facts."
     },
     {
       "name": "store-elimination",
@@ -2699,7 +2759,7 @@
       "name": "pipeline-infrastructure",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/pipelines.cc",
-      "note": "Turboshaft and Turbolev pipeline entry points read in full, including phase ordering and repeated cleanup/fact recomputation. Individual pending passes remain open; complete per-file backlog is generated by tools/v8_audit_status.py. All ten inventoried compiler design documents now read; compact copying, composable reducers, effect/identity constraints and background isolation assessed at overview level. This does not close actual driver/broker/IR/pipeline implementations or outside-inventory baseline sources."
+      "note": "Turboshaft and Turbolev pipeline entry points read in full, including phase ordering and repeated cleanup/fact recomputation. Individual pending passes remain open; complete per-file backlog is generated by tools/v8_audit_status.py. All ten inventoried compiler design documents now read; compact copying, composable reducers, effect/identity constraints and background isolation assessed at overview level. This does not close actual driver/broker/IR/pipeline implementations or outside-inventory baseline sources. Full late code-elimination phase reviewed: lowered load/store operations must reach subsequent duplication and instruction normalization in the required order; debug taggedness guards do not establish optimization correctness."
     },
     {
       "name": "instruction-selection-registers",
@@ -2760,7 +2820,7 @@
     "first_batch": "Scoped structural work prices through lazy branch contexts; ordinary proofs and measured selection remain unchanged",
     "evidence": "bench/v8-learning/branch-cardinality",
     "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open.",
-    "coverage_followup": "216 full source receipts, one partial,392 unread of609 inventoried files; all22 families partial. Inventory remains a queue, not a scope cap.",
+    "coverage_followup": "221 full source receipts, one partial,387 unread of609 inventoried files; all22 families partial. Inventory remains a queue, not a scope cap.",
     "second_batch": "Range-guided word representation proposals plus three independently replayed whole-branch laws. 28 related tests, three final range regressions and 88 CPU comparisons pass; measured JS/native controls retain baseline. Matched 32-check control improves one rewritten function to two. Frozen corpus: 10 compile, 24 laws, six reused, zero representation/selection, no new range-law attribution; all quick budgets exhausted.",
     "next_followups": [
       {
@@ -2773,7 +2833,7 @@
       },
       {
         "area": "coverage",
-        "task": "Continue 392 unread files plus the partial JS call reducer and optimizer dependencies outside the selected inventory. 216 full files reviewed, including Maglev reducer/loop peeling, Turbolev escape analysis and Wasm revectorization; every family remains partial. Source reading alone is not implementation or performance evidence."
+        "task": "Continue387 unread files plus the partial JS call reducer and optimizer dependencies outside this inventory.221 full files reviewed; every family remains partial. Recent cascade/DataView/stack lowering review preserves lazy failing work, external mutation and backing-owner lifetime. Reading alone is not implementation or performance evidence."
       },
       {
         "area": "signed-range-and-integer",
@@ -2884,6 +2944,15 @@
       "median_seconds": "50.7305",
       "evidence": "bench/v8-learning/corpus-variable-power",
       "scope": "Stable terminal adaptive source; all earlier unfavorable cohorts retained. Unpaired shared-host counts/times establish no causal compiler/application gain."
+    },
+    "guarded_variable_merged": {
+      "source": "2f6f164e058e8aa450de37af8314e7dd1b0f442a",
+      "compiler_sha256": "31925a41d50962dc385248ac5c03b93e46587bda38f96997ee4af64d2beb6027",
+      "knowledge": "1c6e117b07b7283218f902801f5472652f89f16b",
+      "core_tree": "d5b69b52c3761a7e1d21dd02971cef37cb2b0425",
+      "core_package": "c13434ded048ef948c8f74396ddc238b72c8700c",
+      "validation": "All227 core source files match upstream486-test receipt. All31 intended proof methods covered after retained one permission-only setup failure/retry;72 separate integration methods pass.19x4 exact JS/Wasm calls,twelve actual GPU calls/six source oracles and both selected plan replays pass. Both complete34-file GPU trees and12 selected CPU files equal historical bytes. Stable merged corpus10compiled/all10alternatives/23laws/sixreused/zerochoices/zero representations,all measurement gates/quick timeouts,median51.3645s.23law identities subset of adaptive25; no causal gain or timing/context transfer. Full integrity audit passes.",
+      "evidence": "bench/v8-learning/variable-power/audit_merged.py"
     }
   },
   "scope_boundaries": [

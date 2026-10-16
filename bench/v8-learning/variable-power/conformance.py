@@ -1,11 +1,11 @@
 """Literal JS and Rust-Wasm full-width results, independently computed oracle."""
 from pathlib import Path
-import hashlib,json,os,shutil,subprocess,time
+import argparse,hashlib,json,os,shutil,subprocess,time
 from ink_knowledge import Store,canonical,identity,semantic_entry
 from ink_knowledge.proposal_views import ProposalViews
 from producers.frozen_laws import specialize
 from ink_planner.semantic_search import positions,match
-b=Path('build/v8-variable-power-cases');out=b/'conformance';out.mkdir(exist_ok=False);compiler=Path('build/v8-proof-dependencies-final-cli/frozen/ink-integrated').resolve();begin=time.monotonic()
+p=argparse.ArgumentParser();p.add_argument('--compiler',type=Path,default=Path('build/v8-proof-dependencies-final-cli/frozen/ink-integrated'));p.add_argument('--output',type=Path,default=Path('build/v8-variable-power-cases/conformance'));a=p.parse_args();out=a.output;out.mkdir(exist_ok=False);compiler=a.compiler.resolve();begin=time.monotonic()
 def save(name,v):(out/name).write_bytes(canonical(v))
 def run(args,label):
  r=subprocess.run(list(map(str,args)),capture_output=True,text=True,timeout=600,env=dict(os.environ,CARGO_BUILD_JOBS='2',CARGO_PROFILE_DEV_DEBUG='0',CARGO_PROFILE_TEST_DEBUG='0',CARGO_INCREMENTAL='0'));(out/(label+'.stdout')).write_text(r.stdout);(out/(label+'.stderr')).write_text(r.stderr);assert not r.returncode,(label,r.stderr[-3000:]);return r
