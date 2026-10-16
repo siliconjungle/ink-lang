@@ -176,7 +176,13 @@ fn compare(
     // evaluating unrelated fields, arms or arguments. Typing and termination
     // of all definitions have already been checked by Context.
     let left = step(a, c, budget, depth + 1)?;
+    if exposes_other(left.as_ref(), b, c, budget, remaining, depth + 1)? {
+        return Ok(true);
+    }
     let right = step(b, c, budget, depth + 1)?;
+    if exposes_other(right.as_ref(), a, c, budget, remaining, depth + 1)? {
+        return Ok(true);
+    }
     if left.is_none() && right.is_none() {
         return Ok(false);
     }
@@ -188,6 +194,33 @@ fn compare(
         remaining,
         depth + 1,
     )
+}
+
+// Keep the opposite expression opaque when a definition followed by a few
+// closed lexical/control bindings exposes that exact expression. Reducing both
+// sides first can destroy this correspondence and unfold an unrelated callee.
+// This bounded probe uses only existing reductions and the shared allowance.
+fn exposes_other(
+    candidate: Option<&Term>, other: &Term, c: &Context, budget: &mut Budget,
+    remaining: &mut usize, depth: usize,
+) -> LangResult<bool> {
+    let Some(mut candidate) = candidate else { return Ok(false); };
+    let mut reduced;
+    for offset in 0..4 {
+        budget.step(depth + offset)?;
+        if candidate == other { return Ok(true); }
+        let closed_control = match candidate {
+            Term::Match { scrutinee, .. } => matches!(scrutinee.as_ref(), Term::Construct { .. }),
+            Term::If { condition, .. } => matches!(condition.as_ref(), Term::Bool(_)),
+            _ => false,
+        };
+        if !closed_control || *remaining == 0 { return Ok(false); }
+        *remaining -= 1;
+        let Some(next) = step(candidate, c, budget, depth + offset + 1)? else { return Ok(false); };
+        reduced = next;
+        candidate = &reduced;
+    }
+    Ok(candidate == other)
 }
 
 fn step(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Option<Term>> {
@@ -364,6 +397,37 @@ mod tests {
                 to: b.clone(),
             },
         )
+    }
+
+    #[test]
+    fn closed_binding_exposure_keeps_the_opposite_call_and_free_variables() {
+        let mut c = context();
+        c.declare("box".into(), &Declaration::Datatype {
+            constructors: vec![Constructor { name: "Box".into(), fields: vec![Sort::U64] }],
+        }).unwrap();
+        let wrapped = Term::Match {
+            scrutinee: Box::new(Term::Construct { datatype: "box".into(), constructor: 0,
+                arguments: vec![v("input")] }),
+            branches: vec![Branch { bindings: vec!["saved".into()],
+                body: call("fold", vec![v("rows"), v("saved")]) }],
+        };
+        c.declare("wrapper".into(), &Declaration::Function {
+            params: vec![("rows".into(), Sort::Data("rows".into())), ("input".into(), Sort::U64)],
+            result: Sort::U64, recursive: None, body: wrapped,
+        }).unwrap();
+        let params = vec![("xs".into(), Sort::Data("rows".into())),
+            ("x".into(), Sort::U64), ("y".into(), Sort::U64)];
+        let original = call("fold", vec![v("xs"), v("x")]);
+        let wrapper = call("wrapper", vec![v("xs"), v("x")]);
+        check(&c, &params, &original, &wrapper).unwrap();
+        check(&c, &params, &wrapper, &original).unwrap();
+        assert!(check(&c, &params, &original,
+            &call("wrapper", vec![v("xs"), v("y")])).is_err());
+        let mut exhausted = Budget::new(); exhausted.remaining = 1;
+        assert!(same(&original, &wrapper, &c, &mut exhausted).is_err());
+        let unknown = Term::If { condition: Box::new(v("gate")),
+            on_true: Box::new(original.clone()), on_false: Box::new(Term::U64(99)) };
+        assert!(!same(&unknown, &original, &c, &mut Budget::new()).unwrap());
     }
 
     #[test]
