@@ -355,7 +355,7 @@ jobs:
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_frozen_composition.py
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_v8_count_laws.py
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_v8_count_lanes.py
-        INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest knowledge.tests.test_fold_state_projection knowledge.tests.test_fold_projection_laws knowledge.tests.test_owned_frozen_graph knowledge.tests.test_binding_facts
+        INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest knowledge.tests.test_fold_state_projection knowledge.tests.test_fold_projection_laws knowledge.tests.test_owned_frozen_graph knowledge.tests.test_function_specialization knowledge.tests.test_guarded_specialization knowledge.tests.test_definition_correspondence knowledge.tests.test_binding_facts
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_normal_call_cache.py
         PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_semantic_search.py

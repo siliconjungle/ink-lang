@@ -124,17 +124,17 @@ projection identities retain their previous import convention. Closed literals
 in proposed proofs can use transparent mathematical definitions; ordinary proof
 checking still establishes every conversion, with the existing resource limits.
 
-This supports a staged branch inside a mutable computation. The current test
+This supports a staged branch inside a mutable computation. The original test
 authors a structural guard around a 32-node owned F32 graph, dispatches matching
 graphs to a specialized function, and otherwise calls the generic evaluator.
-Code and weights remain writable. The function proof optimizes the staged branch;
-automatic discovery and insertion of the guard remain separate work. A JavaScript
+Code and weights remain writable. The function proof optimizes the staged branch.
+A JavaScript
 history checks 200 calls, graph changes, live weight changes, events, rollback and
 five restores. Eight focused core tests cover projection, ownership, exact float
 bits, source binding, missing proofs and invalid replacements. The larger history matches 335 complete outcomes and exact snapshots against the
 reference evaluator on Rust, JavaScript and Wasm, with six restores and seeded
-JavaScript startup. The combined standalone core, including concurrent word-count
-proof support, passes 501 tests across all 83 integration targets, library checks,
+JavaScript startup. That milestone's combined standalone core, including concurrent word-count
+proof support, passed 501 tests across all 83 integration targets, library checks,
 example builds and doctests.
 
 The [retained evidence](../reports/mutable-function-specialization-2026-10-17/summary.json)
@@ -144,6 +144,61 @@ JavaScript and Rust source with an independently rebuilt compiler:
 
 ```sh
 python3 reports/mutable-function-specialization-2026-10-17/audit.py --ink target/debug/ink
+```
+
+### Generate a guard and fallback
+
+The knowledge producer can also create that branch from a generic pure function:
+
+```sh
+python3 knowledge/producers/guarded_specialization.py build/source.core.json \
+  --function evaluate --parameter code --value build/configuration.json \
+  --ink target/debug/ink -o build/guarded.plan.json
+ink check-plan build/source.core.json build/guarded.plan.json --core
+ink compile build/source.core.json --core --plan build/guarded.plan.json \
+  --target javascript -o build/guarded.mjs
+```
+
+The JSON value nominates one configuration; it supplies no invariant or equality
+fact. An ordinary source extension introduces a configuration helper and a clone
+of the original function. A checked rewrite inserts an exact guard, a matching
+branch and the original computation as fallback. The function producer then
+specializes the matching branch through ordinary universal equalities. Neither
+state nor parameters become frozen: changing the configuration takes the generic
+branch, and changing weights or inputs continues to evaluate fresh arithmetic.
+
+The proof database contains a parametric guarded-substitution law and a separate
+law relating list `==` to exact structural identity. Instantiating the latter
+avoids normalizing the entire known graph inside the guard proof. Separately
+named recursive comparison helpers are related by ordinary structural induction,
+including generalized parameters and immediate recursive constructor fields.
+No shape match, fingerprint or profile grants equality authority.
+
+Bare F32 guards compare singleton lists, preserving signed zero and NaN payload
+bits rather than using scalar IEEE equality. Unsupported configurations, including
+binary64 and owned values, fail closed. Literal construction and proof search are
+bounded; not every admitted configuration produces a specialization opportunity.
+The 32-node mutable graph replays with the ordinary 2 MiB test stack and existing
+proof limits. The larger-stack development probe is not needed by the final proof.
+
+This remains explicit proposal generation. Automatic discovery, measured
+profitability, learned representation choice and device training remain separate
+requirements. The JavaScript F32 capture regression also checks the implementation
+boundary: raw host tags become private immutable values, while unused scalar
+parameters and borrowed field reads retain their demand behavior. These finite
+tests do not prove the emitter or ABI correct.
+
+The generated-guard history now exercises learning updates to both `Code` and
+`Weights`: 335 complete reference/Rust/JavaScript/Wasm outcomes, exact snapshots
+and six restores agree. The hand-written guard control also passes. The aligned
+standalone core passes 503 tests, the complete JavaScript package passes 59, and
+24 knowledge regressions pass. See the [retained source, proofs and receipts](../reports/guarded-function-specialization-2026-10-17/README.md).
+Its auditor rechecks the plan, regenerates the JS/Rust images and reruns retained
+JavaScript, Wasm and initialized-startup histories:
+
+```sh
+python3 reports/guarded-function-specialization-2026-10-17/audit.py \
+  --ink target/debug/ink --run
 ```
 
 The mathematical word carrier can include more values than a narrower source
