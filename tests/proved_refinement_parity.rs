@@ -340,3 +340,6 @@ mod loop_invariants;
 
 #[path="support/call_facts.rs"]
 mod call_facts;
+
+#[path="support/range_conversions.rs"]
+mod range_conversions;

@@ -29,7 +29,8 @@ The first family covers compatible bitfield tests, complementary masks,
 wrapped-add/subtract/xor comparison cancellation, redundant shift-count masks,
 shift distribution over bitwise operations, lossy shift round trips, overflowing
 consecutive shifts, repeated branch conditions and shared-condition selects.
-There are 80 admitted word/conversion laws out of 82 proposals. The two U64
+There are now 83 admitted word/conversion laws out of 85 proposals, including
+three whole-branch range/conversion laws added in the resumed audit. The two U64
 variable-count combination proposals still exhaust the 15-second authoring
 budget. The U32 combinations and multiplication narrowing now replay through
 shared circuits. Those two U64 proposals remain unadmitted. A
@@ -338,3 +339,21 @@ the robust measured lifecycle guard, and every quick budget exhausts. Compiler,
 catalogue and execution changes since the prior day prevent causal comparisons
 to earlier corpus counts. See `bench/v8-learning/branch-cardinality` and
 `corpus-branch-cardinality-summary.json` for exact revisions, inputs and limits.
+
+## Range-guided representation reuse
+
+The complete V8 representation changer and Maglev truncation review reinforced
+that an equal physical representation does not remove a stronger check, and that
+lossy conversion reuse needs complete input-domain evidence. Ink's unsigned
+proposal analysis now uses its branch-local ranges to remove lossless U64/U32
+round trips. Bounds on wrapped sums stay attached to those sums. Three reusable
+whole-branch laws have ordinary independently replayed bitvector certificates.
+No new checker pattern, primitive, floating-point rule or type assumption was
+added. See [proofs and measurements](../bench/v8-learning/range-conversions/README.md).
+
+The 88-case required CPU comparison and related knowledge regressions pass.
+The current tiny complete-call measurements retain the baseline on JavaScript
+and native: no robust speedup was observed. Normal semantic discovery finds all
+three forms with 128 checks, while the 32-check control composes only two; the
+production search budget and profitability guard remain unchanged. The frozen
+corpus evaluation is recorded separately with its exact input context.
