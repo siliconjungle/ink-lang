@@ -57,6 +57,65 @@ fn drat(r: &bitproof::AcceptedRefutation) -> String {
     }
     s
 }
+/// Independent transport decoder for an already accepted audit record. Keep it
+/// separate from core's streaming decoder so LRAT exports retain every hint.
+fn hint_indices(step: &bitproof::Step) -> Vec<usize> {
+    let Some(text) = &step.hint_deltas_v1 else {
+        return step.hints.clone();
+    };
+    assert!(step.hints.is_empty());
+    assert!(!text.is_empty() && text.len() <= 400_000);
+    let alphabet = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    let (mut value, mut shift, mut previous) = (0i64, 0, 0i64);
+    let mut result = Vec::new();
+    for byte in text.bytes() {
+        let digit = alphabet.iter().position(|b| *b == byte).unwrap();
+        value += ((digit & 31) as i64) << shift;
+        if digit & 32 != 0 {
+            shift += 5;
+            assert!(shift < 20);
+        } else {
+            assert!(shift == 0 || digit != 0);
+            previous += if value % 2 == 0 {
+                value / 2
+            } else {
+                -(value / 2) - 1
+            };
+            assert!((0..320_000).contains(&previous));
+            result.push(previous as usize);
+            assert!(result.len() <= 100_000);
+            value = 0;
+            shift = 0;
+        }
+    }
+    assert_eq!(shift, 0);
+    result
+}
+
+#[test]
+fn packed_audit_exports_the_same_lrat_references() {
+    let mut r = bitproof::AcceptedRefutation {
+        problem_sha256: "transport-fixture".into(),
+        variables: 1,
+        clauses: vec![vec![1], vec![-1]],
+        steps: vec![bitproof::Step {
+            clause: vec![],
+            hints: vec![0, 1],
+            hint_deltas_v1: None,
+        }],
+    };
+    let original = lrat(&r);
+    assert_eq!(original, "3 0 1 2 0\n");
+    r.steps[0].hints.clear();
+    r.steps[0].hint_deltas_v1 = Some("AC".into());
+    assert_eq!(lrat(&r), original);
+    r.steps[0].hint_deltas_v1 = Some("AC8BC-9BC-_9BC-_wR9_wT".into());
+    assert_eq!(
+        hint_indices(&r.steps[0]),
+        vec![0, 1, 31, 32, 1023, 1024, 32767, 32768, 319999, 0]
+    );
+}
+
 /// Ink hints index the original clauses followed by accepted steps, from 0.
 /// LRAT identifies clauses from 1 in the same order.
 fn lrat(r: &bitproof::AcceptedRefutation) -> String {
@@ -67,7 +126,7 @@ fn lrat(r: &bitproof::AcceptedRefutation) -> String {
             write!(s, "{l} ").unwrap();
         }
         s.push('0');
-        for h in &step.hints {
+        for h in hint_indices(step) {
             write!(s, " {}", h + 1).unwrap();
         }
         s.push_str(" 0\n");
@@ -104,6 +163,9 @@ fn accepted_bit_proofs_replay_in_independent_checkers() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut paths = vec![];
     locks(&root.join("knowledge/research"), &mut paths);
+    if let Some(path) = std::env::var_os("INK_RUP_EXTRA_LOCK") {
+        paths.push(PathBuf::from(path));
+    }
     assert!(
         !paths.is_empty(),
         "initialise the pinned knowledge submodule"
@@ -221,7 +283,7 @@ fn accepted_bit_proofs_replay_in_independent_checkers() {
             "variables": r.variables,
             "clauses": r.clauses.len(),
             "lemmas": r.steps.len(),
-            "hints": r.steps.iter().map(|s| s.hints.len()).sum::<usize>(),
+            "hints": r.steps.iter().map(|s| hint_indices(s).len()).sum::<usize>(),
             "external": verdicts,
         }));
     }

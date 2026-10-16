@@ -1610,6 +1610,186 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full verifier source/header read. Type and truncation are separate; singleton equivalence classes permit type-dependent generalization, modulo truncation must compose through compatible operations, and returns/deopt state require no lost information. Cached machine constants need per-use context and inferred verifier types remain private until verification completes. The verifier explicitly leaves most operators unsupported (including phis, loads, many arithmetic/conversions), so it is not full lowering correctness. Ink fixed-width/raw-bit contracts and independently replayed source equalities remain authoritative; no profile/type hint or debug verifier pass grants narrowing, minus-zero erasure or arbitrary F64 conversion authority."
+    },
+    {
+      "path": "src/compiler/simplified-lowering.cc",
+      "sha256": "fcac4eaefa0e489d6101220cfb2da88a1ed7a9db02d918200e0046c906ed9118",
+      "inclusive_lines": [
+        [
+          1,
+          6182
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full implementation/header read. Backward monotone truncation fixed point precedes feedback retyping with phi-range weakening and static upper-bound intersection, then literal lowering and optional partial verification. Type checks, safe-integer promises, deopting/unreachable dependencies, exceptional paths and receiver/deopt materialization remain observable. Dynamic power-of-two modulus paths include divisor-zero, signed negative and overflow distinctions; Ink defaults are explicit/lazy, and its shifts are modular rather than unbounded BigInt shifts. FP min/max/rounding/coercions preserve JS-specific NaN/-0/hole behavior, not Ink stored-bit laws. GC write barriers, tagged transitions, pointer and FFI conventions have no direct source-IR transplant. Existing word/constant-divisor laws cover subsets; generic guarded variable-power modulus and exact F64 proof capability remain open. No feedback or verifier hint grants proof authority."
+    },
+    {
+      "path": "src/compiler/simplified-lowering.h",
+      "sha256": "caf1893316f98adbd8587ba1c0500047a54523d8bb7344c4864e93f58a0f29ce",
+      "inclusive_lines": [
+        [
+          1,
+          125
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Backward use/truncation fixed point precedes feedback retyping and literal lowering; loop phi ranges weaken monotonically and intersect static upper bounds. Generic observer/source provenance and effect/control rewiring stay explicit. Supported demand joins and checked conversion require source facts; unreachable effects are not unused values. The remaining operator lowerings require review; no speculative feedback grants Ink proof authority."
+    },
+    {
+      "path": "src/compiler/type-cache.h",
+      "sha256": "08c07c35ba61723cadad79cd5d6971d4d7265c6b2c7f4b5875aea720669795fd",
+      "inclusive_lines": [
+        [
+          1,
+          233
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full fixed range cache read. Integer carrier ranges, separate NaN/minus-zero unions, safe/additive-safe double ranges, typed-array/string/argument bounds and lazy global cache lifetime. Ink U64 cannot inherit double-safe bounds or V8 container maxima; use exact source widths and portable limits. Canonical cached types are analysis data, not checked equality or range premises."
+    },
+    {
+      "path": "src/compiler/type-cache.cc",
+      "sha256": "193ce5c297f44817a62ee56ce2f912236f5400aae7480b90c6f2b3737f725754",
+      "inclusive_lines": [
+        [
+          1,
+          17
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full lazy singleton lifetime implementation read. Immutable shared cache avoids repeated allocation; no theorem or per-source identity authority. Ink analysis caches must retain exact context and bounded ownership."
+    },
+    {
+      "path": "src/compiler/operation-typer.h",
+      "sha256": "dcd53fa8559fcc9f04a9a09a8b5c5e1f05329d2e2fff04e7c72638af1040a6e3",
+      "inclusive_lines": [
+        [
+          1,
+          147
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full operation-typing interface read. Merge/widen, numeric conversions/comparisons/check refinements and explicit unknown Machine results. This is V8 analysis policy, not source rewrite authority; range/bounds family remains partial."
+    },
+    {
+      "path": "src/compiler/operation-typer.cc",
+      "sha256": "434539aa2cf9dfa22c6f3d6e95c7172ed5de253683e82e58b2332a8dd5a9338d",
+      "inclusive_lines": [
+        [
+          1,
+          1399
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full1399-line operation typer read. Finite threshold widening guarantees range convergence; endpoint arithmetic tracks infinities/NaN/minus-zero separately and widens on discontinuity/shift overflow. Signed bitwise sign ranges and masked shift counts, checked successful-path bounds, singleton/equality distinctions and JS coercion exceptions assessed. Ink exact wrapping U32/U64/I32 range proposals already use independent source proofs; do not port JS Number endpoint arithmetic to wrapping words or acquire a branch fact from an untrusted interval. Wider generic range candidate scheduling/known-bit facts and exact floating proof support remain open; no new runtime or whole-compiler gain established."
+    },
+    {
+      "path": "src/compiler/turboshaft/typer.cc",
+      "sha256": "36403fc82caa38f81c43b68faadac2b888e60e55b691a5f8b9dba4c0843501e7",
+      "inclusive_lines": [
+        [
+          1,
+          120
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full branch-refinement implementation read. Only supported unsigned Word32 and Float64 comparisons refine; equality, signed words and other representations decline. Implicit Word64-to-Word32 facts are lifted conservatively and accepted only if subtype-stable. Ink predicates and truncated branch facts must never imply full-width high-bit bounds; retain source-local checked conditions and unknown fallback."
+    },
+    {
+      "path": "src/compiler/turboshaft/typer.h",
+      "sha256": "cef53e1bfc5a4ea91370a7beaa82647afa42bf31a0e77e04e386314071a4e1db",
+      "inclusive_lines": [
+        [
+          1,
+          1646
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full1646-line typer read. Bounded finite sets widen to modular wrapping ranges; addition/subtraction distinguish saturation, cyclic gaps and conservative unknown. Maximal/exponential loop widening, signed-overflow result/flag tuples and explicit representation truncation assessed. Floating sets/ranges carry separate NaN/minus-zero, division underflow/signed-zero and false-comparison NaN cases; unsupported operations/representations return unknown. No direct trusted analysis import: generic untrusted modular-range candidate scheduling may propose ordinary source proofs. Dynamic exact U64 range/known-bit generalization and F64 proof expressibility remain open."
+    },
+    {
+      "path": "src/compiler/turbofan-types.h",
+      "sha256": "fb42c7cac3ec5335e77cb188808a75c5e393c5793a8b2b10d1a57a08c55acd7b",
+      "inclusive_lines": [
+        [
+          1,
+          739
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full739-line type lattice header read. Bitset unions versus structured ranges/tuples/constants, inclusion vs overlap, invalid versus bottom, and integer ranges excluding NaN/minus-zero assessed. A singleton NaN analysis category is not raw-bit stored identity in Ink; heap-address type equality is not structural source equality. Keep fixed typed carriers and ordinary proof authority; no JS object-map lattice is imported."
+    },
+    {
+      "path": "src/compiler/turbofan-types.cc",
+      "sha256": "bbcd9b59aa6443d6810ce0f985f1606626e7f69ba334248d0c42b14412596893",
+      "inclusive_lines": [
+        [
+          1,
+          1319
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full1319-line lattice implementation read. Canonical union normalization removes subsumed components, merges range hulls and bounds structured allocation with unknown fallback on size overflow. GLB/LUB, numeric atomic boundaries, tuple identity, Wasm module-sensitive subtyping, mutable heap constants/broker fencing and bitset serialization agreement assessed. These are conservative analysis representations, not theorem compression, source-value interning or machine-range facts. Ink modular U64 intervals must remain exact; loss of holes in a range hull can only weaken untrusted proposal guidance."
+    },
+    {
+      "path": "src/compiler/turboshaft/types.h",
+      "sha256": "6cd86720a0b10439fef050aea711e1dc84cc5d162228fee70609591786094828",
+      "inclusive_lines": [
+        [
+          1,
+          942
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full942-line Turboshaft domain header read. Compact tagged types, bounded eight-element sets with two inline members, cyclic word ranges and float special-value flags assessed. Intersection explicitly distinguishes precise-or-invalid, safe overapproximation and representable lower bound. Underapproximation must never grant path facts or unreachable/source-work elimination in Ink. Any/singleton/hash storage categories are not bitwise source identities; tuple sizes and outline allocations remain bounded."
+    },
+    {
+      "path": "src/compiler/turboshaft/types.cc",
+      "sha256": "be2430c471b8c33793efed7b816fd3beda3370d7e22961d401eb92daa4525c77",
+      "inclusive_lines": [
+        [
+          1,
+          731
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full731-line domain implementation read. Cyclic range hulls/set joins, disconnected intersections and resolution policies, conservative top on incompatible tuple/representation joins, explicit float NaN/minus-zero membership and typed serialization assessed. Do not import the upstream algorithms as checked facts: any future generic modular-range proposal analysis needs independent small-width containment tests plus ordinary exact source proofs, especially intersections with multiple disconnected components. Raw NaN payloads and U64 high bits remain exact in Ink."
+    },
+    {
+      "path": "src/compiler/turbofan-typer.h",
+      "sha256": "6a311d7f09c31172c3bcfbe62534f1aba037a34f15e319c04b3422e9a4acbf50",
+      "inclusive_lines": [
+        [
+          1,
+          70
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full typer driver header read. Graph-scoped operation typer/cache, explicit roots, induction-variable optimizer, decorator lifecycle and TickCounter budget; implementation remains unread. Receiver/new-target flags rely on V8 calling conventions and cannot supply Ink premises."
+    },
+    {
+      "path": "src/compiler/turboshaft/type-parser.h",
+      "sha256": "a3ab0a59746b4b248a67ebdd93f00338875d7ecd3b693ff6ce46ff00f0766891",
+      "inclusive_lines": [
+        [
+          1,
+          126
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full testing type-parser header read. Text roundtrip for diagnostic/intrinsic type assertions, sorted/deduplicated finite sets, wrapping word versus ordered float ranges and full trailing-input consumption. This debug/testing format is not a source theorem protocol. Ink already uses bounded typed canonical JSON; no reason to add a second accepted type grammar or import host numeric parsing/coercions."
+    },
+    {
+      "path": "src/compiler/turboshaft/type-parser.cc",
+      "sha256": "f372ac303ef6e6df1c23e09b8774c82d59039c1b6da191cc787a68b9289192ef",
+      "inclusive_lines": [
+        [
+          1,
+          35
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full35-line parser dispatch read. Diagnostic string constructors for the four numeric type kinds only; unsupported forms decline. No Ink optimizer algorithm or new admission surface follows from this testing helper."
     }
   ],
   "families": [
@@ -1617,7 +1797,7 @@
       "name": "machine-word",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
-      "note": "Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit 337 of 340 signed/unsigned division, remainder and bit-operation proposals. Three U64 self/zero-numerator acquisitions remain unadmitted and excluded. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim."
+      "note": "Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit 338 of 340 signed/unsigned division, remainder and bit-operation proposals. Bounded lossless proof transport and an ordinary Boolean cover now admit U64 self quotient; two U64 remainder acquisitions remain unadmitted and excluded. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim."
     },
     {
       "name": "branch-control",
@@ -1653,7 +1833,7 @@
       "name": "representation-types",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/typed-optimizations-reducer.h",
-      "note": "Typed/simplified reducers and complete representation changer read. New range-guided lossless U64/U32 round-trip proposal generation plus three reusable whole-branch checked laws. Exact boundaries, relational guards and wrapped-sum subjects validated; no check/type/F64 authority imported. Profitability measurements retain baseline on both current backends. Wider demand/representation analysis remains open. Exact F32 proof circuits and literal GPU carrier propagation are now integrated separately from any range/check-elision authority; cross-target/GPU validation retained in f32-bits. Simplified-lowering verifier/header now fully read: cached machine constants use per-use context, inferred types remain private until completion, and many operation cases intentionally have no verification. No complete lowering correctness or Ink representation theorem follows."
+      "note": "Typed/simplified reducers and complete representation changer read. New range-guided lossless U64/U32 round-trip proposal generation plus three reusable whole-branch checked laws. Exact boundaries, relational guards and wrapped-sum subjects validated; no check/type/F64 authority imported. Profitability measurements retain baseline on both current backends. Wider demand/representation analysis remains open. Exact F32 proof circuits and literal GPU carrier propagation are now integrated separately from any range/check-elision authority; cross-target/GPU validation retained in f32-bits. Simplified-lowering verifier/header now fully read: cached machine constants use per-use context, inferred types remain private until completion, and many operation cases intentionally have no verification. No complete lowering correctness or Ink representation theorem follows. Full simplified-lowering implementation/header now reviewed: complete propagation/retyping/lowering ordering, guarded unused/error behavior, numeric/BigInt/FFI/GC boundaries and type-dependent conversion costs. Ink fixed raw-bit/default semantics and proof/evidence gates remain; this is not family completion."
     },
     {
       "name": "floating-point",
@@ -1713,13 +1893,13 @@
       "name": "range-bounds",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/type-inference-analysis.h",
-      "note": "Typed checks plus full Turboshaft type inference analysis/reducer read. Definition versus branch facts, joins, unknown fallback, maximal loop widening and retyping after lowering assessed. New word round-trip proposals reuse independently checked domain proofs. Typer/type domains, bounds hardening and checked dynamic-loop invariants remain open."
+      "note": "Typed checks plus full Turboshaft type inference analysis/reducer read. Definition versus branch facts, joins, unknown fallback, maximal loop widening and retyping after lowering assessed. New word round-trip proposals reuse independently checked domain proofs. Typer/type domains, bounds hardening and checked dynamic-loop invariants remain open. Full operation-typer and type-cache implementation/headers now read: finite threshold widening, successful-check refinements and IEEE exceptional values remain separate from Ink exact wrapping-word premises. Wider type lattice/typer implementations and proof-backed dynamic bounds remain open. Full Turboshaft typer now read: bounded finite sets/cyclic ranges, exponential widening, branch-local subtype refinement and implicit-truncation lifting assessed; general modular range proposals remain open. Full TurboFan type lattice/header now read; unions/hulls and singleton analysis remain distinct from raw-bit identities and proved range premises. Full Turboshaft type domains now read. Precision/overapproximation/lower-bound intersection policies and disconnected modular ranges need independent containment checks before any proposal guidance; no inferred type grants proof authority."
     },
     {
       "name": "truncation-demand",
       "status": "partial",
       "entry_point": "src/maglev/maglev-truncation.cc",
-      "note": "Maglev truncation header/implementation and Turboshaft explicit truncation reducer read in full. Full-width/deopt observations and complete additive DAG exactness matter; range-safe word round-trip proposals now use ordinary whole-source proofs. Floating demand transformation remains open and F64 semantic proofs still fail closed. Full simplified-lowering verifier checks supported modulo-demand joins and type-dependent singleton generalization; return/deopt interfaces require no information loss. Most operators, including phi and many numeric conversions, remain unsupported by that verifier; broad simplified-lowering implementation assessment remains open."
+      "note": "Maglev truncation header/implementation and Turboshaft explicit truncation reducer read in full. Full-width/deopt observations and complete additive DAG exactness matter; range-safe word round-trip proposals now use ordinary whole-source proofs. Floating demand transformation remains open and F64 semantic proofs still fail closed. Full simplified-lowering verifier checks supported modulo-demand joins and type-dependent singleton generalization; return/deopt interfaces require no information loss. Most operators, including phi and many numeric conversions, remain unsupported by that verifier; broad simplified-lowering implementation assessment remains open. Full simplified-lowering implementation/header now reviewed: complete propagation/retyping/lowering ordering, guarded unused/error behavior, numeric/BigInt/FFI/GC boundaries and type-dependent conversion costs. Ink fixed raw-bit/default semantics and proof/evidence gates remain; this is not family completion."
     },
     {
       "name": "javascript-builtins",
@@ -1756,7 +1936,7 @@
     "first_batch": "Scoped structural work prices through lazy branch contexts; ordinary proofs and measured selection remain unchanged",
     "evidence": "bench/v8-learning/branch-cardinality",
     "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open.",
-    "coverage_followup": "130 full source receipts, three partial, 476 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
+    "coverage_followup": "132 full source receipts, three partial, 474 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
     "second_batch": "Range-guided word representation proposals plus three independently replayed whole-branch laws. 28 related tests, three final range regressions and 88 CPU comparisons pass; measured JS/native controls retain baseline. Matched 32-check control improves one rewritten function to two. Frozen corpus: 10 compile, 24 laws, six reused, zero representation/selection, no new range-law attribution; all quick budgets exhausted.",
     "next_followups": [
       {
@@ -1769,7 +1949,7 @@
       },
       {
         "area": "coverage",
-        "task": "Continue unread 476 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
+        "task": "Continue unread 474 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
       },
       {
         "area": "signed-range-and-integer",
@@ -1782,6 +1962,10 @@
       {
         "area": "database-pattern-dispatch",
         "task": "Profile generic frozen-library root-pattern dispatch before further catalog growth. The latest saturated quick corpus observes 20 old laws versus 24 in the earlier combined report; different unpaired contexts do not establish a causal regression. Evaluate a generic operator/sort discrimination index against exhaustive match results and deterministic matcher-work counts, then the unchanged frozen corpus. Patterns, indexes and costs grant no admission authority."
+      },
+      {
+        "area": "guarded-variable-remainder",
+        "task": "Full simplified lowering exposes runtime variable power-of-two remainder specializations. Existing31/63 constant-power rewrites do not cover a variable divisor. Author ordinary whole-source guards (nonzero and power-of-two; signed domains preserve negative/overflow/lazy-default behavior) and independently prove/test/measure before default exposure. Do not copy JS zero-divisor or truncation semantics."
       }
     ],
     "third_batch": "Exact fixed-scalars-v3 F32 circuits and fifteen reusable checked database laws; literal GPU collection carrier bug fixed after real device detection. Local and standalone core each pass 454 tests; 26 related knowledge regressions, eleven GPU package tests and 326 cross-target values/snapshots with four actual GPU dispatches pass. Default roundtrip search structural cost 105\u219273; official JS/native lifecycle cohorts retain baseline. Frozen ten-program corpus: 24 laws/six reused, zero selection/representation and no new F32 attribution; all quick budgets exhausted.",
@@ -1808,8 +1992,9 @@
     },
     "next_batch_priority": [
       "Extend the generic pure-call offline acquisition/context to actual eligible GPU work, with complete-call reference controls, exact source/artifact/device identity, no fallback or runtime probes and disjoint holdout. The completed CPU quotient cohort retained baseline; Explicit device calibration now retains narrow paired GPU rewrite gains; complete CPU placement/lifecycle and memory evidence remain open.",
-      "Continue the remaining representation-change and simplified-lowering implementations; the Maglev phi selector and simplified-lowering verifier have full read receipts. assess which generic fixed-meaning proof/representation machinery Ink lacks, especially explicit exact F64 capability and source multiply-high expressibility. Preserve raw bits, source evaluation and unsupported-mode rejection.",
-      "Use the reviewed use-map, snapshots and graph-reducer mechanics only with bounded immutable contexts, unknown-at-join and demand-driven revisiting. Previous eager memo-wave prototype is retired; retain real frozen-corpus controls for any new scheduling change."
+      "Representation-change, Maglev phi selection and simplified-lowering/verifier now have full receipts. Continue the remaining type/range/demand implementations and conditional refinements; assess which generic fixed-meaning proof/representation machinery Ink lacks, especially explicit exact F64 capability and source multiply-high expressibility. Preserve raw bits, source evaluation and unsupported-mode rejection.",
+      "Use the reviewed use-map, snapshots and graph-reducer mechanics only with bounded immutable contexts, unknown-at-join and demand-driven revisiting. Previous eager memo-wave prototype is retired; retain real frozen-corpus controls for any new scheduling change.",
+      "Full operation typers/type-cache/TurboFan and Turboshaft type domains now reviewed. Any modular-range proposal work must independently check small-width containment, treat disconnected intersections conservatively, keep false IEEE comparison/NaN cases and full-width truncation facts separate, and emit ordinary source proofs; no interval or inferred type becomes a trusted premise."
     ],
     "eighth_batch": {
       "improvement": "Generic explicit source-checked complete-call GPU calibration companion with independent actual-device counters and exact typed validation; default automatic acquisition/selection/cache unchanged.",
@@ -1820,6 +2005,17 @@
       "corpus": "Both pinned frozen ten-program runs finish with stable source contexts: ten compile/admit alternatives, 24 laws/six reused, zero alternative or representation selections, all quick budgets exhaust and all final gates require measurement evidence. No near-miss rejection or broad generalization/performance attribution. Private prospective observations preserve original live sources.",
       "remaining": "Automatic/native GPU context and conservative complete-host memory/lifecycle evidence, CPU baseline comparisons, unread optimizer inventory and existing three unadmitted U64 identities remain open.",
       "integration": "Concurrent main merged, locked CLI build/fetch passes, 102 core unit and five affected conversion tests pass. Both plans replay through merged compiler; four original source oracles agree exactly, eight actual GPU-required calls match with observed dispatch/submission/readback. New evidence is conformance only. Browser version consistency now required across fresh processes/splits; historical timed code/contexts stay unchanged."
+    },
+    "ninth_batch": {
+      "status": "Completed validated package/knowledge publication and selected evidence; final distribution integration pending",
+      "improvement": "Generic bounded lossless RUP hint transport, unchanged plain-slice replay path and complete shared budgets; untrusted conditional-certificate Boolean cover builder.",
+      "proof": "Existing eight U64 self-quotient components assemble under ordinary Cases. Law bytes 23762435 to8305056; full ordinary admission succeeds and rehashed malformed/future/ambiguous-hint/changed-result controls reject.",
+      "database": "One additional u64_quot_or_self proof; 338 of340 integer proposals admitted, all337 prior identities unchanged. No cost/selection evidence transfer.",
+      "validation": "470 root and470 private standalone core tests pass. All338 integer,83 word and15 F32 frozen proofs replayed in the related knowledge suite;22 methods pass in full run, newwide setup CLI-name error fixed then focused method passed. Packed standalone author and2 LRAT export tests pass; external checker binaries not configured. JS/native/GPU complete-call source-oracle controls pass.",
+      "remaining": "Publish final distribution knowledge pin, current-core CI receipt wiring and selected evidence. Entire optimizer queue remains active:145full3partial461unread, all22families partial. Two U64 remainder goals, guarded dynamic power-of-two remainder authoring and proof-backed modular range analysis remain open.",
+      "checker_control": "945 fresh CLI calls over15 exact statements,3 sequential blocks x7 alternating rounds x3 image/transport variants. worker labels are blocks, not fresh Python wrappers. Median of block medians: legacy/plain8629315875ns,current/plain8514140209ns,current/packed3972988874ns. All input hashes stable. Narrow checker control only.",
+      "runtime": "JS/native retain baseline under unchanged10%/extrema guard. Explicit physicalGPU holdout3090000 to608750ns,median paired ratio5.203107658157602 across3 fresh browser processes; all six training/holdout processes passguard. Complete async calls/full U64 results, observed dispatch/readback. Unknown whole-browser peak memory; no automatic placement or broad gain claim.",
+      "corpus": "Observed driver exit0 and final stable context. All10 compile/admit alternatives;22 observed laws/six reused, all identities already present in preceding corpus. Newself law not attributed. Zero alternative/representation selection, all10 final gates measurement_evidence andquick budgets exhausted, median50.725sec excluding preparation. No near-miss reason; unpaired durations/counts establish no causal performance gain."
     }
   },
   "scope_boundaries": [
