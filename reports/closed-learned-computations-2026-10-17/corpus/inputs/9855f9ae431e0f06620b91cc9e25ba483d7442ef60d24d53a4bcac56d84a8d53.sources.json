@@ -1,0 +1,14 @@
+{
+  "core_sha256": "57abb3fd09d2310f001759da691b0514a45611ddadc5c11d7a0f0f9094d2b29b",
+  "files": [
+    {
+      "module": "frozen_software",
+      "path": "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/bench/planning-corpus/heldout/incremental-distinct.ink",
+      "sha256": "be26f5491ada8748db1ef8c543bfa465f5514720813dcb2e7ab46cb6a8c3e85d",
+      "source": "module frozen_software;\nrecord DistinctState { seen:Bool,last:u32,output:List<u32>, }\npub fn run(xs:List<u32>,unused:u32)->List<u32>{return foldl(xs,DistinctState{seen:false,last:0,output:[]},fn(x)=>fn(a)=>choose(!a.seen || a.last!=x,DistinctState{seen:true,last:x,output:a.output.concat([x])},a)).output;}\n"
+    }
+  ],
+  "schema": 1,
+  "scope": "Exact source bytes consumed by this load, not a filesystem-wide atomic snapshot or proof authority.",
+  "semantics": "ink-source-capture-v1"
+}

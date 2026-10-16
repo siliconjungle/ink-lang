@@ -58,23 +58,42 @@ impl FrozenSpecialization {
             Self::Composed(p) => crate::compiled_plans::specialization_evidence(p),
         }
     }
-    fn check_emission(&self, plan: &Value) -> LangResult<()> {
-        let bound = match self {
-            Self::Direct(s) => {
-                plan["semantic_package"]
-                    == serde_json::to_value(s.package()).map_err(|e| e.to_string())?
-                    && plan["semantic_selection"] == self.evidence()?
-            }
-            Self::Composed(p) => {
-                plan["compiled_plan"]
-                    == serde_json::to_value(p.package()).map_err(|e| e.to_string())?
-                    && plan["specialization"] == self.evidence()?
-            }
+    fn package_reference(bytes: &[u8]) -> Value {
+        json!({"schema":1,"semantics":"ink-trained-proof-reference-v1",
+            "path":"selection.json","sha256":format!("{:x}",Sha256::digest(bytes))})
+    }
+    fn check_emission(&self, plan: &Value, checked_bytes: &[u8]) -> LangResult<()> {
+        let (package_key, evidence_key, other_key) = match self {
+            Self::Direct(_) => ("semantic_package", "semantic_selection", "compiled_plan"),
+            Self::Composed(_) => ("compiled_plan", "specialization", "semantic_package"),
         };
+        let package_bound = if let Some(reference) = plan.get("specialization_package") {
+            // The caller has already replayed checked_bytes in the ordinary
+            // checker. This fixed local reference binds that same package; it
+            // cannot resolve another path, replace proof replay or coexist
+            // with an ambiguous embedded package.
+            reference == &Self::package_reference(checked_bytes)
+                && plan.get(package_key).is_none() && plan.get(other_key).is_none()
+        } else {
+            let package = match self {
+                Self::Direct(s) => serde_json::to_value(s.package()),
+                Self::Composed(p) => serde_json::to_value(p.package()),
+            }.map_err(|e| e.to_string())?;
+            plan.get(package_key) == Some(&package) && plan.get(other_key).is_none()
+        };
+        let bound = package_bound && plan[evidence_key] == self.evidence()?;
         if !bound {
             return Err("compiled specialization binding mismatch".into());
         }
         Ok(())
+    }
+    fn reference_emission(&self, plan: &mut Value, checked_bytes: &[u8]) -> LangResult<()> {
+        self.check_emission(plan, checked_bytes)?;
+        let object = plan.as_object_mut().ok_or("compiled specialization descriptor object")?;
+        object.remove("semantic_package");
+        object.remove("compiled_plan");
+        object.insert("specialization_package".into(), Self::package_reference(checked_bytes));
+        self.check_emission(plan, checked_bytes)
     }
 }
 struct Staging(PathBuf);
@@ -407,10 +426,19 @@ pub fn build_model_specialized(
     {
         return Err("compiled trained artifact binding mismatch".into());
     }
+    let mut changed_plan = false;
     if plan.get("source").is_some() {
         plan["source"] = json!(source_file);
-        // Proof-bearing plans can be large. Preserve the complete JSON value
-        // and ordinary verifier bindings without shipping indentation copies.
+        changed_plan = true;
+    }
+    if let Some(selection) = &selection {
+        let bytes = fs::read(staging.0.join("selection.json")).map_err(|e| e.to_string())?;
+        selection.reference_emission(&mut plan, &bytes)?;
+        changed_plan = true;
+    }
+    if changed_plan {
+        // Retain the ordinary checked package once, with a bound local
+        // descriptor reference instead of a second complete proof copy.
         fs::write(
             plan_path,
             serde_json::to_vec(&plan).map_err(|e| e.to_string())?,
@@ -513,12 +541,14 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
         None
     };
     let compiled_module = restricted.as_ref().map(|r| &r.module).unwrap_or(&module);
-    let selection = if !manifest["specialization"].is_null() {
+    let selection_bytes = if !manifest["specialization"].is_null() {
+        Some(read("selection.json", 16_000_000)?)
+    } else { None };
+    let selection = if let Some(bytes) = &selection_bytes {
         if restricted.is_none() {
             return Err("specialization requires a source restriction".into());
         }
-        let checked =
-            FrozenSpecialization::check(compiled_module, &read("selection.json", 16_000_000)?)?;
+        let checked = FrozenSpecialization::check(compiled_module, bytes)?;
         if checked.evidence()? != manifest["specialization"]
             || checked.module().bytes()?
                 != CheckedModule::from_bytes(&read(
@@ -578,7 +608,9 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
         return Err("compiled initial state binding mismatch".into());
     }
     if let Some(selection) = &selection {
-        selection.check_emission(&plan)?;
+        selection.check_emission(&plan, selection_bytes.as_ref().unwrap())?;
+    } else if plan.get("specialization_package").is_some() {
+        return Err("unexpected specialization package reference".into());
     }
     for (name, binding) in &inventory {
         if name.ends_with("initial.snapshot") && binding["sha256"] != startup_sha256 {

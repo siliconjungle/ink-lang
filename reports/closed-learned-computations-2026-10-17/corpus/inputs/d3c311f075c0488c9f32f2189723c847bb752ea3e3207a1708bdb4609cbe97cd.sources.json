@@ -1,0 +1,14 @@
+{
+  "core_sha256": "4353976cdb705e415e24e54597fcc71b87812fcff845d5d66e13aa13c678fc12",
+  "files": [
+    {
+      "module": "frozen_software",
+      "path": "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/bench/planning-corpus/heldout/drawing-hit.ink",
+      "sha256": "6460093509912f6b7a7b6c21886a1a8551563ecd28215b49e56d7595cfd15bd0",
+      "source": "module frozen_software;\nrecord Box { minX:u32,minY:u32,maxX:u32,maxY:u32, }\nfn intersects(a:Box,b:Box)->Bool {return a.minX<=b.maxX && a.minY<=b.maxY && a.maxX>=b.minX && a.maxY>=b.minY;}\npub fn run(xs:List<Box>,q:Box)->Bool{return foldl(xs.filter(fn(x)=>x.minX>=16).map(fn(x)=>intersects(x,q)),false,fn(x)=>fn(a)=>a || x);}\n"
+    }
+  ],
+  "schema": 1,
+  "scope": "Exact source bytes consumed by this load, not a filesystem-wide atomic snapshot or proof authority.",
+  "semantics": "ink-source-capture-v1"
+}

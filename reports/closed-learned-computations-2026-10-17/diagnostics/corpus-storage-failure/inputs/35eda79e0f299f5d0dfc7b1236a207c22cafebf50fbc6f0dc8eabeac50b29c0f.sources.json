@@ -1,0 +1,14 @@
+{
+  "core_sha256": "0634958705c7abf328f46a587248b142ecc0b787c8f6adc86e7caaec25e98971",
+  "files": [
+    {
+      "module": "frozen_software",
+      "path": "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/bench/planning-corpus/heldout/text-lines.ink",
+      "sha256": "2ae845c0e8e198020f1e548509eac72a01f59e70a30e451be7cc06f8d4846d39",
+      "source": "module frozen_software;\nrecord TextState { count:u32,previous:u32, }\npub fn run(xs:List<u32>,unused:u32)->TextState{return foldl(xs,TextState{count:0,previous:0},fn(x)=>fn(a)=>TextState{count:a.count+choose(x==13 || (x==10 && a.previous!=13),1,0),previous:x});}\n"
+    }
+  ],
+  "schema": 1,
+  "scope": "Exact source bytes consumed by this load, not a filesystem-wide atomic snapshot or proof authority.",
+  "semantics": "ink-source-capture-v1"
+}
