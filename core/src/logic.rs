@@ -6,6 +6,8 @@ use std::{
     collections::{BTreeMap, BTreeSet, HashMap},
     sync::Arc,
 };
+#[path = "logic_conversion.rs"]
+mod conversion;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -1957,6 +1959,12 @@ fn same_term(a: &Term, b: &Term, c: &Context, budget: &mut Budget) -> LangResult
     budget.copy(a)?;
     budget.copy(b)?;
     if alpha_normal_impl(a.clone(), budget, true)? == alpha_normal_impl(b.clone(), budget, true)? {
+        return Ok(true);
+    }
+    // Compare shared structure before computing entire descendants. Only
+    // ordinary congruence and the existing checked definitions can succeed;
+    // exhaustion retains the original conversion strategies and their bounds.
+    if conversion::same(a, b, c, budget)? {
         return Ok(true);
     }
     let left = alpha_normal_impl(compute_mode(a, c, budget, 0, false)?, budget, true)?;
