@@ -192,6 +192,63 @@ impl Circuit {
         }
         Ok(less)
     }
+    // Fixed binary32 meanings over the low 32 raw bits, matching logic's
+    // f32 primitives. No arithmetic, rounding, or NaN-payload assumption.
+    fn f32_exponent_all_ones(&mut self, a: &[i32]) -> LangResult<i32> {
+        let mut all = 1;
+        for &bit in &a[23..31] { all = self.gate("and", all, bit)?; }
+        Ok(all)
+    }
+    fn f32_nan(&mut self, a: &[i32]) -> LangResult<i32> {
+        let exponent = self.f32_exponent_all_ones(a)?;
+        let mut fraction = -1;
+        for &bit in &a[..23] { fraction = self.gate("or", fraction, bit)?; }
+        self.gate("and", exponent, fraction)
+    }
+    fn f32_primitive(&mut self, op: &str, a: &[i32], b: &[i32]) -> LangResult<Value> {
+        if a.len() != 64 || b.len() != 64 { return Err("binary32 circuit word width".into()); }
+        match op {
+            "f32:neg" => {
+                let mut bits = vec![-1; 64];
+                bits[..32].copy_from_slice(&a[..32]);
+                bits[31] = -bits[31];
+                return Ok(Value::Word(bits));
+            }
+            "f32:is_nan" => return Ok(Value::Bool(self.f32_nan(a)?)),
+            "f32:is_finite" => return Ok(Value::Bool(-self.f32_exponent_all_ones(a)?)),
+            "f32:==" | "f32:!=" | "f32:<" | "f32:<=" | "f32:>" | "f32:>=" => (),
+            _ => return Err("unsupported binary32 bit circuit primitive".into()),
+        }
+        let nan_a = self.f32_nan(a)?;
+        let nan_b = self.f32_nan(b)?;
+        let ordered = -self.gate("or", nan_a, nan_b)?;
+        let mut magnitude_a = -1;
+        let mut magnitude_b = -1;
+        let mut different = -1;
+        for i in 0..32 {
+            if i < 31 {
+                magnitude_a = self.gate("or", magnitude_a, a[i])?;
+                magnitude_b = self.gate("or", magnitude_b, b[i])?;
+            }
+            let bit = self.gate("xor", a[i], b[i])?;
+            different = self.gate("or", different, bit)?;
+        }
+        let both_zero = self.gate("and", -magnitude_a, -magnitude_b)?;
+        let equal = self.gate("or", -different, both_zero)?;
+        if op == "f32:==" || op == "f32:!=" {
+            let equal = self.gate("and", ordered, equal)?;
+            return Ok(Value::Bool(if op == "f32:==" { equal } else { -equal }));
+        }
+        let (a, b) = if op == "f32:>" || op == "f32:>=" { (b, a) } else { (a, b) };
+        let magnitude_less = self.less(&a[..31], &b[..31])?;
+        let magnitude_greater = self.less(&b[..31], &a[..31])?;
+        let same_sign_less = self.select(a[31], magnitude_greater, magnitude_less)?;
+        let different_sign = self.gate("xor", a[31], b[31])?;
+        let less = self.select(different_sign, a[31], same_sign_less)?;
+        let less = self.gate("and", less, -both_zero)?;
+        let result = if op.ends_with('=') { self.gate("or", less, equal)? } else { less };
+        Ok(Value::Bool(self.gate("and", ordered, result)?))
+    }
     fn term(&mut self, t: &Term, env: &BTreeMap<String, Sort>, depth: usize) -> LangResult<Value> {
         if depth > 128 || self.remaining == 0 {
             return Err("bit circuit term limit".into());
@@ -229,6 +286,7 @@ impl Circuit {
                     (Value::Bool(a), Value::Bool(b)) if op == "&&" || op == "||" => Ok(
                         Value::Bool(self.gate(if op == "&&" { "and" } else { "or" }, a, b)?),
                     ),
+                    (Value::Word(a), Value::Word(b)) if op.starts_with("f32:") => self.f32_primitive(op, &a, &b),
                     (Value::Word(a), Value::Word(b)) => match op.as_str() {
                         "|" | "^" => Ok(Value::Word(a.iter().zip(&b).map(|(&a,&b)|
                             self.gate(if op=="|"{"or"}else{"xor"},a,b)
@@ -585,6 +643,9 @@ mod tests {
     // Independently propagate a fully specified input. Every output gate must
     // become determined, and every original clause must be satisfied.
     fn evaluate(term: &Term, input: &[(&str, Term)]) -> Term {
+        evaluate_encoding(term, input, Encoding::LiteralV1)
+    }
+    fn evaluate_encoding(term: &Term, input: &[(&str, Term)], encoding: Encoding) -> Term {
         let env = input
             .iter()
             .map(|(n, t)| {
@@ -599,6 +660,7 @@ mod tests {
             })
             .collect();
         let mut circuit = empty_circuit();
+        circuit.encoding = encoding;
         let output = circuit.term(term, &env, 0).unwrap();
         let mut values = vec![0i8; circuit.variables + 1];
         values[1] = 1;
@@ -782,6 +844,45 @@ mod tests {
                     assert_eq!(evaluate(&binary(op,var("a"),var("k")),&input),Term::U64(expected),"{a} {op} {k}");
                 }
             }
+        }
+    }
+    #[test]
+    fn binary32_bit_circuits_preserve_ieee_order_and_raw_negation() {
+        let mut values = vec![0u32, 0x80000000, 1, 0x80000001, 0x007fffff,
+            0x00800000, 0x80800000, 0x3f800000, 0xbf800000, 0x7f7fffff,
+            0xff7fffff, 0x7f800000, 0xff800000, 0x7f800001, 0xff800001,
+            0x7fc00000, 0x7fc01234, 0xffc04321, 0x7fffffff, 0xffffffff];
+        let mut seed = 0x783832u32;
+        for _ in 0..12 {
+            seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
+            values.push(seed);
+        }
+        for encoding in [Encoding::LiteralV1, Encoding::SharedV2] {
+            for &a in &values {
+                // High first-order word bits are deliberately nonzero: fixed
+                // binary32 primitives consume the low 32 bits only.
+                let raw_a = (0xa5a5_4321u64 << 32) | a as u64;
+                let input = [("a", Term::U64(raw_a))];
+                for (op, expected) in [
+                    ("f32:neg", Term::U64((a ^ 0x80000000) as u64)),
+                    ("f32:is_nan", Term::Bool(f32::from_bits(a).is_nan())),
+                    ("f32:is_finite", Term::Bool(f32::from_bits(a).is_finite())),
+                ] {
+                    assert_eq!(evaluate_encoding(&binary(op,var("a"),Term::U64(0)),&input,encoding),expected,"{a:x} {op}");
+                }
+                for &b in &values {
+                    let (x,y)=(f32::from_bits(a),f32::from_bits(b));
+                    let input=[("a",Term::U64(raw_a)),("b",Term::U64((0xffff_0000u64 << 32)|b as u64))];
+                    for (op,expected) in [("f32:==",x==y),("f32:!=",x!=y),
+                        ("f32:<",x<y),("f32:<=",x<=y),("f32:>",x>y),("f32:>=",x>=y)] {
+                        assert_eq!(evaluate_encoding(&binary(op,var("a"),var("b")),&input,encoding),Term::Bool(expected),"{a:x} {op} {b:x}");
+                    }
+                }
+            }
+        }
+        let env=BTreeMap::from([("a".into(),Sort::U64)]);
+        for op in ["f32:+","f32:-","f32:*","f32:div","f32:floor"] {
+            assert!(empty_circuit().term(&binary(op,var("a"),Term::U64(0)),&env,0).is_err());
         }
     }
     fn toy(clauses: Vec<Vec<i32>>) -> Problem {
