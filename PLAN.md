@@ -458,6 +458,14 @@ final package sources and 271 knowledge source files, including embedded
 libraries, are checked against Git, and the publication compiler reproduces the JS/Rust images and complete
 loss/update/frame projections. See the
 [retained evidence](reports/mutable-function-specialization-2026-10-17/summary.json).
-Automatic guard insertion, profitable learned representation selection, device
-training and the complete Handwired/Pretext/Freerange performance programme remain
-required; this milestone makes no new performance claim.
+Guard generation is now available as an explicit knowledge proposal: a checked
+configuration helper and fallback, a semantic guard rewrite, then universal
+function specialization. The 32-node mutable graph checks on the ordinary 2 MiB
+test stack after factoring structural comparison into a reusable list-identity
+law. A separate regression checks recursive helper correspondence with two
+recursive children. Boundary tests exposed repeated reads of raw F32 host tags;
+the JavaScript implementation now captures used scalars into private immutable
+carriers while preserving unused-parameter and borrowed-field demand.
+Automatic opportunity discovery, profitable learned representation selection,
+device training and the complete Handwired/Pretext/Freerange performance programme
+remain required; this milestone makes no new performance claim.
