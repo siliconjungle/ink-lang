@@ -267,3 +267,12 @@ Finish independent cross-target validation and matched lifecycle measurements,
 then reduce that overhead through general execution mechanisms. Segmentation,
 shaping/font measurement, incremental preparation, broader Handwired/Freerange
 integration and the complete adaptive-model programme remain required work.
+
+[Local record/helper execution](docs/local-record-helpers.md) now keeps readonly
+record fields through bounded helper expansion, conditional merges and value
+loops, including binary64 and immutable composite fields. It preserves ordinary
+fallback, owned storage, exact values and normal compiler-stack limits. New
+reference/target fixtures cover whole results and snapshots. Matched text and
+neural controls retain small-call losses and VM warm-up sensitivity; this step
+does not complete upstream parity, learned structural selection or the full
+adaptive-model programme.

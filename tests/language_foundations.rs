@@ -213,3 +213,5 @@ mod prepared_residual;
 
 #[path = "support/prepared_sums.rs"]
 mod prepared_sums;
+#[path = "support/helper_records.rs"]
+mod helper_records;
