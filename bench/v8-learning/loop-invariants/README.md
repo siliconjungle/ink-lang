@@ -38,11 +38,13 @@ Release build flags remain unchanged, and build/startup costs are excluded from
 the steady-state headline. Frozen planning-corpus diagnostics are reported
 separately and do not establish a runtime gain.
 
-The unmeasured default semantic structural score ranks the source at 97 and this
-guarded target at 201: it charges both branches and assumes one loop iteration.
-That ranking remains a limitation for bounded automatic search. The runtime
-control explicitly selects and checks the law; its gain does not establish that
-the default planner selects it on arbitrary workloads.
+At the original acquisition, the unmeasured default structural score ranked the
+source at 97 and this guarded target at 201, charging both branches and one loop
+iteration. Later database prices account for repeated callbacks; the resumed
+V8 pass additionally scopes empty-branch extents and maximum-arm work. See
+`../branch-cardinality` for the current 2602/314 price control, ordinary discovery
+and separately guarded native measurements. This original runtime control still
+uses explicit checked selection; it establishes no arbitrary-workload choice.
 
 The current catalogue is additionally restricted to reviewed numeric/list
 operation trees. Nested string construction and unanalysed helper calls decline

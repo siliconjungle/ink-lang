@@ -123,7 +123,7 @@
     },
     {
       "path": "build/loose-contract-candidates",
-      "reason": "Active historical source-contract validation output; running worker must continue. Reassess for retirement only after completion and preservation of selected proof/validation evidence."
+      "reason": "Earlier integration run has no observed completion receipt and no remaining worker. Retain successful proof outputs and inputs pending deliberate proof selection; do not claim that run passed."
     }
   ],
   "safe_to_remove": [
@@ -300,10 +300,6 @@
       "reason": "Completed generated validation/measurement output; selected source, proof, logs and samples retained in bench/v8-learning/loop-invariants"
     },
     {
-      "path": "build/loop-invariant-parity",
-      "reason": "Completed generated validation/measurement output; selected source, proof, logs and samples retained in bench/v8-learning/loop-invariants"
-    },
-    {
       "path": "build/v8-loop-invariants",
       "reason": "Completed generated validation/measurement output; selected source, proof, logs and samples retained in bench/v8-learning/loop-invariants"
     },
@@ -354,6 +350,22 @@
     {
       "path": "build/v8-corpus-normalizer",
       "reason": "Completed private corpus publications; exact captured inputs, plans, receipts and results retained in bench/v8-learning/corpus-normalizer"
+    },
+    {
+      "path": "build/v8-resume-update.log",
+      "reason": "Completed checkout update log; authoritative revisions retained by Git history"
+    },
+    {
+      "path": "build/v8-resume-compiler.log",
+      "reason": "Completed owned validation/measurement output; useful proofs, measurements and exact reproduction inputs retained in bench/v8-learning/branch-cardinality and corpus-branch-cardinality. The unselected worklist prototype provided insight only."
+    },
+    {
+      "path": "build/loop-invariant-parity",
+      "reason": "Completed owned validation/measurement output; useful proofs, measurements and exact reproduction inputs retained in bench/v8-learning/branch-cardinality and corpus-branch-cardinality. The unselected worklist prototype provided insight only."
+    },
+    {
+      "path": "build/v8-branch-cost",
+      "reason": "Completed owned experiment; selected proofs, measurements, sources, requests, locks and validation receipts are retained. Unselected eager-worklist prototype supplied insight only."
     }
   ]
 }

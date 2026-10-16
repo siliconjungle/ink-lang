@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "compiler_sha256": "997800fa1dd0fd076f578cecfb8088489f2dbaf557eff5485139d9269625eb5b",
+  "acquisition_distribution_revision": "4755313b185f070111f40c372fec565f10595a2b",
+  "planner_revision": "7026cfe02e4f9ab7c3ce29f9ce0ee2b02b3e4d33",
+  "knowledge_revision": "b69e2eddc60a2ef4475434e21c022d4f91ee7d83",
+  "scope": "Scoped structural work estimation only; all semantic source changes still replay ordinary proofs; native generated JSON whole calls with consumed complete outputs",
+  "validation": {
+    "planner_tests_passed": 347,
+    "branch_scope_unit_tests_passed": 4,
+    "default_discovery_callback_forms": [
+      "fold",
+      "map",
+      "filter"
+    ],
+    "forged_application_rejected": true,
+    "merged_planner_tests_passed": 347,
+    "merged_knowledge_tests_passed": 5,
+    "cpu_conformance_cases": 94,
+    "cpu_targets": [
+      "reference",
+      "Rust",
+      "JavaScript",
+      "Rust-Wasm"
+    ]
+  },
+  "single_fold_search_prices": {
+    "before_source": 2602,
+    "before_target": 2916,
+    "after_source": 2602,
+    "after_target": 314
+  },
+  "native": {
+    "schema": 1,
+    "compiler_sha256": "997800fa1dd0fd076f578cecfb8088489f2dbaf557eff5485139d9269625eb5b",
+    "source": "d4e7c82cc495b536fdfb0f7d5c5465b2c2bf2f71dec7b7531ea128c27805eaf5",
+    "measurements": [
+      "b08743320fc0ead437e1f7579f4eb352a87ef18bf3b30110593df1ee0ed7e67d",
+      "812ded9cba4002f79430c2205b8abe0d312bb30eac16c56b40fd4484d5e8a63d"
+    ],
+    "selected_after_independent_rejection": "b08743320fc0ead437e1f7579f4eb352a87ef18bf3b30110593df1ee0ed7e67d",
+    "heldout_accepted": false,
+    "controls": {
+      "processes": 3,
+      "rounds": 11,
+      "minimum_batch_ms": 5,
+      "maximum_calls_per_sample": 1024
+    },
+    "scope": "Default semantic discovery; two checked candidate lifecycle control using official acquisition/rank and disjoint holdout, not unrestricted compiled recipe search; shared host"
+  },
+  "native_summary": {
+    "training": {
+      "selected_lane": 0,
+      "phases": {
+        "empty": {
+          "baseline_ns": 13550,
+          "searched_ns": 13434,
+          "median_speedup": 1.0086348072055977
+        },
+        "work": {
+          "baseline_ns": 14380,
+          "searched_ns": 11766,
+          "median_speedup": 1.2221655617882032
+        }
+      }
+    },
+    "holdout": {
+      "selected_lane": 1,
+      "phases": {
+        "empty": {
+          "baseline_ns": 18542,
+          "searched_ns": 19906,
+          "median_speedup": 0.9314779463478349
+        },
+        "work": {
+          "baseline_ns": 22667,
+          "searched_ns": 17618,
+          "median_speedup": 1.2865819048700193
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Purpose-built three-callback control; not production frequency or unrestricted whole-recipe search",
+    "Both median speedups were positive, but the training cohort failed the unchanged uncertainty/minimum-gain gate; final selection remains baseline",
+    "Every call includes generated native JSON input conversion and full result consumption; setup/build remain separate",
+    "Empty holdout medians regress about 7%; workload weights and raw evidence are retained",
+    "Shared host; no broad Ink application speedup established",
+    "The scaled control clears the unchanged 10% extrema guard in training and holdout; applicability remains limited to its declared lifecycle and two checked candidates."
+  ],
+  "native_scaled": {
+    "schema": 1,
+    "extent_scale": 2,
+    "compiler_sha256": "997800fa1dd0fd076f578cecfb8088489f2dbaf557eff5485139d9269625eb5b",
+    "source": "d4e7c82cc495b536fdfb0f7d5c5465b2c2bf2f71dec7b7531ea128c27805eaf5",
+    "measurements": [
+      "b08743320fc0ead437e1f7579f4eb352a87ef18bf3b30110593df1ee0ed7e67d",
+      "812ded9cba4002f79430c2205b8abe0d312bb30eac16c56b40fd4484d5e8a63d"
+    ],
+    "selected_after_independent_rejection": "812ded9cba4002f79430c2205b8abe0d312bb30eac16c56b40fd4484d5e8a63d",
+    "heldout_accepted": true,
+    "controls": {
+      "processes": 3,
+      "rounds": 11,
+      "minimum_batch_ms": 5,
+      "maximum_calls_per_sample": 1024
+    },
+    "scope": "Default semantic discovery; two checked candidate lifecycle control using official acquisition/rank and disjoint holdout, not unrestricted compiled recipe search; shared host"
+  },
+  "native_scaled_summary": {
+    "training": {
+      "selected_lane": 1,
+      "phases": {
+        "empty": {
+          "baseline_ns": 27346,
+          "searched_ns": 27684,
+          "median_speedup": 0.9877907816789482
+        },
+        "work": {
+          "baseline_ns": 35026,
+          "searched_ns": 24409,
+          "median_speedup": 1.4349625138268671
+        }
+      }
+    },
+    "holdout": {
+      "selected_lane": 1,
+      "phases": {
+        "empty": {
+          "baseline_ns": 41327,
+          "searched_ns": 38704,
+          "median_speedup": 1.0677707730467134
+        },
+        "work": {
+          "baseline_ns": 63309,
+          "searched_ns": 33797,
+          "median_speedup": 1.8732135988401337
+        }
+      }
+    }
+  },
+  "cohort_note": "After observing the original extent cohort, one exploratory scaling control doubled both dimensions and used fresh seeds. Its independent holdout is disjoint from every other cohort. No gate threshold changed; the original rejected cohort is retained. This is not a blinded broad application study.",
+  "all_cohort_input_sets_disjoint": true,
+  "before_search": {
+    "initial_cost": 7708,
+    "selected_cost": 7708,
+    "applications": 0
+  },
+  "full_recipe_search": {
+    "measurement_disabled": true,
+    "admitted_candidates": 8,
+    "selected_steps": 0,
+    "reason": "missing comparable lifecycle evidence; baseline retained",
+    "best_candidate_callback_forms": [
+      "filtered",
+      "folded"
+    ]
+  },
+  "measurement_boundary": "Native generated JSON whole calls, fresh processes, consumed complete results and unchanged snapshots. Resident-call objective: work phase weight 10000, empty phase weight 1. Build/startup are separately recorded and excluded from these gains.",
+  "default_quick_search": {
+    "admitted_candidates": 5,
+    "callback_functions_in_candidate": [
+      "filtered",
+      "folded"
+    ],
+    "budgets": {
+      "effort": "quick",
+      "recipe_workers": 2,
+      "expansion_limit": 8,
+      "budget": 2048,
+      "state_limit": 32,
+      "time_seconds": 8,
+      "semantic_budget": 2048,
+      "semantic_seconds": 8,
+      "proposal_timeout": 8
+    },
+    "selection": {
+      "reason": "missing comparable lifecycle evidence; baseline retained"
+    }
+  },
+  "integrated_knowledge_revision": "df49732904e0a99609df4fb79c261285b9c68bd4",
+  "frozen_corpus": {
+    "programs": 10,
+    "compiled": 10,
+    "programs_with_rewrite_alternative": 10,
+    "programs_with_any_alternative": 10,
+    "programs_selecting_alternative": 0,
+    "median_seconds": 51.3865,
+    "stopped_by_time": 10,
+    "laws_admitted": 24,
+    "laws_admitted_in_multiple_programs": 6,
+    "representations_admitted": 0,
+    "last_gates": {
+      "measurement_evidence": 10
+    }
+  },
+  "frozen_corpus_selection_reason": "No robust measured lifecycle improvement; measured alternatives exist, but none passes the uncertainty/phase guards",
+  "scheduling_followup": "An eager memo-wave prototype improved an isolated fake-clock regression but did not improve the actual default quick-search control. It is excluded from the published change and its insight-only generated experiment is retired."
+}

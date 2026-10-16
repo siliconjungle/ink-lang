@@ -8,7 +8,8 @@ fn guarded_loop_invariants_preserve_all_cpu_values() {
     let output=root.join("build/loop-invariant-parity");
     fs::create_dir_all(&output).unwrap();
     let pythonpath=std::env::join_paths([root.join("knowledge"),root.join("planner")]).unwrap();
-    for args in [vec!["-m","unittest","discover","-s","knowledge/tests","-p","test_loop_invariants.py"],
+    for args in [vec!["-m","unittest","discover","-s","knowledge/tests","-p","test_guarded_hoist_search.py"],
+        vec!["-m","unittest","discover","-s","knowledge/tests","-p","test_loop_invariants.py"],
         vec!["knowledge/tests/test_loop_invariants.py",output.to_str().unwrap()]] {
         let result=Command::new("python3").args(args).current_dir(&root)
             .env("PYTHONPATH",&pythonpath).env("INK_COMPILER",env!("CARGO_BIN_EXE_ink")).output().unwrap();
