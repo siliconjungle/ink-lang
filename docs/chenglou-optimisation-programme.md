@@ -378,3 +378,12 @@ gain in every fresh process pair; prediction remains mixed, and binary64 text
 images are unchanged. The report retains Handwired/ranged/direct controls rather
 than treating this one workload as broad parity. Learned graph/representation
 specialization and the full adaptive-model delivery checklist remain required.
+
+Frozen numeric structures now specialize exact F32 record coefficients and
+authored representation choices, with finite literals, exceptional-value bitcasts
+and IEEE comparisons kept separate. Ordered action continuations reuse existing
+scalar meanings after effects. Complete source proofs, isolated core tests and
+compiled histories cover raw bits, live updates, rollback and typed deployment.
+This advances structural compilation; general graph/tape unrolling, learned
+physical choices, device training and the complete three-project programme remain
+open. See [the retained checks and broader audit limitation](../reports/frozen-numeric-structure-2026-10-16/README.md).
