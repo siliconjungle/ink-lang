@@ -397,3 +397,40 @@ query others()->List<u32> reads(Other){return Other.values();}
     }).collect();
     conformance("generated-parity-journal",p,source,steps,expected);
 }
+
+#[test]
+fn grouped_scalar_helpers_preserve_wide_words_lazy_defaults_and_records() {
+    let source = r#"module GroupedScalar;
+record Pair{word:u64,signed:i32,flag:Bool,}
+state Marker:Table<u32,u32>=Table.empty();
+query marker()->u32 reads(Marker){return Marker.get(0).unwrap_or(0);}
+fn pick(unused:u64,value:u64)->u64{return value;}
+fn wide(x:u64)->u64{let a=pick(x*2,x+1);let x=x+7;return (a*x)^x;}
+fn signed(x:i32)->i32{let y=x*2147483647;return y+1;}
+fn lazy(x:u32,c:Bool)->u32{let y=quot_or(x,0,9);return choose(c,y,rem_or(x,3,7))+x;}
+fn packed(x:Pair)->Pair{return Pair{word:wide(x.word),signed:signed(x.signed),flag:choose(x.flag,false,true)};}
+"#;
+    let p = parse(source).unwrap();
+    let reference = Runtime::new(p.clone()).unwrap();
+    let snapshot = reference.checkpoint_portable().unwrap();
+    let mut steps = vec![];
+    for word in [0u64,1,u64::MAX,u64::MAX-1,0x8000000000000001] {
+        steps.push(json!({"pure":"wide","args":[word],"expect_gpu":true}));
+        for signed in [i32::MIN,-1,0,1,i32::MAX] {
+            steps.push(json!({"pure":"packed","args":[{"word":word,"signed":signed,"flag":word%2==0}],"expect_gpu":true}));
+        }
+    }
+    for word in [0u32,1,u32::MAX,0x80000001] {
+        for condition in [false,true] {
+            steps.push(json!({"pure":"lazy","args":[word,condition],"expect_gpu":true}));
+        }
+    }
+    let expected = steps.iter().map(|step| {
+        let name = step["pure"].as_str().unwrap();
+        let f = p.functions.iter().find(|f| f.name==name).unwrap();
+        let args = step["args"].as_array().unwrap().iter().zip(&f.params).map(|(v,(_,t))|
+            eval::Value::from_program_json(v,t,&p).unwrap()).collect();
+        json!({"reply":{"value":eval::call(&p,name,args,&mut 100000).unwrap().json()},"snapshot":snapshot})
+    }).collect();
+    conformance("scalar-statements-parity",p,source,steps,expected);
+}

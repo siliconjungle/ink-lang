@@ -17,7 +17,7 @@ def main():
     parser.add_argument('--artifact', required=True, type=Path)
     parser.add_argument('--history', required=True, type=Path)
     parser.add_argument('--prefix-operations', required=True, type=int)
-    parser.add_argument('--helper', help='default: last declared eligible generated helper')
+    parser.add_argument('--helper', help='default: the balanced eight-op fixture helper at the requested prefix size')
     parser.add_argument('-o', required=True, type=Path)
     args = parser.parse_args()
     if not 1 <= args.prefix_operations <= 512:
@@ -26,11 +26,24 @@ def main():
     manifest = json.loads((artifact/'program/manifest.json').read_bytes())
     candidates = [f['name'] for f in manifest['functions']
                   if f['name'].startswith('__frozen_proposal_') and f['gpu']]
-    helper = args.helper or candidates[-1]
-    if helper not in candidates:
-        raise ValueError('prefix helper must have a declared GPU capability')
     source = json.loads((artifact/'compiled.core.json').read_bytes())
     code = source['program']['frozen']['Structure'][0][1][:args.prefix_operations]
+    if args.helper:
+        helper = args.helper
+    else:
+        # This benchmark fixture has repeated eight-op leaves and a balanced
+        # doubling tree. Eligibility no longer identifies the requested size:
+        # larger roots can now also run on the GPU. Check the fixture shape and
+        # select its declared level, then independently evaluate every case.
+        if len(code) < 8 or len(code) % 8 or len(code)//8 & (len(code)//8-1):
+            raise ValueError('provide --helper for a non-power-of-two eight-op prefix')
+        if code != code[:8]*(len(code)//8):
+            raise ValueError('default helper selection requires the repeated eight-op fixture')
+        selected = json.loads((artifact/'selected.core.json').read_bytes())
+        helpers = [f for f in selected['program']['functions'] if f['name'].startswith('__frozen_proposal_')]
+        helper = helpers[(len(code)//8).bit_length()-1]['name']
+    if helper not in candidates:
+        raise ValueError('prefix helper must have a declared GPU capability')
     if len(code) != args.prefix_operations:
         raise ValueError('fixture has fewer operations than the requested prefix')
     steps = json.loads((args.history/'script.json').read_bytes())
@@ -58,7 +71,7 @@ def main():
     (args.o/'expected.json').write_text(json.dumps(expected))
     (args.o/'state-wasm.mjs').write_bytes((args.history/'state-wasm.mjs').read_bytes())
     (args.o/'scope.json').write_text(json.dumps(dict(helper=helper,prefixOperations=len(code),
-        rawFloatClasses=len(words),root128=manifest['functions'][-1]),indent=2)+'\n')
+        rawFloatClasses=len(words),root=manifest['functions'][-1]),indent=2)+'\n')
 
 
 if __name__ == '__main__':

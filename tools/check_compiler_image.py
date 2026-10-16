@@ -45,6 +45,8 @@ def main():
     parser.add_argument('--source', required=True)
     parser.add_argument('--baseline', type=Path, required=True)
     parser.add_argument('--selected', type=Path, required=True)
+    parser.add_argument('--webgpu-selected', type=Path,
+                        help='also reproduce the selected initialized WebGPU shader, host-source and descriptor images (not CPU binary identity)')
     parser.add_argument('--log', type=Path, required=True)
     parser.add_argument('--receipt', type=Path, required=True)
     parser.add_argument('--program', default='examples/frozen-program.ink')
@@ -53,6 +55,8 @@ def main():
     parser.add_argument('--composition', action='store_true',
                         help='rebuild a composed helper plan and plain JavaScript, rather than a selected model package')
     args = parser.parse_args()
+    if args.composition and args.webgpu_selected:
+        parser.error('--webgpu-selected requires initialized model artifact mode')
     for path in [args.program, args.trace]:
         if Path(path).is_absolute() or '..' in Path(path).parts or Path(path).parts[:1] != ('examples',):
             parser.error('fixture paths must name committed examples inside the distribution')
@@ -142,6 +146,27 @@ def main():
                 hashes[filename] = digest(actual)
             compared[name] = hashes
         record['images'] = compared
+        if args.webgpu_selected:
+            output = base/'webgpu-selected'
+            run([str(binary), 'build-model', args.program, args.trace,
+                 '--freeze-roots', args.freeze_roots, '--specialize-frozen',
+                 '--target', 'webgpu', '-o', str(output)])
+            run([str(binary), 'verify-model', str(output), '--replay'])
+            expected = args.webgpu_selected.resolve()
+            def image_paths(folder):
+                return {str(p.relative_to(folder)) for p in folder.rglob('*')
+                        if p.is_file() and (p.suffix in {'.wgsl', '.mjs'} or p.name == 'manifest.json')}
+            paths = image_paths(output)
+            if paths != image_paths(expected):
+                raise ValueError('selected WebGPU source/descriptor inventory differs')
+            hashes = {}
+            for filename in sorted(paths):
+                actual = (output/filename).read_bytes()
+                if actual != (expected/filename).read_bytes():
+                    raise ValueError('selected WebGPU image differs: '+filename)
+                hashes[filename] = digest(actual)
+            record['webgpu_images'] = hashes
+            record['webgpu_scope'] = 'Fresh pinned compiler emission reproduces every WGSL shader, JavaScript host source and manifest descriptor. Both inventories and deterministic training/proofs check; CPU fallback binary identity and backend correctness are not established by this comparison.'
         record['cargo_version'] = subprocess.check_output(['cargo', '--version'], env=environment, text=True).strip()
         record['status'] = 'passed'
     record['log_sha256'] = digest(args.log.read_bytes())

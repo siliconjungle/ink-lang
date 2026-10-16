@@ -457,3 +457,13 @@ checking budgets. The 32/128-operation runtime images are unchanged, so this
 adds proof/build scalability rather than a new warm serving gain. Larger general
 graphs, whole-query GPU fusion and learned representation/goal selection remain
 required. See [the universal prefix equations](frozen-composition.md#suffix-parametric-prefix-proofs).
+
+
+Literal scalar stage grouping now takes complete 32/128/512-operation pure model
+roots onto the actual GPU without changing arithmetic or raising bounds. The
+64-operation helper uses one stage instead of 64; paired GPU-call measurements
+improve about 1.81×. A single scalar request remains far faster on CPU/JavaScript,
+so eligibility does not establish profitable GPU placement. Whole-query/stateful
+fusion, batched/resident acceptance, learned representation choices, device
+training and matched upstream workloads remain required work. See
+[GPU scalar staging](frozen-composition.md#literal-scalar-stages-on-the-gpu).

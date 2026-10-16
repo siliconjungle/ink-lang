@@ -370,3 +370,13 @@ including live weights and exact checkpoints. Existing checker and authoring
 budgets remain unchanged; same-typed false-tail claims reject. This resolves the
 recorded prefix-proof bottleneck, while capture abstraction, general graph/tape
 fusion, learned representation choices and device training remain required.
+
+
+Eligible scalar helper graphs now share a literal ordered GPU stage. Full
+32/128/512-operation roots pass actual GPU execution with exceptional F32 classes;
+wide-word, signed, record and lazy-default cases also pass. The 64-operation
+helper falls from 64 stages to one and paired complete GPU calls improve about
+1.81×. CPU/JavaScript remain much faster for a single scalar request. Collection
+stages, state/learning execution and arithmetic contracts are unchanged. Next,
+measure batched/resident whole-application pipelines and extend proof-backed
+query/state fusion, learned representation/goal selection and device training.

@@ -707,6 +707,21 @@ fn frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_o
             }
         }
         steps.push(json!({"restore":baseline.checkpoint_portable().unwrap()}));
+        // Compare the complete generated root with the independent evaluator
+        // of the original traversal, including exceptional raw F32 classes.
+        let evaluator = frozen.module.program().functions.iter().find(|f| f.name == "evaluate").unwrap();
+        let helper = &plan.module().program().functions.last().unwrap().name;
+        assert!(helper.starts_with("__frozen_proposal_"));
+        let code = json!((0..repeat).flat_map(|_|short.clone()).collect::<Vec<_>>());
+        for (index, bits) in inputs.into_iter().enumerate() {
+            let weights = json!({"scale":{"F32Bits":inputs[(index+3)%inputs.len()]},"bias":{"F32Bits":inputs[(index+5)%inputs.len()]}});
+            let args = vec![code.clone(),weights.clone(),json!({"F32Bits":bits})];
+            let typed = args.iter().zip(&evaluator.params).map(|(v,(_,t))|
+                verified_language::eval::Value::from_program_json(v,t,frozen.module.program()).unwrap()).collect();
+            let value = verified_language::eval::call(frozen.module.program(),"evaluate",typed,&mut 1000000).unwrap().json();
+            steps.push(json!({"pure":helper,"args":[weights,{"F32Bits":bits}],"expect_gpu":true}));
+            expected.push(json!({"reply":{"value":value},"snapshot":baseline.checkpoint_portable().unwrap()}));
+        }
         steps.push(json!({"pure":"numeric","args":[[0.,0.5,1.]],"expect_gpu":true}));
         expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":baseline.checkpoint_portable().unwrap()}));
         parity::conformance_planned(&format!("frozen-composition-{}-parity",repeat*8),&plan,source,steps,expected);
