@@ -344,8 +344,19 @@ extensions and complete action proofs. The 32- and 128-operation cases preserve
 live weights and exact checkpoints across CPU targets and GPU hosts. The same
 path now passes through normal initialized trained-artifact publication and
 mandatory proof replay, including compiled browser CPU fallbacks. Next,
-generalize capture abstraction, share repeated helper code/prefix
-lemmas to reduce the measured code/first-binding costs, and extend larger
+generalize capture abstraction, share universal prefix lemmas and extend larger
 graph/tape domains. Warm lifecycle measurements now exist for 32/128 operations;
 short-lived and broader upstream workloads still require acceptance evidence.
 Device training and the broader upstream-parity programme remain required work.
+
+
+Repeated typed helper code now shares parameter/lexical-alpha-equivalent bodies
+through an untrusted knowledge proposal, with ordinary source-extension and
+complete-action replay. The repeated 32/128 cases use 3/5 definitions instead
+of 7/31. Separate paired comparisons measure smaller JavaScript and improved
+warm serving/import/first-binding diagnostics; the unspecialized baseline still
+has lower startup costs. Expanded code remains an explicit checked layout option.
+Actual GPU prefix checks cover 64 operations and eleven raw F32 input/weight
+classes. The 128-operation pure root still exceeds the graph stage budget;
+source/dispatch fusion, broader graph/tape domains and device training remain
+required. Prefix proof views are still substantial (3.29 MB for the 128 case).
