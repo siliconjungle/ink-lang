@@ -1,7 +1,7 @@
 # Compile longer frozen computations through typed helper composition
 
 The knowledge producer can split a closed `foldl` into small pure helpers and
-combine them in a balanced tree. Fixed opcodes disappear from serving work while
+combine them in a balanced call graph. Fixed opcodes disappear from serving work while
 the original weights, input and live state stay dynamic. The supplied 32- and
 128-operation cases retain learning actions, failed-update rollback, ordered
 events and the original portable checkpoint namespace.
@@ -95,10 +95,44 @@ partially fixed captures and additional initializer forms need more general
 parameter abstraction; valid source outside this opportunity domain can be
 rejected as a proposal. It is not a general whole-application compiler yet.
 
-Six paired fresh Node processes measured about 1.38× faster warm serving for
-32 operations and 1.30× for 128. Updating weights every request measured 1.17×
-and 1.23× respectively. The selected JavaScript is larger; import and first
-binding/call are slower. These results support long-lived serving on this
-fixture, not automatic selection or a cold-start improvement. The
-[retained acquisition](../reports/frozen-composition-2026-10-16/README.md) includes
-every sample, source image, startup observation and the initial short probe.
+## Shared and expanded code layouts
+
+The default proposal now shares exact typed helper bodies modulo parameter and
+lexical binder spelling. Free/callee names, types, literal bits, operand order
+and lexical scope remain in its key. Sharing reuses declarations; it does not
+cache a result, skip an argument or remove a call. The source-extension checker
+and complete action proofs still decide admission independently of that key.
+
+Repeated eight-operation blocks in the 32/128-operation examples now need 3/5
+helper definitions rather than 7/31. Distinct word chunks retain separate
+helpers. The same operation sequence executes in the same order. The standalone
+producer also accepts `--helper-layout expanded`; both layouts require the full
+plan proofs. Expanded layout exactly reproduces the earlier 128-operation plan.
+This preserves an explicit alternative for different target/objective tradeoffs.
+
+Six paired fresh Node processes per size measure about 1.46×/1.52× faster warm
+serving than the unspecialized baseline. With weight updates every request, the
+gains are 1.19×/1.34×. A separate six-pair comparison against the previous expanded
+layout measures about 1.06×/1.17× for reads and 1.03×/1.09× for every-request
+updates. Every result is consumed and ending checkpoints match; source/proof
+construction and startup remain outside these warm samples.
+
+At 128 operations, JavaScript falls from 312,961 to 241,773 bytes. The complete
+plan falls from 3,631,618 to 3,292,182 bytes; its 34 prefix/action theorems remain.
+The initialized WebGPU-host artifact inventory falls from 86,615,083 to
+22,148,048 bytes, including generated sources and compiled CPU fallbacks. These
+are file bytes, not download size or retained runtime memory. Import/first-binding
+diagnostics improve over expanded layout, but still trail the unspecialized
+baseline. Universal prefix-proof sharing, wider capture abstraction and lifecycle
+profitability remain open.
+
+Browser checks additionally execute a 64-operation pure model prefix for eleven
+raw F32 input/coefficient classes on the actual GPU, comparing against the
+original evaluator. The full 128-operation pure root remains outside the graph
+stage budget; complete stateful serving and learning execute on the CPU. This
+is finite backend evidence, not a GPU performance or training claim.
+
+The earlier [expanded-layout acquisition](../reports/frozen-composition-2026-10-16/README.md)
+retains its original measurements and limits. The [sharing study](../reports/shared-helper-code-2026-10-16/README.md) retains the
+new paired measurements, complete plans, initialized artifacts and prefix history,
+along with the 512-operation proof-budget failure and planning-corpus funnels.
