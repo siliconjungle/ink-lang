@@ -1,0 +1,14 @@
+{
+  "core_sha256": "4974307099a2517e44d06e4cb6b5e2e8e64aefde0157c06cff2934fc58d01a37",
+  "files": [
+    {
+      "module": "frozen_software",
+      "path": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-v8-2026-10-15/bench/planning-corpus/heldout/bulk-update.ink",
+      "sha256": "f91cd2c92fa45c8c7a33b0da9f5d5b9dc91bd684e20012cd3c131e9b341ec7a3",
+      "source": "module frozen_software;\nrecord Entity { id:u32,value:u32,active:Bool, }\npub fn run(xs:List<Entity>,delta:u32)->List<Entity>{return xs.map(fn(x)=>Entity{id:x.id,value:choose(x.active,x.value+delta,x.value),active:x.active});}\n"
+    }
+  ],
+  "schema": 1,
+  "scope": "Exact source bytes consumed by this load, not a filesystem-wide atomic snapshot or proof authority.",
+  "semantics": "ink-source-capture-v1"
+}

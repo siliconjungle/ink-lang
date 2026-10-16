@@ -1,0 +1,8 @@
+from pathlib import Path
+import hashlib,json,shutil,subprocess
+from ink_knowledge import Store,canonical,identity,semantic_entry
+b=Path('build/v8-variable-power-cases');out=b/'program-refined';out.mkdir();old=b/'program';root=json.loads((b/'zero-refinement/law.json').read_bytes());objects=json.loads((b/'zero-refinement/objects.json').read_bytes());rid=identity(semantic_entry(root));store=Store.publish(out/'candidate',[semantic_entry(x)for x in objects],leaf_size=2)
+for name in ['source.ink','core.json','subject.json','baseline.plan.json','training.json','holdout.json','training.gpu.json','holdout.gpu.json']:shutil.copyfile(old/name,out/name)
+selection=json.loads((old/'selection.json').read_bytes());selection['knowledge']=store.bundle([rid]);selection['applications']=[dict(a,law=rid)for a in selection['applications']];(out/'selection.json').write_bytes(canonical(selection));plan=json.loads((old/'searched.plan.json').read_bytes());plan['steps'][0]['package']=selection;(out/'searched.plan.json').write_bytes(canonical(plan));assert (out/'searched.plan.json').stat().st_size<16_000_000
+compiler=Path('build/v8-proof-dependencies-final-cli/frozen/ink-integrated').resolve();r=subprocess.run([compiler,'check-plan',out/'core.json',out/'searched.plan.json','--core'],capture_output=True,text=True,timeout=180);(out/'check.stdout').write_text(r.stdout);(out/'check.stderr').write_text(r.stderr);assert not r.returncode,r.stderr
+(out/'terminal.json').write_text(json.dumps(dict(schema=1,exit_status=0,entry=rid,objects=len(objects),plan_bytes=(out/'searched.plan.json').stat().st_size,compiler_sha256=hashlib.sha256(compiler.read_bytes()).hexdigest())));print('PASS refined source plan')
