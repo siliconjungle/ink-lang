@@ -71,6 +71,18 @@ pub fn children(t: &Term) -> Vec<&Term> {
         _ => vec![],
     }
 }
+/// Charge a complete immutable term copy before allocating it. Repeated
+/// proof decomposition must not multiply large descendants outside its budget.
+pub(crate) fn checked_copy(t:&Term,b:&mut Budget)->LangResult<Term>{
+    let mut pending=vec![(t,0)];
+    while let Some((term,depth))=pending.pop(){
+        b.step(depth)?;
+        let text=match &term.node{Node::Free(n)|Node::String(n)|Node::Op(n,_)=>n.len(),_=>0};
+        b.remaining=b.remaining.checked_sub(text).ok_or("semantic proof copy budget")?;
+        pending.extend(children(term).into_iter().map(|child|(child,depth+1)));
+    }
+    Ok(t.clone())
+}
 /// Rebuild each child once, in semantic visitor order. Callers own recursion,
 /// binder depth and work accounting; this helper makes no rewrite decisions.
 pub fn try_map_children(

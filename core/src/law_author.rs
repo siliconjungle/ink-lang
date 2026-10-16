@@ -37,6 +37,9 @@ fn dependencies(
 ) -> LangResult<()> {
     budget.step(depth)?;
     match proof {
+        Proof::WordExtensionality { parts } => {
+            for (_,proof) in parts { dependencies(proof, out, budget, depth + 1)?; }
+        }
         Proof::Use {
             law,
             premises,
