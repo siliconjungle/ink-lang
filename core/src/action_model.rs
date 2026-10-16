@@ -14,6 +14,9 @@ use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 mod collections;
 mod frozen_values;
+mod shared_terms;
+mod float_words;
+mod pure_pairs;
 mod bulk;
 mod equality;
 mod keys;
@@ -28,7 +31,7 @@ pub use sorted::{SortedProofs, SortedTables, SORTED_SEMANTICS};
 pub(crate) mod recursive_values;
 pub use recursive_values::{RecursiveField,RecursiveRecord};
 pub const SEMANTICS: &str = "ink-action-transition-v1";
-const MAX_DEFINITIONS: usize = 256;
+const LEGACY_MAX_DEFINITIONS: usize = 256;
 const MAX_WORK: usize = 20_000;
 // Source specialisation produces names longer than the kernel's descriptive
 // constructor-label limit. Constructor identity is its checked datatype and
@@ -269,6 +272,16 @@ struct Lower<'a> {
     local_maps: BTreeMap<String, Table>,
     loop_fuel: Option<(String,String,String)>,
     helper_active: BTreeSet<usize>,
+    intern_declarations: bool,
+    shared_declarations: BTreeMap<Vec<u8>, String>,
+    shared_declaration_bytes: usize,
+    shared_declaration_work: usize,
+    object_bytes: usize,
+    kept_definitions: BTreeMap<usize, String>,
+    pure_sources: BTreeMap<usize, LangResult<std::sync::Arc<crate::semantic::Term>>>,
+    pure_roots: BTreeSet<usize>,
+    projection_variables: BTreeMap<String, Sort>,
+    track_projection_variables: bool,
 }
 /// Closed mathematical carrier for one checked source value. This exports fixed
 /// source correspondence independently of whole-action projection or search.
@@ -319,6 +332,16 @@ impl<'a> Lower<'a> {
             local_maps: BTreeMap::new(),
             loop_fuel: None,
             helper_active: BTreeSet::new(),
+            intern_declarations: false,
+            shared_declarations: BTreeMap::new(),
+            shared_declaration_bytes: 0,
+            shared_declaration_work: MAX_WORK,
+            object_bytes: 0,
+            kept_definitions: BTreeMap::new(),
+            pure_sources: BTreeMap::new(),
+            pure_roots: BTreeSet::new(),
+            projection_variables: BTreeMap::new(),
+            track_projection_variables: false,
         }
 
     }
@@ -368,9 +391,41 @@ impl Lower<'_> {
             }
         }
         let e = Entry::from_declaration(&d, dependencies.into_iter().collect())?;
-        let i = registry::identity(&e)?;
-        if !self.objects.contains_key(&i) && self.objects.len() >= MAX_DEFINITIONS {
-            return Err("action model definition limit".into());
+        let bytes = match registry::canonical(&e) {
+            Ok(bytes) => bytes,
+            Err(error) if error == "canonical value depth limit" && matches!(&d, Declaration::Function { .. }) => {
+                // Only formerly untransportable declarations use this path.
+                // Existing admitted projection identities remain unchanged.
+                return self.share_large_definition(d, implicit);
+            }
+            Err(error) => return Err(error),
+        };
+        let i=format!("{:x}",Sha256::digest(&bytes));
+        let key=if self.intern_declarations && self.shared_declaration_work>0 {
+            match self.declaration_key(&d) {
+                Ok(key)=>Some(key),
+                Err(error) if error=="action model declaration sharing work limit"=>None,
+                Err(error)=>return Err(error),
+            }
+        }else{None};
+        if let Some(key)=&key {
+            if let Some(existing)=self.shared_declarations.get(key) {return Ok(existing.clone());}
+        }
+        if !self.objects.contains_key(&i) {
+            let limit=if self.intern_declarations {registry::MAX_VIEW_ENTRIES}else{LEGACY_MAX_DEFINITIONS};
+            if self.objects.len()>=limit {return Err("action model definition limit".into());}
+            // Account for complete entries and their JSON object keys before
+            // retaining them. Modular projection uses the existing bundle
+            // storage cap, with unchanged per-definition checking budgets.
+            self.object_bytes=self.object_bytes.checked_add(bytes.len()+i.len()+4)
+                .filter(|bytes|*bytes<=crate::core::MAX_BYTES).ok_or("action model byte limit")?;
+        }
+        if let Some(key)=key {
+            if let Some(bytes)=self.shared_declaration_bytes.checked_add(key.len())
+                .filter(|bytes|*bytes<=crate::core::MAX_BYTES) {
+                self.shared_declaration_bytes=bytes;
+                self.shared_declarations.insert(key,i.clone());
+            }
         }
         self.objects.insert(i.clone(), e);
         Ok(i)
@@ -401,11 +456,11 @@ impl Lower<'_> {
         })
     }
     fn sort(&mut self, ty: &Type) -> LangResult<Sort> {
-        self.tick()?;
         let key = serde_json::to_string(ty).map_err(|e| e.to_string())?;
         if let Some(s) = self.types.get(&key) {
             return Ok(s.clone());
         }
+        self.tick()?;
         if !self.active.insert(key.clone()) {
             return Err("recursive action model type is unsupported".into());
         }
@@ -617,6 +672,7 @@ impl Lower<'_> {
         F: FnOnce(&mut Self, Term) -> LangResult<Term>,
     {
         let key = serde_json::to_string(&sort).map_err(|e| e.to_string())?;
+        let bound_sort=sort.clone();
         let wrapper = if let Some(i) = self.boxes.get(&key) {
             i.clone()
         } else {
@@ -625,8 +681,20 @@ impl Lower<'_> {
             i
         };
         let n = self.fresh();
+        self.remember_projection_variable(&v(&n),&bound_sort)?;
         let body = f(self, v(&n))?;
         Ok(m(c(&wrapper, 0, vec![value]), vec![(vec![n], body)]))
+    }
+    fn remember_projection_variable(&mut self,value:&Term,sort:&Sort)->LangResult<()> {
+        if self.intern_declarations && self.track_projection_variables {
+            if let Term::Var(name)=value {
+                if self.projection_variables.get(name).is_some_and(|old|old!=sort) {
+                    return Err("projected variable changes sort across its scope".into());
+                }
+                self.projection_variables.insert(name.clone(),sort.clone());
+            }
+        }
+        Ok(())
     }
     fn root(&mut self, state: Term, index: usize) -> LangResult<Term> {
         self.tick()?;
@@ -694,18 +762,38 @@ impl Lower<'_> {
             }
             Kind::State(root) => self.root(state.clone(), *root),
             Kind::Keep(index) => {
+                if self.intern_declarations {
+                    if let Some(function)=self.kept_definitions.get(index) {
+                        return Ok(call(function,vec![state.clone()]));
+                    }
+                }
                 if !self.keep_active.insert(*index) {
                     return Err("action model keep cycle".into());
                 }
                 let keep = self.typed.keep(*index).ok_or("missing typed keep")?.clone();
+                let input=if self.intern_declarations {v("kept_state")}else{state.clone()};
                 let result = self.expr(
                     &keep,
                     keep.value.ok_or("missing keep value")?,
                     &BTreeMap::new(),
-                    state,
+                    &input,
                 );
                 self.keep_active.remove(index);
-                result
+                let result=result?;
+                if self.intern_declarations {
+                    // Share the definition, never a value. Every use passes
+                    // its current logical state, including after writes.
+                    let output=self.sort(ty)?;
+                    let function=self.function(vec![("kept_state",Sort::Data(self.state.clone()))],output,result,None)?;
+                    self.kept_definitions.insert(*index,function.clone());
+                    Ok(call(&function,vec![state.clone()]))
+                }else{Ok(result)}
+            }
+            Kind::Builtin { name,arguments } if ["u32_from_f32","u64_from_f32","i32_from_f32"].contains(&name.as_str()) => {
+                let [argument]=arguments.as_slice() else{return Err("action model float-to-word arity".into());};
+                let value=self.expr(body,*argument,env,state)?;
+                let function=self.float_word_conversion(name)?;
+                Ok(call(&function,vec![value]))
             }
             Kind::Builtin { name,arguments } if ["f32_from_u32","f32_from_u64","f32_from_i32"].contains(&name.as_str()) => {
                 let [argument]=arguments.as_slice() else {return Err("fixed-width float conversion arity".into());};
@@ -797,10 +885,13 @@ impl Lower<'_> {
             } if arguments.is_empty() && ["values", "keys"].contains(&method.as_str()) => {
                 self.table_sequence(*root, method, state)
             }
-            Kind::Local(s) => env
-                .get(s)
-                .cloned()
-                .ok_or("uninitialised action model slot".into()),
+            Kind::Local(s) => {
+                let value=env.get(s).cloned().ok_or("uninitialised action model slot")?;
+                if self.intern_declarations && self.track_projection_variables {
+                    let sort=self.sort(ty)?;self.remember_projection_variable(&value,&sort)?;
+                }
+                Ok(value)
+            }
             Kind::Enum { variant, .. } => {
                 let s = self.sort(ty)?;
                 Ok(c(id(&s)?, *variant, vec![]))
@@ -990,6 +1081,12 @@ impl Projection {
         module: &CheckedModule,
         observations: &[SiteObservation],
     ) -> LangResult<(Self, Vec<ObservationFunction>)> {
+        match Self::derive_bounded(module,observations,false) {
+            Err(error) if error=="action model definition limit" || error.starts_with("action model work limit")=>Self::derive_bounded(module,observations,true),
+            result=>result,
+        }
+    }
+    fn derive_bounded(module:&CheckedModule,observations:&[SiteObservation],intern:bool)->LangResult<(Self,Vec<ObservationFunction>)> {
         let actions = CheckedActions::elaborate_with_frozen_roots(module)?;
         let mut nodes = 0usize;
         for i in 0..module.program().actions.len() {
@@ -1002,6 +1099,8 @@ impl Projection {
         }
         let p = module.program();
         let mut l = Lower::new(p, &actions);
+        l.intern_declarations=intern;
+        l.prepare_pure_sources();
         l.prepare_recursive_records()?;
         // Domain validation includes unused signatures; an unsupported value may
         // not acquire authority just because a branch happens not to evaluate it.
@@ -1074,8 +1173,10 @@ impl Projection {
             ),
             Some(0),
         )?;
+        if intern {l.prepare_pure_definitions()?;}
         let mut descriptions = BTreeMap::new();
         for (index, a) in p.actions.iter().enumerate() {
+            if intern {l.work=MAX_WORK;}
             let result = l.sort(&a.result)?;
             let observation = l.data(vec![
                 (
@@ -1103,7 +1204,10 @@ impl Projection {
                 params.push((n.clone(), l.sort(t)?));
                 env.insert(i, v(&n));
             }
-            let term = l.action_flow(&actions, index, env, &observation)?;
+            l.track_projection_variables=intern;
+            l.projection_variables=params.iter().cloned().collect();
+            let term = l.action_flow(&actions, index, env, &observation).map_err(|error|
+                if error=="action model work limit" {format!("{error} while projecting action {}",a.name)}else{error})?;
             let function = l.store(Declaration::Function {
                 params: params.clone(),
                 result: Sort::Data(observation.clone()),
@@ -1127,8 +1231,10 @@ impl Projection {
         }
         let mut observed = vec![];
         for observation in observations {
+            if intern {l.work=MAX_WORK;}
             observed.push(l.site_observation(&actions, observation)?);
         }
+        if intern {l.work=MAX_WORK;}
         let initial_state=l.fixed_initial_state()?;
         let mut out = Self {
             schema: 1,
@@ -1151,6 +1257,7 @@ impl Projection {
         };
         let (domain_objects,domain)=crate::contracts::state::source_domain(p)?;
         out.objects.extend(domain_objects);out.source_domain=domain;
+        if out.objects.len()>registry::MAX_VIEW_ENTRIES {return Err("action model definition limit".into());}
         // These equalities follow from fixed source bindings, the absence of
         // writer capabilities and checked restore. They are not producer hints.
         if let Some(Term::Construct{arguments,..})=&out.initial_state {
@@ -1236,8 +1343,12 @@ impl Projection {
     }
     /// A local definition check, with no catalogue, native backend or planner.
     pub fn context(&self) -> LangResult<Context> {
+        definition_context(&self.objects)
+    }
+}
+fn definition_context(objects: &BTreeMap<String, Entry>) -> LangResult<Context> {
         let mut c = Context::default();
-        let mut pending = self.objects.clone();
+        let mut pending = objects.clone();
         while !pending.is_empty() {
             let ready = pending
                 .iter()
@@ -1257,7 +1368,6 @@ impl Projection {
             }
         }
         Ok(c)
-    }
 }
 /// Compare complete transitions over every logical state, version and argument,
 /// or, with `sorted_tables`, over every state whose tables are strictly sorted
