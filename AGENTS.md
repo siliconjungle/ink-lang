@@ -262,3 +262,11 @@ This is not automatic profitability selection or physical-layout authority.
 Programmable objective versions and feedback policies remain authored state;
 the example does not change the general planner's evidence/admission contract.
 See docs/frozen-structural-specialization.md.
+
+Mixed immutable records carry bounded field provenance through literal constructors,
+projections and helper returns. Keep returned-value provenance separate from the
+work needed to produce it: unused dynamic arguments/fields, guards and failures
+still execute before any cached projection. Iteration bindings stay dynamic.
+Mask sharing uses only private captured policies, never source/host object access.
+Bound expanded alias summaries as well as traversal; exhaustion retains ordinary
+execution. Do not raise source limits to accommodate verbose optional masks.

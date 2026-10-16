@@ -33,6 +33,53 @@ results remain detached; neither inputs nor retained intermediates gain unique
 storage through preparation. Changing model weights/context still computes fresh
 neural primals and derivatives.
 
+## Records with fixed and changing fields
+
+Preparation also carries field-level provenance through immutable record
+construction, projections and bounded nonrecursive helper returns. A record can
+combine captured model topology, coefficients or text data with a changing query
+without making every field dynamic:
+
+```ink
+record Context { keys:List<u32>, query:u32, }
+fn lookup(c:Context)->Bool {
+    let index:Map<u32,Bool>=foldr(c.keys,Map.empty(),fn(k)=>fn(m)=>m.set(k,true));
+    return index.contains(c.query);
+}
+fn run(keys:List<u32>,query:u32)->Bool {
+    let context=Context{keys:keys,query:query};
+    return lookup(context);
+}
+```
+
+Binding `run`'s keys allows the helper's readonly index to persist while queries
+change. Nested records and forwarding helpers preserve the same distinction.
+This is internal execution bookkeeping; there is no new source annotation or
+permission to mutate captured data. Changing weights or application inputs remain
+dynamic even when they share a record with fixed topology.
+
+A returned value's field dependencies do not describe all work needed to produce
+it. A constructor's unused fields, a helper's unused arguments and its checks
+still execute at their original positions. A projection of a dynamic call cannot
+cache away that call. Conditional/opaque record computations conservatively keep
+their complete dependencies. Failed work retries; branches stay lazy. The bounded
+summary examines at most 512 nodes and 32 levels, with at most 64 fields per
+literal record and 128 input-path dependencies. Expanded alias summaries are
+also capped at 512 nodes; repeated private mask expressions share factory-local
+constants within the existing generated-source limit. Exhaustion loses optional
+preparation rather than source evaluation. Existing helper-depth, ownership,
+source-size and iteration rules still apply.
+
+`lowerings/js/tests/prepared_fields.rs` checks 50 independent-reference cases
+through 750 prepared calls, nested helpers/loops, changing record selection,
+shadowing, raw binary64 values, dynamic discarded work, preconditions and thrown
+failure retry. Allocation instrumentation verifies one index construction across
+changing queries. This mechanism check does not establish performance parity. The
+[matched record study](../reports/prepared-fields-2026-10-16/README.md) records
+membership, grouped-aggregate and coefficient-table gains against the prior
+emitter, including cold/setup/memory and shorter-warm-up regressions. Complete
+text and neural controls still expose the existing upstream performance gaps.
+
 ## Execution boundaries
 
 `map`, `map_indexed`, `filter`, `foldl`, `foldr`, `fold_until` and `repeat_until`

@@ -346,3 +346,10 @@ work gains alongside small-input, memory and ordinary-call costs. Neural and tex
 controls still expose substantial gaps; broader source differentiation,
 mutable-session staging, complete text preparation and broad matched
 performance remain open.
+
+Immutable mixed records also carry bounded field provenance through helper
+returns: captured topology/data can remain fixed while query/weight fields
+change. Expanded aliases and emitted masks remain bounded; cached projections
+never erase discarded dynamic work, guards or failures. This is preparation
+machinery rather than proof-backed graph/representation selection. Allocation
+controls establish reuse; matched upstream performance remains a separate gate.
