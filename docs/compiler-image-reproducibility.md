@@ -25,6 +25,16 @@ are excluded and those subsets are recorded explicitly. The dependency resolutio
 lock is recorded by hash; when not tracked in the source revision it is copied as
 resolution data. Cargo performs normal dependency validation and compilation.
 
+`--composition` rebuilds an explicit balanced-helper plan instead of a selected
+model package. In this mode `--baseline` names the configured baseline package;
+`--selected` names a directory containing `input.core.json`, `selected.core.json`,
+`plan.json` and the plain emitted `program.mjs`. The private compiler verifies
+the baseline with training replay, reruns the committed knowledge producer,
+checks the complete composed plan and reproduces its selected core, exact plan
+bytes and JavaScript. The receipt records those separate composition bindings.
+The plain module still needs explicit restore to start from the recorded live
+training state; this check does not claim an initialized composed-artifact factory.
+
 The receipt binds the revision, package pins, compared images, Cargo version,
 resolution lock and complete log. It is written only after successful comparison.
 For a retained acquisition, preserve its lock and log along with the receipt;

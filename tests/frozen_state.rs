@@ -686,7 +686,13 @@ fn frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_o
         let bad = serde_json::from_value(bad).unwrap();
         assert!(verified_language::planning::check(&frozen.module,&bad).err().unwrap().contains("action serve"));
         let mut baseline = Runtime::restore_portable_checked(&frozen.module,&frozen.snapshot).unwrap();
-        let mut steps = vec![json!({"restore":frozen.snapshot})];
+        let layout = snapshot::layout(frozen.module.program()).unwrap();
+        let mut changed = snapshot_wire::decode(&layout,&frozen.snapshot,Default::default()).unwrap();
+        let structure = layout.roots.iter().position(|(name,_,_)|name=="Structure").unwrap();
+        changed.tables[structure][0].1[0] = json!("Op.Bias");
+        let forged = snapshot_wire::encode(&layout,&changed,Default::default()).unwrap();
+        assert!(Runtime::restore_portable_checked(&frozen.module,&forged).err().unwrap().contains("frozen"));
+        let mut steps = vec![json!({"restore":frozen.snapshot}),json!({"reject_restore":forged,"restore_error":"frozen"})];
         let mut expected = vec![];
         let inputs = [0u32,0x80000000,1,0x80000001,0x3dcccccd,0xbf000001,0x7f7fffff,
             0x7f800000,0xff800000,0x7fa01234,0xffc05678];
