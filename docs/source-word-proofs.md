@@ -67,3 +67,47 @@ speedup. The report, exact context hashes and entry attribution are preserved in
 Newer unrelated state-protocol proposals and Frontier measurements were merged
 after this frozen evaluation. The report describes its recorded revision pair;
 it is not a rerun on the subsequently merged publication.
+
+## Bounded RUP hint transport
+
+A RUP step may optionally carry `hint_deltas_v1` with an empty `hints` array.
+Absent that field, legacy certificate serialization stays byte-for-byte unchanged.
+This is a lossless encoding of the same ordered zero-based clause references;
+it is independent of circuit sharing and source-semantic versions. It introduces
+no theorem, normalization, source-operator rule or trusted search.
+
+References start from zero independently in each step. Each signed difference is
+zigzag encoded (`2*d` for nonnegative differences, `-2*d-1` otherwise). Five payload
+bits per digit are written least-significant first. Bit five means continuation;
+digits use `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`.
+The last group of a multi-digit value must be nonzero. Every value uses at most
+four digits, yields a reference below 320,000 (the existing maximum CNF plus
+learned-clause capacity), and each step retains the existing 100,000-hint bound.
+Empty packed strings, ambiguous nonempty plain hints, malformed/overlong digits,
+negative/out-of-range references and excess hints reject. Future format fields
+remain unsupported. No expanded hint vector is allocated by the checker.
+
+Every decoded reference goes through ordinary strict RUP propagation, including
+missing/future clauses, satisfied or non-unit hints, unused hints after a conflict
+and the final contradiction check. The circuit is independently reconstructed;
+its hash and encoding must still match. Complete semantic and RUP work budgets,
+clause/literal/step bounds, canonical authentication and object/catalogue limits
+are unchanged. Packing never transfers an old proof identity, measurement or
+selection decision to its new bytes.
+
+The untrusted database helpers `rup_transport` and `conditional_cover` package
+certificates and propose bounded exhaustive Boolean case trees. Case leaves
+explicitly remap only their original selected premises; extra path facts do not
+enter the reconstructed CNF. Both operations require complete ordinary replay.
+The standalone bitvector author offers opt-in `--pack-hints`; default authoring
+and unrelated frozen certificates retain their original bytes. Compaction can
+read packed input without mistaking its empty plain array for an empty proof.
+
+Eight retained conditional U64 self-quotient witnesses now form one unconditional
+ordinary Cases proof. Lossless hint transport reduces its law from 23,762,435 to
+8,305,056 canonical bytes. The complete proof checks under the unchanged shared
+budgets and object limits; authentic rehashed malformed/future/ambiguous-hint and
+changed-result objects reject. The database adds this source equality alongside
+the preceding 337 integer laws, whose identities remain unchanged. This proof
+capacity result is separate from target availability, compiled-program timing
+and automatic profitability selection.
