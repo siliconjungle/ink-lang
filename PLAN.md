@@ -303,3 +303,12 @@ substitution duplicates a primal. This introduces no source-specific equality
 rule. Larger frozen values and long action continuations still require scalable
 sharing/factored proofs; full neural graph/tape specialization and the broader
 Handwired/Freerange/Pretext acceptance programme remain open.
+
+The [frozen-program release study](reports/frozen-program-2026-10-16/README.md)
+retains six paired processes, the initial unrolling regression and final literal
+binding-placement gain (1.57× serving; 1.13× updating weights every request).
+The selected package remains larger than baseline. Compact checked proofs reduce
+its payload, and fresh committed compiler/package sources reproduce executed
+images and startup state byte for byte. These finite checks advance performance
+and implementation assurance without closing large graphs, upstream parity or
+the broader adaptive-model programme.

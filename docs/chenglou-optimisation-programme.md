@@ -398,3 +398,11 @@ matcher or learned score grants equality. See [the runnable program and remainin
 large-graph limits](frozen-structural-specialization.md#compile-a-frozen-program-while-weights-remain-trainable).
 This remains a bounded static-program step, not full graph/tape compilation,
 physical migration, device training or broad upstream performance parity.
+
+The [retained release study](../reports/frozen-program-2026-10-16/README.md)
+measures the final eight-operation serving path in six paired fresh processes,
+including frequent weight changes. It keeps the earlier slowdown, setup and
+package costs, heap diagnostics and complete state checks. Literal binding
+placement improves this workload; compact ordinary proofs reduce its still-larger
+deployment payload. A private committed-source rebuild checks exact executable
+images. This does not close the graph-size or upstream-library acceptance gaps.

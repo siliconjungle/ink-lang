@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Rebuild committed distribution sources privately and compare executed images.
+
+This is a finite reproducibility check, not compiler correctness or authenticity.
+Both the checkout and Cargo target are fresh; no working source is substituted.
+"""
+import argparse
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import subprocess
+import tarfile
+import tempfile
+
+ROOT = Path(__file__).resolve().parents[1]
+PACKAGES = ['abi', 'native-support', 'knowledge', 'planner', 'runtime',
+            'lowerings/rust', 'lowerings/js', 'lowerings/wasm', 'lowerings/gpu']
+# This fixture authors its own mathematical closure. Historical catalogues and
+# archived experiments are not compiler/tool source dependencies of that build.
+TOOL_SOURCES = {'knowledge': ['ink_knowledge', 'producers', 'libraries'],
+                'planner': ['ink_planner', 'browser', 'plan.py', 'compile_plan.py']}
+IMAGES = ['source.core.json', 'compiled.core.json',
+          'model.snapshot', 'deployment.snapshot', 'trace.json', 'program.mjs',
+          'program.mjs.source.mjs', 'program.mjs.initial-state.mjs', 'program.mjs.initial.snapshot']
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def git(folder, *args):
+    return subprocess.check_output(['git', *args], cwd=folder)
+
+
+def extract(folder, revision, target, paths=()):
+    data = git(folder, 'archive', '--format=tar', revision, *paths)
+    with tarfile.open(fileobj=io.BytesIO(data)) as archive:
+        archive.extractall(target, filter='data')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source', required=True)
+    parser.add_argument('--baseline', type=Path, required=True)
+    parser.add_argument('--selected', type=Path, required=True)
+    parser.add_argument('--log', type=Path, required=True)
+    parser.add_argument('--receipt', type=Path, required=True)
+    args = parser.parse_args()
+    source = git(ROOT, 'rev-parse', args.source+'^{commit}').decode().strip()
+    links = {}
+    for path in PACKAGES:
+        row = git(ROOT, 'ls-tree', source, path).decode().split()
+        if len(row) != 4 or row[0] != '160000' or row[3] != path:
+            raise ValueError('expected an independently pinned package: '+path)
+        links[path] = row[2]
+    args.log.parent.mkdir(parents=True, exist_ok=True)
+    args.receipt.parent.mkdir(parents=True, exist_ok=True)
+    record = dict(schema=1, source=source, packages=links, private_checkout=True,
+                  private_target=True, tool_source_subsets=TOOL_SOURCES,
+                  scope='Fresh committed compiler/package source rebuild and matching executed images for the frozen-program fixture. Historical tool catalogues/experiments are excluded; not a whole-compiler or toolchain correctness proof.')
+    with tempfile.TemporaryDirectory(prefix='ink-compiler-image-') as directory, args.log.open('wb') as log:
+        base = Path(directory)
+        checkout = base/'source'
+        checkout.mkdir()
+        paths = ['Cargo.toml', 'src', 'core', 'stdlib', 'examples']
+        # An ignored resolution lock is data, not replacement source or an
+        # assertion that Cargo has built anything. Cargo validates it normally.
+        lock = git(ROOT, 'ls-tree', '--name-only', source, 'Cargo.lock').decode().strip()
+        if lock:
+            paths.append('Cargo.lock')
+        extract(ROOT, source, checkout, paths)
+        if not lock:
+            (checkout/'Cargo.lock').write_bytes((ROOT/'Cargo.lock').read_bytes())
+        record['resolution_lock_sha256'] = digest((checkout/'Cargo.lock').read_bytes())
+        for path, revision in links.items():
+            destination = checkout/path
+            destination.mkdir(parents=True, exist_ok=True)
+            extract(ROOT/path, revision, destination, TOOL_SOURCES.get(path, ()))
+        environment = dict(os.environ)
+        environment['CARGO_TARGET_DIR'] = str(base/'target')
+        environment['INK_DISTRIBUTION'] = str(checkout)
+        environment['PYTHONPATH'] = os.pathsep.join(str(checkout/path) for path in ['knowledge', 'planner'])
+        environment['PYTHONNOUSERSITE'] = '1'
+        def run(command):
+            completed = subprocess.run(command, cwd=checkout, env=environment, stdout=log, stderr=subprocess.STDOUT)
+            completed.check_returncode()
+        run(['cargo', 'build', '--locked', '--bin', 'ink'])
+        binary = base/'target/debug'/('ink.exe' if os.name == 'nt' else 'ink')
+        compared = {}
+        for name, expected in [('baseline', args.baseline.resolve()), ('selected', args.selected.resolve())]:
+            output = base/name
+            command = [str(binary), 'build-model', 'examples/frozen-program.ink',
+                       'examples/frozen-program-training.json', '--freeze-roots', 'Structure',
+                       '--target', 'javascript', '-o', str(output)]
+            if name == 'selected':
+                command.insert(command.index('--target'), '--specialize-frozen')
+            run(command)
+            run([str(binary), 'verify-model', str(output), '--replay'])
+            files = IMAGES + (['selected.core.json', 'selection.json'] if name == 'selected' else [])
+            hashes = {}
+            for filename in files:
+                actual = (output/filename).read_bytes()
+                if actual != (expected/filename).read_bytes():
+                    raise ValueError(f'{name} committed rebuild image differs: {filename}')
+                hashes[filename] = digest(actual)
+            compared[name] = hashes
+        record['images'] = compared
+        record['cargo_version'] = subprocess.check_output(['cargo', '--version'], env=environment, text=True).strip()
+        record['status'] = 'passed'
+    record['log_sha256'] = digest(args.log.read_bytes())
+    args.receipt.write_text(json.dumps(record, indent=2)+'\n')
+    print(json.dumps(record))
+
+
+if __name__ == '__main__':
+    main()

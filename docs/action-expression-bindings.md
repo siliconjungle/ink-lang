@@ -28,3 +28,7 @@ exposes why both layers matter: unrolling alone initially regressed; placing its
 bindings directly in the action made the complete serving path faster in its
 paired study. That does not establish performance parity for general neural
 graphs or the three upstream libraries.
+
+The [retained release study](../reports/frozen-program-2026-10-16/README.md)
+includes the initial regression, final paired processes, package/setup/memory
+costs, complete state histories and a fresh committed-source rebuild.
