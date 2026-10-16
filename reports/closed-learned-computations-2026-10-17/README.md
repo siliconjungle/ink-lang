@@ -10,7 +10,8 @@ an automatically profitable planner selection.
 Feature source: `67aa3a2ec42149c400ee52d5e1d7ed8b8384a317`.
 Knowledge: `d9e7a809be94cbab48887edc302e21e5b79f070d`.
 The later distribution merge preserves the independently developed device
-calibration work and planner `757984c7fa01dd9c932cc8573c2457c9d5396061`.
+calibration work. Its planner also includes the optional-cache storage correction
+described below; exact final pins accompany the terminal corpus context.
 
 ## What changed
 
@@ -144,11 +145,31 @@ for the separate GPU work.
 
 ## Frozen planning corpus
 
-The full ten-program corpus is running against the copied clean committed
-compiler and merged planner/catalogue. The producer remains explicitly requested;
-this corpus measures the general catalogue funnel, not automatic discovery or
-held-out speedups for the learned example. Publication awaits the terminal
-corpus report and its exact source/compiler context.
+The initial full run completes nine programs and records one storage failure
+after the spatial-collision plan and receipt had already been published. That
+plan independently passes ordinary checking; writing the disposable selected-plan
+cache failed with `ENOSPC`. Its full records, inputs, plans, funnel and driver log
+remain in `diagnostics/corpus-storage-failure/`.
+
+The integrated planner now shares an atomic best-effort writer between its
+compiled-plan and semantic-search hint caches. Storage/eviction errors warn and
+retain already checked output. Serialization and proof-check errors still
+propagate. Twenty-two relevant tests pass, including actual compiler invocations
+for both CLI paths, ten filesystem-failure cases, prior-entry preservation and
+rejection before authoritative publication. Finished owned Cargo caches were
+cleaned and the CLI rebuilt normally to restore workspace capacity.
+
+The fresh full run finishes **10/10 programs** with that exact planner revision,
+the copied clean committed compiler and unchanged catalogue. It admits 54 laws,
+with seven reused across multiple programs. Every program reaches the measurement
+budget gate; none automatically selects an alternative and no representation is
+admitted. Nine searches stop at their time limit. The terminal context, complete
+records, plans, inputs and driver log are retained in `corpus/`.
+
+The learned producer remains explicitly requested; this corpus measures the
+general catalogue funnel, not automatic discovery or held-out speedups for the
+learned example. The audit rechecks every retained selected plan with the ordinary
+checker. Exact planner and knowledge revisions accompany `corpus/terminal.json`.
 
 ## Reproduction
 
