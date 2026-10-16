@@ -137,6 +137,15 @@ JavaScript startup. The combined standalone core, including concurrent word-coun
 proof support, passes 501 tests across all 83 integration targets, library checks,
 example builds and doctests.
 
+The [retained evidence](../reports/mutable-function-specialization-2026-10-17/summary.json)
+includes the complete plan, source images, histories, package receipts and failed
+development attempts. Its auditor can replay the proof and reproduce the emitted
+JavaScript and Rust source with an independently rebuilt compiler:
+
+```sh
+python3 reports/mutable-function-specialization-2026-10-17/audit.py --ink target/debug/ink
+```
+
 The mathematical word carrier can include more values than a narrower source
 type. The checker currently requires equality over that full carrier; it does not
 accept programmer-supplied range promises to weaken the obligation. Unsupported
