@@ -101,6 +101,11 @@ work reproduces those same baseline images, composed plan and selected JavaScrip
 Its integration receipt records the newer knowledge pin separately; the core tree
 and all backend/runtime pins are unchanged.
 
+The default compiler-image check also passes from that merged source. It
+reproduces the earlier eight-operation baseline and selected artifact images
+without using the new composition mode; its receipt and log are retained, and
+the audit checks their images against the original report.
+
 This is finite implementation/reproducibility evidence. Source correspondence,
 checker implementation, generated code, ABI, runtime, toolchain and driver still
 contain trusted code; it is not a whole-chain correctness proof. General F64

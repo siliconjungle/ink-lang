@@ -69,6 +69,16 @@ def audit(ink=None, chrome=None):
     assert integrated['composition']==clean['composition'] and integrated['images']==clean['images']
     assert integrated['resolution_lock_sha256']==clean['resolution_lock_sha256']
     assert digest(raw('checks/integration-compiler.log.gz'))==integrated['log_sha256']
+    compatible = read('checks/compatibility-compiler.json')
+    assert compatible['status']=='passed' and compatible['private_checkout'] and compatible['private_target']
+    assert compatible['source']==metadata['integration_source'] and compatible['packages']==metadata['integration_packages']
+    assert compatible['resolution_lock_sha256']==integrated['resolution_lock_sha256']
+    assert digest(raw('checks/compatibility-compiler.log.gz'))==compatible['log_sha256']
+    previous = json.loads((REPOSITORY/'reports/frozen-program-2026-10-16/metadata.json').read_text())
+    assert digest((REPOSITORY/'reports/frozen-program-2026-10-16/metadata.json').read_bytes())==metadata['compatibility_metadata_sha256']
+    for variant, files in compatible['images'].items():
+        for name, expected in files.items():
+            assert previous['artifacts'][variant][name]==expected, (variant,name)
     baseline = bundle('baseline-package.tar.gz', metadata['archives']['baseline-package'])
     manifest = json.loads(baseline['artifact.json'])
     assert set(baseline) == set(manifest['files']) | {'artifact.json'}
