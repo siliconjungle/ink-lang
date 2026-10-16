@@ -8,7 +8,11 @@ use std::{
 use verified_language::{core::CheckedModule, stateful::Runtime, training};
 static NEXT: AtomicU32 = AtomicU32::new(0);
 fn root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("build/trained-build-validation")
+    std::env::var_os("INK_TRAINED_BUILD_ROOT")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| {
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("build/trained-build-validation")
+        })
 }
 fn fresh(name: &str) -> PathBuf {
     root().join(format!(
