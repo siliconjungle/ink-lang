@@ -38,3 +38,26 @@ resource rejection that the baseline accepts. Both failures reproduce unchanged
 against an isolated git archive of `8c2471e6`; they remain open and are not hidden
 by excluding tests. See the immutable logs in
 `reports/frontier-json-2026-10-13/artifacts/private-value-layout/`.
+
+## Conditional circuits
+
+The opt-in `shared-select-v3` encoding also shares exact conditional gates,
+normalizes a negated condition by exchanging its arms, and reduces constant
+conditions, identical arms and Boolean constant arms. Its invocation-local table
+uses complete circuit-literal tuples. Every stored selection allocates a bounded
+circuit variable; existing variable, clause, term, proof-step and replay-work
+limits remain unchanged. It uses the same fixed Boolean meanings as the other
+encodings, with a distinct CNF label and identity.
+
+```sh
+ink semantic-bitvector-obligation source.core.json goal.json --core \
+  --semantics fixed-counts-v5 --encoding shared-select-v3 -o cnf.json
+```
+
+First-order obligations use `--circuit shared-select-v3`. Certificates explicitly
+name the encoding; the checker reconstructs it before ordinary hinted RUP replay.
+Literal-v1 and shared-v2 retain their exact identities. No old certificate is
+silently migrated, and no circuit tuple supplies source-rewrite authority.
+Source equations, solver search and certificate-size choices remain database
+work. A smaller CNF does not guarantee a smaller SAT certificate or faster
+compiled execution.
