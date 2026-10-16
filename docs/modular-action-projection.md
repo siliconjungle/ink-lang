@@ -201,6 +201,25 @@ python3 reports/guarded-function-specialization-2026-10-17/audit.py \
   --ink target/debug/ink --run
 ```
 
+Pass `--prefix-plan build/projection.plan.json` to the guard producer to replay an
+earlier plan first, then discover/specialize the function in its selected core.
+The final plan retains and rechecks every prefix step; failed prefix proofs leave
+existing output untouched. Specialization can introduce local/control forms into
+a legacy image. A bounded knowledge-side authoring helper asks ordinary
+`check-core` admission to bind its actual feature version; version guesses provide
+no proof authority, and ill-typed or unknown-version images reject.
+
+The [JavaScript lifecycle comparison](../reports/guarded-specialization-lifecycle-2026-10-17/README.md)
+now measures the generic, guarded, projected and composed variants in eight groups
+of fresh processes. The guard loses on this 32-node workload. Projection alone is
+1.106× faster for one input and 1.064× for 64 inputs; adding the guard loses those
+gains. Shared-host measurements include short lifetimes, graph/weight writes,
+complete result consumption, setup and recovery observations, with all 96 finite
+reference values and the 335-outcome snapshot history checked per process. These
+are diagnostic observations; they do not admit automatic selection or establish
+native/GPU or upstream speed parity. The full related knowledge suite now passes
+26 tests, including legacy feature rebinding and invalid-prefix atomicity.
+
 The mathematical word carrier can include more values than a narrower source
 type. The checker currently requires equality over that full carrier; it does not
 accept programmer-supplied range promises to weaken the obligation. Unsupported

@@ -1,0 +1,33 @@
+test_composite_values_and_ownership (knowledge.tests.test_guarded_specialization.Configuration.test_composite_values_and_ownership) ... ok
+test_exact_types_and_ranges (knowledge.tests.test_guarded_specialization.Configuration.test_exact_types_and_ranges) ... ok
+test_checked_prefix_composes_and_missing_prefix_proof_is_atomic (knowledge.tests.test_guarded_specialization.GuardedSpecialization.test_checked_prefix_composes_and_missing_prefix_proof_is_atomic) ... FAIL
+test_invalid_configuration_preserves_existing_output (knowledge.tests.test_guarded_specialization.GuardedSpecialization.test_invalid_configuration_preserves_existing_output) ... ok
+test_scalar_float_guards_preserve_bits_including_nan_payloads (knowledge.tests.test_guarded_specialization.GuardedSpecialization.test_scalar_float_guards_preserve_bits_including_nan_payloads) ... ok
+test_stored_general_rule_and_rehashed_false_fallback (knowledge.tests.test_guarded_specialization.GuardedSpecialization.test_stored_general_rule_and_rehashed_false_fallback) ... ok
+test_stored_list_comparison_and_false_identity_rejects (knowledge.tests.test_guarded_specialization.GuardedSpecialization.test_stored_list_comparison_and_false_identity_rejects) ... ok
+test_unused_configuration_declines_before_inserting_a_guard (knowledge.tests.test_guarded_specialization.GuardedSpecialization.test_unused_configuration_declines_before_inserting_a_guard) ... ok
+
+======================================================================
+FAIL: test_checked_prefix_composes_and_missing_prefix_proof_is_atomic (knowledge.tests.test_guarded_specialization.GuardedSpecialization.test_checked_prefix_composes_and_missing_prefix_proof_is_atomic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/tests/test_guarded_specialization.py", line 189, in test_checked_prefix_composes_and_missing_prefix_proof_is_atomic
+    self.assertEqual([s['kind'] for s in before['steps']], ['extension', 'functions'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['functions'] != ['extension', 'functions']
+
+First differing element 0:
+'functions'
+'extension'
+
+Second list contains 1 additional elements.
+First extra element 1:
+'functions'
+
+- ['functions']
++ ['extension', 'functions']
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.768s
+
+FAILED (failures=1)
