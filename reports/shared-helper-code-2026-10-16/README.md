@@ -112,3 +112,21 @@ the 128-operation model fixture; it does not certify this entire corpus run.
 Run `python3 audit.py`, optionally adding `--ink /absolute/path/to/ink` for
 complete proof/training replay and `--chrome /absolute/path/to/Chrome` for a fresh
 replay of the retained initialized GPU prefix history.
+
+
+## Integration after concurrent integer-law changes
+
+After the measurements, the distribution merged checked-integer law work and
+its matching package pins. A new private standalone-core run passes 464 tests
+from the exact published core tree; `integration-core-package.json` binds that
+tree to committed distribution source. CI now checks this current receipt rather
+than incorrectly expecting the earlier core tree.
+
+A fresh compiler rebuild from the merged source reproduces every retained
+baseline/selected JavaScript image, plan, core and startup checkpoint exactly.
+All twelve mandatory frozen-state tests also pass again after the merge.
+The integration receipts record the newer pins separately. The performance
+artifacts are byte-identical; the frozen planning-corpus observations above
+remain specifically those collected with the original knowledge pin, before the
+new integer producer/catalogue was integrated. They are not a claimed evaluation
+of that newer catalogue.

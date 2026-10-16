@@ -52,6 +52,22 @@ def audit(ink=None,chrome=None):
     assert digest(raw('sources/Cargo.lock.gz'))==clean['resolution_lock_sha256']
     assert 'fold chunk proposal work budget' in raw('negative-controls/512-producer.log.gz').decode()
     assert len(read('negative-controls/512-input.core.json.gz')['program']['frozen']['Structure'][0][1])==512
+    integrated=read('checks/integration-compiler.json')
+    assert integrated['status']=='passed' and integrated['private_checkout'] and integrated['private_target']
+    assert integrated['source']==m['integration_source'] and integrated['packages']==m['integration_packages']
+    assert integrated['images']==clean['images']
+    assert digest(raw('sources/integration-Cargo.lock.gz'))==integrated['resolution_lock_sha256']
+    text=raw('checks/integration-frozen.log.gz').decode()
+    assert 'test result: ok. 12 passed;' in text and 'FAILED' not in text
+    assert digest(raw('checks/integration-compiler.log.gz'))==integrated['log_sha256']
+    core=read('checks/integration-core.json');package=read('integration-core-package.json')
+    assert core['status']=='passed' and core['private_checkout'] and core['private_target']
+    assert core['source']==package['source']==m['integration_source']
+    assert core['package']==package['commit'] and core['core_tree']==package['core_tree']
+    text=raw('checks/integration-core.log.gz').decode()
+    assert digest(text.encode())==core['log_sha256']
+    assert sum(map(int,re.findall(r'test result: ok\. (\d+) passed',text)))==464
+    assert 'FAILED' not in text
     expanded=raw('expanded128-plan.json.gz')
     assert digest(expanded)=='2501a03a2ab827cd5f50c161ddebea4fd126462114799225e1f420f19d547b4e'
     plans={}
