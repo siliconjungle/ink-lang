@@ -23,10 +23,12 @@ pub enum BitVectorSemantics {
     FixedWordsV2,
     FixedScalarsV3,
     FixedScalarsV4,
+    FixedCountsV5,
 }
 impl BitVectorSemantics {
     fn is_legacy(&self) -> bool { *self == Self::OpaqueV1 }
-    fn floats(&self) -> bool { matches!(self, Self::FixedScalarsV3 | Self::FixedScalarsV4) }
+    fn scalars(&self) -> bool { matches!(self, Self::FixedScalarsV4 | Self::FixedCountsV5) }
+    fn floats(&self) -> bool { matches!(self, Self::FixedScalarsV3 | Self::FixedScalarsV4 | Self::FixedCountsV5) }
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -259,7 +261,7 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                 Sort::Value(Type::U32)=>S::U64,
                 Sort::Value(Type::Bool)=>S::Bool,
                 Sort::Value(Type::F32) if self.semantics.floats()=>S::U64,
-                Sort::Value(Type::I32) if self.semantics==BitVectorSemantics::FixedScalarsV4=>S::U64,
+                Sort::Value(Type::I32) if self.semantics.scalars()=>S::U64,
                 _=>return Err("source bit circuit carrier is unsupported in selected semantics".into()),
             };
             let raw=match &t.node{
@@ -280,16 +282,22 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                         bin(&format!("f32:{op}"),self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
                     }else{self.atom(t,kind)?}
                 },
+                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedCountsV5 &&
+                    ["call:popcount","call:leading_zeros","call:trailing_zeros"].contains(&n.as_str()) && args.len()==1=>{
+                    let width=match args[0].sort { Sort::Value(Type::U32 | Type::I32)=>32,
+                        Sort::Value(Type::U64)=>64, _=>return Err("fixed word count circuit carrier".into()) };
+                    bin(&format!("word{width}.{}",&n[5..]),self.lower(&args[0],b,d+1)?,L::U64(0))
+                },
                 Node::Op(n,args) if n=="call:choose" && args.len()==3=>L::If{
                     condition:Box::new(self.lower(&args[0],b,d+1)?),
                     on_true:Box::new(self.lower(&args[1],b,d+1)?),
                     on_false:Box::new(self.lower(&args[2],b,d+1)?),
                 },
                 Node::Op(n,args) if n=="unary:!" && args.len()==1=>bin("==",self.lower(&args[0],b,d+1)?,L::Bool(false)),
-                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV4 &&
+                Node::Op(n,args) if self.semantics.scalars() &&
                     n=="neg" && t.sort==value(Type::I32) && args.len()==1=>
                     bin("-",L::U64(0),self.lower(&args[0],b,d+1)?),
-                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV4 &&
+                Node::Op(n,args) if self.semantics.scalars() &&
                     ["call:quot_or","call:rem_or"].contains(&n.as_str()) && args.len()==3=>{
                     let a=self.lower(&args[0],b,d+1)?;let divisor=self.lower(&args[1],b,d+1)?;
                     let fallback=self.lower(&args[2],b,d+1)?;
@@ -314,7 +322,7 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                     let op=&n[7..];
                     if !["+","-","*","&","|","^","==","!=","<",">","<=",">=","&&","||"].contains(&op){return Err("unsupported source bit circuit operator".into());}
                     let a=self.lower(&args[0],b,d+1)?;let c=self.lower(&args[1],b,d+1)?;
-                    if self.semantics==BitVectorSemantics::FixedScalarsV4 && args[0].sort==value(Type::I32)
+                    if self.semantics.scalars() && args[0].sort==value(Type::I32)
                         && ["<",">","<=",">="].contains(&op) {
                         bin(op,bin("^",a,L::U64(1<<31)),bin("^",c,L::U64(1<<31)))
                     }else{bin(op,a,c)}
