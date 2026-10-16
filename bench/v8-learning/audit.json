@@ -2890,6 +2890,18 @@
       ],
       "review_status": "source read; family assessment open",
       "note": "Dense fixed/growing and sparse side tables separate graph-local operation/block keys. Growing storage defaults on access, grows geometrically and resets values while retaining allocation; graph provenance and many bounds are debug checks. Ink must retain production bounds and per-context lifetimes, and no side-table entry grants proof authority. A private generation-stamped dense assignment scratch prototype returns identical18 proof-hint traces but cold complete helper measurements in3 fresh processes x11 rounds give median before/after0.993x and fail all10% extrema guards. Keep the current dictionary helper; no production change or memory-gain claim."
+    },
+    {
+      "path": "src/compiler/turboshaft/int64-lowering-reducer.h",
+      "sha256": "5c78fe6ba80dc2decf1b5dc65581922b80bb68fac9dca853f01271438693f6ae",
+      "inclusive_lines": [
+        [
+          1,
+          1002
+        ]
+      ],
+      "review_status": "source read; family assessment open",
+      "note": "Wasm-only32-bit lowering represents i64 as low/high i32 pairs, including exact carry/wide multiply, signed-high/unsigned-low comparisons, distinct atomic pair operations, parameter/result descriptor rewiring, pending-loop phis and frame-state expansion. Constant rotates special-case0/32; dynamic rotates mask and blend halves, so naive JavaScript32-bit shifts must not copy shift-by32 behavior. CLZ/CTZ select the significant half and popcount sums both32-bit counts. V8 returns i64 pairs for Wasm counts; Ink counts must remain u32. Native/wasm toolchains and Ink GPU already lower wide operations; a full JS pair carrier would need complete ABI/ownership/effect/conformance and profitability work. Immediate bounded investigation: generated JS still uses BigInt loops/string counts; test fixed64-bit count implementations using existing32-bit intrinsics, including zero/sparse regressions, before any backend change."
     }
   ],
   "families": [
