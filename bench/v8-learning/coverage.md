@@ -2,7 +2,7 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 240 full files, 1 partial files, 368 unread files; 609 inventoried files total.
+Source receipts: 247 full files, 1 partial files, 361 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
@@ -81,15 +81,15 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/backend/arm64/unwinding-info-writer-arm64.h` — unread; 0/73 lines recorded
 - [x] `src/compiler/backend/bitcast-elider.cc` — read; 118/118 lines recorded
 - [x] `src/compiler/backend/bitcast-elider.h` — read; 44/44 lines recorded
-- [ ] `src/compiler/backend/block-position.cc` — unread; 0/97 lines recorded
-- [ ] `src/compiler/backend/block-position.h` — unread; 0/41 lines recorded
+- [x] `src/compiler/backend/block-position.cc` — read; 97/97 lines recorded
+- [x] `src/compiler/backend/block-position.h` — read; 41/41 lines recorded
 - [ ] `src/compiler/backend/code-generator-impl.h` — unread; 0/332 lines recorded
 - [ ] `src/compiler/backend/code-generator.cc` — unread; 0/1749 lines recorded
 - [ ] `src/compiler/backend/code-generator.h` — unread; 0/516 lines recorded
 - [x] `src/compiler/backend/frame-elider.cc` — read; 207/207 lines recorded
 - [x] `src/compiler/backend/frame-elider.h` — read; 42/42 lines recorded
-- [ ] `src/compiler/backend/gap-resolver.cc` — unread; 0/233 lines recorded
-- [ ] `src/compiler/backend/gap-resolver.h` — unread; 0/78 lines recorded
+- [x] `src/compiler/backend/gap-resolver.cc` — read; 233/233 lines recorded
+- [x] `src/compiler/backend/gap-resolver.h` — read; 78/78 lines recorded
 - [ ] `src/compiler/backend/ia32/code-generator-ia32.cc` — unread; 0/4781 lines recorded
 - [ ] `src/compiler/backend/ia32/instruction-codes-ia32.h` — unread; 0/416 lines recorded
 - [ ] `src/compiler/backend/ia32/instruction-scheduler-ia32.cc` — unread; 0/485 lines recorded
@@ -102,8 +102,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/backend/instruction-selector.h` — unread; 0/1658 lines recorded
 - [ ] `src/compiler/backend/instruction.cc` — unread; 0/1406 lines recorded
 - [ ] `src/compiler/backend/instruction.h` — unread; 0/2247 lines recorded
-- [ ] `src/compiler/backend/jump-threading.cc` — unread; 0/330 lines recorded
-- [ ] `src/compiler/backend/jump-threading.h` — unread; 0/34 lines recorded
+- [x] `src/compiler/backend/jump-threading.cc` — read; 330/330 lines recorded
+- [x] `src/compiler/backend/jump-threading.h` — read; 34/34 lines recorded
 - [ ] `src/compiler/backend/loong64/code-generator-loong64.cc` — unread; 0/5839 lines recorded
 - [ ] `src/compiler/backend/loong64/instruction-codes-loong64.h` — unread; 0/432 lines recorded
 - [ ] `src/compiler/backend/loong64/instruction-scheduler-loong64.cc` — unread; 0/33 lines recorded
@@ -214,7 +214,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/heap-refs.cc` — unread; 0/2827 lines recorded
 - [ ] `src/compiler/heap-refs.h` — unread; 0/1480 lines recorded
 - [ ] `src/compiler/int64-lowering.cc` — unread; 0/1156 lines recorded
-- [ ] `src/compiler/int64-lowering.h` — unread; 0/111 lines recorded
+- [x] `src/compiler/int64-lowering.h` — read; 111/111 lines recorded
 - [ ] `src/compiler/js-call-reducer.cc` — partial; 901/10075 lines recorded
 - [ ] `src/compiler/js-call-reducer.h` — unread; 0/334 lines recorded
 - [x] `src/compiler/js-context-specialization.cc` — read; 564/564 lines recorded
