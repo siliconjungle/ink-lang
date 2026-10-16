@@ -53,6 +53,7 @@ jobs:
         python3 reports/frozen-composition-2026-10-16/audit.py
         python3 reports/composed-artifacts-2026-10-16/audit.py
         python3 reports/shared-helper-code-2026-10-16/audit.py
+        python3 reports/parametric-prefix-proofs-2026-10-16/audit.py
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -1226,6 +1227,9 @@ jobs:
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-128-parity build/frozen-composition-128-browser.json
         composed_artifact=$(python3 -c 'import json;print(json.load(open("build/trained-build-validation/composed-browser-artifact.json"))["artifact"])')
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-128-parity build/composed-artifact-browser.json --initialized "$composed_artifact"
+        target/debug/ink build-model examples/frozen-program.ink examples/frozen-program-512-training.json --freeze-roots Structure --specialize-frozen --target webgpu -o build/composed-512-artifact
+        target/debug/ink verify-model build/composed-512-artifact --replay
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-512-parity build/composed-512-artifact-browser.json --initialized build/composed-512-artifact
         python3 bench/frozen-composition/prepare-prefix-history.py --ink target/debug/ink --artifact "$composed_artifact" --history build/frozen-composition-128-parity --prefix-operations 64 -o build/shared-model-prefix-history
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/shared-model-prefix-history build/shared-model-prefix-browser.json --initialized "$composed_artifact"
         node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
@@ -1246,6 +1250,7 @@ jobs:
           build/frozen-composition-32-browser.json
           build/frozen-composition-128-browser.json
           build/composed-artifact-browser.json
+          build/composed-512-artifact-browser.json
           build/shared-model-prefix-browser.json
           build/shared-model-prefix-history/scope.json
           build/trained-build-validation/composed-browser-artifact.json

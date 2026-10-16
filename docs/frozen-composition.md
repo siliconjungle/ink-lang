@@ -184,3 +184,9 @@ remain the relevant evidence; no new serving speedup is claimed. Rehashed
 same-typed false-tail claims reject, including fail-closed resource exhaustion.
 General graph/tape specialization, capture abstraction, learned representation
 selection and device training remain required work.
+
+
+The [parametric-prefix acquisition](../reports/parametric-prefix-proofs-2026-10-16/README.md)
+retains complete plans, negative controls, initialized artifacts, browser and
+corpus histories, every authoring sample and a fresh committed-source image
+check. Its audit replays proofs and browser execution when requested.
