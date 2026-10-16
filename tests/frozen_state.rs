@@ -655,12 +655,12 @@ fn frozen_program_keeps_weights_trainable_and_compiles_ordered_operations_on_all
 #[test]
 fn shared_frozen_parameter_lists_preserve_complete_results_and_live_learning_on_all_targets() {
     let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
-    let source = "module shared_parameters; state Model:Table<u64,List<f32>>=Table.empty(); trainable state Weights:Table<u64,f32>=Table.empty(); event Seen:f32; query all()->List<f32> reads(Model){return Model.get(0).unwrap_or([]);} query present()->Bool reads(Model){return Model.contains(0);} adaptive query live()->f32 reads(Weights){return Weights.get(0).unwrap_or(0.0);} learn change retune(x:f32,fail:Bool)->Result<Unit,u32> writes(Weights) emits(Seen){Weights.put(0,x);emit Seen(x);if fail{return Err(99);}return Ok(());} fn numeric(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>x*x+0.5);}";
-    let mut program = syntax::parse(source).unwrap();
-    let coefficients = [0u32, 0x80000000, 1, 0x3e800001, 0x4b800000, 0xcb800000];
-    let values = (0..244).map(|i|Value::F32(coefficients[i%coefficients.len()]).json()).collect::<Vec<_>>();
-    program.frozen.insert("Model".into(),vec![(json!(0),json!(values))]);
-    let module = CheckedModule::from_source(program).unwrap();
+    let source = include_str!("../examples/frozen-parameters.ink");
+    let original = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let trace = serde_json::from_str(include_str!("../examples/frozen-parameters-training.json")).unwrap();
+    let trained = verified_language::training::replay(&original,&trace).unwrap();
+    let frozen = verified_language::freezing::restrict(&original,&trained.snapshot,&["Model".into()]).unwrap();
+    let module = frozen.module;
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/shared-frozen-parameters");
     fs::create_dir_all(&root).unwrap();
     let input=root.join("input.core.json");fs::write(&input,module.bytes().unwrap()).unwrap();
@@ -674,10 +674,24 @@ fn shared_frozen_parameter_lists_preserve_complete_results_and_live_learning_on_
     let all=selected.module().program().actions.iter().find(|a|a.name=="all").unwrap();
     assert!(!serde_json::to_string(&all.body).unwrap().contains("Model"));
     assert!(selected.module().program().contracts.learning.trainable.contains(&"Weights".into()));
-    let mut baseline=Runtime::from_checked(&module).unwrap();
+    assert!(!selected.module().program().actions.iter().any(|a|a.name=="configure"));
+    let mut baseline=Runtime::restore_portable_checked(&module,&frozen.snapshot).unwrap();
+    assert_eq!(baseline.invoke_json("live",&json!([])).unwrap().result.json(),json!(0.5));
+    let Value::List(configured)=baseline.invoke_json("all",&json!([])).unwrap().result else {panic!("configured parameter list")};
+    assert_eq!(configured.len(),244);
+    for (index,bits) in [(1,0x80000000),(4,0x7fa01234),(5,0xffc05678),(6,0x7f800000),(7,0xff800000),(243,0x80000000)] {
+        let Value::F32(actual)=&configured[index] else {panic!("configured F32 bits")};
+        assert_eq!(*actual,bits);
+    }
     let seed=baseline.checkpoint_portable().unwrap();fs::write(root.join("initial.snapshot"),&seed).unwrap();
     let mut implementation=Runtime::restore_portable_selected(&selected,&seed).unwrap();
-    let mut steps=vec![json!({"restore":seed})];let mut expected=vec![];
+    let layout=snapshot::layout(module.program()).unwrap();
+    let mut changed=snapshot_wire::decode(&layout,&seed,Default::default()).unwrap();
+    let model=layout.roots.iter().position(|(name,_,_)|name=="Model").unwrap();
+    changed.tables[model][0].1[4]=Value::F32(0x7fa01235).json();
+    let forged=snapshot_wire::encode(&layout,&changed,Default::default()).unwrap();
+    assert!(Runtime::restore_portable_checked(&module,&forged).err().unwrap().contains("frozen"));
+    let mut steps=vec![json!({"restore":seed}),json!({"reject_restore":forged,"restore_error":"frozen"})];let mut expected=vec![];
     for (i,bits) in [0u32,0x80000000,1,0x3dcccccd,0x7f7fffff,0x7f800000,0x7fa01234,0xffc05678].into_iter().enumerate() {
         for (name,args) in [("retune",json!([{"F32Bits":bits},i%3==0])),("live",json!([])),("all",json!([])),("present",json!([]))] {
             let reply=baseline.invoke_json(name,&args).unwrap();
@@ -691,6 +705,14 @@ fn shared_frozen_parameter_lists_preserve_complete_results_and_live_learning_on_
     steps.push(json!({"pure":"numeric","args":[[0.,0.5,1.]],"expect_gpu":true}));
     expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":baseline.checkpoint_portable().unwrap()}));
     parity::conformance_selected("shared-frozen-parameters-parity",&selected,source,steps,expected);
+    let artifact=root.join(format!("artifact-{}-{}",std::process::id(),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+    ok(Command::new(env!("CARGO_BIN_EXE_ink")).args([
+        "build-model","examples/frozen-parameters.ink","examples/frozen-parameters-training.json",
+        "--freeze-roots","Model","--specialize-frozen","--target","javascript","-o",
+    ]).arg(&artifact).output().unwrap());
+    verified_language::training::verify_model(&artifact,true).unwrap();
+    ok(Command::new("node").arg("tests/fixtures/frozen-numeric-build.mjs").arg(&artifact)
+        .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("build/shared-frozen-parameters-parity")).output().unwrap());
 }
 
 #[test]

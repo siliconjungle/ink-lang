@@ -345,9 +345,11 @@ pub fn build_model_specialized(
     }
     if plan.get("source").is_some() {
         plan["source"] = json!(source_file);
+        // Proof-bearing plans can be large. Preserve the complete JSON value
+        // and ordinary verifier bindings without shipping indentation copies.
         fs::write(
             plan_path,
-            serde_json::to_vec_pretty(&plan).map_err(|e| e.to_string())?,
+            serde_json::to_vec(&plan).map_err(|e| e.to_string())?,
         )
         .map_err(|e| e.to_string())?;
     }
