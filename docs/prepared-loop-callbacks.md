@@ -90,8 +90,10 @@ keyed only by a function name or by an iteration's apparent value.
 
 Strict arithmetic, constructors, field/record expressions and supported strict
 calls can reach prepared helpers. Every operand still executes once in source
-order. Short-circuit Boolean operations retain their lazy branches. Sum callbacks
-retain ordinary lazy execution where residual traversal is unsupported.
+order. Short-circuit Boolean operations retain their lazy branches. [Optional/result callbacks](prepared-sum-callbacks.md) can now propagate stable
+captures through selected arms. A complete captured immutable sum also fixes its
+payload; changing sums retain dynamic payloads. Owned/unsupported callbacks keep
+ordinary execution.
 `repeat_until` tests before stepping; `fold_until` evaluates its test, executes
 that iteration's step and only then stops. Thrown work is retried.
 
