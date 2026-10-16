@@ -14,6 +14,7 @@ import tarfile
 REVISION = 'c4e049d3cbda775e2c3af9410f6e18b18388d68b'
 PREFIXES = ('src/compiler/', 'src/maglev/', 'src/execution/tiering-manager',
             'src/objects/feedback-vector', 'docs/compiler/')
+EXTRA_PATHS = ('src/base/division-by-constant.cc', 'src/base/division-by-constant.h')
 
 
 def acquire(directory, inventory):
@@ -34,7 +35,7 @@ def acquire(directory, inventory):
                 if len(parts) != 2:
                     continue
                 path = parts[1]
-                if (not member.isfile() or not path.startswith(PREFIXES) or
+                if (not member.isfile() or not (path.startswith(PREFIXES) or path in EXTRA_PATHS) or
                         not path.endswith(('.h', '.cc', '.md'))):
                     continue
                 if Path(path).is_absolute() or '..' in Path(path).parts:

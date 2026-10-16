@@ -6,13 +6,16 @@ lowering. V8's speculative types, maps, feedback and machine flags supply no
 premises. Correctness, source applicability and profitability remain separate.
 
 The upstream source revision is `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
-`bench/v8-learning/upstream-inventory.json` records 607 compiler, Maglev and
-supporting source files (18,254,266 bytes). Inventory and search results are not
+`bench/v8-learning/upstream-inventory.json` records 609 compiler, Maglev and
+supporting source files (18,261,223 bytes), including the explicitly followed
+division-by-constant dependency. Inventory and search results are not
 completed review. The [complete source checklist](../bench/v8-learning/coverage.md)
 shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_status.py
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
+Current receipts cover 102 full files and three partial files, with 504 unread;
+all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
 
@@ -427,3 +430,48 @@ which is retired. Existing definition typing/termination, shared work/depth
 bounds and ordinary proof replay remain mandatory. Unknown branches and changed
 captures are not erased. The frozen corpus and lifecycle controls above predate
 this final integration strategy; their exact contexts remain separately recorded.
+
+## Signed words and checked integer division
+
+V8's machine reducer and division-by-constant helpers separate signed/unsigned
+widths, rounding toward zero, power-of-two sign/bias corrections and multiply-high
+reciprocal algorithms. Its total machine divide-by-zero and overflowing signed
+division results differ from Ink's `quot_or`/`rem_or`: both Ink operations select
+their lazy default for zero divisors and I32 MIN/-1. Transplanting the raw V8
+identity would lose that source behavior. The dependency header/implementation
+outside the initial inventory are now explicitly acquired and reviewed.
+
+The `fixed-scalars-v4` source proof mode reconstructs I32 wrapping arithmetic,
+signed comparison, arithmetic right shifts and existing rotations, plus checked
+U32/U64/I32 quotient/remainder. A fixed general restoring divider supplies raw
+machine results; an explicit source guard selects the default. No constant-divisor
+rewrite, coefficient table or solver is embedded in core. Existing source modes,
+CNF identities and executable-core meanings remain unchanged; F64 proof terms
+still reject, including closed nested terms. Independent gate tests exercise both
+encodings with high input bits, zero divisors, signed overflow and random pairs.
+
+Generic source word extensionality admits an equality only when bounded checked
+masks cover every bit of its U32/I32/U64 endpoints. Each part proves the complete
+masked endpoints with ordinary existing proof rules. Copies, context validation,
+RUP work and depth share the existing budgets; zero/out-of-width masks, missing
+coverage, incorrect high bits and unsupported carriers reject. No individual
+mask or correct digest is an equality fact. This lets external proof authoring
+split difficult obligations without raising compiler limits or adding an
+optimization-specific theorem.
+
+The database owns sign-fill, strict zero/self cases, guarded minus-one/minimum
+divisors and power-of-two quotient/remainder proposals. Typed lexical bindings
+retain unused and repeated strict operands; defaults stay inside their original
+exceptional arms. Every frozen entry replays an ordinary certificate, including
+inside callbacks and ordinary helper contexts. Unadmitted authoring attempts
+remain outside discovery. Structural discovery and measured implementation
+selection remain separate gates.
+
+`tests/support/integer_division.rs` is part of the mandatory refinement suite.
+It compares 150 complete CPU/Wasm/JavaScript values and snapshots, plus native
+GPU-host results and 90 actual device dispatches. The related knowledge suite
+checks all proposed formulas and strict/lazy evaluation traces independently,
+replays frozen proofs, rejects a rehashed false overflow claim and observes
+unused/repeated helper work with bounded reference execution. Detailed source
+pins, corpus context, authoring outcomes and lifecycle controls live under
+`bench/v8-learning/integer-division`; conformance supplies no profitability fact.
