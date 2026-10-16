@@ -50,6 +50,7 @@ jobs:
         python3 reports/frozen-program-2026-10-16/audit.py
         python3 reports/frozen-literal-sharing-2026-10-16/audit.py
         python3 reports/factored-literal-proofs-2026-10-16/audit.py
+        python3 reports/frozen-composition-2026-10-16/audit.py
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -146,12 +147,12 @@ jobs:
         cargo test --manifest-path core/Cargo.toml --offline
         python3 - <<'PYCORE'
         import json, subprocess
-        r=json.load(open('reports/frozen-literal-sharing-2026-10-16/core-package.json'))
+        r=json.load(open('reports/frozen-composition-2026-10-16/core-package.json'))
         actual=subprocess.check_output(['git','rev-parse','HEAD:core'],text=True).strip()
         assert actual==r['core_tree'], 'distribution core differs from standalone package pin'
         subprocess.run(['git','fetch','--no-recurse-submodules','--depth=1','origin',r['commit'],r['source']],check=True)
         PYCORE
-        python3 tools/check_core_package.py reports/frozen-literal-sharing-2026-10-16/core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
+        python3 tools/check_core_package.py reports/frozen-composition-2026-10-16/core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
         cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields --test prepared_sums --test sum_spines
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
@@ -339,6 +340,7 @@ jobs:
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_frozen_specialization.py
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_frozen_traversal.py
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_closed_data_bridges.py
+        INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_frozen_composition.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_normal_call_cache.py
         PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_semantic_search.py
@@ -1204,9 +1206,11 @@ jobs:
         cargo test --test generic_libraries prepared_complex_text::complex_prepared_state -- --nocapture --test-threads=1
         cargo test --test frozen_state frozen_program_keeps_weights_trainable_and_compiles_ordered_operations_on_all_targets -- --exact --nocapture
         cargo test --test frozen_state shared_frozen_parameter_lists_preserve_complete_results_and_live_learning_on_all_targets -- --exact --nocapture
+        cargo test --test frozen_state frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_on_all_targets -- --exact --nocapture
         python3 tools/build_gpu_wasm.py build/source-reverse-parity/gpu-module build/source-reverse-until-parity/gpu-module
         python3 tools/build_gpu_wasm.py build/prepared-complex-lifecycle/gpu-module
         python3 tools/build_gpu_wasm.py build/frozen-program-parity/gpu-module build/shared-frozen-parameters-parity/gpu-module
+        python3 tools/build_gpu_wasm.py build/frozen-composition-32-parity/gpu-module build/frozen-composition-128-parity/gpu-module
         python bench/gpu/prepare-lowering-parity-browser.py
         python bench/gpu/prepare-word-parity-browser.py
         npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
@@ -1215,6 +1219,8 @@ jobs:
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/prepared-complex-lifecycle build/prepared-complex-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-program-parity build/frozen-program-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/shared-frozen-parameters-parity build/shared-frozen-parameters-browser.json
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-32-parity build/frozen-composition-32-browser.json
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-128-parity build/frozen-composition-128-browser.json
         node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
         INK_TEST_WGPU=1 cargo test --test database_planning recursive_database_plan_preserves_every_observation_and_original_checkpoints -- --exact --nocapture
         python bench/gpu/prepare-database-plan-browser.py
@@ -1230,6 +1236,8 @@ jobs:
           build/prepared-complex-browser.json
           build/frozen-program-browser.json
           build/shared-frozen-parameters-browser.json
+          build/frozen-composition-32-browser.json
+          build/frozen-composition-128-browser.json
           build/prepared-complex-lifecycle/*.json
           build/prepared-complex-lifecycle/source.ink
           build/browser-lowering-parity.json

@@ -338,6 +338,13 @@ exceptional parameter lists reach 512 values; wrong payloads and authenticated
 invalid theorems reject. A runnable 244-value build-stage example freezes only
 its model root, preserving separate training state, events and checkpoint
 lineage. These are ordinary database lemmas, with no new trusted kernel case or
-runtime performance claim. Next, factor larger generated computations through
-typed helper definitions and checked composition; long continuations and the
-broader graph/tape, device and upstream-parity programme remain required work.
+runtime performance claim. [Balanced typed helper composition](docs/frozen-composition.md)
+now proposes longer closed `foldl` computations through conservative source
+extensions and complete action proofs. The 32- and 128-operation cases preserve
+live weights and exact checkpoints across CPU targets and GPU hosts. Next,
+carry that composed-plan path through normal trained-artifact publication and
+verification, generalize capture abstraction, share repeated helper code/prefix
+lemmas to reduce the measured code/first-binding costs, and extend larger
+graph/tape domains. Warm lifecycle measurements now exist for 32/128 operations;
+short-lived and broader upstream workloads still require acceptance evidence.
+Device training and the broader upstream-parity programme remain required work.

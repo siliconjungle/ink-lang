@@ -50,6 +50,8 @@ def main():
     parser.add_argument('--program', default='examples/frozen-program.ink')
     parser.add_argument('--trace', default='examples/frozen-program-training.json')
     parser.add_argument('--freeze-roots', default='Structure')
+    parser.add_argument('--composition', action='store_true',
+                        help='rebuild a composed helper plan and plain JavaScript, rather than a selected model package')
     args = parser.parse_args()
     for path in [args.program, args.trace]:
         if Path(path).is_absolute() or '..' in Path(path).parts or Path(path).parts[:1] != ('examples',):
@@ -67,6 +69,8 @@ def main():
                   private_target=True, tool_source_subsets=TOOL_SOURCES,
                   fixture=dict(program=args.program,trace=args.trace,freeze_roots=args.freeze_roots),
                   scope='Fresh committed compiler/package source rebuild and matching executed images for the recorded fixture. Historical tool catalogues/experiments are excluded; not a whole-compiler or toolchain correctness proof.')
+    if args.composition:
+        record['fixture']['composition'] = True
     with tempfile.TemporaryDirectory(prefix='ink-compiler-image-') as directory, args.log.open('wb') as log:
         base = Path(directory)
         checkout = base/'source'
@@ -98,6 +102,30 @@ def main():
         compared = {}
         for name, expected in [('baseline', args.baseline.resolve()), ('selected', args.selected.resolve())]:
             output = base/name
+            if name == 'selected' and args.composition:
+                output.mkdir()
+                input_core = base/'baseline/compiled.core.json'
+                if input_core.read_bytes() != (expected/'input.core.json').read_bytes():
+                    raise ValueError('composed restricted source image differs')
+                packet = output/'plan.json'
+                run(['python3', str(checkout/'knowledge/producers/frozen_composition.py'),
+                     str(input_core), '--ink', str(binary), '-o', str(packet)])
+                state = output/'state.json'
+                run([str(binary), 'check-plan', str(input_core), str(packet), '--core', '--state-out', str(state)])
+                checked = json.loads(state.read_bytes())
+                if checked['core'] != json.loads((expected/'selected.core.json').read_bytes()):
+                    raise ValueError('composed selected source differs')
+                javascript = output/'program.mjs'
+                run([str(binary), 'compile', str(input_core), '--core', '--plan', str(packet),
+                     '--target', 'javascript', '-o', str(javascript)])
+                for filename in ['plan.json', 'program.mjs']:
+                    if (output/filename).read_bytes() != (expected/filename).read_bytes():
+                        raise ValueError('composed committed rebuild image differs: '+filename)
+                record['composition'] = dict(plan_sha256=digest(packet.read_bytes()),
+                    javascript_sha256=digest(javascript.read_bytes()),
+                    input_core_sha256=json.loads((output/'program.plan-receipt.json').read_bytes())['input'],
+                    selected_core_sha256=checked['source'])
+                continue
             command = [str(binary), 'build-model', args.program,
                        args.trace, '--freeze-roots', args.freeze_roots,
                        '--target', 'javascript', '-o', str(output)]

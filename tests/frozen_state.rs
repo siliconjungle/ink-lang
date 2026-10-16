@@ -653,6 +653,67 @@ fn frozen_program_keeps_weights_trainable_and_compiles_ordered_operations_on_all
 }
 
 #[test]
+fn frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_on_all_targets() {
+    let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
+    for repeat in [4, 16] {
+        let source = include_str!("../examples/frozen-program.ink");
+        let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+        let mut trace: serde_json::Value = serde_json::from_str(include_str!("../examples/frozen-program-training.json")).unwrap();
+        let short = trace["observations"][0]["args"][0].as_array().unwrap().clone();
+        trace["observations"][0]["args"][0] = json!((0..repeat).flat_map(|_|short.clone()).collect::<Vec<_>>());
+        let trained = verified_language::training::replay(&module, &serde_json::from_value(trace).unwrap()).unwrap();
+        let frozen = verified_language::freezing::restrict(&module, &trained.snapshot, &["Structure".into()]).unwrap();
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("build/frozen-composition-authoring-{}",repeat*8));
+        fs::create_dir_all(&root).unwrap();
+        let input = root.join("frozen.core.json");
+        fs::write(&input, frozen.module.bytes().unwrap()).unwrap();
+        fs::write(root.join("initial.snapshot"), &frozen.snapshot).unwrap();
+        let file = root.join("plan.json");
+        ok(Command::new("python3").arg("knowledge/producers/frozen_composition.py")
+            .arg(&input).arg("--ink").arg(env!("CARGO_BIN_EXE_ink"))
+            .arg("-o").arg(&file).output().unwrap());
+        let package: verified_language::planning::Package = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+        let plan = verified_language::planning::check(&frozen.module, &package).unwrap();
+        assert_eq!(package.steps.len(), 2);
+        assert_eq!(plan.module().program().functions.len(), frozen.module.program().functions.len()+2*repeat-1);
+        assert_eq!(plan.module().program().contracts.learning.trainable, vec!["Weights".to_string()]);
+        fs::write(root.join("selected.core.json"), plan.module().bytes().unwrap()).unwrap();
+        let serve = plan.module().program().actions.iter().find(|a|a.name=="serve").unwrap();
+        let body = serde_json::to_string(&serve.body).unwrap();
+        assert!(!body.contains("Structure") && !body.contains("evaluate") && !body.contains("foldl"));
+        let mut bad = serde_json::to_value(&package).unwrap();
+        bad["steps"][1]["package"]["action_replacement"]["proofs"]["serve"] = json!({"Hypothesis":999});
+        let bad = serde_json::from_value(bad).unwrap();
+        assert!(verified_language::planning::check(&frozen.module,&bad).err().unwrap().contains("action serve"));
+        let mut baseline = Runtime::restore_portable_checked(&frozen.module,&frozen.snapshot).unwrap();
+        let layout = snapshot::layout(frozen.module.program()).unwrap();
+        let mut changed = snapshot_wire::decode(&layout,&frozen.snapshot,Default::default()).unwrap();
+        let structure = layout.roots.iter().position(|(name,_,_)|name=="Structure").unwrap();
+        changed.tables[structure][0].1[0] = json!("Op.Bias");
+        let forged = snapshot_wire::encode(&layout,&changed,Default::default()).unwrap();
+        assert!(Runtime::restore_portable_checked(&frozen.module,&forged).err().unwrap().contains("frozen"));
+        let mut steps = vec![json!({"restore":frozen.snapshot}),json!({"reject_restore":forged,"restore_error":"frozen"})];
+        let mut expected = vec![];
+        let inputs = [0u32,0x80000000,1,0x80000001,0x3dcccccd,0xbf000001,0x7f7fffff,
+            0x7f800000,0xff800000,0x7fa01234,0xffc05678];
+        for (index,bits) in inputs.into_iter().enumerate() {
+            for (name,args) in [
+                ("retune",json!([{"scale":{"F32Bits":bits},"bias":{"F32Bits":inputs[(index+3)%inputs.len()]}},index%3==0])),
+                ("set_live",json!([{"F32Bits":bits}])),
+            ].into_iter().chain(inputs.into_iter().map(|x|("serve",json!([{"F32Bits":x}])))) {
+                let reply = baseline.invoke_json(name,&args).unwrap();
+                steps.push(json!({"call":name,"args":args}));
+                expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":baseline.checkpoint_portable().unwrap()}));
+            }
+        }
+        steps.push(json!({"restore":baseline.checkpoint_portable().unwrap()}));
+        steps.push(json!({"pure":"numeric","args":[[0.,0.5,1.]],"expect_gpu":true}));
+        expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":baseline.checkpoint_portable().unwrap()}));
+        parity::conformance_planned(&format!("frozen-composition-{}-parity",repeat*8),&plan,source,steps,expected);
+    }
+}
+
+#[test]
 fn shared_frozen_parameter_lists_preserve_complete_results_and_live_learning_on_all_targets() {
     let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
     let source = include_str!("../examples/frozen-parameters.ink");
