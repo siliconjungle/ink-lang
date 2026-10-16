@@ -349,3 +349,6 @@ mod f32_bits;
 
 #[path="support/strict_inlining.rs"]
 mod strict_inlining;
+
+#[path = "support/integer_division.rs"]
+mod integer_division;
