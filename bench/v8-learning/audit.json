@@ -2901,7 +2901,91 @@
         ]
       ],
       "review_status": "source read; family assessment open",
-      "note": "Wasm-only32-bit lowering represents i64 as low/high i32 pairs, including exact carry/wide multiply, signed-high/unsigned-low comparisons, distinct atomic pair operations, parameter/result descriptor rewiring, pending-loop phis and frame-state expansion. Constant rotates special-case0/32; dynamic rotates mask and blend halves, so naive JavaScript32-bit shifts must not copy shift-by32 behavior. CLZ/CTZ select the significant half and popcount sums both32-bit counts. V8 returns i64 pairs for Wasm counts; Ink counts must remain u32. Native/wasm toolchains and Ink GPU already lower wide operations; a full JS pair carrier would need complete ABI/ownership/effect/conformance and profitability work. Immediate bounded investigation: generated JS still uses BigInt loops/string counts; test fixed64-bit count implementations using existing32-bit intrinsics, including zero/sparse regressions, before any backend change."
+      "note": "Wasm-only32-bit lowering represents i64 as low/high i32 pairs, including exact carry/wide multiply, signed-high/unsigned-low comparisons, distinct atomic pair operations, parameter/result descriptor rewiring, pending-loop phis and frame-state expansion. Constant rotates special-case0/32; dynamic rotates mask and blend halves, so naive JavaScript32-bit shifts must not copy shift-by32 behavior. CLZ/CTZ select the significant half and popcount sums both32-bit counts. V8 returns i64 pairs for Wasm counts; Ink counts must remain u32. Native/wasm toolchains and Ink GPU already lower wide operations; a full JS pair carrier would need complete ABI/ownership/effect/conformance and profitability work. Immediate bounded investigation: generated JS still uses BigInt loops/string counts; test fixed64-bit count implementations using existing32-bit intrinsics, including zero/sparse regressions, before any backend change. Seven exact U64 count decompositions now replay through existing fixed-counts-v5/shared-select-v3, including optional zero/one-bit/odd guards and strict input bindings. All algorithms stay in the external knowledge bank. Same-source compiled JavaScript complete-call development evidence passes disjoint heldout gating; sparse/zero regressions remain recorded and no global helper or selection policy changes. Full pair-carrier/atomic/call/frame-state transfer remains open."
+    },
+    {
+      "path": "src/compiler/int64-lowering.h",
+      "sha256": "41bb8a57e0588edeb6da1fbcfdfb47bc51a6af02975b09234525e4ae404f3e90",
+      "inclusive_lines": [
+        [
+          1,
+          111
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read only; legacy 32-bit target lowering is a no-op elsewhere. Explicit low/high replacements, on-stack/visited graph state, call descriptor adaptation and early Phi placeholders are compilation machinery, not source equality authority. Implementation body remains unread; do not infer complete legacy coverage. Existing count split proposals use the independently reviewed Turboshaft implementation and ordinary fixed-count proofs, without adding pair carriers or ABI changes."
+    },
+    {
+      "path": "src/compiler/backend/block-position.h",
+      "sha256": "a31b79e3553a2b14d28e8e9dcbf723521ec5f5adb090a747d9aa97f35027e99a",
+      "inclusive_lines": [
+        [
+          1,
+          41
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read. Pettis-Hansen top-down profile-guided basic block placement: entry first, largest unplaced successor/connection. Observed execution counts rank physical layout only. Ink emits literal JS/Rust/Wasm and delegates final machine block layout to their hosts; no source branch reordering or new checker authority follows."
+    },
+    {
+      "path": "src/compiler/backend/block-position.cc",
+      "sha256": "0f06278a37508de74de9f1ae506602fa11c0b1b276ab22507bacceb4160922af",
+      "inclusive_lines": [
+        [
+          1,
+          97
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full implementation read. Single-successor edges inherit predecessor counts; split successors use own execution counts; zero-count blocks remain selectable, visited blocks cannot repeat, and final rooted reachability/permutation completeness is checked. Current Ink has no owned final machine-block assembler; host/compiler placement remains delegated. PGO/source-search profiles remain measured hints and cannot discharge source or effect equality."
+    },
+    {
+      "path": "src/compiler/backend/jump-threading.h",
+      "sha256": "910aec27946989b665103bb740e2051efb1f690b24ba4decd55aefc437166689",
+      "inclusive_lines": [
+        [
+          1,
+          34
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read: transitive forwarding of empty instruction blocks, then physical jump/branch target rewriting. Existing Ink source control equalities require checked Cases/strict evaluation; no final machine CFG is owned by the literal emitters."
+    },
+    {
+      "path": "src/compiler/backend/jump-threading.cc",
+      "sha256": "fcc60dba78e380c75ea201fa8e1cfb0a24cdf903af1d92c9b9967f96bbd5b470",
+      "inclusive_lines": [
+        [
+          1,
+          330
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full 330-line implementation read. Explicit unvisited/on-stack DFS handles cycles; forwarding respects nonredundant parallel moves, flags continuations, frame construction/deconstruction and fixed return stack sizes. Gap-move sharing compares complete moves. Applying forwarding preserves handler/table-switch CFI target annotations, entry block and assembly-order numbering. These machine/runtime obligations are delegated to JS/Rust/Wasm hosts, not discharged by an Ink source hash or equality proof. Existing source control-choice laws remain the separately admitted route; no raw-CFG shortcut introduced."
+    },
+    {
+      "path": "src/compiler/backend/gap-resolver.h",
+      "sha256": "363297c4832b4df5f69f21e78204d891820cb4b47919cc3b486f826a642da0e2",
+      "inclusive_lines": [
+        [
+          1,
+          78
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read. General parallel-copy assembler interface reserves scratch operands and handles push/pop, swaps and temporary locations. Machine register/stack allocation remains delegated to existing host toolchains; Ink literal emission must retain simultaneous source snapshots."
+    },
+    {
+      "path": "src/compiler/backend/gap-resolver.cc",
+      "sha256": "a0810db65de9c7412e6659609aedd9107bf27e6a528b9a5dae26493db4750ce9",
+      "inclusive_lines": [
+        [
+          1,
+          233
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full 233-line implementation read. Drop exact redundant moves; disjoint source/destination classes enable a fast path. DFS orders interfering moves, exact representation/location reversals alone permit a swap, and generic cycles reserve scratch registers before spilling one source; intertwined cycles spill and retry. Overlapping FP stack slots are not a swap. Ink has no physical register allocator to replace; existing lexical final-use and simultaneous-update machinery must preserve old values before writes, and cannot infer unique ownership from a local alias. No new optimization or speed claim from this source read."
     }
   ],
   "families": [
