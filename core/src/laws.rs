@@ -2877,7 +2877,7 @@ mod tests {
         let certificate=crate::bitproof::Certificate{
             encoding:crate::bitproof::Encoding::SharedV2,
             problem_sha256:problem.identity().to_owned(),
-            steps:vec![crate::bitproof::Step{clause:vec![],hints:vec![0,problem.clauses().len()-1]}],
+            steps:vec![crate::bitproof::Step{clause:vec![],hints:vec![0,problem.clauses().len()-1],hint_deltas_v1:None}],
         };
         let proof=Proof::BitVector{semantics:BitVectorSemantics::FixedWordsV2,hypotheses:vec![],certificate:certificate.clone()};
         c.prove(&p,&env,&[],&goal,&proof,&mut Budget::new(),0).unwrap();
