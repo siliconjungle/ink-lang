@@ -1,0 +1,178 @@
+{
+  "schema": 1,
+  "compiler_sha256": "9fe0f0f6036cec90f2a3f9d96b81c68d15a33e1e24048ad20dd3ae1b8632f17a",
+  "distribution_revision": "cffce1aa98504f3cba14ccb7215d5f447a3d9350",
+  "knowledge_revision": "8d075db26bd3571b8742455ba02730bacd91a2fe",
+  "planner_revision": "7026cfe02e4f9ab7c3ce29f9ce0ee2b02b3e4d33",
+  "validation": {
+    "knowledge_tests": 28,
+    "final_range_tests": 3,
+    "cpu_cases": 88,
+    "cpu_targets": [
+      "reference",
+      "native",
+      "javascript",
+      "rust-wasm"
+    ]
+  },
+  "measurements": {
+    "javascript": {
+      "result": {
+        "schema": 1,
+        "target": "javascript",
+        "selected_functions": [
+          "relational",
+          "wrapped"
+        ],
+        "search_checks": 32,
+        "compiler_sha256": "9fe0f0f6036cec90f2a3f9d96b81c68d15a33e1e24048ad20dd3ae1b8632f17a",
+        "source": "cfdd53ed1f7a00386daafb25991369c0dd0303b133baacd87c9799cd5b582a25",
+        "measurements": [
+          "3c352c603983e9bc041c0c35933ecf7b01415fe54a2c158fcea546bf72927803",
+          "374fa83eca391fdc94886374fe2732b6c721ef6f4ef7ab3d76c79ad0cc44d312"
+        ],
+        "selected_after_independent_rejection": "3c352c603983e9bc041c0c35933ecf7b01415fe54a2c158fcea546bf72927803",
+        "heldout_accepted": false,
+        "controls": {
+          "processes": 3,
+          "rounds": 11,
+          "minimum_batch_ms": 5,
+          "maximum_calls_per_sample": 1024
+        },
+        "scope": "Default semantic discovery; two checked candidates using official complete-call acquisition/rank and disjoint holdout; resident-call objective excludes compile/startup, which are recorded separately; shared host"
+      },
+      "splits": {
+        "training": {
+          "baseline_ns": "1415",
+          "candidate_ns": "1368",
+          "baseline_over_candidate_ratio": "1.034356725146199",
+          "selected_lane": 0
+        },
+        "holdout": {
+          "baseline_ns": "1340",
+          "candidate_ns": "1377",
+          "baseline_over_candidate_ratio": "0.9731299927378358",
+          "selected_lane": 0
+        }
+      }
+    },
+    "native": {
+      "result": {
+        "schema": 1,
+        "target": "rust",
+        "selected_functions": [
+          "relational",
+          "wrapped"
+        ],
+        "search_checks": 32,
+        "compiler_sha256": "9fe0f0f6036cec90f2a3f9d96b81c68d15a33e1e24048ad20dd3ae1b8632f17a",
+        "source": "cfdd53ed1f7a00386daafb25991369c0dd0303b133baacd87c9799cd5b582a25",
+        "measurements": [
+          "9c0792f254d602736079724b0eebc8d5c6bdda749c1c97b2b53b13e522116cbb",
+          "e6d82337e254d0955212ceea0903e3d36b4dc0317ab89897d18edc164a2caaca"
+        ],
+        "selected_after_independent_rejection": "9c0792f254d602736079724b0eebc8d5c6bdda749c1c97b2b53b13e522116cbb",
+        "heldout_accepted": false,
+        "controls": {
+          "processes": 3,
+          "rounds": 11,
+          "minimum_batch_ms": 5,
+          "maximum_calls_per_sample": 1024
+        },
+        "scope": "Default semantic discovery; two checked candidates using official complete-call acquisition/rank and disjoint holdout; resident-call objective excludes compile/startup, which are recorded separately; shared host"
+      },
+      "splits": {
+        "training": {
+          "baseline_ns": "63",
+          "candidate_ns": "64",
+          "baseline_over_candidate_ratio": "0.984375",
+          "selected_lane": 0
+        },
+        "holdout": {
+          "baseline_ns": "64",
+          "candidate_ns": "65",
+          "baseline_over_candidate_ratio": "0.9846153846153847",
+          "selected_lane": 0
+        }
+      }
+    }
+  },
+  "limitations": [
+    "No robust measured speedup on either current boundary; baseline retained by unchanged 10 percent sample-extrema guard.",
+    "32-check normal semantic search rewrites relational and wrapped; guarded remains unchanged. A separate 128-check renamed regression finds all three.",
+    "Two-candidate resident-call comparison excludes build/module startup and external argument encoding. Those costs are recorded separately. JavaScript compact-wire and native generated JSON-value calls have different boundaries.",
+    "Shared host, three fresh processes, eleven rounds and disjoint training/holdout inputs; no broad application or GPU gain claim."
+  ],
+  "matched_budget_control": {
+    "scope": "Same source/compiler/prices/32 checks/four rounds; overlay removes only three new frozen proposals. No wall-time performance inference from this control.",
+    "without_three_laws": {
+      "initial_cost": 29,
+      "selected_cost": 21,
+      "functions": [
+        "wrapped"
+      ],
+      "attempts": 32
+    },
+    "with_three_laws": {
+      "initial_cost": 29,
+      "selected_cost": 11,
+      "functions": [
+        "relational",
+        "wrapped"
+      ],
+      "attempts": 32
+    }
+  },
+  "frozen_corpus": {
+    "schema": 1,
+    "scope": "Frozen ten-program diagnostic for range-conversion batch before merging independent frozen-literal closure changes",
+    "knowledge_revision": "8d075db26bd3571b8742455ba02730bacd91a2fe",
+    "planner_revision": "7026cfe02e4f9ab7c3ce29f9ce0ee2b02b3e4d33",
+    "compiler_sha256": "9fe0f0f6036cec90f2a3f9d96b81c68d15a33e1e24048ad20dd3ae1b8632f17a",
+    "headline": {
+      "programs": 10,
+      "compiled": 10,
+      "programs_with_rewrite_alternative": 10,
+      "programs_with_any_alternative": 10,
+      "programs_selecting_alternative": 0,
+      "median_seconds": 52.344,
+      "stopped_by_time": 10,
+      "laws_admitted": 24,
+      "laws_admitted_in_multiple_programs": 6,
+      "representations_admitted": 0,
+      "last_gates": {
+        "measurement_evidence": 10
+      }
+    },
+    "new_range_law_attribution": {},
+    "near_misses": {
+      "reasons": {},
+      "premise_shapes": [],
+      "instance_shapes": [],
+      "laws": []
+    },
+    "selection_reasons": [
+      "baseline retained; no robust measured lifecycle improvement"
+    ],
+    "limitations": [
+      "Every quick-search time budget exhausted.",
+      "No new range law observed in this unchanged corpus; no broader generalization claim.",
+      "All alternatives retained baseline because none passed robust measured lifecycle improvement; acquisitions did occur.",
+      "Changed compiler/catalogue versus earlier batches and shared host prohibit causal speedup comparisons."
+    ]
+  },
+  "integration": {
+    "schema": 1,
+    "distribution_revision": "1629f134c2748cfafc61ff85949aa977059053f0",
+    "knowledge_revision": "ca2f29c1571b37bfa217fea0d3910eb52deba374",
+    "planner_revision": "7026cfe02e4f9ab7c3ce29f9ce0ee2b02b3e4d33",
+    "compiler_sha256": "44deb8a8f68ca68d6466f5e45e548a82faf79aeaea1e5515ccc670eef73b2fb7",
+    "cargo_lock_sha256": "a882447a3d4c99c3f4a1415adaeb9e7274d0eed8400a3417825f00098dad33b4",
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+    "knowledge_tests": 33,
+    "cpu_cases": 88,
+    "all_cpu_targets_required": true,
+    "locked_fetch": "passed",
+    "scope": "Post-merge local proof and cross-target integration; historical timing context remains separately bound. CI is not claimed complete."
+  }
+}
