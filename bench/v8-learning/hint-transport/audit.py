@@ -50,5 +50,22 @@ def audit():
     cells=[r for r in checker['cells']if r['worker']==worker and r['round']==round and r['label']==label]
     assert sorted(r['group']for r in cells)==list(range(15))
     assert sum(r['ns']for r in cells)==next(r['ns']for r in checker['samples'][label]if r['worker']==worker and r['round']==round)
- print('PASS indexed immutable inputs, proof/negative receipts, CPU holdout decisions, six device processes and945 fresh checker controls')
+ for archive_name,index_name in [('trained-integration-inputs.tar.gz','trained-integration-index.json'),('merged-emission-inputs.tar.gz','merged-emission.json')]:
+  index=json.loads((ROOT/index_name).read_bytes());assert sha((ROOT/archive_name).read_bytes())==index['archive_sha256']
+  with tarfile.open(ROOT/archive_name)as archive:
+   assert set(archive.getnames())==set(index['files'])
+   for name,expected in index['files'].items():
+    data=archive.extractfile(name).read()
+    if isinstance(expected,dict):assert len(data)==expected['bytes'];expected=expected['sha256']
+    assert sha(data)==expected
+ integrated=json.loads((ROOT/'merged-emission.json').read_bytes());assert integrated['terminal']['exit_status']==0 and integrated['terminal']['actual_device_calls']==8 and len(integrated['report']['results'])==8
+ for row in integrated['report']['results']:
+  assert row['observed']['dispatches']==row['reported']['dispatches']>0 and row['observed']['submissions']>0 and row['observed']['readbacks']>0
+ trained=json.loads((ROOT/'trained-integration.json').read_bytes());assert trained['exit_status']==0 and trained['reference_cases']==143 and len(trained['targets'])==5
+ for name,expected in trained['log_sha256'].items():assert sha(gzip.decompress((ROOT/(name+'.gz')).read_bytes()))==expected
+ for name in ['corpus-hint-transport','corpus-hint-transport-combined']:
+  directory=ROOT.parent/name;index=json.loads((directory/'sha256-index.json').read_bytes())
+  for relative,expected in index['files'].items():assert sha((directory/relative).read_bytes())==expected
+  terminal=json.loads((directory/'terminal.json').read_bytes());report=json.loads((directory/'report.json').read_bytes());assert terminal['exit_status']==0 and report['headline']['compiled']==10 and report['headline']['programs_selecting_alternative']==0
+ print('PASS immutable proof/checker/runtime evidence, both frozen corpora, final143-case five-target trained conformance and8actualGPUcalls')
 if __name__=='__main__':audit()

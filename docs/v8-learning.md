@@ -14,7 +14,7 @@ shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_st
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
-Current receipts cover 145 full files and three partial files, with 461 unread;
+Current receipts cover 147 full files and three partial files, with 459 unread;
 all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
@@ -591,3 +591,15 @@ programs, with no new self-quotient attribution. No alternative/representation i
 selected; all ten end at measurement evidence and exhaust quick budgets. No
 near-miss reason is recorded. The 50.725 s median excludes private publication
 preparation and is not a causal comparison with the prior 51.422 s unpaired run.
+
+
+Concurrent producer work is preserved in the merged knowledge pin. Its separate
+frozen cohort compiles all ten programs, observes 24 old laws/six reused and
+selects none, with a stable terminal context. The original and merged cohorts
+remain distinct. Final merged CLI validation passes nine planner cache/CLI tests,
+two trained-plan tests across five interfaces (143 reference cases and exact
+snapshots), four exact original self-quotient oracles and eight actual GPU calls.
+Both complete generated GPU artifact trees match the measured cohort byte for
+byte; no timing context or automatic selection authority is transferred.
+Current-core CI receipt checks now remain separate from historical package/test
+records, which keep their original source identities.
