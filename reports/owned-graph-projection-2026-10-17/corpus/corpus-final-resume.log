@@ -1,0 +1,18 @@
+planning sequence-every ...
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/planner/ink_planner/corpus.py", line 428, in <module>
+    main()
+    ~~~~^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/planner/ink_planner/corpus.py", line 413, in main
+    record = run_program(program, inputs.programs[program['name']], args, out)
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/planner/ink_planner/corpus.py", line 179, in run_program
+    private_copy(args.knowledge_root, scratch)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/planner/ink_planner/corpus.py", line 166, in private_copy
+    return clone_knowledge(root, scratch)
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/planner/ink_planner/corpus.py", line 97, in clone_knowledge
+    original.backup(private)
+    ~~~~~~~~~~~~~~~^^^^^^^^^
+sqlite3.OperationalError: database or disk is full

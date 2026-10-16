@@ -407,3 +407,15 @@ packages are published. This is a foundation for graph specialization, with no
 new executable graph rewrite or measured runtime gain. Source graph/code
 transformations and the broad Handwired/Pretext/Freerange acceptance programme
 remain required.
+
+[Source fold-state projection](docs/fold-state-projection.md) now proposes smaller
+owned loop carriers through the existing general fold law and a checked universal
+step simulation. A shared function-body rewrite covers pure and stateful callers;
+111 reference/Rust/JavaScript/Wasm calls retain events, rollback and exact state.
+The separate 32-node F32 graph projection matches 175 reference histories, with
+six paired JavaScript measurements and noisy samples retained. Complete owned
+frozen-graph action proofs also replay with the existing checker limits; 486
+standalone core tests cover the bounded conversion change. The unrolled record
+pilot lost performance, and projected/unrolled composition still exhausts proof
+resources. Profitable automatic representation selection, broad graph/tape
+compilation, device training and full upstream parity remain required.
