@@ -46,6 +46,9 @@ change tick(bits:u32,fail:Bool)->Result<u32,u32> reads(Counts) writes(Counts) em
 change ordered(a:u32,b:u32,fail:Bool)->Result<u32,u32> reads(Counts) writes(Counts) emits(Seen) {
  return Ok(f32_bits(f32_div(f32_from_bits(tick(a,false)?),f32_from_bits(tick(b,fail)?))));
 }
+change ordered_integer(a:u32,b:u32,fail:Bool)->Result<u32,u32> reads(Counts) writes(Counts) emits(Seen) {
+ return Ok(f32_bits(f32_div(f32_from_u32(tick(a,false)?),f32_from_u32(tick(b,fail)?))));
+}
 "#;
 
 #[test]
@@ -97,16 +100,17 @@ fn scalar_projection_matches_reference_bits_and_orders_effectful_arguments() {
             assert_eq!(arguments[3], initial);
             assert_eq!(arguments[4], construct(&model.events, 0, vec![]));
         }
+        for name in ["ordered", "ordered_integer"] {
         for fail in [false, true] {
             let mut runtime = Runtime::from_checked(&module).unwrap();
             let outcome = runtime
-                .invoke_json("ordered", &json!([x, y, fail]))
+                .invoke_json(name, &json!([x, y, fail]))
                 .unwrap();
             let actual = context
                 .evaluate(
                     &[],
                     &call(
-                        &model.actions["ordered"].function,
+                        &model.actions[name].function,
                         vec![
                             initial.clone(),
                             Term::U64(0),
@@ -168,6 +172,7 @@ fn scalar_projection_matches_reference_bits_and_orders_effectful_arguments() {
             };
             assert_eq!(arguments[4], events);
         }
+        }
     }
 }
 
@@ -228,7 +233,7 @@ fn builtin_value_observations_remain_at_the_original_site() {
 
 #[test]
 fn primitive_registration_does_not_admit_unsupported_meanings() {
-    for expression in ["is_finite(0.0f64)", "f32_from_u32(1)==1.0", "string_byte_len(\"x\")==1"] {
+    for expression in ["is_finite(0.0f64)", "f32_from_int(Int(1))==1.0", "string_byte_len(\"x\")==1"] {
         let source=format!("module unsupported;query test()->Bool{{return {expression};}}");
         let module=CheckedModule::from_source(syntax::parse(&source).unwrap()).unwrap();
         assert!(Projection::derive(&module).is_err(),"{expression}");
