@@ -276,3 +276,12 @@ reference/target fixtures cover whole results and snapshots. Matched text and
 neural controls retain small-call losses and VM warm-up sensitivity; this step
 does not complete upstream parity, learned structural selection or the full
 adaptive-model programme.
+
+[Normalized JavaScript F32 carriers](docs/normalized-f32-carriers.md) now avoid
+repeated carrier normalization while preserving raw NaN tags, typed host reads,
+mutable snapshots and arithmetic rounding. Complete derivative results improve
+in the matched neural workload; prediction is mixed and text code is unchanged.
+The retained report includes independent values, required-target snapshots,
+upstream controls and cold costs. Broader learned structure/representation
+specialization, arbitrary adaptive planner search and the full three-project
+performance programme remain open.

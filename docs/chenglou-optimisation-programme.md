@@ -370,3 +370,11 @@ stack headroom retain ordinary calls on unsupported or large paths. Full text,
 neural and ownership controls accompany matched timings. This general execution
 step leaves broad upstream parity, device graph specialization and the complete
 adaptive-model delivery checklist open.
+
+[Normalized F32 carrier tracking](normalized-f32-carriers.md) reduces repeated
+normalization in pure JavaScript neural execution while retaining arithmetic
+order, exact NaN tags and every borrowed host read. Matched complete derivatives
+gain in every fresh process pair; prediction remains mixed, and binary64 text
+images are unchanged. The report retains Handwired/ranged/direct controls rather
+than treating this one workload as broad parity. Learned graph/representation
+specialization and the full adaptive-model delivery checklist remain required.
