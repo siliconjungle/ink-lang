@@ -24,6 +24,7 @@ pub struct Route {
 #[serde(tag = "kind", content = "package", rename_all = "snake_case")]
 pub enum Step {
     Rewrite(optimisation::Package),
+    Functions(crate::action_model::FunctionReplacement),
     Extension(crate::source_extension::Request),
     Representation(representation::Request),
     Definitions(DefinitionSelection),
@@ -184,6 +185,19 @@ fn check_from(
     checked.package = packet;
     for step in &package.steps[done..] {
         match step {
+            Step::Functions(p) => {
+                let selected = crate::action_model::check_functions(&checked.module, p)?;
+                interface(original, &selected)?;
+                checked.module = selected;
+                checked.representation = None;
+                checked.physical = None;
+                checked.properties.clear();
+                checked.definitions.clear();
+                checked.route = None;
+                checked.resources = None;
+                checked.maintained = None;
+                checked.protocol = None;
+            }
             Step::Extension(p) => {
                 let selected=crate::source_extension::check(&checked.module,p)?;
                 interface(original,&selected)?;
