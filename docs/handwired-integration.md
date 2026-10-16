@@ -44,7 +44,10 @@ requirements with a search-only milestone.
 [Learned instruction programs](learned-programs.md) now connect an authored
 whole-computation objective to discrete program choices and checked frozen
 compilation. This finite 32-operation grammar retains runtime weights and goal
-updates, with complete action proofs through open workload traversals. It is a
+updates, with complete action proofs through open workload traversals. Exact
+closed scalar calculations and instruction counters can become constants;
+ordinary balanced helper laws remain as proof witnesses. This combines learned
+structure with staging of work whose inputs have become immutable. It is a
 step toward learned structure and representations; it does not complete general
 network lowering, device training or the upstream performance requirement.
 
