@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
-const [chrome,fixture='build/source-reverse-parity',output='build/source-reverse-browser.json']=process.argv.slice(2);
+const [chrome,fixture='build/source-reverse-parity',output='build/source-reverse-browser.json',mode,artifact]=process.argv.slice(2);
+if(mode&&!(mode==='--initialized'&&artifact))throw Error('Expected --initialized ARTIFACT');
 if(!chrome)throw Error('Chrome executable required');
 const root=process.cwd();let browser;
 const server=http.createServer(async(req,res)=>{
@@ -18,8 +19,8 @@ try{
  browser=await chromium.launch({executablePath:chrome,headless:true,args:['--enable-unsafe-webgpu',...(process.platform==='linux'?['--use-angle=swiftshader','--enable-unsafe-swiftshader']:[])]});
  const page=await browser.newPage();page.on('pageerror',e=>console.error(e));
  await page.goto(`http://127.0.0.1:${server.address().port}/${fixture}/script.json`);
- const receipt=await page.evaluate(async fixture=>{
-  const base=new URL('/',location.href),folder=new URL(fixture+'/',base),bundle=new URL('gpu-module/',folder);
+ const receipt=await page.evaluate(async ({fixture,artifact})=>{
+  const base=new URL('/',location.href),folder=new URL(fixture+'/',base),bundle=artifact?new URL(artifact+'/program/',base):new URL('gpu-module/',folder);
   const {parseExactJSON}=await import(new URL('state-wasm.mjs',folder));
   const read=async name=>parseExactJSON(await(await fetch(new URL(name,folder))).text());
   const steps=await read('script.json'),expected=await read('expected.json');
@@ -38,9 +39,11 @@ try{
    if(t.kind==='result')return Object.hasOwn(v,'Ok')?{Ok:capture(v.Ok,t.ok)}:{Err:capture(v.Err,t.error)};
    return v;
   };
-  let comparisons=0,restores=0,gpuCalls=0,requiredErrors=0,restoreRejections=0;const results=[];
+  const seed=artifact?new Uint8Array(await(await fetch(new URL(artifact+'/deployment.snapshot',base))).arrayBuffer()):null;
+  let initializedChecks=0,comparisons=0,restores=0,gpuCalls=0,requiredErrors=0,restoreRejections=0;const results=[];
   try{for(const backend of ['javascript','cpu','gpu']){
-   let state=backend==='javascript'?host.createJavaScriptState():host.createState();let index=0;
+   let state=await(backend==='javascript'?host.createJavaScriptState():host.createState());let index=0;
+   if(seed){equal(Array.from(backend==='javascript'?await state.checkpoint():state.snapshot()),Array.from(seed),`${backend} initialized checkpoint`);initializedChecks++;}
    try{for(const step of steps){
     if(step.restore){const bytes=new Uint8Array(step.restore.map(Number));if(backend==='javascript')await state.restore(bytes);else{const restored=host.restoreState(bytes);state.dispose();state=restored;}restores++;continue;}
     if(step.reject_restore){
@@ -65,10 +68,11 @@ try{
     equal(reply,expected[index].reply,`${backend} reply ${index}`);
     equal(Array.from(backend==='javascript'?await state.checkpoint():state.snapshot()),expected[index].snapshot,`${backend} checkpoint ${index}`);index++;comparisons++;
    }}finally{state.dispose?.();}
+   if(seed){const fresh=await(backend==='javascript'?host.createJavaScriptState():host.createState());try{equal(Array.from(backend==='javascript'?await fresh.checkpoint():fresh.snapshot()),Array.from(seed),`${backend} fresh checkpoint`);initializedChecks++;}finally{fresh.dispose?.();}}
    results.push({backend,observations:index});
   }}finally{await host.dispose();}
   if(gpuCalls===0)throw Error('actual WebGPU dispatch required');
-  return {status:'passed',comparisons,restores,gpuCalls,requiredErrors,results,...(restoreRejections?{restoreRejections}:{}),scope:'complete values, outcomes, ordered events and exact portable snapshots; CPU-host computation, separate actual device computation'};
- },fixture);
+  return {status:'passed',comparisons,restores,gpuCalls,requiredErrors,results,...(restoreRejections?{restoreRejections}:{}),...(seed?{initializedChecks}:{}),scope:'complete values, outcomes, ordered events and exact portable snapshots; CPU-host computation, separate actual device computation'};
+ },{fixture,artifact});
  assert.equal(receipt.status,'passed');await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

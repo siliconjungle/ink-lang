@@ -27,31 +27,61 @@ sequence of ordinary head reductions toward an existing continuation call. It
 then compares every argument. This avoids unfolding an unchanged continuation
 on both sides; it adds no equation and raises no checker work/depth allowance.
 
-## Explicit compilation
+## Build an initialized model artifact
 
 ```sh
 ink build-model examples/frozen-program.ink \
     examples/frozen-program-long-training.json \
-    --freeze-roots Structure --target javascript -o build/long-model
+    --freeze-roots Structure --specialize-frozen \
+    --target javascript -o build/long-model
+ink verify-model build/long-model --replay
+```
+
+`--specialize-frozen` now carries both direct action selection and composed
+helper plans through ordinary artifact publication. The untrusted knowledge
+build driver uses composition when its bounded typed traversal proposal produces
+helpers, and the existing direct producer otherwise. This chooses how to author
+an explicitly requested proof; it is not automatic profitability selection.
+A failed chosen proposal or proof rejects publication instead of silently
+changing strategy. There is no new source syntax.
+
+The artifact retains `selection.json`, whose semantics identifies either the
+direct selection or complete compiled plan, plus `selected.core.json`, the
+restricted input core, complete training/deployment checkpoints and target code.
+Verification always replays every extension and rewrite, including all complete
+action equalities, even without `--replay`. It checks the selected source,
+compiled plan binding and initialized checkpoint. Rehashing altered proof bytes
+cannot supply that authority. This initialized adapter supports source extensions
+and rewrites; other physical/routing plan steps reject rather than disappear.
+
+JavaScript, native, Rust, Wasm and WebGPU-host artifacts use the original
+restricted checkpoint namespace. Their factories start from the trained live
+state, while retained learning actions remain available. Composed WebGPU
+artifacts compile and inventory their CPU Wasm fallbacks before publication;
+GPU-host state/learning still runs on the CPU. This is not GPU training.
+
+The trace configures 128 operations and initializes separate weights. This
+example does not learn the opcode sequence or demonstrate neural convergence.
+More general graph/tape specialization, other traversals, automatic profitability
+selection and device training remain required work.
+
+## Separate authoring
+
+The lower-level plan interface remains available:
+
+```sh
 python3 knowledge/producers/frozen_composition.py \
     build/long-model/compiled.core.json --ink /absolute/path/to/ink \
     -o build/long-plan.json
 ink check-plan build/long-model/compiled.core.json build/long-plan.json --core
-ink compile build/long-model/compiled.core.json --core \
-    --plan build/long-plan.json --target javascript -o build/long-program.mjs
+ink build build/long-model/compiled.core.json --core --plan build/long-plan.json \
+    --initial-state build/long-model/deployment.snapshot \
+    --target javascript -o build/long-program.mjs
 ```
 
-The trace configures 128 operations and initializes separate weights. This
-example does not learn the opcode sequence or demonstrate neural convergence.
-The emitted module supports explicit restore of `long-model/deployment.snapshot`;
-creating it without that restore uses ordinary declared initial live state.
-
-This producer is currently an explicit composed-plan path. `build-model
---specialize-frozen` still uses the earlier single-selection producer; the new
-composition is not yet carried through that artifact publication/verifier path.
-That integration remains required work, alongside more general graph/tape
-specialization, other traversals, automatic profitability selection and device
-training. There is no new syntax in this milestone.
+`build --plan` requires an initial checkpoint and emits an initialized artifact.
+`compile --plan` retains the plain-module interface, requiring explicit restore
+to start from the trained live state.
 
 Construction is bounded by eight operations per leaf, a finite helper/depth/work
 budget and the existing source/plan/checker limits. A failed proposal/check keeps

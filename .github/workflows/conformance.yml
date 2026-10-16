@@ -51,6 +51,7 @@ jobs:
         python3 reports/frozen-literal-sharing-2026-10-16/audit.py
         python3 reports/factored-literal-proofs-2026-10-16/audit.py
         python3 reports/frozen-composition-2026-10-16/audit.py
+        python3 reports/composed-artifacts-2026-10-16/audit.py
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -1210,6 +1211,7 @@ jobs:
         python3 tools/build_gpu_wasm.py build/source-reverse-parity/gpu-module build/source-reverse-until-parity/gpu-module
         python3 tools/build_gpu_wasm.py build/prepared-complex-lifecycle/gpu-module
         python3 tools/build_gpu_wasm.py build/frozen-program-parity/gpu-module build/shared-frozen-parameters-parity/gpu-module
+        INK_TEST_WASM=1 cargo test --test trained_build composed_frozen_artifacts_initialize_live_weights_and_recheck_complete_plans -- --exact --nocapture
         python3 tools/build_gpu_wasm.py build/frozen-composition-32-parity/gpu-module build/frozen-composition-128-parity/gpu-module
         python bench/gpu/prepare-lowering-parity-browser.py
         python bench/gpu/prepare-word-parity-browser.py
@@ -1221,6 +1223,8 @@ jobs:
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/shared-frozen-parameters-parity build/shared-frozen-parameters-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-32-parity build/frozen-composition-32-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-128-parity build/frozen-composition-128-browser.json
+        composed_artifact=$(python3 -c 'import json;print(json.load(open("build/trained-build-validation/composed-browser-artifact.json"))["artifact"])')
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-128-parity build/composed-artifact-browser.json --initialized "$composed_artifact"
         node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
         INK_TEST_WGPU=1 cargo test --test database_planning recursive_database_plan_preserves_every_observation_and_original_checkpoints -- --exact --nocapture
         python bench/gpu/prepare-database-plan-browser.py
@@ -1238,6 +1242,8 @@ jobs:
           build/shared-frozen-parameters-browser.json
           build/frozen-composition-32-browser.json
           build/frozen-composition-128-browser.json
+          build/composed-artifact-browser.json
+          build/trained-build-validation/composed-browser-artifact.json
           build/prepared-complex-lifecycle/*.json
           build/prepared-complex-lifecycle/source.ink
           build/browser-lowering-parity.json

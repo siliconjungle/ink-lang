@@ -33,7 +33,11 @@ the baseline with training replay, reruns the committed knowledge producer,
 checks the complete composed plan and reproduces its selected core, exact plan
 bytes and JavaScript. The receipt records those separate composition bindings.
 The plain module still needs explicit restore to start from the recorded live
-training state; this check does not claim an initialized composed-artifact factory.
+training state. To reproduce an initialized composed artifact instead, use the
+ordinary mode with `--trace examples/frozen-program-long-training.json` and name
+its complete baseline/selected model-package directories. The same image list
+then includes the factory, its source module, selected core, complete plan and
+startup checkpoint; normal artifact verification replays the plan as well.
 
 The receipt binds the revision, package pins, compared images, Cargo version,
 resolution lock and complete log. It is written only after successful comparison.

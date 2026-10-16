@@ -350,7 +350,13 @@ fn trained_gpu_module_initializes_the_same_state_and_dispatches_numeric_work() {
         .output()
         .unwrap());
     ok(Command::new(env!("CARGO"))
-        .args(["build", "--locked", "--offline", "--quiet", "--manifest-path"])
+        .args([
+            "build",
+            "--locked",
+            "--offline",
+            "--quiet",
+            "--manifest-path",
+        ])
         .arg(project.join("Cargo.toml"))
         .arg("--target-dir")
         .arg(&target)
@@ -412,8 +418,15 @@ fn trained_gpu_module_initializes_the_same_state_and_dispatches_numeric_work() {
     let javascript_bytes = fs::read(&javascript).unwrap();
     fs::remove_file(&javascript).unwrap();
     let mut artifact: Value = serde_json::from_slice(&original_artifact).unwrap();
-    artifact["files"].as_object_mut().unwrap().remove("program/program.mjs");
-    fs::write(directory.join("artifact.json"), serde_json::to_vec(&artifact).unwrap()).unwrap();
+    artifact["files"]
+        .as_object_mut()
+        .unwrap()
+        .remove("program/program.mjs");
+    fs::write(
+        directory.join("artifact.json"),
+        serde_json::to_vec(&artifact).unwrap(),
+    )
+    .unwrap();
     assert!(training::verify_model(&directory, false)
         .unwrap_err()
         .contains("GPU JavaScript entry binding"));
@@ -450,5 +463,210 @@ fn build_stage_candidate_continues_in_the_programmable_continuous_service() {
             .output()
             .unwrap());
         println!("{}: {}", target, String::from_utf8_lossy(&output.stdout));
+    }
+}
+
+#[test]
+fn composed_frozen_artifacts_initialize_live_weights_and_recheck_complete_plans() {
+    use sha2::{Digest, Sha256};
+    use verified_language::{freezing, snapshot, snapshot_wire, syntax};
+    fs::create_dir_all(root()).unwrap();
+    let module = CheckedModule::from_source(
+        syntax::parse(include_str!("../examples/frozen-program.ink")).unwrap(),
+    )
+    .unwrap();
+    let trace: training::Trace = serde_json::from_str(include_str!(
+        "../examples/frozen-program-long-training.json"
+    ))
+    .unwrap();
+    let trained = training::replay(&module, &trace).unwrap();
+    let frozen = freezing::restrict(&module, &trained.snapshot, &["Structure".into()]).unwrap();
+    let layout = snapshot::layout(frozen.module.program()).unwrap();
+    let mut logical = snapshot_wire::decode(&layout, &frozen.snapshot, Default::default()).unwrap();
+    let index = layout
+        .roots
+        .iter()
+        .position(|(name, _, _)| name == "Structure")
+        .unwrap();
+    logical.tables[index][0].1[0] = json!("Op.Bias");
+    let invalid = snapshot_wire::encode(&layout, &logical, Default::default()).unwrap();
+    let mut runtime = Runtime::restore_portable_checked(&frozen.module, &frozen.snapshot).unwrap();
+    let bits = [
+        0u32, 0x80000000, 1, 0x80000001, 0x3dcccccd, 0xbf000001, 0x7f7fffff, 0x7f800000,
+        0xff800000, 0x7fa01234, 0xffc05678,
+    ];
+    let mut cases = vec![];
+    for (i, word) in bits.into_iter().enumerate() {
+        for (call,args) in [
+            ("retune",json!([{"scale":{"F32Bits":word},"bias":{"F32Bits":bits[(i+3)%bits.len()]}},i%3==0])),
+            ("set_live",json!([{"F32Bits":word}])),
+        ].into_iter().chain(bits.into_iter().map(|x|("serve",json!([{"F32Bits":x}])))) {
+            let outcome = runtime.invoke_json(call, &args).unwrap();
+            cases.push(json!({"call":call,"args":args,"outcome":outcome.json(),"snapshot":runtime.checkpoint_portable().unwrap()}));
+        }
+    }
+    let fixture = fresh("composed-cases.json");
+    fs::write(
+        &fixture,
+        serde_json::to_vec(&json!({"cases":cases,"invalid":invalid})).unwrap(),
+    )
+    .unwrap();
+    let mut targets = vec!["javascript", "native", "rust", "webgpu"];
+    if std::env::var_os("INK_TEST_WASM").is_some() {
+        targets.push("wasm32");
+    } else if std::env::var_os("INK_PARITY_REQUIRE_ALL").is_some() {
+        panic!("composed artifacts need INK_TEST_WASM");
+    }
+    for target in targets {
+        let directory = fresh(&format!("composed-{target}"));
+        ok(Command::new(env!("CARGO_BIN_EXE_ink"))
+            .args([
+                "build-model",
+                "examples/frozen-program.ink",
+                "examples/frozen-program-long-training.json",
+                "--freeze-roots",
+                "Structure",
+                "--specialize-frozen",
+                "--target",
+                target,
+                "-o",
+            ])
+            .arg(&directory)
+            .arg("--cargo").arg(env!("CARGO"))
+            .output()
+            .unwrap());
+        verify(&directory);
+        assert_eq!(
+            fs::read(directory.join("deployment.snapshot")).unwrap(),
+            frozen.snapshot
+        );
+        let packet: Value =
+            serde_json::from_slice(&fs::read(directory.join("selection.json")).unwrap()).unwrap();
+        assert_eq!(packet["semantics"], "ink-compiled-plan-v1");
+        let selected =
+            CheckedModule::from_bytes(&fs::read(directory.join("selected.core.json")).unwrap())
+                .unwrap();
+        assert_eq!(
+            selected.program().functions.len(),
+            frozen.module.program().functions.len() + 31
+        );
+        if target == "javascript" || target == "wasm32" {
+            let output = ok(Command::new("node")
+                .arg("tests/fixtures/frozen-composed-build.mjs")
+                .arg(&directory)
+                .arg(&fixture)
+                .output()
+                .unwrap());
+            println!("{}", String::from_utf8_lossy(&output.stdout));
+        } else if target == "native" || target == "rust" {
+            let script = fresh("composed-native.json");
+            fs::write(
+                &script,
+                serde_json::to_vec(
+                    &cases
+                        .iter()
+                        .map(|v| json!({"call":v["call"],"args":v["args"]}))
+                        .collect::<Vec<_>>(),
+                )
+                .unwrap(),
+            )
+            .unwrap();
+            let checkpoint = fresh("composed-native.snapshot");
+            let mut command = if target == "rust" {
+                let mut c = Command::new(env!("CARGO"));
+                c.args(["run", "--quiet", "--release", "--locked", "--manifest-path"])
+                    .arg(directory.join("program/Cargo.toml"))
+                    .arg("--target-dir")
+                    .arg(root().join("rust-project-cache"))
+                    .arg("--");
+                c
+            } else {
+                Command::new(directory.join(format!("program{}", std::env::consts::EXE_SUFFIX)))
+            };
+            let output = ok(command
+                .arg(&script)
+                .arg("--snapshot-out")
+                .arg(&checkpoint)
+                .output()
+                .unwrap());
+            assert_eq!(
+                serde_json::from_slice::<Vec<Value>>(&output.stdout).unwrap(),
+                cases
+                    .iter()
+                    .map(|v| v["outcome"].clone())
+                    .collect::<Vec<_>>()
+            );
+            assert_eq!(
+                fs::read(checkpoint).unwrap(),
+                runtime.checkpoint_portable().unwrap()
+            );
+        }
+        if target == "webgpu" {
+            fs::write(root().join("composed-browser-artifact.json"),serde_json::to_vec(&json!({"artifact":directory.strip_prefix(env!("CARGO_MANIFEST_DIR")).unwrap()})).unwrap()).unwrap();
+        }
+        // Changing proof bytes and recomputing the inventory must not authorize
+        // a missing action equality or a different extension definition.
+        if target == "javascript" {
+            let manifest = fs::read(directory.join("artifact.json")).unwrap();
+            let original = fs::read(directory.join("selection.json")).unwrap();
+            for damage in ["proof", "extension", "rewrite"] {
+                let mut changed = packet.clone();
+                match damage {
+                    "proof" => {
+                        changed["steps"][1]["package"]["action_replacement"]["proofs"]["serve"] =
+                            json!({"Hypothesis":999})
+                    }
+                    "extension" => {
+                        changed["steps"][0]["package"]["input_core_sha256"] = json!("0".repeat(64))
+                    }
+                    _ => changed["steps"][1]["package"]["action_replacement"] = Value::Null,
+                }
+                let bytes = serde_json::to_vec(&changed).unwrap();
+                fs::write(directory.join("selection.json"), &bytes).unwrap();
+                let mut manifest: Value = serde_json::from_slice(&manifest).unwrap();
+                manifest["files"]["selection.json"] =
+                    json!({"bytes":bytes.len(),"sha256":format!("{:x}",Sha256::digest(&bytes))});
+                fs::write(
+                    directory.join("artifact.json"),
+                    serde_json::to_vec(&manifest).unwrap(),
+                )
+                .unwrap();
+                let error = training::verify_model(&directory, false).unwrap_err();
+                let expected = match damage {
+                    "proof" => "action serve",
+                    "extension" => "input",
+                    _ => "complete action",
+                };
+                assert!(error.contains(expected), "{damage}: {error}");
+            }
+            fs::write(directory.join("selection.json"), original).unwrap();
+            fs::write(directory.join("artifact.json"), manifest).unwrap();
+            training::verify_model(&directory, false).unwrap();
+            let path = directory.join("program.mjs.plan.json");
+            let original_plan = fs::read(&path).unwrap();
+            let original_manifest = fs::read(directory.join("artifact.json")).unwrap();
+            let mut changed: Value = serde_json::from_slice(&original_plan).unwrap();
+            changed["compiled_plan"]["steps"]
+                .as_array_mut()
+                .unwrap()
+                .pop();
+            let changed = serde_json::to_vec(&changed).unwrap();
+            fs::write(&path, &changed).unwrap();
+            let mut manifest: Value = serde_json::from_slice(&original_manifest).unwrap();
+            manifest["files"]["program.mjs.plan.json"] =
+                json!({"bytes":changed.len(),"sha256":format!("{:x}",Sha256::digest(&changed))});
+            fs::write(
+                directory.join("artifact.json"),
+                serde_json::to_vec(&manifest).unwrap(),
+            )
+            .unwrap();
+            assert!(training::verify_model(&directory, false)
+                .unwrap_err()
+                .contains("compiled specialization binding"));
+            fs::write(path, original_plan).unwrap();
+            fs::write(directory.join("artifact.json"), original_manifest).unwrap();
+            training::verify_model(&directory, false).unwrap();
+        }
+        println!("composed artifact retained at {}", directory.display());
     }
 }
