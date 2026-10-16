@@ -2842,6 +2842,54 @@
       ],
       "review_status": "source read; family assessment open",
       "note": "Fast API lowering adapts all arguments before the C call and carries explicit success/failure plus representation-specific defaults; no actual call follows an unconditional conversion failure. Enforced integer ranges use checked truncations; restricted floats reject nonfinite values after narrowing, and u64 transport distinguishes Number from BigInt. Raw pointer/string access requires exact representation checks and call-local stack descriptors. Exceptions propagate through the isolate/Wasm path, with profiler/context bookkeeping surrounding the call. Ink already has literal typed ABI and explicit checked boundaries; do not import JavaScript/C coercions, raw heap-pointer borrowing, fabricated default success or provenance-based check elision. Whole boundary cost remains in count measurements. No new Ink patch justified by this wrapper alone."
+    },
+    {
+      "path": "src/compiler/turboshaft/reducer-traits.h",
+      "sha256": "30c0e899fa836729e83184dc7f8128cb25b0c9594f474d96be162d1f44ca8d19",
+      "inclusive_lines": [
+        [
+          1,
+          115
+        ]
+      ],
+      "review_status": "source read; family assessment open",
+      "note": "Compile-time reducer-list membership/index/insertion and fold-right stack construction encode phase composition. The bottom-of-assembler predicate is explicitly approximate around EmitProjection/ValueNumbering placement. This explains ordering constraints on exact node reuse, not an equality premise. Ink conditional-circuit sharing stays within one fixed total circuit and does not generalize this cache across source effects, branches, mutable state or proof contexts."
+    },
+    {
+      "path": "src/compiler/turboshaft/operation-matcher.h",
+      "sha256": "b2febf3f0cc7125dbe45134f4f283c8e0bc87425d4336a0c1dad478caa3950e5",
+      "inclusive_lines": [
+        [
+          1,
+          660
+        ]
+      ],
+      "review_status": "source read; family assessment open",
+      "note": "Matchers separate constant kind/representation, input identity, options and post-success bindings. Requested Word32 matching may intentionally truncate Word64 constants; shift patterns additionally bound amounts and permit only particular truncations. MatchFloat uses exact double bits or any-NaN equivalence, while MatchZero uses numeric equality and therefore merges signed zeros. These are backend pattern predicates, not Ink source equality or raw-storage identity. Ink proposals must retain exact typed widths and IEEE/NaN distinctions and replay proofs; a candidate index/matcher may only avoid work. The source count-width reification repair is relevant existing protection. No new coercion, raw-union comparison or matcher-derived premise is introduced."
+    },
+    {
+      "path": "src/compiler/turboshaft/sidetable.h",
+      "sha256": "2bc550cb7253741c6d2623559d0a2fe3e39855ac0d27c9f582240f61761cb269",
+      "inclusive_lines": [
+        [
+          1,
+          272
+        ]
+      ],
+      "review_status": "source read; family assessment open",
+      "note": "Dense fixed/growing and sparse side tables separate graph-local operation/block keys. Growing storage defaults on access, grows geometrically and resets values while retaining allocation; graph provenance and many bounds are debug checks. Ink must retain production bounds and per-context lifetimes, and no side-table entry grants proof authority. A private generation-stamped dense assignment scratch prototype returns identical18 proof-hint traces but cold complete helper measurements in3 fresh processes x11 rounds give median before/after0.993x and fail all10% extrema guards. Keep the current dictionary helper; no production change or memory-gain claim."
+    },
+    {
+      "path": "src/compiler/turboshaft/sidetable.cc",
+      "sha256": "f01a86fe73d243ec2aaa668bc3de77d3f1ebe950ba6ad2cb8eb21abcd4966bf3",
+      "inclusive_lines": [
+        [
+          1,
+          18
+        ]
+      ],
+      "review_status": "source read; family assessment open",
+      "note": "Dense fixed/growing and sparse side tables separate graph-local operation/block keys. Growing storage defaults on access, grows geometrically and resets values while retaining allocation; graph provenance and many bounds are debug checks. Ink must retain production bounds and per-context lifetimes, and no side-table entry grants proof authority. A private generation-stamped dense assignment scratch prototype returns identical18 proof-hint traces but cold complete helper measurements in3 fresh processes x11 rounds give median before/after0.993x and fail all10% extrema guards. Keep the current dictionary helper; no production change or memory-gain claim."
     }
   ],
   "families": [
@@ -2861,7 +2909,7 @@
       "name": "value-numbering",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/value-numbering-reducer.h",
-      "note": "Full reducer reviewed. Generic exact scalar lexical-sharing proposals admitted through existing Normalize checks, including nested binders; held-out complete-call JavaScript evidence retained. Stateful loads and global dominance reuse remain open. Invocation-local bounded successful-call normalization cache now reuses exact function/argument/depth results in untrusted authoring after a 32-call threshold. Six ordinary Convert proofs and 64 matching old/new normal forms; three-process helper DAG controls improve ~13x/~22x, small captured obligations approximately unchanged. No proof-verdict cache or whole compiler/runtime gain claimed; see bench/v8-learning/normalizer."
+      "note": "Full reducer reviewed. Generic exact scalar lexical-sharing proposals admitted through existing Normalize checks, including nested binders; held-out complete-call JavaScript evidence retained. Stateful loads and global dominance reuse remain open. Invocation-local bounded successful-call normalization cache now reuses exact function/argument/depth results in untrusted authoring after a 32-call threshold. Six ordinary Convert proofs and 64 matching old/new normal forms; three-process helper DAG controls improve ~13x/~22x, small captured obligations approximately unchanged. No proof-verdict cache or whole compiler/runtime gain claimed; see bench/v8-learning/normalizer. A separately versioned shared-select-v3 circuit encoding now shares exact conditional literal tuples and folds Boolean constant arms, retaining old v1/v2 identities. Private reproofs of all eighteen existing count equations succeed; choosing nine smaller certificates reduces canonical bank bytes297075->208862. The exact isolated503-test core,647 legacy seeds and final frozen10 all pass; the corpus selects no alternative and attributes no count root. Matching independent pins and bounded source plans validate; no compiled-workload gain follows from proof size."
     },
     {
       "name": "load-elimination",

@@ -2,6 +2,7 @@
 """Check the merged context separately from historical count measurements."""
 from pathlib import Path
 import hashlib
+import gzip
 import json
 import re
 import subprocess
@@ -63,7 +64,15 @@ def main():
     records = read('merged-corpus/records.json')
     assert len(records) == 10 and all(row['status'] == 0 for row in records)
     assert terminal['new_count_roots_attributed'] == []
-    from ink_knowledge import Store, identity
+    from ink_knowledge import Store, identity, semantic_entry
+    revision = pins['pins']['knowledge']
+    def bank_bytes(name):
+        return subprocess.check_output(['git', 'show', revision + ':producers/data/v8-count-laws/' + name], cwd=ROOT / 'knowledge')
+    roots = set()
+    for row in json.loads(bank_bytes('index.json'))['rows']:
+        claim = json.loads(gzip.decompress(bank_bytes(row['sha256'] + '.json.gz')))
+        roots.update([identity(claim), identity(semantic_entry(claim))])
+    assert not roots & set(report['attribution'])
     store = Store(ROOT / 'knowledge')
     proposals = json.loads((HERE / 'observation-proposals.json').read_bytes())['objects']
     assert len(proposals) == 168
