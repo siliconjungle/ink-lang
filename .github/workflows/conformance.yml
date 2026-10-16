@@ -151,12 +151,12 @@ jobs:
         cargo test --manifest-path core/Cargo.toml --offline
         python3 - <<'PYCORE'
         import json, subprocess
-        r=json.load(open('reports/shared-helper-code-2026-10-16/integration-core-package.json'))
+        r=json.load(open('reports/learned-programs-2026-10-16/integration-core-package.json'))
         actual=subprocess.check_output(['git','rev-parse','HEAD:core'],text=True).strip()
         assert actual==r['core_tree'], 'distribution core differs from standalone package pin'
         subprocess.run(['git','fetch','--no-recurse-submodules','--depth=1','origin',r['commit'],r['source']],check=True)
         PYCORE
-        python3 tools/check_core_package.py reports/shared-helper-code-2026-10-16/integration-core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
+        python3 tools/check_core_package.py reports/learned-programs-2026-10-16/integration-core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
         cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields --test prepared_sums --test sum_spines
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
@@ -1209,9 +1209,11 @@ jobs:
         INK_TEST_WASM=1 cargo test --test physical_capabilities semantic_word_parity -- --nocapture --test-threads=1
         cargo test --test source_reverse -- --nocapture --test-threads=1
         cargo test --test generic_libraries prepared_complex_text::complex_prepared_state -- --nocapture --test-threads=1
+        cargo test --test frozen_state learned_instruction_program_resumes_adapts_and_freezes_with_complete_proofs -- --exact --nocapture
         cargo test --test frozen_state frozen_program_keeps_weights_trainable_and_compiles_ordered_operations_on_all_targets -- --exact --nocapture
         cargo test --test frozen_state shared_frozen_parameter_lists_preserve_complete_results_and_live_learning_on_all_targets -- --exact --nocapture
         cargo test --test frozen_state frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_on_all_targets -- --exact --nocapture
+        python3 tools/build_gpu_wasm.py build/learned-program-adaptive-parity/gpu-module build/learned-program-frozen-parity/gpu-module
         python3 tools/build_gpu_wasm.py build/source-reverse-parity/gpu-module build/source-reverse-until-parity/gpu-module
         python3 tools/build_gpu_wasm.py build/prepared-complex-lifecycle/gpu-module build/scalar-statements-parity/gpu-module
         python3 tools/build_gpu_wasm.py build/frozen-program-parity/gpu-module build/shared-frozen-parameters-parity/gpu-module
@@ -1220,6 +1222,8 @@ jobs:
         python bench/gpu/prepare-lowering-parity-browser.py
         python bench/gpu/prepare-word-parity-browser.py
         npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/learned-program-adaptive-parity build/learned-program-adaptive-browser.json
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/learned-program-frozen-parity build/learned-program-frozen-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)"
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/source-reverse-until-parity build/source-reverse-until-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/prepared-complex-lifecycle build/prepared-complex-browser.json

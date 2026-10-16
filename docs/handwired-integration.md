@@ -41,6 +41,13 @@ This inventory extends the [full optimisation programme](optimisation-language-p
 and [circuit design](contract-guided-circuits.md). It does not replace their open
 requirements with a search-only milestone.
 
+[Learned instruction programs](learned-programs.md) now connect an authored
+whole-computation objective to discrete program choices and checked frozen
+compilation. This finite 32-operation grammar retains runtime weights and goal
+updates, with complete action proofs through open workload traversals. It is a
+step toward learned structure and representations; it does not complete general
+network lowering, device training or the upstream performance requirement.
+
 ## Performance acceptance
 
 A result must identify the same task, input corpus, arithmetic, output boundary,

@@ -380,3 +380,18 @@ helper falls from 64 stages to one and paired complete GPU calls improve about
 stages, state/learning execution and arithmetic contracts are unchanged. Next,
 measure batched/resident whole-application pipelines and extend proof-backed
 query/state fusion, learned representation/goal selection and device training.
+
+The [learned instruction-program example](docs/learned-programs.md) now learns a
+32-operation program from a full-computation objective, rather than accepting a
+configured opcode answer. Generic joint/total policy scores and explicit current
+choice likelihood support authored policy updates and elite distillation. On one
+retained seed, the finite grammar's matching-program probability rises from
+4.30% to 85.16%; this is neither convergence nor held-out generalization evidence.
+Exact split resume, continuous runtime updates, goal-version changes and rollback
+pass cross-target conformance. Freezing only instruction structure preserves
+weights, goals and ordinary runtime state. Ordinary prefix and open-fold induction
+lemmas replay complete action equations through residual workloads and typed
+Result helpers, without increasing checker budgets. Fixed integer-to-F32 source
+correspondence has 466 private standalone core checks. Learned representations,
+general graph/tape compilation, automatic goal-directed profitable selection,
+device training and the full upstream workload/performance programme remain open.
