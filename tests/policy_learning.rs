@@ -217,6 +217,12 @@ fn delayed_feedback_stale_versions_and_rollback_match_all_cpu_targets() {
         ("edge", json!([0])),
         ("edge", json!([1])),
         ("edge", json!([2])),
+        ("score_action", json!([[2.,3.,5.],[[1.,-2.],[2.,1.],[-1.,3.]],[true,false,true],2])),
+        ("score_action", json!([[2.,3.,5.],[[1.,-2.],[2.,1.],[-1.,3.]],[true,false,true],1])),
+        ("joint", json!([[{"action":0,"probability":0.5,"score":[2.,-1.]},
+                          {"action":1,"probability":0.25,"score":[3.,4.]}],5.,2.])),
+        ("total", json!([[{"action":0,"probability":0.5,"score":[2.,-1.]},
+                          {"action":1,"probability":0.25,"score":[3.,4.]}],[5.,3.],[2.,1.]])),
         (
             "trajectory",
             json!([[{"action":0,"probability":0.5,"score":[1.,-1.]},{"action":1,"probability":0.5,"score":[-1.,1.]}],[1.,2.],[0.,0.],1.,0.]),
@@ -236,4 +242,72 @@ fn delayed_feedback_stale_versions_and_rollback_match_all_cpu_targets() {
         steps,
         expected,
     );
+}
+
+#[test]
+fn whole_computation_return_weights_the_joint_score_not_the_mean() {
+    let masses = [vec![2.0_f64,3.0],vec![7.0,11.0,13.0]];
+    let jacobians = [vec![[1.0_f64,-2.0],[2.0,1.0]],vec![[3.0,1.0],[-1.0,2.0],[2.0,-3.0]]];
+    let decisions = [evaluate("decision",json!([masses[0],jacobians[0],[true,true],0.1]))["Ok"].clone(),
+                     evaluate("decision",json!([masses[1],jacobians[1],[true,true,true],0.4]))["Ok"].clone()];
+    let actual = evaluate("joint",json!([decisions,2.5,-0.75]));
+    for coordinate in 0..2 {
+        let joint_log = |delta:f64| {
+            (0..2).map(|index| {
+                let varied:Vec<_> = masses[index].iter().zip(&jacobians[index]).map(|(m,d)|m+delta*d[coordinate]).collect();
+                let action=decisions[index]["action"].as_u64().unwrap() as usize;
+                (varied[action]/varied.iter().sum::<f64>()).ln()
+            }).sum::<f64>()
+        };
+        let expected=-3.25*(joint_log(1e-5)-joint_log(-1e-5))/2e-5;
+        assert!((actual["Ok"][coordinate].as_f64().unwrap()-expected).abs()<2e-6);
+    }
+    assert_eq!(actual,evaluate("total",json!([decisions,[2.5,2.5],[-0.75,-0.75]])));
+    let distinct=json!([{"action":0,"probability":0.5,"score":[2.0,-1.0]},
+                        {"action":1,"probability":0.25,"score":[3.0,4.0]}]);
+    assert_eq!(evaluate("joint",json!([distinct,5.0,2.0])),json!({"Ok":[-15.0,-9.0]}));
+    for args in [json!([[],1.0,0.0]),
+        json!([[{"action":0,"probability":0.5,"score":[1.0]},{"action":1,"probability":0.5,"score":[1.0,2.0]}],1.0,0.0]),
+        json!([distinct,{"F32Bits":2139095040u32},0.0]),
+        json!([[{"action":0,"probability":0.5,"score":[3e38]}],3.0,0.0]),
+        json!([[{"action":0,"probability":0.5,"score":[2e38]},{"action":1,"probability":0.5,"score":[2e38]}],-1.0,0.0])]
+    {
+        assert!(evaluate("joint",args).get("Err").is_some());
+    }
+}
+
+#[test]
+fn specified_action_uses_the_current_policy_and_rejects_invalid_choices() {
+    let derivatives = json!([[1.,-2.],[2.,1.],[-1.,3.]]);
+    for (masses, allowed, unit) in [
+        (json!([2.,3.,5.]),json!([true,true,true]),0.4),
+        (json!([2.,1e30,5.]),json!([true,false,true]),0.8),
+        (json!([0.,5.,7.]),json!([false,true,false]),0.999),
+    ] {
+        let sampled=evaluate("decision",json!([masses,derivatives,allowed,unit]));
+        assert_eq!(sampled,evaluate("score_action",json!([masses,derivatives,allowed,sampled["Ok"]["action"]])));
+    }
+    // The same action is rescored after the policy changes; no stale score is
+    // reused from the distribution that originally proposed it.
+    let current=evaluate("score_action",json!([[7.,3.,5.],derivatives,[true,true,true],0]));
+    for coordinate in 0..2 {
+        let log_probability=|delta:f64| {
+            let masses=[7.0,3.0,5.0];
+            let jacobian=[[1.0,-2.0],[2.0,1.0],[-1.0,3.0]];
+            let varied:Vec<_>=masses.iter().zip(jacobian).map(|(m,d)|m+delta*d[coordinate]).collect();
+            (varied[0]/varied.iter().sum::<f64>()).ln()
+        };
+        let expected=(log_probability(1e-5)-log_probability(-1e-5))/2e-5;
+        assert!((current["Ok"]["score"][coordinate].as_f64().unwrap()-expected).abs()<2e-7);
+    }
+    for args in [
+        json!([[2.,3.,5.],derivatives,[true,false,true],1]),
+        json!([[2.,3.,5.],derivatives,[true,true,true],3]),
+        json!([[0.,3.,5.],derivatives,[true,true,true],0]),
+        json!([[2.,3.,5.],[[1.],[1.,2.],[1.]],[true,true,true],0]),
+        json!([[2.,3.,5.],[[{"F32Bits":2139095040u32}],[1.],[1.]],[true,true,true],0]),
+        json!([[{"F32Bits":1},3e38],[[1.],[1.]],[true,true],0]),
+    ] {
+        assert!(evaluate("score_action",args).get("Err").is_some());
+    }
 }

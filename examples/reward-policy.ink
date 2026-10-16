@@ -65,10 +65,17 @@ learn change aborted(c:Context)->Result<Unit,String> reads(Agent) writes(Agent) 
  let version=episode(c,0.25,0.02)?;return Err("cancel outer training");
 }
 fn decision(masses:List<f32>,derivatives:List<List<f32>>,allowed:List<Bool>,unit:f32)->Result<rl.Decision,String> {return rl.decide(masses,derivatives,allowed,unit);}
+fn score_action(masses:List<f32>,derivatives:List<List<f32>>,allowed:List<Bool>,action:u32)->Result<rl.Decision,String> {return rl.score_action(masses,derivatives,allowed,action);}
 fn returns(rewards:List<f32>,discount:f32,bootstrap:f32)->Result<List<f32>,String> {return rl.returns(rewards,discount,bootstrap);}
 fn trajectory(decisions:List<rl.Decision>,rewards:List<f32>,baselines:List<f32>,discount:f32,bootstrap:f32)->Result<List<f32>,String> {
  let returns=rl.returns(rewards,discount,bootstrap)?;
  return rl.mean_gradient(decisions,returns,baselines);
+}
+fn joint(decisions:List<rl.Decision>,return_value:f32,baseline:f32)->Result<List<f32>,String> {
+ return rl.joint_gradient(decisions,return_value,baseline);
+}
+fn total(decisions:List<rl.Decision>,return_values:List<f32>,baselines:List<f32>)->Result<List<f32>,String> {
+ return rl.total_gradient(decisions,return_values,baselines);
 }
 fn edge(kind:u32)->Result<rl.Decision,String> {
  let value=f32_from_bits(choose(kind==0,2143289344,choose(kind==1,2139095040,1)));

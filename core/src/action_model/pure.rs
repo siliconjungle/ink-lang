@@ -283,6 +283,11 @@ impl Lower<'_> {
                     };
                 }
                 if let Some(name)=op.strip_prefix("call:") {
+                    if ["f32_from_u32","f32_from_u64","f32_from_i32"].contains(&name) {
+                        let [argument] = args.as_slice() else { return Err("pure fixed-width float conversion arity".into()); };
+                        let x=self.pure_term(argument,env,bound,depth+1)?;
+                        return Ok(b(&format!("f32:{}", &name[4..]),x,Term::U64(0)));
+                    }
                     if ["sqrt","f32_div","floor","ceil","trunc","round_ties_even","is_nan","is_finite"].contains(&name) {
                         let x=self.pure_term(&args[0],env,bound,depth+1)?;
                         let y=if name=="f32_div"{self.pure_term(&args[1],env,bound,depth+1)?}else{Term::U64(0)};
