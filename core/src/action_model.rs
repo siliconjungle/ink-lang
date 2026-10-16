@@ -333,7 +333,10 @@ impl Lower<'_> {
         self.fresh += 1;
         n
     }
-    fn store(&mut self, mut d: Declaration) -> LangResult<String> {
+    fn store(&mut self, d: Declaration) -> LangResult<String> {
+        self.store_with_implicit_sorts(d, true)
+    }
+    fn store_with_implicit_sorts(&mut self, mut d: Declaration, implicit: bool) -> LangResult<String> {
         self.tick()?;
         if let Declaration::Datatype { constructors } = &mut d {
             // Generated source names can exceed the proof language's binder
@@ -353,19 +356,15 @@ impl Lower<'_> {
             &mut dependencies,
         );
         // Match field sorts are implicit. Declare them as direct imports too.
-        dependencies.extend(self.types.values().filter_map(|s| {
-            if let Sort::Data(i) = s {
-                Some(i.clone())
-            } else {
-                None
+        if implicit {
+            dependencies.extend(self.types.values().filter_map(|s| {
+                if let Sort::Data(i) = s { Some(i.clone()) } else { None }
+            }));
+            for t in &self.tables {
+                dependencies.insert(t.datatype.clone());
             }
-        }));
-        for t in &self.tables {
-            dependencies.insert(t.datatype.clone());
-        }
-        for i in [&self.state, &self.event, &self.events] {
-            if !i.is_empty() {
-                dependencies.insert(i.clone());
+            for i in [&self.state, &self.event, &self.events] {
+                if !i.is_empty() { dependencies.insert(i.clone()); }
             }
         }
         let e = Entry::from_declaration(&d, dependencies.into_iter().collect())?;
@@ -722,9 +721,7 @@ impl Lower<'_> {
             Kind::Builtin { name, arguments } if name == "list" => {
                 let sort = self.sort(ty)?;
                 let xs = arguments.iter().map(|i| self.expr(body, *i, env, state)).collect::<LangResult<Vec<_>>>()?;
-                let mut result = c(id(&sort)?, 0, vec![]);
-                for x in xs.into_iter().rev() { result = c(id(&sort)?, 1, vec![x, result]); }
-                Ok(result)
+                self.literal_list(&sort, xs)
             }
             Kind::Method { receiver, method, arguments } if method == "unwrap_or" => {
                 let value = self.expr(body, *receiver, env, state)?;
@@ -1179,11 +1176,22 @@ impl Projection {
             let mut arguments = vec![c(&out.state, 0, bindings.iter().map(|n| v(n)).collect())];
             arguments.extend(a.params[1..].iter().map(|(n, _)| v(n)));
             let application = call(&a.function, arguments);
-            let normal = public_normal(
-                &context.evaluate(&params, &application)?,
-                &BTreeMap::new(),
-                &mut 0,
-            );
+            // This is a producer aid, never a proof premise. Full evaluation
+            // can expand shared closed data back into an untransportable
+            // spine. Keep its exact typed application when normalization or
+            // the resulting hint exceeds the existing resource/depth bounds.
+            // Ordinary Convert still has to establish every proposed equality.
+            let evaluated = match context.evaluate(&params, &application) {
+                Ok(term) => term,
+                Err(error) if error == "inductive logic resource limit" => application.clone(),
+                Err(error) => return Err(error),
+            };
+            let normal = match registry::canonical(&evaluated) {
+                Ok(bytes) if bytes.len() <= case_bytes => public_normal(&evaluated, &BTreeMap::new(), &mut 0),
+                Ok(_) => application.clone(),
+                Err(error) if error == "canonical value depth limit" => application.clone(),
+                Err(error) => return Err(error),
+            };
             let case = Case {
                 bindings,
                 params,
@@ -1206,6 +1214,12 @@ impl Projection {
             .values()
             .map(|a| a.function.clone())
             .collect::<Vec<_>>();
+        // Closed data definitions can occur only in source-derived premises,
+        // even when no action reads that root. Rebind their complete meaning
+        // against the input as well as the executable transition definitions.
+        let mut fixed = BTreeSet::new();
+        refs(&serde_json::to_value(&self.frozen_domain).map_err(|e| e.to_string())?, &mut fixed);
+        pending.extend(fixed);
         let mut used = BTreeSet::new();
         while let Some(i) = pending.pop() {
             if used.insert(i.clone()) {
