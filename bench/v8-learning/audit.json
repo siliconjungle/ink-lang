@@ -2806,6 +2806,42 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read. Generic JS binary/unary builtins retain lazy frame-state/deopt-on-throw metadata; intentionally avoid feedback variants after negative experiments. ToNumber/ToNumeric bypass conversion only for already checked Number. Ink fixed typed arithmetic has no JS coercion counterpart; negative target-specific measurements should remain database evidence rather than universal strength-reduction preference."
+    },
+    {
+      "path": "src/compiler/turboshaft/csa-early-machine-optimization-phase.cc",
+      "sha256": "baca13d833c13fa1aedeb674708f3a5a3aff4db44c784f1676cd94ecb7b299d9",
+      "inclusive_lines": [
+        [
+          1,
+          22
+        ]
+      ],
+      "review_status": "source read; family assessment open",
+      "note": "The CSA early machine phase composes MachineOptimizationReducer immediately with ValueNumberingReducer in one CopyingPhase. Machine simplification and exact structural reuse can reinforce each other without granting source equality by matcher/hash. Header only declares the phase. Next investigation is general Boolean-select circuit reuse; existing shared-v2 identities must remain fixed."
+    },
+    {
+      "path": "src/compiler/turboshaft/csa-early-machine-optimization-phase.h",
+      "sha256": "ca1a5f8ee40b41aa9f4a69e4fb69b4655b65a6aa4cbb3054fcc72028e6193f04",
+      "inclusive_lines": [
+        [
+          1,
+          20
+        ]
+      ],
+      "review_status": "source read; family assessment open",
+      "note": "The CSA early machine phase composes MachineOptimizationReducer immediately with ValueNumberingReducer in one CopyingPhase. Machine simplification and exact structural reuse can reinforce each other without granting source equality by matcher/hash. Header only declares the phase. Next investigation is general Boolean-select circuit reuse; existing shared-v2 identities must remain fixed."
+    },
+    {
+      "path": "src/compiler/turboshaft/fast-api-call-lowering-reducer.h",
+      "sha256": "004030b14dc1eded3124d62b2d854c2b130e78d612dce3af2ab2d6f31953ead8",
+      "inclusive_lines": [
+        [
+          1,
+          501
+        ]
+      ],
+      "review_status": "source read; family assessment open",
+      "note": "Fast API lowering adapts all arguments before the C call and carries explicit success/failure plus representation-specific defaults; no actual call follows an unconditional conversion failure. Enforced integer ranges use checked truncations; restricted floats reject nonfinite values after narrowing, and u64 transport distinguishes Number from BigInt. Raw pointer/string access requires exact representation checks and call-local stack descriptors. Exceptions propagate through the isolate/Wasm path, with profiler/context bookkeeping surrounding the call. Ink already has literal typed ABI and explicit checked boundaries; do not import JavaScript/C coercions, raw heap-pointer borrowing, fabricated default success or provenance-based check elision. Whole boundary cost remains in count measurements. No new Ink patch justified by this wrapper alone."
     }
   ],
   "families": [
@@ -2813,7 +2849,7 @@
       "name": "machine-word",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
-      "note": "Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit all 340 of 340 signed/unsigned division, remainder and bit-operation proposals. Bounded lossless proof transport and an ordinary Boolean cover now admit U64 self quotient; explicit equality-assisted database authoring now admits both remaining U64 remainder laws as self-contained ordinary proofs, preserving all 338 earlier identities. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim. A new U32 variable-divisor remainder root now has an ordinary exhaustive32-case proof, including zero/nonpower fallback and the top-bit power; compact Merkle membership transport fits its exact35-object closure within unchanged16MB source limits. Mixed CPU controls retain baseline, explicit GPU powers have lower medians but fail some extrema controls and zero fallback regresses. A separately measured zero-first prototype trades away the GPU power gain. Signed/U64 guarded-variable proofs and profitability/general source transport remain open."
+      "note": "Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit all 340 of 340 signed/unsigned division, remainder and bit-operation proposals. Bounded lossless proof transport and an ordinary Boolean cover now admit U64 self quotient; explicit equality-assisted database authoring now admits both remaining U64 remainder laws as self-contained ordinary proofs, preserving all 338 earlier identities. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim. A new U32 variable-divisor remainder root now has an ordinary exhaustive32-case proof, including zero/nonpower fallback and the top-bit power; compact Merkle membership transport fits its exact35-object closure within unchanged16MB source limits. Mixed CPU controls retain baseline, explicit GPU powers have lower medians but fail some extrema controls and zero fallback regresses. A separately measured zero-first prototype trades away the GPU power gain. Signed/U64 guarded-variable proofs and profitability/general source transport remain open. Fixed-counts-v5 now reconstructs popcount/clz/ctz for U32/I32/U64; eighteen independently stored RUP laws preserve strict count operands and wrapping. Typed source reification repairs the incorrect U32-zero clz normalization. The selected count-heavy JavaScript development program passes the existing held-out gate at2.501x; native stays baseline and GPU extrema are mixed. Frozen-program count-root attribution remains absent; broad compiled-program gain is not established."
     },
     {
       "name": "branch-control",

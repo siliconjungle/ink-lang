@@ -64,7 +64,7 @@ quotient/remainder authoring trials grant no equality and do not become laws.
 
 ## Validation and scope
 
-The final core is the exact 230-file tree
+The measured count cohort uses the exact 230-file core tree
 `4e2edfd5fe5c357d27291a8b875016ad613a4eaa`, in standalone package
 `3cd7c50878b9891356250cfb23b9e64d58b0b124`, sourced from distribution
 `912e719e7545a961f815f9fce4963912f0c9c45b`. All 493 tests pass in a fresh private
@@ -99,6 +99,17 @@ None of the eighteen count-root identities is attributed in the final corpus.
 Shared-host, wall-time-bounded funnel differences and timings do not establish
 count-law generalization or causal compiler acceleration.
 
+The separately validated merge uses compiler `098d4116b594`, core tree
+`528189f67c1f5379006706991df8a258ca74aed1`, and knowledge main
+`bc5d6625f44f5f699001f70a90798ea2e658ce5b`. The upstream private validation
+is authenticated against all 232 current source files and fourteen phase logs
+(501 tests, 83 integration targets); four local count/function proof tests and
+ordinary retained-plan replays also pass. All 26 emitted JS/Rust-Wasm source
+files match the measured count cohort byte for byte. Its separate frozen corpus
+compiles all ten programs, admits 25 laws with six reused across programs, and
+selects zero alternatives. No count root is attributed. These are finite checks
+of the combined state, with no transfer of timing contexts.
+
 168 exact immutable observations retain all successes and failures: 120 CPU and
 48 explicit-device rows. Entries are empty, proof snapshot and selection policy
 remain unchanged, and contexts/samples/memory scopes are not relabelled.
@@ -131,3 +142,8 @@ The completed owned 1.9 GB core-test target was retired after private validation
 Other selected proofs, measurements and active inputs stay protected. The 100 GB
 free-space reserve is still unmet; unclassified/shared inputs and active workers
 were left intact. All twenty-two V8 review families remain partial.
+
+`merged-inputs.tar.gz` and `merged-inputs-index.json` retain this third context
+separately. Run `PYTHONPATH=knowledge:planner python3
+bench/v8-learning/counts/audit_merged.py` to check it and read back the 168
+canonical database observations.
