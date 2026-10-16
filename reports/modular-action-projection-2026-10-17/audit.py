@@ -36,6 +36,21 @@ def audit():
     assert len(parsed['objects']) == expected['definitions'] == 316
     package = json.loads((root / 'core-package.json').read_text())
     assert package == summary['package']
+    compiler = json.loads((root / 'compiler-export.json').read_text())
+    assert compiler['status'] == 'passed'
+    assert compiler['private_checkout'] and compiler['private_target']
+    assert compiler['core_tree'] == package['core_tree']
+    assert compiler['canonical_bytes'] == expected['canonical_bytes']
+    assert compiler['model_sha256'] == expected['canonical_sha256']
+    assert compiler['previous_export']['bytes'] == 42053579
+    assert compiler['previous_export']['same_parsed_model']
+    for name, key in [('compiler-build.log.gz', 'initial_build_log_sha256'),
+                      ('compiler-build-canonical.log.gz', 'build_log_sha256')]:
+        assert hashlib.sha256(gzip.decompress((root / name).read_bytes())).hexdigest() == compiler[key]
+    sorted_tables = (root / 'sorted-tables.json').read_bytes()
+    assert len(sorted_tables) == compiler['sorted_tables_bytes']
+    assert hashlib.sha256(sorted_tables).hexdigest() == compiler['sorted_tables_sha256']
+    assert json.dumps(json.loads(sorted_tables), sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode() == sorted_tables
     fixture = 'tests/fixtures/staged-neural-frozen.core.json'
     assert receipt['files'][fixture] == expected['source']
     replay = (root / 'retained-proof-replay.log').read_text()
@@ -44,6 +59,11 @@ def audit():
                     'a4ff3fcb9ff8bb758d4a0d203990b24bc89792c48dcbfb17bd82a08303575c35']
     for name, identity in zip(summary['retained_artifacts'], expected_ids):
         assert f'/{name}/artifact {identity}' in replay
+        checked = json.loads((root / ('cli-verify-' + name + '.json')).read_text())
+        assert checked['status'] == 'checked'
+        assert checked['training_replayed'] and checked['restriction_replayed']
+        assert checked['specialization_checked'] == (name != 'baseline')
+        assert checked['selected_core_sha256'] == identity
     return {'status': 'passed', 'tests': count, 'integration_targets': 80,
             'definitions': 316, 'scope': 'retained receipt consistency only'}
 
