@@ -754,6 +754,7 @@ fn run() -> LangResult<()> {
             "opaque-v1"=>verified_language::laws::BitVectorSemantics::OpaqueV1,
             "fixed-words-v2"=>verified_language::laws::BitVectorSemantics::FixedWordsV2,
             "fixed-scalars-v3"=>verified_language::laws::BitVectorSemantics::FixedScalarsV3,
+            "fixed-scalars-v4"=>verified_language::laws::BitVectorSemantics::FixedScalarsV4,
             _=>return Err("unknown source bit circuit semantics".into()),
         };
         let encoding=match arg_value(&args,"--encoding")?.as_deref().unwrap_or("literal-v1") {
@@ -843,7 +844,7 @@ fn run() -> LangResult<()> {
         println!("ink emit-termination-obligations SOURCE -o GOALS.json\nink check-termination SOURCE --termination-proofs BUNDLE.json\nSource compilation/execution accepts --termination-proofs BUNDLE.json; measures grant no authority without checked evidence.");
         println!("ink emit-laws THEOREMS.ink [--proofs EVIDENCE.json] [--view DEPENDENCIES.json] -o BUNDLE.json");
         println!("ink law-bitvector-obligation THEOREMS.ink LAW_NAME -o CNF.json\nExported scalar obligations remain unproved until emit-laws replays a hinted-RUP certificate.");
-        println!("ink semantic-bitvector-obligation SOURCE GOAL.json [--core] [--semantics opaque-v1|fixed-words-v2|fixed-scalars-v3] [--encoding literal-v1|shared-v2] -o CNF.json");
+        println!("ink semantic-bitvector-obligation SOURCE GOAL.json [--core] [--semantics opaque-v1|fixed-words-v2|fixed-scalars-v3|fixed-scalars-v4] [--encoding literal-v1|shared-v2] -o CNF.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|javascript|wasm32|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
         println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)");
