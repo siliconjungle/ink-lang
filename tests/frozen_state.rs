@@ -529,6 +529,68 @@ fn frozen_learned_structure_has_checked_complete_transitions_on_all_targets() {
 }
 
 #[test]
+fn frozen_numeric_structure_preserves_payloads_live_updates_and_all_target_snapshots() {
+    let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
+    let source = include_str!("../examples/frozen-numeric-structure.ink");
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let trace = serde_json::from_str(include_str!("../examples/frozen-numeric-structure-training.json")).unwrap();
+    let trained = verified_language::training::replay(&module, &trace).unwrap();
+    let frozen = verified_language::freezing::restrict(&module, &trained.snapshot, &["Model".into()]).unwrap();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/frozen-numeric-authoring");
+    fs::create_dir_all(&root).unwrap();
+    let input = root.join("frozen.core.json");
+    fs::write(&input, frozen.module.bytes().unwrap()).unwrap();
+    fs::write(root.join("initial.snapshot"), &frozen.snapshot).unwrap();
+    let packet_file = root.join("selection.json");
+    ok(Command::new("python3").arg("knowledge/producers/frozen_specialization.py")
+        .arg(&input).arg("--ink").arg(env!("CARGO_BIN_EXE_ink"))
+        .arg("-o").arg(&packet_file).output().unwrap());
+    let packet = serde_json::from_slice(&fs::read(packet_file).unwrap()).unwrap();
+    let selected = verified_language::optimisation::check(&frozen.module, &packet).unwrap();
+    fs::write(root.join("selected.core.json"), selected.module().bytes().unwrap()).unwrap();
+    let serve = selected.module().program().actions.iter().find(|a|a.name=="serve").unwrap();
+    let body = serde_json::to_string(&serve.body).unwrap();
+    assert!(!body.contains("Model") && !body.contains("evaluate") && !body.contains("kind"));
+    assert!(body.contains("Live"));
+    let mut baseline = Runtime::restore_portable_checked(&frozen.module, &frozen.snapshot).unwrap();
+    let mut implementation = Runtime::restore_portable_selected(&selected, &frozen.snapshot).unwrap();
+    assert_eq!(baseline.invoke_json("self_equal",&json!([])).unwrap().result.json(),json!(false));
+    assert_eq!(baseline.invoke_json("is_zero",&json!([])).unwrap().result.json(),json!(true));
+    assert_eq!(baseline.invoke_json("raw",&json!([1])).unwrap().result.json(),json!(0x7fa01234u32));
+    assert_eq!(baseline.invoke_json("raw",&json!([2])).unwrap().result.json(),json!(0x80000000u32));
+    let mut steps = vec![json!({"restore":frozen.snapshot})];
+    let mut expected = vec![];
+    let mut calls = vec![("self_equal",json!([])),("is_zero",json!([]))];
+    for key in 0..4 {calls.push(("raw",json!([key])));}
+    for (i,bits) in [0u32,0x80000000,1,0x3dcccccd,0x7f7fffff,0x7f800000,0x7fa01234,0xffc05678].into_iter().enumerate() {
+        calls.push(("set_live",json!([{"F32Bits":bits},i%3==0])));
+        for x in [0u32,0x80000000,0x3f000001,0x7fa05678] {
+            calls.push(("serve",json!([{"F32Bits":x}])));
+        }
+        calls.push(("raw",json!([1])));
+    }
+    for (name,args) in calls {
+        let reply = baseline.invoke_json(name,&args).unwrap();
+        assert_eq!(reply.json(),implementation.invoke_json(name,&args).unwrap().json());
+        assert_eq!(baseline.checkpoint_portable().unwrap(),implementation.checkpoint_portable().unwrap());
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":baseline.checkpoint_portable().unwrap()}));
+    }
+    steps.push(json!({"restore":baseline.checkpoint_portable().unwrap()}));
+    steps.push(json!({"pure":"numeric","args":[[0.,0.5,1.]],"expect_gpu":true}));
+    expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":baseline.checkpoint_portable().unwrap()}));
+    parity::conformance_selected("frozen-numeric-parity",&selected,source,steps,expected);
+    let artifact=root.join("artifact");
+    ok(Command::new(env!("CARGO_BIN_EXE_ink")).args([
+        "build-model","examples/frozen-numeric-structure.ink","examples/frozen-numeric-structure-training.json",
+        "--freeze-roots","Model","--specialize-frozen","--target","javascript","-o",
+    ]).arg(&artifact).output().unwrap());
+    verified_language::training::verify_model(&artifact,true).unwrap();
+    ok(Command::new("node").arg("tests/fixtures/frozen-numeric-build.mjs").arg(&artifact)
+        .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("build/frozen-numeric-parity")).output().unwrap());
+}
+
+#[test]
 fn specialized_training_build_rechecks_proofs_even_after_inventory_rehashing() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join(format!("build/specialized-build-{}", std::process::id()));

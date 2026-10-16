@@ -94,13 +94,43 @@ and migration. Live switching needs a checked transition; freezing explicitly
 withdraws the chosen mutation.
 
 The bounded proposer handles literal u32/u64 keys and frozen word/Boolean/unit,
-enum, record, Option/Result and list values. It binds dynamic helper arguments
+F32, enum, record, Option/Result and list values. It binds dynamic helper arguments
 once in order, preserves scope and bounds inlining/work/depth. Mutable state is
 never treated as constant. Ordinary equality checking decides admission.
 
+F32 materialization preserves signed zero, subnormals and exact exceptional-value
+bits. Finite values use ordinary Float literals; infinities and NaNs use the fixed
+`f32_from_bits` operation. Floating comparisons, including nested stored values,
+stay in source: Python syntax equality does not implement IEEE equality. The
+untrusted proof tactic also retains F32 operators as ordinary core terms instead
+of interpreting their bit carriers as integers.
+
+`examples/frozen-numeric-structure.ink` configures a numeric representation and
+coefficients, freezes `Model`, then specializes its serving computation. The
+serving action loses its frozen table lookup, record dispatch and helper call;
+live-row reads remain. Other queries preserve raw coefficient bits and IEEE
+comparisons. Its supplied trace is explicit configuration, not a demonstrated
+fitting or convergence algorithm. A programmer can produce the same typed
+configuration through their own learner.
+
+```sh
+ink build-model examples/frozen-numeric-structure.ink \
+    examples/frozen-numeric-structure-training.json \
+    --freeze-roots Model --specialize-frozen \
+    --target javascript -o build/frozen-numeric
+ink verify-model build/frozen-numeric --replay
+```
+
+The [action sequencing correspondence](f32-transition-primitives.md) reuses fixed
+scalar meanings after ordered argument evaluation. Tests include effectful
+operands, events, rollback, observations inside bitcasts and unsupported-domain
+rejection. Compiled validation checks full replies and checkpoints while live
+numeric state changes. These establish implementation coverage, not a performance
+ranking, whole-checker proof or general neural graph specialization.
+
 The action projection remains bounded. This extension adds literal enum
 constructors in pure helpers and fixed `word_and` correspondence for u64/u32/i32.
-Universal neural algebra, floating-point folding, all word primitives, device
+Universal neural algebra, floating-point algebraic folding, all word primitives, device
 learning and general physical-layout selection remain open. Resource exhaustion
 is outside transition equality. The checker, projection, codecs, lowerings,
 runtimes and toolchains remain trusted implementation code.

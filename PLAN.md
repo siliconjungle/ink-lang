@@ -285,3 +285,11 @@ The retained report includes independent values, required-target snapshots,
 upstream controls and cold costs. Broader learned structure/representation
 specialization, arbitrary adaptive planner search and the full three-project
 performance programme remain open.
+
+Frozen numeric structures can now materialize exact F32 coefficients, specialize
+readonly helper/record choices and retain IEEE comparisons. Ordered action
+continuations reuse existing primitive meanings after argument effects, with
+unsupported projection domains still rejecting. Independent core tests and a
+configured/frozen example cover bit payloads, live numeric updates, rollback and
+compiled checkpoints. This supplies a building block for model specialization;
+general graph unrolling, learned physical choices and matched speed remain open.
