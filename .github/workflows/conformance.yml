@@ -1204,6 +1204,7 @@ jobs:
         INK_TEST_WASM=1 cargo test --test bend_features parallel_buffers_recursion_and_scratch_agree_on_all_backends -- --nocapture
         INK_TEST_WASM=1 cargo test --test source_contracts -- --nocapture --test-threads=1
         INK_TEST_WASM=1 cargo test --test lowering_parity resident_collection_lengths_survive_feedback -- --exact --nocapture
+        INK_TEST_WASM=1 cargo test --test lowering_parity grouped_scalar_helpers_preserve_wide_words_lazy_defaults_and_records -- --exact --nocapture
         INK_TEST_WASM=1 cargo test --test physical_capabilities semantic_word_parity -- --nocapture --test-threads=1
         cargo test --test source_reverse -- --nocapture --test-threads=1
         cargo test --test generic_libraries prepared_complex_text::complex_prepared_state -- --nocapture --test-threads=1
@@ -1211,7 +1212,7 @@ jobs:
         cargo test --test frozen_state shared_frozen_parameter_lists_preserve_complete_results_and_live_learning_on_all_targets -- --exact --nocapture
         cargo test --test frozen_state frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_on_all_targets -- --exact --nocapture
         python3 tools/build_gpu_wasm.py build/source-reverse-parity/gpu-module build/source-reverse-until-parity/gpu-module
-        python3 tools/build_gpu_wasm.py build/prepared-complex-lifecycle/gpu-module
+        python3 tools/build_gpu_wasm.py build/prepared-complex-lifecycle/gpu-module build/scalar-statements-parity/gpu-module
         python3 tools/build_gpu_wasm.py build/frozen-program-parity/gpu-module build/shared-frozen-parameters-parity/gpu-module
         INK_TEST_WASM=1 cargo test --test trained_build composed_frozen_artifacts_initialize_live_weights_and_recheck_complete_plans -- --exact --nocapture
         python3 tools/build_gpu_wasm.py build/frozen-composition-32-parity/gpu-module build/frozen-composition-128-parity/gpu-module
@@ -1221,6 +1222,7 @@ jobs:
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)"
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/source-reverse-until-parity build/source-reverse-until-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/prepared-complex-lifecycle build/prepared-complex-browser.json
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/scalar-statements-parity build/scalar-statements-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-program-parity build/frozen-program-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/shared-frozen-parameters-parity build/shared-frozen-parameters-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-32-parity build/frozen-composition-32-browser.json
@@ -1245,6 +1247,7 @@ jobs:
         name: wgpu-browser-conformance
         path: |
           build/prepared-complex-browser.json
+          build/scalar-statements-browser.json
           build/frozen-program-browser.json
           build/shared-frozen-parameters-browser.json
           build/frozen-composition-32-browser.json

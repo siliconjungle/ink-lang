@@ -190,3 +190,27 @@ The [parametric-prefix acquisition](../reports/parametric-prefix-proofs-2026-10-
 retains complete plans, negative controls, initialized artifacts, browser and
 corpus histories, every authoring sample and a fresh committed-source image
 check. Its audit replays proofs and browser execution when requested.
+
+
+## Literal scalar stages on the GPU
+
+The GPU backend now groups eligible pure scalar statements and helper calls in
+one ordered shader stage. A bounded transitive scan excludes collection work;
+existing argument/let binding, lexical scope and integer-lane binary32 emission
+remain in use. This adds no arithmetic equality, reassociation or fast-math mode.
+Unsupported larger statements retain the staged attempt or CPU fallback.
+
+Complete 32/128/512-operation pure roots now execute on the actual GPU against
+an independent evaluation of the original traversal, for eleven raw F32
+input/weight classes at each size. The 64-operation helper falls from 64 stages
+to one; 128/256/512-operation helpers previously exceeded the stage budget and
+now each use one stage. Limits remain unchanged. State, serving actions and
+learning still run on the CPU; this does not implement device training.
+
+Six paired fresh browser processes measure 1.81× faster complete GPU calls for
+the 64-operation helper, including upload, dispatch, readback, result decoding
+and full-value checking. The 512-operation scalar request still strongly favors
+CPU/JavaScript: roughly 513 microseconds on GPU versus 8/7 microseconds on
+Wasm CPU/JavaScript at this asynchronous host boundary. These finite workstation
+measurements do not establish upstream parity or automatic profitability.
+Large batches/resident application pipelines require separate measurements.
