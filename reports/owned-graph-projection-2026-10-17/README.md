@@ -46,6 +46,24 @@ the successful complete frozen plan retains the record.
 
 ## Checker and producer work
 
+The [frozen corpus diagnostic](corpus/report.md) completed all ten unchanged
+programs with explicit `quick` planning effort: all compiled, all admitted rewrite
+alternatives, 25 laws were admitted and six were reused across programs. No
+alternative was selected: all ten retained the baseline at the measurement-
+evidence gate. Every search reached its configured time bound; the near-miss
+report contains no checker rejection. This is bounded planning coverage, not
+exhaustive search or execution-speed evidence. The captured Python 3.14
+environment lacks optional NumPy, python-sat and hnswlib modules; its complete
+environment and source identities are retained.
+
+Ordinary scheduling visited the new recipe once and deferred it 19 times across
+admitted states. A separate [explicit recipe pass](corpus/corpus-explicit-projection.json)
+checked all ten captured cores and proposed no replacements. The new carrier
+projection therefore has no demonstrated benefit on this held-out corpus; its
+positive U32/F32 examples remain development cases. Earlier context-change and
+disk-full attempts are retained as incomplete infrastructure attempts. Only the
+final fixed-input run supplies the complete funnel.
+
 The conversion checker can try one bounded reduction of either side and compare
 it directly with the retained target. This avoids reducing an expensive target
 continuation while exposing an identity wrapper. It reuses the existing reducer,
@@ -92,8 +110,15 @@ INK_TEST_WASM=1 INK_PARITY_REQUIRE_ALL=1 cargo test --test adaptive_fold_project
 ```
 
 Compressed source/plan files can be decompressed to replay the retained F32 case.
-`source-pins.json` identifies the experimental private compiler and exact package
-pins used in these local runs; distribution CI validates publication separately.
+`source-pins.json` distinguishes the experimental compiler's archived packages
+from the later publication pins. `publication-rebuild.json` records a fresh
+private build of committed source `1a81993a` with the publication pins: all three
+measured JavaScript images and the regenerated projection plan match byte for
+byte. Every materialized source file was checked against its committed Git blob;
+private APFS copies share storage through copy-on-write, while Cargo creates a
+fresh target directory normally. `publication-Cargo.lock` retains the exact
+resolution data. This closes that finite image-reproduction check; distribution
+CI is a separate gate.
 The mathematical laws do not prove the source translator, checker implementation,
 literal emitters, ABI, runtime or toolchain. Stateful owned work remains on the
 host; this is not device-training evidence. General graph/tape compilation,

@@ -28,6 +28,17 @@ def main():
         assert hashlib.sha256(log).hexdigest() == phase['log_sha256']
         tests += sum(map(int, re.findall(rb'test result: ok\. (\d+) passed;', log)))
     assert tests == 486
+    rebuild = json.loads((here/'publication-rebuild.json').read_bytes())
+    assert rebuild['status'] == 'passed' and rebuild['authoring']['equal']
+    assert all(image['equal'] and image['actual'] == image['expected'] for image in rebuild['images'].values())
+    assert hashlib.sha256((here/'publication-Cargo.lock').read_bytes()).hexdigest() == rebuild['resolution_lock_sha256']
+    assert hashlib.sha256(gzip.decompress((here/'publication-rebuild.log.gz').read_bytes())).hexdigest() == rebuild['log_sha256']
+    corpus = json.loads(gzip.decompress((here/'corpus/report.json.gz').read_bytes()))
+    assert corpus['headline']['programs'] == corpus['headline']['compiled'] == 10
+    assert corpus['headline']['programs_selecting_alternative'] == 0
+    observations = json.loads((here/'corpus/corpus-explicit-projection.json').read_bytes())
+    assert len(observations['programs']) == 10
+    assert all(row['proposed'] == row['admitted'] == 0 for row in observations['programs'])
     samples = json.loads(gzip.decompress((here/'benchmark-projection-summary.json.gz').read_bytes()))
     assert samples['pairs'] == 6 and len(samples['measurements']) == 6
     for pair in samples['measurements']:
