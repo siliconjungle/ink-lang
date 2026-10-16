@@ -11,7 +11,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 /// Both forms retain their ordinary checker authority. Composed specialization
-/// admits only source extensions and complete action rewrites; physical choices
+/// admits source extensions and complete action/function rewrites; physical choices
 /// need their own initialized-artifact capability rather than being discarded.
 enum FrozenSpecialization {
     Direct(crate::optimisation::CheckedSelection),
@@ -28,11 +28,12 @@ impl FrozenSpecialization {
                 match step {
                     crate::planning::Step::Extension(_) => (),
                     crate::planning::Step::Rewrite(p) if p.action_replacement.is_some() => rewrites += 1,
-                    _ => return Err("frozen specialization plan requires extensions and complete action equality proofs".into()),
+                    crate::planning::Step::Functions(_) => rewrites += 1,
+                    _ => return Err("frozen specialization plan requires extensions and complete action/function equality proofs".into()),
                 }
             }
             if rewrites == 0 {
-                return Err("frozen specialization plan needs a complete action rewrite".into());
+                return Err("frozen specialization plan needs a complete action/function rewrite".into());
             }
             Ok(Self::Composed(crate::planning::check(module, &packet)?))
         } else {

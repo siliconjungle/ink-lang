@@ -2,8 +2,8 @@
 
 This work extends the fixed source-to-mathematics translation used by complete
 state-transition proofs. It represents larger computations with transparent
-checked definitions. It does not rewrite executable source or select an optimizer
-candidate. Graph specialization still needs ordinary database proofs and the
+checked definitions. Projection alone does not rewrite executable source or select
+an optimizer candidate. Graph specialization still needs ordinary database proofs and the
 planner's separate applicability and profitability gates.
 
 The retained source fixture is the existing staged neural application: 244
@@ -92,3 +92,55 @@ To inspect the retained complete graph with a compiler containing this change:
 ink emit-action-model core/tests/fixtures/staged-neural-frozen.core.json \
   --core -o build/staged-neural-model.json
 ```
+
+## Pure function correspondence
+
+`emit-function-model` projects requested pure computations without requiring an
+action wrapper or frozen state:
+
+```sh
+ink emit-function-model build/source.core.json --core \
+  --functions chosen -o build/functions.json
+python3 knowledge/producers/function_specialization.py build/source.core.json \
+  --functions chosen --ink target/debug/ink -o build/functions.plan.json
+ink check-plan build/source.core.json build/functions.plan.json --core
+ink compile build/source.core.json --core --plan build/functions.plan.json \
+  --target javascript -o build/selected.mjs
+```
+
+The producer partially evaluates closed call arguments inside the named function.
+Other arguments, including weights, remain live. It admits generated helpers with
+a conservative source extension, then proposes a `functions` plan step with
+`ink-source-functions-v1` evidence. The general checker re-derives both complete
+source projections, authenticates every source definition and requires an
+unconditional pointwise equality for exactly every changed function body.
+Signatures, other declarations, actions, state, contracts and initial bindings
+must remain identical. Callers can continue using those functions normally.
+
+Pure declaration imports follow their actual references and the field sorts
+needed to type them. Unrelated helper discovery cannot change a collection
+carrier or the identity of an identical primitive definition. Legacy action
+projection identities retain their previous import convention. Closed literals
+in proposed proofs can use transparent mathematical definitions; ordinary proof
+checking still establishes every conversion, with the existing resource limits.
+
+This supports a staged branch inside a mutable computation. The current test
+authors a structural guard around a 32-node owned F32 graph, dispatches matching
+graphs to a specialized function, and otherwise calls the generic evaluator.
+Code and weights remain writable. The function proof optimizes the staged branch;
+automatic discovery and insertion of the guard remain separate work. A JavaScript
+history checks 200 calls, graph changes, live weight changes, events, rollback and
+five restores. Eight focused core tests cover projection, ownership, exact float
+bits, source binding, missing proofs and invalid replacements. The larger history matches 335 complete outcomes and exact snapshots against the
+reference evaluator on Rust, JavaScript and Wasm, with six restores and seeded
+JavaScript startup. The combined standalone core, including concurrent word-count
+proof support, passes 501 tests across all 83 integration targets, library checks,
+example builds and doctests.
+
+The mathematical word carrier can include more values than a narrower source
+type. The checker currently requires equality over that full carrier; it does not
+accept programmer-supplied range promises to weaken the obligation. Unsupported
+source correspondence, including binary64 arithmetic, fails closed. The source
+translator, lowerers, runtime and toolchains remain trusted implementation code.
+An admitted equality provides no automatic profitability evidence; full lifecycle
+measurements or an admitted validated cost model still gate automatic selection.
