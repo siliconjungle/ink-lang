@@ -161,6 +161,7 @@ jobs:
         python3 reports/learned-programs-2026-10-16/audit.py --ink target/debug/ink
         python3 reports/closed-learned-computations-2026-10-17/audit.py --ink target/debug/ink
         python3 reports/modular-action-projection-2026-10-17/audit.py
+        python3 reports/owned-graph-projection-2026-10-17/audit.py --ink target/debug/ink
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
         cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields --test prepared_sums --test sum_spines
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
@@ -171,7 +172,7 @@ jobs:
         cargo test --manifest-path native-support/Cargo.toml
         CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
         cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation --test reference_evaluation_budget --test automatic_compilation
-        cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test policy_learning --test differentiation --test reverse_learning --test source_reverse --test scalable_state --test binary64 --test adaptive_host --test programmable_objective --test learned_search
+        cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test adaptive_fold_projection --test policy_learning --test differentiation --test reverse_learning --test source_reverse --test scalable_state --test binary64 --test adaptive_host --test programmable_objective --test learned_search
         cargo test --manifest-path abi/Cargo.toml --locked --test objective
         cargo test --test physical_capabilities --test gpu
         cargo build --bin ink --offline
@@ -349,6 +350,7 @@ jobs:
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_frozen_traversal.py
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_closed_data_bridges.py
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_frozen_composition.py
+        INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest knowledge.tests.test_fold_state_projection knowledge.tests.test_fold_projection_laws knowledge.tests.test_owned_frozen_graph knowledge.tests.test_binding_facts
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_normal_call_cache.py
         PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_semantic_search.py

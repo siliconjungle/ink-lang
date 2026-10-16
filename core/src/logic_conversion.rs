@@ -172,6 +172,15 @@ fn compare(
             return Ok(true);
         }
     }
+    // A definition body may contain an expensive continuation that appears
+    // verbatim on the other side. Check a single gated delta step before
+    // searching through that continuation or advancing both sides together.
+    // This uses the existing reduction and lexical alpha comparison only.
+    for (source, target) in [(a, b), (b, a)] {
+        if direct_reduction(source, target, c, budget, depth + 1)? {
+            return Ok(true);
+        }
+    }
     // A reusable continuation is deliberately left as a call on one side.
     // Advancing both sides immediately can unfold that continuation before the
     // other side reaches it. Try a bounded, iterative head reduction toward
@@ -206,6 +215,45 @@ fn compare(
         remaining,
         depth + 1,
     )
+}
+
+fn direct_reduction(
+    source: &Term,
+    target: &Term,
+    c: &Context,
+    budget: &mut Budget,
+    depth: usize,
+) -> LangResult<bool> {
+    if !matches!(
+        source,
+        Term::Call { .. } | Term::Match { .. } | Term::If { .. } | Term::Binary { .. }
+    ) {
+        return Ok(false);
+    }
+    let allowance = budget.remaining.min(4096);
+    if allowance == 0 {
+        return Ok(false);
+    }
+    let mut lookahead = Budget::new();
+    lookahead.remaining = allowance;
+    let result = (|| {
+        let Some(body) = step(source, c, &mut lookahead, depth)? else {
+            return Ok(false);
+        };
+        if &body == target {
+            return Ok(true);
+        }
+        lookahead.copy(target)?;
+        Ok(alpha_normal_impl(body, &mut lookahead, true)?
+            == alpha_normal_impl(target.clone(), &mut lookahead, true)?)
+    })();
+    budget.remaining -= allowance - lookahead.remaining;
+    match result {
+        Err(error) if error == "inductive logic resource limit" && budget.remaining > 0 => {
+            Ok(false)
+        }
+        result => result,
+    }
 }
 
 fn seek_call(
