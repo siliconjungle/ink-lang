@@ -1,0 +1,11 @@
+const __fpView=new DataView(new ArrayBuffer(4));
+function __fpNumber(bits){__fpView.setUint32(0,Number(BigInt.asUintN(32,bits)),true);return __fpView.getFloat32(0,true);}
+function __fpWord(op,a,b){
+ if(op==='neg')return BigInt.asUintN(32,a)^2147483648n;
+ const x=__fpNumber(a),y=__fpNumber(b);
+ switch(op){case '==':return x===y;case '!=':return x!==y;case '<':return x<y;case '<=':return x<=y;case '>':return x>y;case '>=':return x>=y;}
+ if(op==='is_nan')return Number.isNaN(x);if(op==='is_finite')return Number.isFinite(x);
+ const even=x=>{if(!Number.isFinite(x)||Math.abs(x)>=8388608)return x;const a=Math.abs(x),i=Math.floor(a),r=a-i,y=i+Number(r>0.5||(r===0.5&&i%2===1));return x<0||Object.is(x,-0)?-y:y;};
+ const value=op==='+'?x+y:op==='-'?x-y:op==='*'?x*y:op==='div'?x/y:op==='sqrt'?Math.sqrt(x):op==='floor'?Math.floor(x):op==='ceil'?Math.ceil(x):op==='trunc'?Math.trunc(x):op==='round_ties_even'?even(x):undefined;
+ if(value===undefined)throw Error('binary32 operator');if(Number.isNaN(value))return 2143289344n;__fpView.setFloat32(0,value,true);return BigInt(__fpView.getUint32(0,true));
+}

@@ -170,6 +170,9 @@ jobs:
         # against the same complete reference history. Its bytes may evolve.
         python3 reports/mutable-function-specialization-2026-10-17/audit.py
         python3 tools/replay_historical_cpu.py reports/mutable-function-specialization-2026-10-17 --ink target/debug/ink --out build/current-mutable-function
+        # Retained float-carrier images remain replayable as the current emitter
+        # evolves. Current emission is covered by numerical_state below.
+        python3 reports/rounded-f32-carriers-2026-10-17/audit.py --run
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
         # The whole suite: fuzz_logic_objects re-declares every first-order
         # knowledge object, so checker changes cannot silently strand proofs.
