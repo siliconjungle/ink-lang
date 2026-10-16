@@ -255,3 +255,15 @@ slots. Text/model/collection emitted modules shrink 2.12%/2.95%/0.54%; the retai
 timings are mixed. Full standalone and required-target histories validate the
 change, with exact-bit swap/recursion regressions. This is code-size progress;
 substantial upstream speed gaps and the complete complex text walker remain open.
+
+
+The separate `std:prepared_complex_text` source port extends prepared geometry to
+all complex break kinds and rich-inline facts with explicit numerical profiles.
+Its upstream-only compressed oracle covers full cursor geometry and continuation;
+required-target histories exercise state replacement, events, rollback and restore.
+This advances fidelity, not the requested performance parity. The repeated complex
+count diagnostic and profiler still expose substantial record/helper overhead.
+Finish independent cross-target validation and matched lifecycle measurements,
+then reduce that overhead through general execution mechanisms. Segmentation,
+shaping/font measurement, incremental preparation, broader Handwired/Freerange
+integration and the complete adaptive-model programme remain required work.

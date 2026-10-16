@@ -44,6 +44,7 @@ fn relocated_install_search_and_independent_offline_replay_need_no_original_path
     assert!(resources.join("planner/ink_planner/objective.py").is_file());
     assert!(resources.join("planner/ink_planner/objective.mjs").is_file());
     assert!(resources.join("runtime/hosts/objective.mjs").is_file());
+    assert!(resources.join("knowledge/libraries/prepared_complex_text.ink").is_file());
     assert!(resources
         .join("knowledge/producers/implementation_candidates.py")
         .is_file());
@@ -72,6 +73,8 @@ Store.publish(sys.argv[2],objects)
         assert!(Path::new(resource["path"].as_str().unwrap()).starts_with(&resources));
     }
     // Proposals use the moved database and producer, not their checkout paths.
+    fs::write(outside.join("complex.ink"), include_str!("../examples/prepared-complex-text.ink")).unwrap();
+    success(command().args(["emit-core", "complex.ink", "-o", "complex.json"]));
     let action_source = include_str!("../examples/action-transitions.ink");
     fs::write(outside.join("actions.ink"), action_source).unwrap();
     fs::write(

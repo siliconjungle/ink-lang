@@ -326,11 +326,14 @@ Pretext fidelity.
 geometry walkers as ordinary Ink algorithms. Counts/heights avoid constructing
 line ranges; complete observations preserve binary64 widths and both cursors.
 The 232-case pinned upstream oracle and transactional multi-target history cover
-this admitted domain. Complex break kinds reject explicitly. A first diagnostic
-still leaves a substantial gap to the upstream direct loop; this is a fidelity
-baseline, not full Pretext preparation/layout or performance parity. The complex
-walker, segmentation/shaping oracle integration, incremental preparation and the
-rest of this delivery checklist remain required work.
+this admitted domain. The separate `std:prepared_complex_text` module now ports
+complex geometry, with explicit numerical engine profiles, soft hyphens, tabs,
+preserved spaces, objects and rich-inline facts. Its independent compressed oracle
+covers complete geometry and cursor continuation. Both modules execute ordinary
+source and retain measured-data validation boundaries. The diagnostics still
+leave substantial gaps to the upstream direct loops. Segmentation/shaping oracle
+integration, incremental preparation and matched performance remain required;
+these fidelity ports do not complete this delivery checklist.
 
 ## Preparation inside sequential computation
 
@@ -341,5 +344,5 @@ lazy state. This enables one-time indexes, grouped folds and coefficient tables
 without a library-name recognizer. The retained paired study shows large repeated
 work gains alongside small-input, memory and ordinary-call costs. Neural and text
 controls still expose substantial gaps; broader source differentiation,
-mutable-session staging, full complex text/preparation and broad matched
+mutable-session staging, complete text preparation and broad matched
 performance remain open.

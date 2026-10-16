@@ -60,7 +60,7 @@ try{
    results.push({backend,observations:index});
   }}finally{await host.dispose();}
   if(gpuCalls===0)throw Error('actual WebGPU dispatch required');
-  return {status:'passed',comparisons,restores,gpuCalls,requiredErrors,results,scope:'complete values, outcomes, ordered events and exact portable snapshots; CPU tapes, separate actual device computation'};
+  return {status:'passed',comparisons,restores,gpuCalls,requiredErrors,results,scope:'complete values, outcomes, ordered events and exact portable snapshots; CPU-host computation, separate actual device computation'};
  },fixture);
  assert.equal(receipt.status,'passed');await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
