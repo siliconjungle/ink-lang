@@ -96,6 +96,11 @@ See [commands and opportunity limits](../../docs/frozen-composition.md).
   from the working tree. The two measured modules remain byte-identical after
   final package reconciliation.
 
+A second fresh committed-source rebuild after merging concurrent strict-inlining
+work reproduces those same baseline images, composed plan and selected JavaScript.
+Its integration receipt records the newer knowledge pin separately; the core tree
+and all backend/runtime pins are unchanged.
+
 This is finite implementation/reproducibility evidence. Source correspondence,
 checker implementation, generated code, ABI, runtime, toolchain and driver still
 contain trusted code; it is not a whole-chain correctness proof. General F64

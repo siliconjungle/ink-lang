@@ -63,6 +63,12 @@ def audit(ink=None, chrome=None):
         trace='examples/frozen-program-long-training.json', freeze_roots='Structure', composition=True)
     assert digest(raw('checks/compiler-image.log.gz')) == clean['log_sha256']
     assert digest(raw('sources/Cargo.lock.gz')) == clean['resolution_lock_sha256']
+    integrated = read('checks/integration-compiler.json')
+    assert integrated['status']=='passed' and integrated['private_checkout'] and integrated['private_target']
+    assert integrated['source']==metadata['integration_source'] and integrated['packages']==metadata['integration_packages']
+    assert integrated['composition']==clean['composition'] and integrated['images']==clean['images']
+    assert integrated['resolution_lock_sha256']==clean['resolution_lock_sha256']
+    assert digest(raw('checks/integration-compiler.log.gz'))==integrated['log_sha256']
     baseline = bundle('baseline-package.tar.gz', metadata['archives']['baseline-package'])
     manifest = json.loads(baseline['artifact.json'])
     assert set(baseline) == set(manifest['files']) | {'artifact.json'}
