@@ -181,6 +181,10 @@ main revision. When a pin bump changes a crate another pinned crate depends on
 change (`cargo metadata` without `--locked`); CI's locked fetch fails otherwise. Also refresh
 other tracked package locks, including JavaScript, and check them with `cargo fetch
 --locked` before publication.
+When core changes, publish its matching standalone package and update the current
+root `core-package.json` receipt. CI compares its tree with `HEAD:core` and tests
+that exact private package. Historical report receipts and their test logs retain
+their original source/package identities.
 A run is verified only when every job finishes green; failing steps report their
 error lines as annotations (`tools/ci_step.sh`). Feature branches and worktrees are staging areas during active work;
 keep work isolated when James explicitly requests a draft or separate branch.

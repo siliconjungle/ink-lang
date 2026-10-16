@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "run": 38911886680,
+  "job": 117009509029,
+  "failed_assertion": "distribution core differs from standalone package pin",
+  "cause": "CI used a historical learned-program package receipt after the independently validated current core advanced.",
+  "correction": "Rootcore-package.json feeds the existing workflow through the historical integration-core-package.json symlink alias. The original receipt bytes move to recorded-core-package.json and remain hash-audited against the original466-test log; only the live alias is excluded from the historical inventory. Existing current HEAD/tree assertion and private package test remain unchanged.",
+  "current": {
+    "commit": "97945b1af402258506e0764ba1f00e994d1111c3",
+    "parent": "69980ec3664a7d702a5fc6108c969f1584995ee7",
+    "source": "eb96b48115f449206180623e069e02bf272af778",
+    "core_tree": "46687c1aa111b59022e3f6676b03f243a7c1cc66",
+    "branch": "core-package-v8-hint-transport-20261017",
+    "scope": "Current distribution standalone package/source core tree; CI also compares HEAD:core and tests this exact package privately. A package-only branch must never replace distribution main. Tree identity alone does not establish completed testing."
+  },
+  "tree_and_private_receipt_revalidated": true,
+  "scope": "CI wiring identity correction; no package/admission/checker condition relaxed. Full new CI run remains required before claiming green.",
+  "workflow_write": "OAuth token lacks workflow scope; final commit has no workflow-file change.",
+  "historical_audit_and_current_replay": "Observed session92584 exit0: complete declared20MB historical report integrity, verify-model/check-plan positives and all3 authentic negative proof controls replay through selected current compiler. Historical466-test log/source identities unchanged.",
+  "audit_log_sha256": "cab71c74782017c6700266f04dd0e265a4ac852ea231fe7678ab7afd671e7cf9"
+}
