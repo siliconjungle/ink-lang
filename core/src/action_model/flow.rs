@@ -106,11 +106,14 @@ impl<'p> Lower<'p> {
                 | Kind::Or { left, right } => child(*left) && child(*right),
                 Kind::PureCall { arguments, .. } => arguments.iter().all(|n| child(*n)),
                 Kind::Builtin { name, arguments } => {
-                    [
+                    // Registered primitives are pure value operations. Their
+                    // actual correspondence still goes through expr(), which
+                    // rejects meanings outside the admitted projection domain.
+                    ([
                         "Ok", "Err", "Some", "choose", "count", "sum", "vec2", "vec3", "vec4",
                         "quot_or", "rem_or", "list", "word_and",
                     ]
-                    .contains(&name.as_str())
+                    .contains(&name.as_str()) || crate::primitives::primitive(name))
                         && arguments.iter().all(|n| child(*n))
                 }
                 Kind::Table {
@@ -764,10 +767,12 @@ impl<'p> Lower<'p> {
                     calls,
                 )
             }
-            Kind::Builtin{name,arguments} if ["list","count","sum","vec2","vec3","vec4","quot_or","rem_or","word_and"].contains(&name.as_str()) => {
+            Kind::Builtin{name,arguments} if ["list","count","sum","vec2","vec3","vec4","quot_or","rem_or","word_and"].contains(&name.as_str()) || crate::primitives::primitive(name) => {
                 // Reuse the fixed value meaning after ordered child evaluation.
                 // Only the primitive and typed local arguments are reconstructed;
                 // source effects are not evaluated again or moved into a lambda.
+                // Registration supplies no new correspondence: expr() must
+                // already implement the exact typed operation or this rejects.
                 self.flow_args(scope,body,arguments,env,state,events,vec![],
                     &|this,values,state,events| {
                         let kind=Kind::Builtin{name:name.clone(),arguments:(0..arguments.len()).collect()};
