@@ -406,3 +406,12 @@ package costs, heap diagnostics and complete state checks. Literal binding
 placement improves this workload; compact ordinary proofs reduce its still-larger
 deployment payload. A private committed-source rebuild checks exact executable
 images. This does not close the graph-size or upstream-library acceptance gaps.
+
+[Shared frozen literals](frozen-literal-sharing.md) now carry longer model data
+in transparent typed chunks and retain exact exhaustive-proof conclusions.
+Whole-result finite parameter specialization reaches 512 elements without
+widening proof transport limits; closed data stays source-bound even when a
+selected action stops reading it. This addresses data representation inside
+checking. Longer generated action bodies, full neural graph/tape compilation,
+learned physical choices, device training and matched upstream parity remain
+open work rather than being counted as delivered by this foundation.

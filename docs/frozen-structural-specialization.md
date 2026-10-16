@@ -159,8 +159,11 @@ structure and prunes known control before substitution duplicates it. Ordinary
 complete action proofs remain mandatory. The cross-target history includes
 successful and rejected weight updates, fresh serving inputs, events, live data,
 restore and every exact checkpoint. This bounded static traversal is progress
-toward graph specialization; arbitrary neural graphs, tape programs and large
-frozen structures remain further work.
+toward graph specialization; arbitrary neural graphs and tape programs remain
+further work. [Shared frozen literals](frozen-literal-sharing.md) now transport
+long parameter lists and tables through small transparent definitions. This
+removes the first data-depth bottleneck without raising transport limits; long
+straight-line action continuations and factored graph proofs still need work.
 
 Proof construction first tries to transport fixed rows between source-bound
 case forms without fully expanding live arithmetic. If the ordinary checker
