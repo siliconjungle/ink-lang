@@ -380,3 +380,12 @@ substitution, forged NaN reflexivity and erased payload claims reject.
 `knowledge/tests/test_v8_float_laws.py` and the required F32 refinement parity
 suite cover these boundaries. Detailed acquisition scope, measurements and
 validation receipts live in `bench/v8-learning/f32-bits`.
+
+The required device validation also exposed a literal GPU typing bug: direct
+collection shaders re-inferred number-only callback branches as U64 despite a
+checked U32 result. The GPU emitter now carries the checked element carrier
+through callbacks, helpers, choices and carrier-preserving collection operations;
+map input and output carriers remain distinct. Shader validation covers U32,
+I32, U64 and F32 contexts. This is literal backend correctness support, with no
+new source rewrite or profitability authority. Actual selected F32 bit-copy and
+classification kernels preserve all tested payloads and gradual-underflow bits.
