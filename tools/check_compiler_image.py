@@ -47,7 +47,13 @@ def main():
     parser.add_argument('--selected', type=Path, required=True)
     parser.add_argument('--log', type=Path, required=True)
     parser.add_argument('--receipt', type=Path, required=True)
+    parser.add_argument('--program', default='examples/frozen-program.ink')
+    parser.add_argument('--trace', default='examples/frozen-program-training.json')
+    parser.add_argument('--freeze-roots', default='Structure')
     args = parser.parse_args()
+    for path in [args.program, args.trace]:
+        if Path(path).is_absolute() or '..' in Path(path).parts or Path(path).parts[:1] != ('examples',):
+            parser.error('fixture paths must name committed examples inside the distribution')
     source = git(ROOT, 'rev-parse', args.source+'^{commit}').decode().strip()
     links = {}
     for path in PACKAGES:
@@ -59,7 +65,8 @@ def main():
     args.receipt.parent.mkdir(parents=True, exist_ok=True)
     record = dict(schema=1, source=source, packages=links, private_checkout=True,
                   private_target=True, tool_source_subsets=TOOL_SOURCES,
-                  scope='Fresh committed compiler/package source rebuild and matching executed images for the frozen-program fixture. Historical tool catalogues/experiments are excluded; not a whole-compiler or toolchain correctness proof.')
+                  fixture=dict(program=args.program,trace=args.trace,freeze_roots=args.freeze_roots),
+                  scope='Fresh committed compiler/package source rebuild and matching executed images for the recorded fixture. Historical tool catalogues/experiments are excluded; not a whole-compiler or toolchain correctness proof.')
     with tempfile.TemporaryDirectory(prefix='ink-compiler-image-') as directory, args.log.open('wb') as log:
         base = Path(directory)
         checkout = base/'source'
@@ -91,8 +98,8 @@ def main():
         compared = {}
         for name, expected in [('baseline', args.baseline.resolve()), ('selected', args.selected.resolve())]:
             output = base/name
-            command = [str(binary), 'build-model', 'examples/frozen-program.ink',
-                       'examples/frozen-program-training.json', '--freeze-roots', 'Structure',
+            command = [str(binary), 'build-model', args.program,
+                       args.trace, '--freeze-roots', args.freeze_roots,
                        '--target', 'javascript', '-o', str(output)]
             if name == 'selected':
                 command.insert(command.index('--target'), '--specialize-frozen')

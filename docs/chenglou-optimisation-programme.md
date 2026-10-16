@@ -415,3 +415,13 @@ selected action stops reading it. This addresses data representation inside
 checking. Longer generated action bodies, full neural graph/tape compilation,
 learned physical choices, device training and matched upstream parity remain
 open work rather than being counted as delivered by this foundation.
+
+[Factored literal proofs](factored-literal-proofs.md) now address the related
+exceptional-data limit: complete lists reach 512 values through reusable ordinary
+closed lemmas. The runnable 244-value package preserves separate live training
+and rejects changed frozen payloads on restore. Compact complete plan JSON reduces
+its selected package from 4.13 MB to 1.70 MB, still above its 297 KB baseline.
+The [retained acquisition](../reports/factored-literal-proofs-2026-10-16/README.md)
+includes fresh committed compiler reproduction and complete browser histories;
+it makes no new serving-performance claim. Typed composition for larger generated
+computations remains the next structural specialization step.

@@ -13,8 +13,12 @@ python3 tools/check_compiler_image.py --source COMMITTED_REVISION \
     --log build/compiler-image.log --receipt build/compiler-image.json
 ```
 
-The fixture is `examples/frozen-program.ink` with its committed configuration
-trace. The tool archives compiler/core/stdlib/examples and all pinned executable
+The default fixture is `examples/frozen-program.ink` with its committed
+configuration trace. `--program`, `--trace` and `--freeze-roots` select another
+committed example, such as `examples/frozen-parameters.ink` and its training
+trace with root `Model`. Paths must stay inside committed `examples/`; working
+files outside the archived checkout cannot replace fixture sources. The tool
+records the chosen fixture and archives compiler/core/stdlib/examples and all pinned executable
 packages. Knowledge includes its tool and library sources; planner includes its
 compiler tools and browser sources. Historical catalogues and research bundles
 are excluded and those subsets are recorded explicitly. The dependency resolution

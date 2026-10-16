@@ -49,6 +49,7 @@ jobs:
         python3 reports/frozen-numeric-structure-2026-10-16/audit.py
         python3 reports/frozen-program-2026-10-16/audit.py
         python3 reports/frozen-literal-sharing-2026-10-16/audit.py
+        python3 reports/factored-literal-proofs-2026-10-16/audit.py
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -337,6 +338,7 @@ jobs:
         PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_state_calculus.py
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_frozen_specialization.py
         INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_frozen_traversal.py
+        INK_COMPILER="$PWD/target/debug/ink" PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_closed_data_bridges.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s knowledge/tests -p test_normal_call_cache.py
         PYTHONPATH=knowledge python3 -m unittest discover -s knowledge/tests -p test_admit_publication.py
         PYTHONPATH=planner:knowledge python3 -m unittest discover -s planner/tests -p test_semantic_search.py
