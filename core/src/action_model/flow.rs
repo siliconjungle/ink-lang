@@ -4,6 +4,9 @@ use super::*;
 type Env = BTreeMap<usize, Term>;
 type Next<'f, 'p> = dyn Fn(&mut Lower<'p>, Term, Term, Term) -> LangResult<Term> + 'f;
 type Exit<'f, 'p> = dyn Fn(&mut Lower<'p>, Term) -> LangResult<Term> + 'f;
+type Fallthrough<'f,'p> = dyn Fn(&mut Lower<'p>,Env,Term,Term)->LangResult<Term> + 'f;
+enum JoinInput { Slot(usize), State, Events, Capture(String) }
+struct BlockJoin { function:String, inputs:Vec<JoinInput> }
 struct Scope<'a> {
     actions: &'a CheckedActions,
     observation: &'a str,
@@ -64,6 +67,14 @@ impl<'p> Lower<'p> {
         probe: &SiteObservation,
     ) -> LangResult<Term> {
         let source = actions.action(index).ok_or("missing observed source action")?;
+        if self.intern_declarations {
+            self.track_projection_variables=true;self.projection_variables.clear();
+            self.projection_variables.insert("initial".into(),Sort::Data(self.state.clone()));
+            self.projection_variables.insert("version".into(),Sort::U64);
+            for (slot,value) in &env {
+                let sort=self.sort(&source.slots[*slot].ty)?;self.remember_projection_variable(value,&sort)?;
+            }
+        }
         let scope = Scope {
             actions,
             observation: "",
@@ -76,7 +87,7 @@ impl<'p> Lower<'p> {
             &scope, &frame, &frame.instructions, env, v("initial"),
             c(&self.events, 0, vec![]),
             &|_, _, _, _| Ok(Term::Bool(true)),
-            &|_, _| Ok(Term::Bool(true)), 0, 0,
+            &|_, _| Ok(Term::Bool(true)), 0, 0, None,
         )
     }
     // Sealed trees are emitted in child-first order. A conservative structural
@@ -195,6 +206,7 @@ impl<'p> Lower<'p> {
             &abort,
             0,
             0,
+            None,
         )
     }
     fn flow_block(
@@ -209,13 +221,14 @@ impl<'p> Lower<'p> {
         abort: &Exit<'_, 'p>,
         depth: usize,
         calls: usize,
+        fallthrough: Option<&Fallthrough<'_, 'p>>,
     ) -> LangResult<Term> {
         self.tick()?;
         if depth > 32 {
             return Err("action transition continuation depth limit".into());
         }
         let Some((first, tail)) = instructions.split_first() else {
-            return Ok(scope.host(self, 3));
+            return if let Some(next)=fallthrough {next(self,env,state,events)}else{Ok(scope.host(self, 3))};
         };
         match first {
             Instruction::Return(n) => {
@@ -245,6 +258,7 @@ impl<'p> Lower<'p> {
                                 abort,
                                 depth + 1,
                                 calls,
+                                fallthrough,
                             )
                         })
                     },
@@ -272,6 +286,7 @@ impl<'p> Lower<'p> {
                         abort,
                         depth + 1,
                         calls,
+                        fallthrough,
                     )
                 },
                 abort,
@@ -307,6 +322,7 @@ impl<'p> Lower<'p> {
                                 abort,
                                 depth + 1,
                                 calls,
+                                fallthrough,
                             )
                         })
                     },
@@ -327,6 +343,13 @@ impl<'p> Lower<'p> {
                 state,
                 events,
                 &|this, test, state, events| {
+                    if this.intern_declarations && !tail.is_empty() {
+                        let joined=this.make_flow_join(scope,body,tail,&env,ret,abort,depth+1,calls,fallthrough)?;
+                        let next=|this:&mut Self,env:Env,state,events|this.call_flow_join(&joined,&env,state,events);
+                        let yes=this.flow_block(scope,body,on_true,env.clone(),state.clone(),events.clone(),ret,abort,depth+1,calls,Some(&next))?;
+                        let no=this.flow_block(scope,body,on_false,env.clone(),state,events,ret,abort,depth+1,calls,Some(&next))?;
+                        return Ok(choice(test,yes,no));
+                    }
                     let mut yes = on_true.clone();
                     yes.extend_from_slice(tail);
                     let mut no = on_false.clone();
@@ -342,6 +365,7 @@ impl<'p> Lower<'p> {
                         abort,
                         depth + 1,
                         calls,
+                        fallthrough,
                     )?;
                     let no = this.flow_block(
                         scope,
@@ -354,6 +378,7 @@ impl<'p> Lower<'p> {
                         abort,
                         depth + 1,
                         calls,
+                        fallthrough,
                     )?;
                     Ok(choice(test, yes, no))
                 },
@@ -362,6 +387,54 @@ impl<'p> Lower<'p> {
                 calls,
             ),
         }
+    }
+    fn make_flow_join(&mut self,scope:&Scope,body:&Frame<'_>,tail:&[Instruction],env:&Env,
+        ret:&Next<'_, 'p>,abort:&Exit<'_, 'p>,depth:usize,calls:usize,
+        fallthrough:Option<&Fallthrough<'_, 'p>>)->LangResult<BlockJoin> {
+        // A suffix is a function of its incoming locals, state and events.
+        // Building it once prevents branch continuations from duplicating the
+        // rest of an action. Early returns still use the original exit.
+        let mut formals=BTreeMap::new();let mut local=Env::new();
+        for slot in env.keys() {
+            let name=self.fresh();let sort=self.sort(&body.slots[*slot].ty)?;
+            self.remember_projection_variable(&v(&name),&sort)?;
+            local.insert(*slot,v(&name));formals.insert(name,(sort,JoinInput::Slot(*slot)));
+        }
+        let state=self.fresh();let events=self.fresh();
+        let state_sort=Sort::Data(self.state.clone());let events_sort=Sort::Data(self.events.clone());
+        self.remember_projection_variable(&v(&state),&state_sort)?;
+        self.remember_projection_variable(&v(&events),&events_sort)?;
+        formals.insert(state.clone(),(state_sort,JoinInput::State));formals.insert(events.clone(),(events_sort,JoinInput::Events));
+        let term=self.flow_block(scope,body,tail,local,v(&state),v(&events),ret,abort,depth,calls,fallthrough)?;
+        let mut free=BTreeSet::new();let mut pending=vec![(&term,BTreeSet::new())];
+        while let Some((term,bound))=pending.pop() {match term {
+            Term::Var(name) if !bound.contains(name)=>{free.insert(name.clone());}
+            Term::Match {scrutinee,branches}=>{
+                pending.push((scrutinee,bound.clone()));
+                for branch in branches {let mut local=bound.clone();local.extend(branch.bindings.iter().cloned());pending.push((&branch.body,local));}
+            }
+            _=>pending.extend(crate::logic::term_children(term).into_iter().map(|t|(t,bound.clone()))),
+        }}
+        let mut params=vec![];let mut inputs=vec![];
+        for name in free {
+            let (sort,input)=if let Some(formal)=formals.remove(&name) {formal}else{
+                let sort=self.projection_variables.get(&name).cloned().or_else(|| match name.as_str() {
+                    "initial"=>Some(Sort::Data(self.state.clone())),"version"=>Some(Sort::U64),_=>None,
+                }).ok_or_else(||format!("action model continuation capture sort missing: {name}"))?;
+                (sort,JoinInput::Capture(name.clone()))
+            };
+            params.push((name,sort));inputs.push(input);
+        }
+        let result=if scope.failure.is_some(){Sort::Bool}else{Sort::Data(scope.observation.into())};
+        let function=self.store(Declaration::Function {params,result,body:term,recursive:None})?;
+        Ok(BlockJoin {function,inputs})
+    }
+    fn call_flow_join(&mut self,join:&BlockJoin,env:&Env,state:Term,events:Term)->LangResult<Term> {
+        let arguments=join.inputs.iter().map(|input|Ok(match input {
+            JoinInput::Slot(slot)=>env.get(slot).cloned().ok_or("missing source continuation slot")?,
+            JoinInput::State=>state.clone(),JoinInput::Events=>events.clone(),JoinInput::Capture(name)=>v(name),
+        })).collect::<LangResult<Vec<_>>>()?;
+        Ok(call(&join.function,arguments))
     }
     fn flow_args(
         &mut self,
@@ -414,6 +487,17 @@ impl<'p> Lower<'p> {
         )
     }
     fn flow_expr(
+        &mut self,scope:&Scope,body:&Frame<'_>,node:NodeId,env:&Env,state:Term,events:Term,
+        next:&Next<'_, 'p>,abort:&Exit<'_, 'p>,depth:usize,calls:usize,
+    )->LangResult<Term> {
+        if !self.intern_declarations {return self.flow_expr_observed(scope,body,node,env,state,events,next,abort,depth,calls);}
+        let ExprType::Value(ty)=&body.nodes[node].ty else{return Err("standalone action model lambda is unsupported".into());};
+        let sort=self.sort(ty)?;
+        self.flow_expr_observed(scope,body,node,env,state,events,&|this,value,state,events| {
+            this.remember_projection_variable(&value,&sort)?;next(this,value,state,events)
+        },abort,depth,calls)
+    }
+    fn flow_expr_observed(
         &mut self,
         scope: &Scope,
         body: &Frame<'_>,
@@ -980,6 +1064,7 @@ impl<'p> Lower<'p> {
             &local_exit,
             0,
             calls,
+            None,
         )
     }
     fn flow_method(
