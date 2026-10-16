@@ -11,7 +11,9 @@ parameters, mutable optimizer/control state and a frozen architecture root. Its
 six actions now have a standalone checked mathematical projection. The current
 fixture produces 316 definitions and 5,073,076 canonical bytes, including producer
 normal-form hints. These are proof-data sizes, not runtime memory measurements or
-an inference speedup.
+an inference speedup. The CLI exports canonical JSON: deeply nested pretty
+indentation would inflate this fixture to 42,053,579 bytes. Compact canonical
+transport retains the identical model within the existing byte allowance.
 
 ## Construction
 
