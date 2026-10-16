@@ -145,7 +145,7 @@
         ]
       ],
       "review_status": "file-read; family assessment open",
-      "note": "Full file read. Backwards live-operation/control lattice, required effects, joins, loop fixed-point revisits, branch redirection and leaf stack-check facts. Pure lexical dead-value proposals need checker evidence; stateful effects, observations, failures and interrupts cannot be erased from source observations."
+      "note": "Full file read. Backwards live-operation/control lattice, required effects, joins, loop fixed-point revisits, branch redirection and leaf stack-check facts. Pure lexical dead-value proposals need checker evidence; stateful effects, observations, failures and interrupts cannot be erased from source observations. Re-read complete backward operation/control liveness: live-loop phi backedges trigger revisits; merge redirects require no live phis and loop headers block jumps into loops. Required-unused work/stack guards remain observable; Ink strict source errors prevent blanket unused-argument erasure."
     },
     {
       "path": "src/compiler/turboshaft/store-store-elimination-reducer-inl.h",
@@ -264,8 +264,8 @@
           214
         ]
       ],
-      "review_status": "file-read; addressed by selected host machine lowering",
-      "note": "Full file read. Target-dependent displacement/scaled-index bounds, tagged-base adjustment, atomic addressing restrictions and raw base+index hoisting. Ink has no source pointer/addressing-mode primitive. Selected native/Rust-Wasm code is lowered by the Rust host toolchain; JavaScript is lowered by its host engine. Such instruction legalization remains the host responsibility, subject to selected target/optimization flags; no source algebraic fact follows and debug builds promise no optimized addressing. Packed-layout codecs and bounds stay independently checked."
+      "review_status": "file-read; family assessment open",
+      "note": "Architecture-specific addressing legality, tagged displacement adjustment, atomic restrictions and guarded raw base+index factoring before GVN. Current Ink backends delegate physical addressing to Rust/JS/Wasm/GPU hosts; source affine indexing and bounds/error proofs remain separate. No raw-memory rewrite or platform gain assumed."
     },
     {
       "path": "src/maglev/maglev-graph-optimizer.h",
@@ -736,12 +736,12 @@
       "sha256": "453238f866f49971838b87a0e0bb2ba96c6add34c2ad56ae96753d9a158acd03",
       "inclusive_lines": [
         [
-          580,
-          749
+          1,
+          3180
         ]
       ],
       "review_status": "partial source read; family assessment open",
-      "note": "Partial source read only: primitive bitwise-not/increment/decrement/negate reductions, checked String addition length and throw/deopt paths, and String-wrapper unwrapping. JavaScript PlainPrimitive/ToNumber/ToInt32 coercions are not Ink fixed typed arithmetic. UTF-16 concat and protector/deopt continuations cannot justify dropping Ink UTF-8 byte-length errors. Remaining typed lowering unread."
+      "note": "Full file read. Binop feedback/check/effect rewiring, numeric/word coercions, checked cons/string addition, strict/loose equality, Number/BigInt/String/Object conversions; prototype guards with runtime/exception fallback; context cell state/detach and module loads/stores; known call target/arity/receiver/native-context restrictions; for-in shape cache checks and generic filtering; generator stale-slot clearing; async await promise protectors and exact fresh-fulfillment conditions. Strict self equality uses !isNaN, consistent with fifteen new exact F32 database laws. Operand swapping moves existing SSA values; Ink source swaps need strict bindings to preserve order/work. Ink fixed carriers and UTF-8 differ from JS coercions, identity/prototypes and UTF-16. No async/generator/source dynamic property machinery exists to optimize directly; portable snapshots, invalidation, fresh ownership and failure-preserving specialization remain relevant boundaries. Individual algorithm alternatives and measured target profitability remain open."
     },
     {
       "path": "src/compiler/js-call-reducer.cc",
@@ -762,6 +762,258 @@
       ],
       "review_status": "partial source read; family assessment open",
       "note": "Partial source read only. Array builtin admission needs fast maps/no-elements/species protection or checked map guards. Map preallocates known length and preserves callback/deopt state; filter grows a packed output from zero and records post-callback state so growth fallback does not rerun callbacks. Small-array insertion sort copies a snapshot, keeps a permutation at comparator boundaries and preserves generic fallback; its wrapper explicitly suppresses correctness fuzzing due to different builtin behavior. Ink immutable typed collections avoid JS holes/maps/coercions, but allocation/growth tradeoffs, source callback order/failures, snapshots and whole-function proofs still matter. No sort or allocation algorithm changed from source reading. Other builtin wrappers, implementations and JS-call dispatch remain unread."
+    },
+    {
+      "path": "docs/compiler/concurrency-and-background-compilation.md",
+      "sha256": "19a9a1fae8b1edf0c74a14bc123ce5410ae92028e36bb4a55ded92dd5649e97d",
+      "inclusive_lines": [
+        [
+          1,
+          62
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Compiler jobs and immutable/source-bound input snapshots inform offline work scheduling. LocalHeap parking and moving-GC heap references are V8-specific; Ink must not infer snapshot consistency from a cache or pause active workers. Full broker implementation remains open."
+    },
+    {
+      "path": "docs/compiler/maglev/compiler-maglev-regalloc.md",
+      "sha256": "69884ce02f0ce87136b65d1a48e159c9cfabdd50864ed2e1b0fdbfc24a97c404",
+      "inclusive_lines": [
+        [
+          1,
+          77
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Linear scan separates fixed/arbitrary/any operand constraints and deopt live values. Physical constraints remain host-compiler responsibilities for current Ink targets; no claim of equivalent allocation quality."
+    },
+    {
+      "path": "docs/compiler/maglev/compiler-maglev.md",
+      "sha256": "b42290d5aa3492c1848a2ad8a34c45391f77d9058d1ebd948f4ff263c446cd0e",
+      "inclusive_lines": [
+        [
+          1,
+          115
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Tiered compilation minimizes phases while retaining deoptimization frame work. Ink has checked compiled candidates and exact source bindings rather than speculative feedback authority. Graph builder, code generation and register allocation remain open."
+    },
+    {
+      "path": "docs/compiler/sparkplug/compiler-sparkplug.md",
+      "sha256": "a49516f9fdf9d1680dba108b252d02576fb8961a61442d841c0bf0d703237951",
+      "inclusive_lines": [
+        [
+          1,
+          58
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Baseline bytecode compiler, shared builtins and interpreter-compatible frames reduce dispatch/startup work. Current Ink targets already compile checked programs; speculative tier/OSR machinery does not transfer directly. Baseline implementation is outside this selected inventory and remains open."
+    },
+    {
+      "path": "docs/compiler/turbofan/compiler-turbofan.md",
+      "sha256": "1229c82f972415c888f2471cb6e1607b6600815f8552f37a99a7aed95c655f84",
+      "inclusive_lines": [
+        [
+          1,
+          97
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Overview and external-reference catalogue read; linked materials are not counted as read. Phase organization and deoptimization are useful boundaries, not evidence that actual optimization implementations have been assessed."
+    },
+    {
+      "path": "docs/compiler/turboshaft/compiler-turboshaft-copying-approach.md",
+      "sha256": "e16d0348d4701b8e024a8798464ec9ed9cdd0f8efb7265a137a0f699d5a3a438",
+      "inclusive_lines": [
+        [
+          1,
+          49
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Read-only input/new output phases simplify invalidation and preserve consistent lookup; compact indexed operation buffers make copying cheap for this IR. Do not extrapolate performance to Ink recursive JSON/proof trees without profiling. Actual graph/copying driver remains open."
+    },
+    {
+      "path": "docs/compiler/turboshaft/compiler-turboshaft-ir.md",
+      "sha256": "b6de7f78fe0381229c320ae4d50a4de8cf316995763e3a5364ed024fe5cee7ac",
+      "inclusive_lines": [
+        [
+          1,
+          87
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Produces/consumes effects, identity creation and required-when-unused constrain reordering and dead work. Ink separate whole-action proofs and strict helper evaluation remain necessary; pure results alone do not justify dropping errors. Actual operations definitions remain open."
+    },
+    {
+      "path": "docs/compiler/turboshaft/compiler-turboshaft-reducers.md",
+      "sha256": "66abbd7fa9380ffcd23db5056b3a384fdcf71b72d4e92c18a24f8337a4ad4fe8",
+      "inclusive_lines": [
+        [
+          1,
+          85
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Composable reducers fuse visits; throwing operators have a separate visit path and reducer order matters. Ink database proposals remain untrusted and replay each equality; no new core target matcher or fused search authority follows. Actual driver remains open."
+    },
+    {
+      "path": "docs/compiler/turboshaft/compiler-turboshaft.md",
+      "sha256": "6121e8d72c4de7230012d66cd08157fe21e681d16072b6185d0d6c8f1865a548",
+      "inclusive_lines": [
+        [
+          1,
+          78
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Overview of CFG/reducers and Maglev frontend, including generator resume edges repaired to preserve loop dominance. Current Ink has structured bounded loops and no resumable generators. Graph builder and remaining reducer implementations remain open."
+    },
+    {
+      "path": "docs/compiler/why-cfg.md",
+      "sha256": "e2162507745441f73ef3b2e15a242b495f37c5187bb7533cc1788b690201f2c1",
+      "inclusive_lines": [
+        [
+          1,
+          63
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Explicit CFG ordering, locality and predictable visits motivate bounded offline transformations. Ink strict source execution/errors must survive any reordering; effect compatibility alone does not grant source equality."
+    },
+    {
+      "path": "src/compiler/turboshaft/required-optimization-reducer.h",
+      "sha256": "b11e7e54dbd5d48d38e2b8fcad98c65d562216491c2e15ccc4ec27bdc8e844b9",
+      "inclusive_lines": [
+        [
+          1,
+          93
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "All-equal phi inputs/constants and canonical Wasm RTTs reduced for downstream correctness/direct-call detection. Required phase dependencies differ from profitable source equality selection; no unchecked source simplification imported."
+    },
+    {
+      "path": "src/compiler/turboshaft/select-lowering-reducer.h",
+      "sha256": "b3387880cd0f01a84992f2de9af4a123274f2cd49296b9ca3839e2cfb7c84b94",
+      "inclusive_lines": [
+        [
+          1,
+          102
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "CMove versus diamond chosen by supported representation and forced implementation; select operands are existing SSA values. Ink lazy choose arms cannot be eagerly executed to mimic this lowering. Physical selection remains host-owned."
+    },
+    {
+      "path": "src/compiler/turboshaft/assert-types-reducer.h",
+      "sha256": "434e74b3f250c274a3353af234c5f8b7a0bbb7ea9cbd9e1fbda49602d74ebc4b",
+      "inclusive_lines": [
+        [
+          1,
+          173
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Runtime debug assertions cover admitted word/float representations, avoid constants/terminators and disallow pending-exception fast API graphs. Assertions validate inferred types, never establish universal facts or authorize a rewrite."
+    },
+    {
+      "path": "src/compiler/turboshaft/maglev-assert-types-reducer.h",
+      "sha256": "9dd04a4787c4000d1519122e3f240c8cb43f8e25ec390a06ca6700809b80fccf",
+      "inclusive_lines": [
+        [
+          1,
+          38
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "CheckMaglevType lowered into a builtin runtime check; diagnostics preserve explicit runtime boundary. Ink type admission and proof checking remain separate."
+    },
+    {
+      "path": "src/compiler/turboshaft/stack-check-lowering-reducer.h",
+      "sha256": "9c8b271167293cf41ac14135a9fa15d84a7191726c02bea00736eb0de9f0c87e",
+      "inclusive_lines": [
+        [
+          1,
+          187
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Async stack/interrupt limits explicitly NotLoadEliminable, GC clears allocation-barrier state, and Wasm leaf check removal excludes Liftoff deopt frames needing gap. Ink resource/interrupt checks cannot be dropped from pure-result reasoning; host frame checks differ."
+    },
+    {
+      "path": "src/compiler/turboshaft/wasm-dead-code-elimination-phase.cc",
+      "sha256": "6558651913cbe97d1e4f97142098404f034a1905ba1029bdc002d86eff07f93c",
+      "inclusive_lines": [
+        [
+          1,
+          37
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "DCE plus stack/growable/load-store cleanup, duplication normalization and GVN in explicit order; address-simplification outputs intentionally reach duplication after load/store simplification. Remaining component implementations not inferred from this composition."
+    },
+    {
+      "path": "src/compiler/turboshaft/wasm-dead-code-elimination-phase.h",
+      "sha256": "e8c88f67efbaeee6da0351f30e992642e316e0277f0dfe5b5916219d4d75763a",
+      "inclusive_lines": [
+        [
+          1,
+          24
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Phase declaration and Wasm compile-time feature gate read."
+    },
+    {
+      "path": "src/compiler/turboshaft/csa-branch-elimination-phase.cc",
+      "sha256": "036e435be2b7a2418aa3409376ec4a0f6df0e3ebe66b874c79710e7118759b7f",
+      "inclusive_lines": [
+        [
+          1,
+          20
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Machine optimization, branch elimination and GVN compose in one copying phase; no new source authority follows from phase membership."
+    },
+    {
+      "path": "src/compiler/turboshaft/csa-branch-elimination-phase.h",
+      "sha256": "274ecabf50a1000c239f1024cdd7298f529c3a3141dadf8930594d475384849b",
+      "inclusive_lines": [
+        [
+          1,
+          20
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "CSA phase declaration read."
+    },
+    {
+      "path": "src/compiler/turboshaft/duplication-optimization-reducer.h",
+      "sha256": "ea9a2f892087bdefb4dd88c48e955c8dc5e3dbc100384167d529f63fb60f8453",
+      "inclusive_lines": [
+        [
+          1,
+          306
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Late branch-condition/comparison sinking and duplication deliberately bypass GVN for target fused branches/Arm64 addressing, excluding costly div/mod and increased input live ranges/loop headers. Thus fewer source nodes is not universally faster. Current Ink physical instructions are host-owned; do not force source duplication from this heuristic without target lifecycle measurements."
+    },
+    {
+      "path": "src/compiler/js-typed-lowering.h",
+      "sha256": "9db8974bc47c7900dae3ef1ef8276815977ee150faac9a90c967c66f6e5a085a",
+      "inclusive_lines": [
+        [
+          1,
+          126
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Complete typed-lowering declaration/helper inventory read with implementation."
     }
   ],
   "families": [
@@ -805,13 +1057,13 @@
       "name": "representation-types",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/typed-optimizations-reducer.h",
-      "note": "Typed/simplified reducers and complete representation changer read. New range-guided lossless U64/U32 round-trip proposal generation plus three reusable whole-branch checked laws. Exact boundaries, relational guards and wrapped-sum subjects validated; no check/type/F64 authority imported. Profitability measurements retain baseline on both current backends. Wider demand/representation analysis remains open."
+      "note": "Typed/simplified reducers and complete representation changer read. New range-guided lossless U64/U32 round-trip proposal generation plus three reusable whole-branch checked laws. Exact boundaries, relational guards and wrapped-sum subjects validated; no check/type/F64 authority imported. Profitability measurements retain baseline on both current backends. Wider demand/representation analysis remains open. Exact F32 proof circuits and literal GPU carrier propagation are now integrated separately from any range/check-elision authority; cross-target/GPU validation retained in f32-bits."
     },
     {
       "name": "floating-point",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
-      "note": "Typed/simplified optimization reviewed alongside earlier machine reducer. IEEE equality, stored-bit identity, canonical NaNs, -0, rounding and fallible conversion restrictions differ. F64 proof terms remain unsupported; exact F32 machinery and individual floating reductions still require assessment."
+      "note": "Machine, typed/simplified and complete typed-lowering reductions reviewed. Explicit fixed-scalars-v3 circuits model raw F32 bit casts/negation, classification and IEEE comparisons, with ordinary RUP replay; fifteen database laws admitted. Local/isolated core each pass 454 tests, 26 related knowledge regressions and 326 reference/native/JavaScript/Rust-Wasm/GPU-host cases match with four actual GPU dispatches. Device validation exposed and fixed general loss of checked literal carriers in direct GPU collection shaders; eleven GPU package tests pass. F64 nested proof terms still reject; exact arithmetic and remaining reductions remain open. Complete-call JS/native cohort retains baseline; frozen corpus has no new F32 attribution. No broad runtime speedup claimed."
     },
     {
       "name": "loop-transforms",
@@ -847,13 +1099,13 @@
       "name": "pipeline-infrastructure",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/pipelines.cc",
-      "note": "Turboshaft and Turbolev pipeline entry points read in full, including phase ordering and repeated cleanup/fact recomputation. Individual pending passes remain open; complete per-file backlog is generated by tools/v8_audit_status.py."
+      "note": "Turboshaft and Turbolev pipeline entry points read in full, including phase ordering and repeated cleanup/fact recomputation. Individual pending passes remain open; complete per-file backlog is generated by tools/v8_audit_status.py. All ten inventoried compiler design documents now read; compact copying, composable reducers, effect/identity constraints and background isolation assessed at overview level. This does not close actual driver/broker/IR/pipeline implementations or outside-inventory baseline sources."
     },
     {
       "name": "instruction-selection-registers",
       "status": "partial",
       "entry_point": "src/compiler/backend/register-allocator.cc",
-      "note": "Full instruction-selection normalization and physical move optimizer/header reviewed, plus pipeline register stages. Physical registers/spills are owned by configured Rust/LLVM/JS hosts; no new allocator belongs in Ink source checking. Actual host behavior is not assumed equivalent. Register allocator, instruction selectors, scheduling/frame and remaining target implementations still open."
+      "note": "Full instruction-selection normalization and physical move optimizer/header reviewed, plus pipeline register stages. Physical registers/spills are owned by configured Rust/LLVM/JS hosts; no new allocator belongs in Ink source checking. Actual host behavior is not assumed equivalent. Register allocator, instruction selectors, scheduling/frame and remaining target implementations still open. Late branch/address duplication and load/store simplification now read in full: deliberate duplication may help fused instructions but increase live ranges; structural node savings do not establish target performance."
     },
     {
       "name": "inlining",
@@ -889,7 +1141,7 @@
       "name": "javascript-typed-lowering",
       "status": "partial",
       "entry_point": "src/compiler/js-typed-lowering.cc",
-      "note": "Only scalar unary/coercion and checked String-add/wrapper ranges read. Fixed Ink carriers remove some dynamic JS work, but exact words/IEEE/UTF-8/failure meanings differ. Most arithmetic/coercion, context/module/call/generator and other lowering paths remain unread."
+      "note": "Full implementation/header read: coercions, strict/loose equality, typed strings, context/module cells, direct-call/arity/receiver restrictions, for-in caches, generators and promise fast paths. Self equality contracts to !isNaN; fifteen new exact F32 database laws use independently replayed circuits. Ink fixed carriers/UTF-8, structural values and explicit state differ from JS coercion/identity/prototypes/UTF-16. No Ink async/generator/dynamic-property patch applies directly. Remaining algorithm alternatives and target profitability require separate proof/evidence; full file read does not close this family."
     },
     {
       "name": "wasm-gc",
@@ -913,17 +1165,18 @@
     "next_followups": [
       {
         "area": "inlining",
-        "task": "Assess and validate sharing of repeated U64 scalar arguments in knowledge inline_laws; current whitelist omits U64. Preserve strict source argument order, helper contexts, capture hygiene and measured profitability."
+        "task": "Assess and validate sharing of repeated U64 scalar arguments in knowledge inline_laws; current whitelist omits U64. Preserve strict source argument order, helper contexts, capture hygiene and measured profitability. Check all argument evaluation positions when only a subset is bound; do not infer order/error preservation from scalar value equality alone."
       },
       {
         "area": "floating-point",
-        "task": "Assess versioned general exact F32 source-bit interpretation, beginning with raw-bit transport, negation/classification and IEEE equality; fixed primitive meanings already exist in core logic/primitives. Current source bit circuits admit only U32/U64/Bool endpoints. Preserve all legacy certificate identities and keep F64 semantic terms fail-closed, including nested subterms. This is a proposed capability, not implemented or authorized by a matcher."
+        "task": "Exact F32 bit transport/negation/classification and IEEE comparisons now have versioned circuits plus fifteen checked database laws and completed cross-target/corpus validation. Continue assessment of remaining floating reductions, exact arithmetic/truncation and F64 proof capability; preserve stored-bit identity, source order, legacy IDs and fail-closed unsupported nested terms. Current cohort establishes no robust runtime gain."
       },
       {
         "area": "coverage",
-        "task": "Continue unread 545 files plus partial ranges and optimizer dependencies outside selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
+        "task": "Continue unread 524 files plus four partial files/ranges and optimizer dependencies outside selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
       }
-    ]
+    ],
+    "third_batch": "Exact fixed-scalars-v3 F32 circuits and fifteen reusable checked database laws; literal GPU collection carrier bug fixed after real device detection. Local and standalone core each pass 454 tests; 26 related knowledge regressions, eleven GPU package tests and 326 cross-target values/snapshots with four actual GPU dispatches pass. Default roundtrip search structural cost 105\u219273; official JS/native lifecycle cohorts retain baseline. Frozen ten-program corpus: 24 laws/six reused, zero selection/representation and no new F32 attribution; all quick budgets exhausted."
   },
   "scope_boundaries": [
     "The selected compiler/Maglev inventory is a work queue, not a cap on the user goal. Follow optimizer dependencies outside it when review establishes relevant transformation machinery.",
