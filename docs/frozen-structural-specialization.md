@@ -128,6 +128,48 @@ rejection. Compiled validation checks full replies and checkpoints while live
 numeric state changes. These establish implementation coverage, not a performance
 ranking, whole-checker proof or general neural graph specialization.
 
+## Compile a frozen program while weights remain trainable
+
+The proposer can expand `foldl` and `foldr` over closed literal lists. Each
+initializer and intermediate accumulator is bound once under a fresh name.
+Floating arithmetic stays in its authored order; right folds visit their
+terminal steps in reverse list order. Existing work, source and proof bounds
+still apply. An unknown traversal is not evidence for unrolling.
+
+`examples/frozen-program.ink` keeps an eight-operation sequence in `Structure`
+and coefficients in a separate trainable `Weights` root. Freeze only the program:
+
+```sh
+ink build-model examples/frozen-program.ink examples/frozen-program-training.json \
+    --freeze-roots Structure --specialize-frozen \
+    --target javascript -o build/frozen-program
+ink verify-model build/frozen-program --replay
+```
+
+Its serving action loses the operation list, traversal, helper call and operation
+dispatch. Numeric weights and live application data are still read on each call.
+`retune` remains a learning action; `configure` is withdrawn. ReLU decisions
+remain dynamic, including their exact NaN/signed-zero behavior. This demonstrates
+compiling a configured program structure while keeping its numeric degrees of
+freedom mutable. The supplied trace is explicit configuration, not a fitted
+reinforcement-learning or neural-training result.
+
+[Structural conversion](structural-conversion.md) compares shared mathematical
+structure and prunes known control before substitution duplicates it. Ordinary
+complete action proofs remain mandatory. The cross-target history includes
+successful and rejected weight updates, fresh serving inputs, events, live data,
+restore and every exact checkpoint. This bounded static traversal is progress
+toward graph specialization; arbitrary neural graphs, tape programs and large
+frozen structures remain further work.
+
+Proof construction first tries to transport fixed rows between source-bound
+case forms without fully expanding live arithmetic. If the ordinary checker
+rejects that proposal, the proposer retries the existing normalization tactic.
+Both attempts use the same equality obligations and source facts. This keeps
+more repeated computation out of portable proofs; it adds no trusted producer
+shortcut. JavaScript also keeps leading lexical bindings in the action body
+instead of nesting a separate function wrapper for each accumulator.
+
 The action projection remains bounded. This extension adds literal enum
 constructors in pure helpers and fixed `word_and` correspondence for u64/u32/i32.
 Universal neural algebra, floating-point algebraic folding, all word primitives, device

@@ -580,7 +580,7 @@ fn frozen_numeric_structure_preserves_payloads_live_updates_and_all_target_snaps
     steps.push(json!({"pure":"numeric","args":[[0.,0.5,1.]],"expect_gpu":true}));
     expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":baseline.checkpoint_portable().unwrap()}));
     parity::conformance_selected("frozen-numeric-parity",&selected,source,steps,expected);
-    let artifact=root.join("artifact");
+    let artifact=root.join(format!("artifact-{}-{}",std::process::id(),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
     ok(Command::new(env!("CARGO_BIN_EXE_ink")).args([
         "build-model","examples/frozen-numeric-structure.ink","examples/frozen-numeric-structure-training.json",
         "--freeze-roots","Model","--specialize-frozen","--target","javascript","-o",
@@ -588,6 +588,68 @@ fn frozen_numeric_structure_preserves_payloads_live_updates_and_all_target_snaps
     verified_language::training::verify_model(&artifact,true).unwrap();
     ok(Command::new("node").arg("tests/fixtures/frozen-numeric-build.mjs").arg(&artifact)
         .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("build/frozen-numeric-parity")).output().unwrap());
+}
+
+#[test]
+fn frozen_program_keeps_weights_trainable_and_compiles_ordered_operations_on_all_targets() {
+    let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
+    let source = include_str!("../examples/frozen-program.ink");
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let trace = serde_json::from_str(include_str!("../examples/frozen-program-training.json")).unwrap();
+    let trained = verified_language::training::replay(&module, &trace).unwrap();
+    let frozen = verified_language::freezing::restrict(&module, &trained.snapshot, &["Structure".into()]).unwrap();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/frozen-program-authoring");
+    fs::create_dir_all(&root).unwrap();
+    let input = root.join("frozen.core.json");
+    fs::write(&input, frozen.module.bytes().unwrap()).unwrap();
+    fs::write(root.join("initial.snapshot"), &frozen.snapshot).unwrap();
+    let packet_file = root.join("selection.json");
+    ok(Command::new("python3").arg("knowledge/producers/frozen_specialization.py")
+        .arg(&input).arg("--ink").arg(env!("CARGO_BIN_EXE_ink"))
+        .arg("-o").arg(&packet_file).output().unwrap());
+    let packet = serde_json::from_slice(&fs::read(&packet_file).unwrap()).unwrap();
+    let selected = verified_language::optimisation::check(&frozen.module, &packet).unwrap();
+    fs::write(root.join("selected.core.json"), selected.module().bytes().unwrap()).unwrap();
+    let program = selected.module().program();
+    assert!(program.actions.iter().any(|a| a.name == "retune"));
+    assert!(!program.actions.iter().any(|a| a.name == "configure"));
+    assert!(program.contracts.learning.trainable.contains(&"Weights".into()));
+    let serve = program.actions.iter().find(|a| a.name == "serve").unwrap();
+    let body = serde_json::to_string(&serve.body).unwrap();
+    for removed in ["Structure", "evaluate", "foldl", "Op"] { assert!(!body.contains(removed), "{removed}: {body}"); }
+    assert!(body.contains("Weights") && body.contains("Live"));
+    let mut baseline = Runtime::restore_portable_checked(&frozen.module, &frozen.snapshot).unwrap();
+    let mut implementation = Runtime::restore_portable_selected(&selected, &frozen.snapshot).unwrap();
+    let mut steps = vec![json!({"restore":frozen.snapshot})];
+    let mut expected = vec![];
+    let inputs = [0u32, 0x80000000, 1, 0x80000001, 0x3dcccccd, 0xbf000001,
+                  0x7f7fffff, 0x7f800000, 0xff800000, 0x7fa01234, 0xffc05678];
+    for (index, bits) in inputs.into_iter().enumerate() {
+        let updates = [
+            ("retune", json!([{"scale":{"F32Bits":bits},"bias":{"F32Bits":inputs[(index+3)%inputs.len()]}},index%3==0])),
+            ("set_live", json!([{"F32Bits":bits}])),
+        ];
+        let calls = updates.into_iter().chain(inputs.into_iter().map(|x| ("serve",json!([{"F32Bits":x}]))));
+        for (name, args) in calls {
+            let reply = baseline.invoke_json(name, &args).unwrap();
+            assert_eq!(reply.json(), implementation.invoke_json(name, &args).unwrap().json());
+            assert_eq!(baseline.checkpoint_portable().unwrap(), implementation.checkpoint_portable().unwrap());
+            steps.push(json!({"call":name,"args":args}));
+            expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":baseline.checkpoint_portable().unwrap()}));
+        }
+    }
+    steps.push(json!({"restore":baseline.checkpoint_portable().unwrap()}));
+    steps.push(json!({"pure":"numeric","args":[[0.,0.5,1.]],"expect_gpu":true}));
+    expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":baseline.checkpoint_portable().unwrap()}));
+    parity::conformance_selected("frozen-program-parity", &selected, source, steps, expected);
+    let artifact = root.join(format!("artifact-{}-{}",std::process::id(),std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+    ok(Command::new(env!("CARGO_BIN_EXE_ink")).args([
+        "build-model", "examples/frozen-program.ink", "examples/frozen-program-training.json",
+        "--freeze-roots", "Structure", "--specialize-frozen", "--target", "javascript", "-o",
+    ]).arg(&artifact).output().unwrap());
+    verified_language::training::verify_model(&artifact, true).unwrap();
+    ok(Command::new("node").arg("tests/fixtures/frozen-numeric-build.mjs").arg(&artifact)
+        .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("build/frozen-program-parity")).output().unwrap());
 }
 
 #[test]
