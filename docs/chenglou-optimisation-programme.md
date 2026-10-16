@@ -362,3 +362,11 @@ carriers match independent results. Source training/reverse and binary64 histori
 pass with Wasm and device controls. Matched result-handling workloads gain, while
 complex text still regresses slightly and remains far behind Pretext; broad
 upstream parity and the full delivery checklist remain open.
+
+[Local record storage and bounded helper expansion](local-record-helpers.md)
+now reduce literal carrier rebuilding through readonly helpers and value loops,
+including binary64 and immutable composite fields. Separate expansion budgets and
+stack headroom retain ordinary calls on unsupported or large paths. Full text,
+neural and ownership controls accompany matched timings. This general execution
+step leaves broad upstream parity, device graph specialization and the complete
+adaptive-model delivery checklist open.

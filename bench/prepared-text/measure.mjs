@@ -10,6 +10,8 @@ const modules={before:await import(pathToFileURL(beforePath).href),current:await
 const upstream=await import(pathToFileURL(upstreamPath).href);
 const none={None:null},some=x=>({Some:x});
 const records=[],setup=[],cold=[];let sink=0;
+const warmupRounds=Number(process.env.INK_SIMPLE_WARMUP_ROUNDS??8);
+if(!Number.isSafeInteger(warmupRounds)||warmupRounds<0||warmupRounds>4096)throw Error('warmup rounds must be an integer in 0..4096');
 function numeric(xs){return xs===null?none:some(xs);}
 for(const size of [8,64,512]){
  const widths=Array.from({length:size},(_,i)=>i%3===1?1.25:2.5);
@@ -37,12 +39,12 @@ for(const size of [8,64,512]){
   const start=performance.now(),value=lanes[name](0);cold.push({name,size,ns:Number((performance.now()-start)*1e6)});assert.deepEqual(value,expected[0]);
   for(let i=0;i<16;i++)assert.deepEqual(lanes[name](i),expected[i]);
  }
- for(let round=0;round<8;round++)for(const name of names)for(let i=0;i<16;i++)sink+=lanes[name](i).Ok;
+ for(let round=0;round<warmupRounds;round++)for(const name of names)for(let i=0;i<16;i++)sink+=lanes[name](i).Ok;
  for(let sample=0;sample<9;sample++)for(const name of [...names.slice(sample%names.length),...names.slice(0,sample%names.length)]){
   const start=process.hrtime.bigint();for(let i=0;i<calls;i++)sink+=lanes[name](i%16).Ok;
   records.push({name,size,sample,calls,ns_per_call:Number(process.hrtime.bigint()-start)/calls});
   for(let i=0;i<16;i++)assert.deepEqual(lanes[name](i),expected[i]);
  }
 }
-await writeFile(out,JSON.stringify({schema:1,node:process.version,cpu:os.cpus()[0].model,sources:{before:await source(beforePath),current:await source(currentPath),upstream:await source(upstreamPath)},setup,cold,records,sink,
+await writeFile(out,JSON.stringify({schema:1,node:process.version,cpu:os.cpus()[0].model,warmupRounds,sources:{before:await source(beforePath),current:await source(currentPath),upstream:await source(upstreamPath)},setup,cold,records,sink,
  scope:'Diagnostic single-process repeated complete count calls; inputs captured outside timing, Result materialization included. Setup and first calls separate. Synthetic prepared measurements, no font measurement, strings, browser accuracy, GPU, automatic selection or universal speed claim.'},null,2)+'\n');

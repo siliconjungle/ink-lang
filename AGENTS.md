@@ -279,3 +279,11 @@ strict defaults and thrown failure retry keep source behavior. Bounded opportuni
 conditions and structural work estimates affect only explicit preparation, never
 proof/evidence authority. Keep direct ordinary calls for non-reusable captured
 policies, and share private policy predicates without evaluating source work.
+
+Immutable JavaScript record fields may stay local through bounded readonly helper
+expansion and loops. Evaluate all arguments/fields before entering the callee,
+preserve snapshots and simultaneous updates, and never lend unique storage to a
+parameter. Owned user records, recursive helpers, checked elisions and exhausted
+budgets retain their ordinary handling. Account for returned expressions in
+source limits and leave stack headroom for type/loan visitors; optional emission
+must not reject an otherwise supported source. See docs/local-record-helpers.md.
