@@ -1,0 +1,14 @@
+{
+  "core_sha256": "eddeb5f9ed8754afd2bb466ff9eab47821ae3aaa79ecaf776f85d6db593a65db",
+  "files": [
+    {
+      "module": "frozen_software",
+      "path": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-v8-2026-10-15/bench/planning-corpus/heldout/compact-set.ink",
+      "sha256": "7ffbebe14e03c87ce472d07a0730652e389294fd2d35582c49f6f96b53fd8155",
+      "source": "module frozen_software;\nfn contains(xs:List<u32>,x:u32)->Bool {return foldl(xs,false,fn(y)=>fn(a)=>a || y==x);}\npub fn run(xs:List<u32>,unused:u32)->List<u32>{var out:List<u32>=[];for x in xs {if !contains(out,x){out=out.concat([x]);}}return out;}\n"
+    }
+  ],
+  "schema": 1,
+  "scope": "Exact source bytes consumed by this load, not a filesystem-wide atomic snapshot or proof authority.",
+  "semantics": "ink-source-capture-v1"
+}

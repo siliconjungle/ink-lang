@@ -14,7 +14,7 @@ shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_st
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
-Current receipts cover 130 full files and three partial files, with 476 unread;
+Current receipts cover 145 full files and three partial files, with 461 unread;
 all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
@@ -538,3 +538,56 @@ nontruncated return/deopt boundaries are relevant design constraints. Its long
 explicit list of unsupported operators prevents treating the verifier as a full
 lowering correctness proof. The audit now records 130 full files, three partial
 and 476 unread; all 22 optimization families remain partial.
+
+
+Full simplified-lowering implementation/header review now records the complete
+truncation/retyping/lowering pipeline and its guarded error, float, BigInt, FFI
+and GC boundaries. The queue stands at 132 full files, three partial and 474
+unread; every family remains partial. Dynamic guarded power-of-two remainders
+remain distinct from the already proved constant-divisor catalogue.
+
+A generic bounded lossless RUP hint transport now checks every reference through
+the same propagation rules and shared budgets, preserving legacy plain bytes and
+their direct replay path. An untrusted Boolean cover builder assembles the retained
+conditional U64 self-quotient cells into a complete ordinary Cases proof. Its law
+shrinks from 23,762,435 to 8,305,056 bytes and passes existing limits; corrupted and
+rehashed changed-result objects reject. The database now admits 338 of 340 integer
+proposals, preserving all 337 preceding identities. Package, runtime-performance
+and corpus integration validation is still in progress for this batch.
+
+
+## Lossless proof transport and wide self division
+
+Bounded signed-delta hint streams now use the same strict propagation and work
+budgets as legacy arrays, which retain their direct replay path and wire bytes.
+An untrusted Boolean-cover author composes the retained U64 self-quotient cases
+with ordinary exhaustive Cases. Complete proof bytes shrink from 23,762,435 to
+8,305,056, fitting the unchanged 16 MB object limit; 338 of 340 integer proposals
+now admit with all prior 337 identities unchanged. Two U64 remainder goals remain
+unadmitted. Core and its exact standalone package each pass 470 tests. Four
+rehashed malformed/future/ambiguous/source-result controls reject, and source
+application retains repeated strict work and lazy defaults. LRAT export handles
+both formats independently; external checker binaries were not configured.
+
+The same fifteen admitted control statements pass all 945 fresh checker calls.
+Three alternating blocks have median-of-block batch times 8.629 s for the pinned
+legacy compiler, 8.514 s for current plain arrays and 3.973 s for current packed
+hints. Reading/hashing/admission/replay are included; no whole-compiler gain is
+inferred. Exact inputs and images stay immutable throughout the measurement.
+
+An explicit source-checked GPU self-quotient fold reduces held-out warm async
+complete-call medians from 3.090 to 0.609 ms, with median paired ratio 5.203 across
+three fresh browser processes. Every process passes the unchanged 10% extrema
+guard. Full U64 outputs and actual device dispatch/readback are checked. JS/native
+complete-call cohorts retain the baseline under that guard. This does not change
+automatic placement or establish whole-browser memory/cold or broad application
+gains. Exact source, plans, generated assets, requests, raw replies and proof
+receipts are retained in `bench/v8-learning/hint-transport`.
+
+
+The required stable-context frozen corpus compiles all ten programs and admits
+alternatives for each. It observes 22 old law identities, six reused across
+programs, with no new self-quotient attribution. No alternative/representation is
+selected; all ten end at measurement evidence and exhaust quick budgets. No
+near-miss reason is recorded. The 50.725 s median excludes private publication
+preparation and is not a causal comparison with the prior 51.422 s unpaired run.
