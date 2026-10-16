@@ -14,7 +14,7 @@ shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_st
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
-Current receipts cover 126 full files and three partial files, with 480 unread;
+Current receipts cover 130 full files and three partial files, with 476 unread;
 all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
@@ -512,3 +512,29 @@ alternatives for each: 24 laws observed, six reused, zero alternatives selected.
 Every final gate requires measurement evidence; all quick budgets expire.
 Its 51.422-second median is unpaired shared-host diagnostic data, not a causal
 compiler/runtime comparison. The terminal source-context check passes.
+
+
+The explicit device-calibration companion now measures checked equality plans on
+one observed physical browser GPU. For the pre-existing U64 quotient-by-eight
+rewrite, the distribution-source `e62614e3` image measured held-out complete warm
+calls at 6.2775 ms before and 0.7075 ms after the rewrite (three fresh processes;
+median paired ratio 8.9576). The older pinned compiler cohort measured 2.710 to
+0.685625 ms. Browser execution assets match byte-for-byte across cohorts, so
+these timings do not establish a compiler-version change. See
+`bench/v8-learning/device-calibration` for source/oracle/holdout and counter
+controls. This workload demonstrates explicit compiled GPU rewrite benefit;
+complete lifecycle/CPU placement and general Ink speed remain unestablished.
+The database retains 24 timing-only observations with unknown whole-browser
+memory and exact original contexts; automatic selection/cache behavior is unchanged.
+A bounded browser-host budget reserves normal owned-process shutdown time and
+retires profiles only after observed exit. Generic Maglev phi representation
+selection has also been fully read: all-use demand, widening, preserved guards,
+loop retagging and hole/NaN contracts are recorded without importing speculative
+narrowing or deoptimization as Ink equality authority.
+
+The simplified-lowering verifier source/header are fully read as well. Its
+separate type/truncation reasoning, context-specific machine constants and
+nontruncated return/deopt boundaries are relevant design constraints. Its long
+explicit list of unsupported operators prevents treating the verifier as a full
+lowering correctness proof. The audit now records 130 full files, three partial
+and 476 unread; all 22 optimization families remain partial.

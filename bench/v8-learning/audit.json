@@ -1562,6 +1562,54 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read. CopyingPhase composes optional Wasm lowering, string escape, generic JS, DataView, machine, fast API, variable/phi, select, machine optimization and value numbering reducers. Ordering and support dependencies matter; the generic JS placement is documented as temporary pipeline policy. Ink generic scheduling belongs in planner/database and backends remain literal, with explicit target capabilities; do not copy this target/language-specific reducer ordering into core."
+    },
+    {
+      "path": "src/maglev/maglev-phi-representation-selector.h",
+      "sha256": "c2225dab03176c20b88822d40ea6199cf57499c77e5a68933f457bf03be170db",
+      "inclusive_lines": [
+        [
+          1,
+          358
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Distinct untagging categories separate static inputs from speculative peeled-backedge/OSR/any-input cases; explicit conversion/retagging repair covers every use and loop backedge. Snapshot state tracks tagged alternatives per path and deopt frames are explicit. Speculation may deopt-loop and is policy, never a range/type fact for Ink. Typed Ink carriers avoid much JS boxing, while checked representation/codecs and scoped proof contexts must cover any real conversion elimination."
+    },
+    {
+      "path": "src/maglev/maglev-phi-representation-selector.cc",
+      "sha256": "a40f0b3993fe6605589acb4b079ba4e98f2e5ec6c47742c88ee7afbc650915a7",
+      "inclusive_lines": [
+        [
+          1,
+          1880
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Bounded retry of dependent phis; input feasibility intersects all relevant use requirements, widening Int32->Float64->HoleyFloat64 while lossy truncation requires every use to permit it. Hoists only with compatible predecessor/resumption and checkpoint conditions. Repairs preserve Smi/safe-integer/hole checks even when untagging becomes redundant; static HeapNumber-vs-Smi incompatibility can require unconditional deopt despite fitting numeric bits. Hole/undefined NaN patterns are canonicalized per JS representation and cannot be imported into Ink raw F32/F64 semantics. Tagged alternatives reuse predecessor snapshots only when present on all paths; resumable loops start fresh, and backedges/identities repair separately. Ink requires ordinary conversion/layout proofs, original work/error order and independent profitability; no type/profile/deopt flag or use hint grants equality. Current range/conversion laws cover a subset, not this complete transformation."
+    },
+    {
+      "path": "src/compiler/simplified-lowering-verifier.cc",
+      "sha256": "0305cb467376652ec9896a08799eead249fd95b0c053bf4a2d8a8211227aaff6",
+      "inclusive_lines": [
+        [
+          1,
+          770
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full verifier source/header read. Type and truncation are separate; singleton equivalence classes permit type-dependent generalization, modulo truncation must compose through compatible operations, and returns/deopt state require no lost information. Cached machine constants need per-use context and inferred verifier types remain private until verification completes. The verifier explicitly leaves most operators unsupported (including phis, loads, many arithmetic/conversions), so it is not full lowering correctness. Ink fixed-width/raw-bit contracts and independently replayed source equalities remain authoritative; no profile/type hint or debug verifier pass grants narrowing, minus-zero erasure or arbitrary F64 conversion authority."
+    },
+    {
+      "path": "src/compiler/simplified-lowering-verifier.h",
+      "sha256": "a43d7251d1b4cf4f2eda02fc778234d22ba37dcb8afaf39159597b55603d1533",
+      "inclusive_lines": [
+        [
+          1,
+          145
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full verifier source/header read. Type and truncation are separate; singleton equivalence classes permit type-dependent generalization, modulo truncation must compose through compatible operations, and returns/deopt state require no lost information. Cached machine constants need per-use context and inferred verifier types remain private until verification completes. The verifier explicitly leaves most operators unsupported (including phis, loads, many arithmetic/conversions), so it is not full lowering correctness. Ink fixed-width/raw-bit contracts and independently replayed source equalities remain authoritative; no profile/type hint or debug verifier pass grants narrowing, minus-zero erasure or arbitrary F64 conversion authority."
     }
   ],
   "families": [
@@ -1605,7 +1653,7 @@
       "name": "representation-types",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/typed-optimizations-reducer.h",
-      "note": "Typed/simplified reducers and complete representation changer read. New range-guided lossless U64/U32 round-trip proposal generation plus three reusable whole-branch checked laws. Exact boundaries, relational guards and wrapped-sum subjects validated; no check/type/F64 authority imported. Profitability measurements retain baseline on both current backends. Wider demand/representation analysis remains open. Exact F32 proof circuits and literal GPU carrier propagation are now integrated separately from any range/check-elision authority; cross-target/GPU validation retained in f32-bits."
+      "note": "Typed/simplified reducers and complete representation changer read. New range-guided lossless U64/U32 round-trip proposal generation plus three reusable whole-branch checked laws. Exact boundaries, relational guards and wrapped-sum subjects validated; no check/type/F64 authority imported. Profitability measurements retain baseline on both current backends. Wider demand/representation analysis remains open. Exact F32 proof circuits and literal GPU carrier propagation are now integrated separately from any range/check-elision authority; cross-target/GPU validation retained in f32-bits. Simplified-lowering verifier/header now fully read: cached machine constants use per-use context, inferred types remain private until completion, and many operation cases intentionally have no verification. No complete lowering correctness or Ink representation theorem follows."
     },
     {
       "name": "floating-point",
@@ -1671,7 +1719,7 @@
       "name": "truncation-demand",
       "status": "partial",
       "entry_point": "src/maglev/maglev-truncation.cc",
-      "note": "Maglev truncation header/implementation and Turboshaft explicit truncation reducer read in full. Full-width/deopt observations and complete additive DAG exactness matter; range-safe word round-trip proposals now use ordinary whole-source proofs. Floating demand transformation remains open and F64 semantic proofs still fail closed."
+      "note": "Maglev truncation header/implementation and Turboshaft explicit truncation reducer read in full. Full-width/deopt observations and complete additive DAG exactness matter; range-safe word round-trip proposals now use ordinary whole-source proofs. Floating demand transformation remains open and F64 semantic proofs still fail closed. Full simplified-lowering verifier checks supported modulo-demand joins and type-dependent singleton generalization; return/deopt interfaces require no information loss. Most operators, including phi and many numeric conversions, remain unsupported by that verifier; broad simplified-lowering implementation assessment remains open."
     },
     {
       "name": "javascript-builtins",
@@ -1708,7 +1756,7 @@
     "first_batch": "Scoped structural work prices through lazy branch contexts; ordinary proofs and measured selection remain unchanged",
     "evidence": "bench/v8-learning/branch-cardinality",
     "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open.",
-    "coverage_followup": "126 full source receipts, three partial, 480 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
+    "coverage_followup": "130 full source receipts, three partial, 476 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
     "second_batch": "Range-guided word representation proposals plus three independently replayed whole-branch laws. 28 related tests, three final range regressions and 88 CPU comparisons pass; measured JS/native controls retain baseline. Matched 32-check control improves one rewritten function to two. Frozen corpus: 10 compile, 24 laws, six reused, zero representation/selection, no new range-law attribution; all quick budgets exhausted.",
     "next_followups": [
       {
@@ -1721,15 +1769,15 @@
       },
       {
         "area": "coverage",
-        "task": "Continue unread 480 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
+        "task": "Continue unread 476 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
       },
       {
         "area": "signed-range-and-integer",
-        "task": "337 checked signed/division/bit-operation laws now use versioned general integer circuits and bounded word extensionality. Continue three unadmitted U64 self/zero-numerator proofs, arbitrary-divisor magic-number authoring/multiply-high source support, conditional signed range proposals and persistent branch/loop fact construction. Reconstruct source/evaluation/default semantics, replay all concrete bounds and require independent profitability evidence. Generic RUP unit factoring/inlining now shrinks 43 existing word proofs with lower checker work and measured batch time. Eight masked quotient-self components check, but the unconditional root still stops at the object byte limit (23762435 bytes after a private general-clause inlining trial); assembled shared-work admission remains unverified. Avoid repeating unchanged acquisitions."
+        "task": "337 checked signed/division/bit-operation laws now use versioned general integer circuits and bounded word extensionality. Continue three unadmitted U64 self/zero-numerator proofs, arbitrary-divisor magic-number authoring/multiply-high source support, conditional signed range proposals and persistent branch/loop fact construction. Reconstruct source/evaluation/default semantics, replay all concrete bounds and require independent profitability evidence. Generic RUP unit factoring/inlining now shrinks 43 existing word proofs with lower checker work and measured batch time. Eight masked quotient-self components check, but the unconditional root still stops at the object byte limit (23762435 bytes after a private general-clause inlining trial); assembled shared-work admission remains unverified. Avoid repeating unchanged acquisitions. A read-only strict replay estimate plus CNF variable/clause/literal charges gives a 17068422 aggregate work lower bound for the eight retained cases, below 20000000; term construction and Cases composition remain excluded. Investigate bounded generic lossless hint transport only after complete shared-work accounting. This estimate grants no admission and does not justify raised limits."
       },
       {
         "area": "device-profitability-evidence",
-        "task": "The installed official pure-call offline adapters explicitly support only JavaScript and Rust. Before claiming or automatically choosing a GPU integer-division gain, extend generic complete-call acquisition/context/rank to actual eligible device execution, retain exact reference outputs/unchanged inputs, device/driver identity and fallback rejection, lifecycle/build controls, fresh processes and disjoint holdout. Keep measurements outside runtime and separate from equality/eligibility; do not add a quotient-specific timing shortcut. Current 90 integer device calls plus two shared-helper device calls establish conformance only."
+        "task": "A generic explicit browser-device calibration companion now checks full equality plans/source-oracle outputs, normalized disjoint holdout, separate owned captures, independent supplied-device dispatch/submission/readback hooks and exact build/tool/artifact context. Twenty-four timing-only canonical observations retain held-out quotient-by-eight improvement on one device. Whole-browser peak memory is unknown and this is not CPU-placement evidence. Complete the generic automatic/native device context, actual CPU baseline/lifecycle and conservative memory acquisition before automatic choice or cache reuse; do not relabel this explicit bridge or canonical plan IDs. Runtime still performs no profitability probes."
       },
       {
         "area": "database-pattern-dispatch",
@@ -1759,10 +1807,19 @@
       "private_proof_followup": "Eight masked U64 quotient-self cases check individually. A private strict-replay extension trying non-unit single-consumer clauses yields a 23762435-byte assembled root, still beyond unchanged object bytes. Only the smallest useful checked conditional component revision is retained; the private extension and all three unconditional goals stay outside production."
     },
     "next_batch_priority": [
-      "Extend the generic pure-call offline acquisition/context to actual eligible GPU work, with complete-call reference controls, exact source/artifact/device identity, no fallback or runtime probes and disjoint holdout. The completed CPU quotient cohort retained baseline; current device conformance is not a performance proof.",
-      "Continue unread Maglev phi/representation selection and simplified lowering; assess which generic fixed-meaning proof/representation machinery Ink lacks, especially explicit exact F64 capability and source multiply-high expressibility. Preserve raw bits, source evaluation and unsupported-mode rejection.",
+      "Extend the generic pure-call offline acquisition/context to actual eligible GPU work, with complete-call reference controls, exact source/artifact/device identity, no fallback or runtime probes and disjoint holdout. The completed CPU quotient cohort retained baseline; Explicit device calibration now retains narrow paired GPU rewrite gains; complete CPU placement/lifecycle and memory evidence remain open.",
+      "Continue the remaining representation-change and simplified-lowering implementations; the Maglev phi selector and simplified-lowering verifier have full read receipts. assess which generic fixed-meaning proof/representation machinery Ink lacks, especially explicit exact F64 capability and source multiply-high expressibility. Preserve raw bits, source evaluation and unsupported-mode rejection.",
       "Use the reviewed use-map, snapshots and graph-reducer mechanics only with bounded immutable contexts, unknown-at-join and demand-driven revisiting. Previous eager memo-wave prototype is retired; retain real frozen-corpus controls for any new scheduling change."
-    ]
+    ],
+    "eighth_batch": {
+      "improvement": "Generic explicit source-checked complete-call GPU calibration companion with independent actual-device counters and exact typed validation; default automatic acquisition/selection/cache unchanged.",
+      "evidence": "bench/v8-learning/device-calibration",
+      "measurement": "Two pre-existing equality plans, three fresh browser processes each in training and normalized-disjoint holdout. Historical pinned compiler: holdout median of process medians 2710000 to 685625 ns, median paired ratio 3.9551401869158878. Distribution-source e62614e3 image: holdout 6277500 to 707500 ns, median paired ratio 8.957597173144876. Every process passes the 10% extrema guard. Browser execution assets for both plans are byte-identical across compiler cohorts; host variation is not a compiler-version speedup/regression. Warm complete async calls include upload/dispatch/readback/decoding/full consumption and observer hooks; startup/first-call/build separate. No CPU-placement/cold/exclusive-machine claim.",
+      "database": "24 canonical timing-only observations across two exact original contexts, unknown whole-browser memory null, explicit-device bridge/source/full-plan/tool/device binding. Proof snapshot unchanged; no equality, range, policy or automatic cache authority follows.",
+      "tests": "20 focused existing/new tests, normal Chrome shutdown under startup/action timeout, missing/early-exit browser cleanup, and actual-device rejection controls for wrong/rounded U64 output, mutation, CPU fallback and spoofed/no dispatch; baseline remains valid.",
+      "corpus": "Both pinned frozen ten-program runs finish with stable source contexts: ten compile/admit alternatives, 24 laws/six reused, zero alternative or representation selections, all quick budgets exhaust and all final gates require measurement evidence. No near-miss rejection or broad generalization/performance attribution. Private prospective observations preserve original live sources.",
+      "remaining": "Automatic/native GPU context and conservative complete-host memory/lifecycle evidence, CPU baseline comparisons, unread optimizer inventory and existing three unadmitted U64 identities remain open."
+    }
   },
   "scope_boundaries": [
     "The selected compiler/Maglev inventory is a work queue, not a cap on the user goal. Follow optimizer dependencies outside it when review establishes relevant transformation machinery. The division-by-constant base implementation/header are now explicitly acquired and reviewed as dependency inputs.",
