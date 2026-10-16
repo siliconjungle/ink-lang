@@ -2,7 +2,7 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 102 full files, 3 partial files, 504 unread files; 609 inventoried files total.
+Source receipts: 105 full files, 3 partial files, 501 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
@@ -208,8 +208,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/graph-assembler.h` — unread; 0/1459 lines recorded
 - [ ] `src/compiler/graph-reducer.cc` — unread; 0/319 lines recorded
 - [ ] `src/compiler/graph-reducer.h` — unread; 0/219 lines recorded
-- [ ] `src/compiler/graph-trimmer.cc` — unread; 0/47 lines recorded
-- [ ] `src/compiler/graph-trimmer.h` — unread; 0/60 lines recorded
+- [x] `src/compiler/graph-trimmer.cc` — read; 47/47 lines recorded
+- [x] `src/compiler/graph-trimmer.h` — read; 60/60 lines recorded
 - [ ] `src/compiler/graph-zone-traits.h` — unread; 0/27 lines recorded
 - [ ] `src/compiler/heap-refs.cc` — unread; 0/2827 lines recorded
 - [ ] `src/compiler/heap-refs.h` — unread; 0/1480 lines recorded
@@ -576,7 +576,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/maglev/arm64/maglev-assembler-arm64-inl.h` — unread; 0/1755 lines recorded
 - [ ] `src/maglev/arm64/maglev-assembler-arm64.cc` — unread; 0/704 lines recorded
 - [ ] `src/maglev/arm64/maglev-ir-arm64.cc` — unread; 0/1240 lines recorded
-- [ ] `src/maglev/hamt.h` — unread; 0/525 lines recorded
+- [x] `src/maglev/hamt.h` — read; 525/525 lines recorded
 - [ ] `src/maglev/loong64/maglev-assembler-loong64-inl.h` — unread; 0/1965 lines recorded
 - [ ] `src/maglev/loong64/maglev-assembler-loong64.cc` — unread; 0/720 lines recorded
 - [ ] `src/maglev/loong64/maglev-ir-loong64.cc` — unread; 0/1319 lines recorded

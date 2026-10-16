@@ -14,7 +14,7 @@ shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_st
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
-Current receipts cover 102 full files and three partial files, with 504 unread;
+Current receipts cover 105 full files and three partial files, with 501 unread;
 all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
@@ -475,3 +475,16 @@ replays frozen proofs, rejects a rehashed false overflow claim and observes
 unused/repeated helper work with bounded reference execution. Detailed source
 pins, corpus context, authoring outcomes and lifecycle controls live under
 `bench/v8-learning/integer-division`; conformance supplies no profitability fact.
+
+## Frozen-library discovery dispatch
+
+Temporary generic constructor/operator buckets now filter exact-sort subject sites
+before the ordinary matcher. On all ten retained subjects and three libraries,
+exact matching calls fall from 111,086 to 310 with identical labels, proof identities
+and order. Three fresh-process controls report 55.486 to 33.443 ms for the median
+of process sums of lookup medians, including metadata reading and bucket creation
+but excluding proof loading/admission. This is a lookup improvement; no whole
+compiler or runtime speedup follows. Ten frozen programs compile and admit
+alternatives; 24 laws are observed, six reused, and every final selection gate
+retains the baseline pending measurement evidence. See
+[controls and validation](../bench/v8-learning/head-discovery/README.md).

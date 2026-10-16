@@ -1274,6 +1274,42 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read. Optional runtime range assertions are inserted after used nonconstant values and at phi starts; all/empty ranges are skipped, Int32 and Float64 use distinct assertions, and branch-narrowed verification remains a TODO. This is diagnostic instrumentation, not mathematical range authority. Existing Ink ordinary proof replay and independent exact conformance remain mandatory; do not infer a bound from a profile or a successful sampled assertion. No new Ink runtime instrumentation is needed to admit these database laws."
+    },
+    {
+      "path": "src/maglev/hamt.h",
+      "sha256": "cd36db7e8f9ef1bf04c84aeb0c162753e80b945bb2a7e94475cb39504bc89a53",
+      "inclusive_lines": [
+        [
+          1,
+          525
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Persistent bitmap-compressed 32-way hash trie, bounded hash-chunk depth with explicit key-comparing collision chains, path copying and unchanged-value/subtree reuse. merge_into is asymmetric: it updates shared keys through the client function, preserves left-only keys and drops right-only keys; this is not a generic lattice meet/join. NodeRanges must supply SSA/dominance and absence semantics. Iteration follows hash layout, not source/key order. Future branch-fact cache reuse requires exact immutable context/invalidation, conservative joins and ordinary proof replay; collision chains need explicit adversarial resource bounds. No HAMT/hash/pointer identity grants an Ink range or algebraic fact."
+    },
+    {
+      "path": "src/compiler/graph-trimmer.h",
+      "sha256": "13edea12150c887ed0f013f6832f3a4c166ef2fb09314322ed85c4f661ecb002",
+      "inclusive_lines": [
+        [
+          1,
+          60
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Backward input closure starts at graph end plus explicit extra roots, then removes dead-user edges into live nodes. This is graph reachability, not source observational equality. Ink proof-certificate dependency closure may discard unreachable proof steps; source work/error/control obligations must stay roots and runtime evaluation may not be dropped through this analogy."
+    },
+    {
+      "path": "src/compiler/graph-trimmer.cc",
+      "sha256": "f46a04d042274d9a1bd8a4f3b0d2ef8f349499c605019ef2e98420c416f12ffc",
+      "inclusive_lines": [
+        [
+          1,
+          47
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Backward input closure starts at graph end plus explicit extra roots, then removes dead-user edges into live nodes. This is graph reachability, not source observational equality. Ink proof-certificate dependency closure may discard unreachable proof steps; source work/error/control obligations must stay roots and runtime evaluation may not be dropped through this analogy."
     }
   ],
   "families": [
@@ -1420,7 +1456,7 @@
     "first_batch": "Scoped structural work prices through lazy branch contexts; ordinary proofs and measured selection remain unchanged",
     "evidence": "bench/v8-learning/branch-cardinality",
     "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open.",
-    "coverage_followup": "Complete 609-file source checklist with validated hashes/line ranges; pipeline entry points expose inlining, bounds/truncation/range/representation and builtin passes still requiring individual review. Source reads do not close family assessments.",
+    "coverage_followup": "105 full source receipts, three partial, 501 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
     "second_batch": "Range-guided word representation proposals plus three independently replayed whole-branch laws. 28 related tests, three final range regressions and 88 CPU comparisons pass; measured JS/native controls retain baseline. Matched 32-check control improves one rewritten function to two. Frozen corpus: 10 compile, 24 laws, six reused, zero representation/selection, no new range-law attribution; all quick budgets exhausted.",
     "next_followups": [
       {
@@ -1433,7 +1469,7 @@
       },
       {
         "area": "coverage",
-        "task": "Continue unread 504 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
+        "task": "Continue unread 503 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
       },
       {
         "area": "signed-range-and-integer",
@@ -1450,7 +1486,15 @@
     ],
     "third_batch": "Exact fixed-scalars-v3 F32 circuits and fifteen reusable checked database laws; literal GPU collection carrier bug fixed after real device detection. Local and standalone core each pass 454 tests; 26 related knowledge regressions, eleven GPU package tests and 326 cross-target values/snapshots with four actual GPU dispatches pass. Default roundtrip search structural cost 105\u219273; official JS/native lifecycle cohorts retain baseline. Frozen ten-program corpus: 24 laws/six reused, zero selection/representation and no new F32 attribution; all quick budgets exhausted.",
     "fourth_batch": "Strict complete-interface database call unfolding, generic bounded lexical beta correspondence and literal GPU word conversions. Exact core package 457 tests; GPU 12; required 50-case CPU/device parity with ten actual dispatches. JS/native explicit checked mechanism controls retain baseline; default structural cost stays 128. Frozen corpus: ten compile, nine admit alternatives, 24 laws/six reused, zero selection/representation or unfolding attribution; all quick budgets expire. Concurrent explicit composition work merged afterward and checked separately. Final integration adopts the already published bounded first-order call-exposure strategy, retires the overlapping local probe, and passes 458 isolated core plus 37 knowledge tests and the same 50 cases/ten device calls.",
-    "fifth_batch": "FixedScalarsV4 generic signed-word and checked quotient/remainder circuits plus shared-budget complete word covers. Database default discovery gains 337 independently replayed integer laws from 340 proposals; three U64 cases remain unadmitted. Exact standalone core 464 tests, four new and 35 related knowledge tests, final 150-case CPU/device parity with 90 real dispatches and five-target shared-helper artifacts pass. Default quotient control reduces estimated structural cost 172 to 156; official JavaScript/native complete-call training/holdout decisions retain baseline. Frozen ten-program corpus completes under stable context: nine programs admit alternatives, 20 old laws/six reused, zero alternative or representation selected; all quick budgets expire. No new integer-law admission or broader corpus generalization is observed."
+    "fifth_batch": "FixedScalarsV4 generic signed-word and checked quotient/remainder circuits plus shared-budget complete word covers. Database default discovery gains 337 independently replayed integer laws from 340 proposals; three U64 cases remain unadmitted. Exact standalone core 464 tests, four new and 35 related knowledge tests, final 150-case CPU/device parity with 90 real dispatches and five-target shared-helper artifacts pass. Default quotient control reduces estimated structural cost 172 to 156; official JavaScript/native complete-call training/holdout decisions retain baseline. Frozen ten-program corpus completes under stable context: nine programs admit alternatives, 20 old laws/six reused, zero alternative or representation selected; all quick budgets expire. No new integer-law admission or broader corpus generalization is observed.",
+    "sixth_batch": {
+      "improvement": "Generic immutable-subject constructor/operator dispatch before exact frozen-law matching, retaining sort, order, duplicates, constants and lexical checks.",
+      "evidence": "bench/v8-learning/head-discovery",
+      "control": "Three fresh processes, 30 exact subject/library queries each, 11 alternating rounds: identical returned labels/identities/order; matcher calls 111086 to 310; median of process sums of cell medians 55.485997 to 33.443128 ms. Metadata/traversal included; proof loading/admission excluded. No whole-compiler/runtime attribution.",
+      "tests": "10 focused and 7 existing integration tests pass; merged upstream fold-prefix work adds a 16-test combined check.",
+      "corpus": "All ten compile and admit alternatives, 24 observed laws, six reused, no selected alternative/representation; all final gates request measurement evidence. All quick budgets expire; median 51.0765 seconds. Unpaired saturation counts are not causal performance evidence.",
+      "private_proof_followup": "Three U64 self/zero-numerator laws remain unadmitted after whole, incremental-root-unit and balanced conditional-case authoring: assembled laws exceed unchanged object bytes. One conditional high-bit lemma checks; private RUP factoring and single-use inlining reduce its law from 3193378 to 113209 bytes. This grants no unconditional law or runtime speedup."
+    }
   },
   "scope_boundaries": [
     "The selected compiler/Maglev inventory is a work queue, not a cap on the user goal. Follow optimizer dependencies outside it when review establishes relevant transformation machinery. The division-by-constant base implementation/header are now explicitly acquired and reviewed as dependency inputs.",
