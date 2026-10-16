@@ -438,6 +438,78 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full header read. Fixed-point reducer and explicit dependencies; immutable analysis result is available only after completion. Virtual-object field bounds and escaped state gate access."
+    },
+    {
+      "path": "src/compiler/turboshaft/pipelines.h",
+      "sha256": "b78f983c3fec95a5f375bb399205f315ddef4ee40acc3918c8239c63a5f63465",
+      "inclusive_lines": [
+        [
+          1,
+          600
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full pipeline header read. Phase ordering, graph construction origins, profile instrumentation/application, late decompression, special-RPO scheduling, instruction selection and register constraints, frame elision/jump threading, idempotent code generation and dependency commit. Host code-generation responsibilities remain separate from source equality. Pipeline family assessment open."
+    },
+    {
+      "path": "src/compiler/turboshaft/pipelines.cc",
+      "sha256": "930cccfb90d6ba766831976f936e2a24ffa885d425b6a49be6a08275e7a2a4a6",
+      "inclusive_lines": [
+        [
+          1,
+          212
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full implementation read. Builtin early machine/load/escape/branch passes; effects before allocation lowering; register constraints/phis/live ranges/bundles, separate GP/FP/SIMD allocation, spilling/moves and verifier checks; optional second jump-optimized code generation. No host-allocation mechanism imported into Ink source proofs."
+    },
+    {
+      "path": "src/compiler/turboshaft/turbolev-frontend-pipeline.cc",
+      "sha256": "353d9bec1d231c764cc40e8095b202cbc6a2fbe31b4ca6c555c09ae017f431c8",
+      "inclusive_lines": [
+        [
+          1,
+          472
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full frontend pipeline read. Graph construction, budgeted inlining, loop peeling followed by post-optimization, backward truncation propagation, phi representations with reachable exceptions, range analysis and optional verification, recomputed known-node/CSE facts, escape analysis followed by post-optimization, dead sweeping. Individual pass implementations remain open; phase ordering is not an applicability or optimization-completion claim."
+    },
+    {
+      "path": "src/compiler/simplified-operator-reducer.cc",
+      "sha256": "89d09d9f29dd143490348e3ec4eb179ec0ef7528a4dc0266c32bfecbe380f97f",
+      "inclusive_lines": [
+        [
+          1,
+          411
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full reducer read. Constant conversions with minus-zero and exact integer restrictions, inverse tagged conversions, repeated checks and constant object checks, Boolean negation, reference identity, constant abs and same-sign checked-add contraction with no other live uses. Ink fixed carriers have no tagged Smi/object semantics; existing word round trips cover subsets. Fallible conversions and arithmetic cannot discard checks based on representation equality alone."
+    },
+    {
+      "path": "src/compiler/typed-optimization.cc",
+      "sha256": "000017281a368a0ebd213e0197d40158252543109bd244e18d79f170485f1638",
+      "inclusive_lines": [
+        [
+          1,
+          1007
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full reducer read. Type-proven redundant checks, stable-map dependencies, hardening bounds checks, range-restricted rounding/division, NaN silencing, non-loop phi narrowing (loop convergence deliberately excluded), select type joins, SameValue versus IEEE/reference equality, UTF-16 single-character comparisons, typed-array length excluding resizable buffers, truthiness and speculative numeric de-specialization. Ink needs checked range/domain premises and preserves raw NaN/-0, UTF-8/fallible boundaries; fixed carrier admission already removes JS dynamic-type checks. Range-guided conversion proposals and observation-sensitive representation assessment remain open."
+    },
+    {
+      "path": "src/compiler/representation-change.cc",
+      "sha256": "3fbd2c2be069c9963f02ce824f717878de4f3c6cd14fc516dca4c9ae03f86844",
+      "inclusive_lines": [
+        [
+          1,
+          306
+        ]
+      ],
+      "review_status": "partial source read; family assessment open",
+      "note": "Truncation partial order distinguishes zero identity, BigInt rematerialization and representation checks; equal physical representation does not imply that stronger checks can be erased. Remaining conversion paths unread."
     }
   ],
   "families": [
@@ -479,15 +551,15 @@
     },
     {
       "name": "representation-types",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/typed-optimizations-reducer.h",
-      "note": "Assess checked narrowing, conversions and type facts"
+      "note": "Typed optimization and simplified operator reducers read in full; representation-change first 306 lines read. Existing fixed carriers and checked word laws cover subsets. Stronger checks cannot be removed merely because storage representations agree. Range-guided conversion and remaining paths open."
     },
     {
       "name": "floating-point",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
-      "note": "Exact IEEE/NaN/negative-zero behavior; no fast-math assumptions"
+      "note": "Typed/simplified optimization reviewed alongside earlier machine reducer. IEEE equality, stored-bit identity, canonical NaNs, -0, rounding and fallible conversion restrictions differ. F64 proof terms remain unsupported; exact F32 machinery and individual floating reductions still require assessment."
     },
     {
       "name": "loop-transforms",
@@ -521,15 +593,57 @@
     },
     {
       "name": "pipeline-infrastructure",
-      "status": "pending",
+      "status": "partial",
       "entry_point": "src/compiler/turboshaft/pipelines.cc",
-      "note": "Assess reducer scheduling, bounded worklists and phase ordering"
+      "note": "Turboshaft and Turbolev pipeline entry points read in full, including phase ordering and repeated cleanup/fact recomputation. Individual pending passes remain open; complete per-file backlog is generated by tools/v8_audit_status.py."
     },
     {
       "name": "instruction-selection-registers",
       "status": "pending",
       "entry_point": "src/compiler/backend/register-allocator.cc",
       "note": "Assess which responsibilities are already delegated to existing host compilers"
+    },
+    {
+      "name": "inlining",
+      "status": "pending",
+      "entry_point": "src/compiler/js-inlining-heuristic.cc",
+      "note": "Turbolev pipeline identifies eager/deferred inlining and budget/call-frequency inputs; individual Maglev/TurboFan implementations and Ink checked sharing/expansion tradeoffs remain unread/unassessed."
+    },
+    {
+      "name": "range-bounds",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/type-inference-analysis.h",
+      "note": "Typed reducer bounds/check elimination read; range inference, induction/overflow and hardening implementations need separate review. Existing Ink facts are untrusted proposals with independent proofs."
+    },
+    {
+      "name": "truncation-demand",
+      "status": "pending",
+      "entry_point": "src/maglev/maglev-truncation.cc",
+      "note": "Backward use-demand propagation and explicit truncation identified from pipelines; implementation unread. Preserve full values and checks at every nontruncating observation."
+    },
+    {
+      "name": "javascript-builtins",
+      "status": "pending",
+      "entry_point": "src/compiler/js-call-reducer.cc",
+      "note": "Builtin/call reductions are an explicit pending family; map/reduce/iterators/regexp/promises and runtime-specific assumptions need individual applicability assessment."
+    },
+    {
+      "name": "context-specialization",
+      "status": "pending",
+      "entry_point": "src/compiler/js-context-specialization.cc",
+      "note": "Lexical/native context specialization, stable dependencies and mutable context loads remain unread/unassessed; do not infer lifetime/constness from a profile."
+    },
+    {
+      "name": "javascript-typed-lowering",
+      "status": "pending",
+      "entry_point": "src/compiler/js-typed-lowering.cc",
+      "note": "Language/coercion/type-directed reductions remain unread/unassessed; fixed typed Ink carriers may remove JS-specific work, but all reusable ideas require explicit mapping."
+    },
+    {
+      "name": "wasm-gc",
+      "status": "pending",
+      "entry_point": "src/compiler/turboshaft/wasm-gc-typed-optimization-reducer.cc",
+      "note": "Wasm typed GC/reference optimization is separate from SIMD/revectorization. Individual reducers/lowering/inlining remain unread/unassessed; source ownership and host Wasm delegation need assessment."
     }
   ],
   "closeout": {
@@ -541,6 +655,7 @@
     "requested": "Continue V8-derived optimizations and merge validated improvements",
     "first_batch": "Scoped structural work prices through lazy branch contexts; ordinary proofs and measured selection remain unchanged",
     "evidence": "bench/v8-learning/branch-cardinality",
-    "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open."
+    "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open.",
+    "coverage_followup": "Complete 607-file source checklist with validated hashes/line ranges; pipeline entry points expose inlining, bounds/truncation/range/representation and builtin passes still requiring individual review. Source reads do not close family assessments."
   }
 }
