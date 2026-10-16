@@ -10,6 +10,73 @@ use std::{
     process::Command,
     time::{SystemTime, UNIX_EPOCH},
 };
+/// Both forms retain their ordinary checker authority. Composed specialization
+/// admits only source extensions and complete action rewrites; physical choices
+/// need their own initialized-artifact capability rather than being discarded.
+enum FrozenSpecialization {
+    Direct(crate::optimisation::CheckedSelection),
+    Composed(crate::planning::CheckedPlan),
+}
+impl FrozenSpecialization {
+    fn check(module: &CheckedModule, bytes: &[u8]) -> LangResult<Self> {
+        let value: Value = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
+        if value["semantics"] == crate::planning::SEMANTICS {
+            let packet: crate::planning::Package =
+                serde_json::from_value(value).map_err(|e| e.to_string())?;
+            let mut rewrites = 0;
+            for step in &packet.steps {
+                match step {
+                    crate::planning::Step::Extension(_) => (),
+                    crate::planning::Step::Rewrite(p) if p.action_replacement.is_some() => rewrites += 1,
+                    _ => return Err("frozen specialization plan requires extensions and complete action equality proofs".into()),
+                }
+            }
+            if rewrites == 0 {
+                return Err("frozen specialization plan needs a complete action rewrite".into());
+            }
+            Ok(Self::Composed(crate::planning::check(module, &packet)?))
+        } else {
+            let packet: crate::optimisation::Package =
+                serde_json::from_value(value).map_err(|e| e.to_string())?;
+            if packet.action_replacement.is_none() {
+                return Err(
+                    "frozen specialization requires complete action equality proofs".into(),
+                );
+            }
+            Ok(Self::Direct(crate::optimisation::check(module, &packet)?))
+        }
+    }
+    fn module(&self) -> &CheckedModule {
+        match self {
+            Self::Direct(s) => s.module(),
+            Self::Composed(p) => p.module(),
+        }
+    }
+    fn evidence(&self) -> LangResult<Value> {
+        match self {
+            Self::Direct(s) => serde_json::to_value(s.evidence()).map_err(|e| e.to_string()),
+            Self::Composed(p) => crate::compiled_plans::specialization_evidence(p),
+        }
+    }
+    fn check_emission(&self, plan: &Value) -> LangResult<()> {
+        let bound = match self {
+            Self::Direct(s) => {
+                plan["semantic_package"]
+                    == serde_json::to_value(s.package()).map_err(|e| e.to_string())?
+                    && plan["semantic_selection"] == self.evidence()?
+            }
+            Self::Composed(p) => {
+                plan["compiled_plan"]
+                    == serde_json::to_value(p.package()).map_err(|e| e.to_string())?
+                    && plan["specialization"] == self.evidence()?
+            }
+        };
+        if !bound {
+            return Err("compiled specialization binding mismatch".into());
+        }
+        Ok(())
+    }
+}
 struct Staging(PathBuf);
 impl Drop for Staging {
     fn drop(&mut self) {
@@ -222,8 +289,7 @@ pub fn build_model_specialized(
     }
     let compiler = std::env::current_exe().map_err(|e| e.to_string())?;
     let selection = if specialize {
-        let producer =
-            crate::distribution::resource("knowledge/producers/frozen_specialization.py")?;
+        let producer = crate::distribution::resource("knowledge/producers/frozen_build.py")?;
         let output = Command::new(python.unwrap_or("python3"))
             .arg(producer)
             .arg(staging.0.join(source_file))
@@ -248,12 +314,7 @@ pub fn build_model_specialized(
         if bytes.len() > 16_000_000 {
             return Err("specialization package byte limit".into());
         }
-        let packet: crate::optimisation::Package =
-            serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-        if packet.action_replacement.is_none() {
-            return Err("frozen specialization requires complete action equality proofs".into());
-        }
-        let checked = crate::optimisation::check(compiled_module, &packet)?;
+        let checked = FrozenSpecialization::check(compiled_module, &bytes)?;
         write("selected.core.json", &checked.module().bytes()?)?;
         Some(checked)
     } else {
@@ -281,9 +342,12 @@ pub fn build_model_specialized(
         .arg(target)
         .arg("-o")
         .arg(staging.0.join(&artifact));
-    if selection.is_some() {
+    if let Some(selection) = &selection {
         command
-            .arg("--selection")
+            .arg(match selection {
+                FrozenSpecialization::Direct(_) => "--selection",
+                FrozenSpecialization::Composed(_) => "--plan",
+            })
             .arg(staging.0.join("selection.json"));
     }
     command.env(
@@ -291,7 +355,7 @@ pub fn build_model_specialized(
         parent.join(".ink-compiled-cache"),
     );
     if let Some(cargo) = cargo {
-        command.arg("--cargo").arg(cargo);
+        command.arg("--cargo").arg(cargo).env("INK_CARGO", cargo);
     }
     let compiled = command.output().map_err(|e| e.to_string())?;
     if !compiled.status.success() {
@@ -365,8 +429,7 @@ pub fn build_model_specialized(
     let mut manifest = manifest;
     if let Some(selection) = &selection {
         manifest["selected_core_sha256"] = json!(selected_identity);
-        manifest["specialization"] =
-            serde_json::to_value(selection.evidence()).map_err(|e| e.to_string())?;
+        manifest["specialization"] = selection.evidence()?;
     }
     write(
         "artifact.json",
@@ -454,15 +517,9 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
         if restricted.is_none() {
             return Err("specialization requires a source restriction".into());
         }
-        let packet: crate::optimisation::Package =
-            serde_json::from_slice(&read("selection.json", 16_000_000)?)
-                .map_err(|e| e.to_string())?;
-        if packet.action_replacement.is_none() {
-            return Err("frozen specialization requires complete action equality proofs".into());
-        }
-        let checked = crate::optimisation::check(compiled_module, &packet)?;
-        if serde_json::to_value(checked.evidence()).map_err(|e| e.to_string())?
-            != manifest["specialization"]
+        let checked =
+            FrozenSpecialization::check(compiled_module, &read("selection.json", 16_000_000)?)?;
+        if checked.evidence()? != manifest["specialization"]
             || checked.module().bytes()?
                 != CheckedModule::from_bytes(&read(
                     "selected.core.json",
@@ -521,13 +578,7 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
         return Err("compiled initial state binding mismatch".into());
     }
     if let Some(selection) = &selection {
-        if plan["semantic_package"]
-            != serde_json::to_value(selection.package()).map_err(|e| e.to_string())?
-            || plan["semantic_selection"]
-                != serde_json::to_value(selection.evidence()).map_err(|e| e.to_string())?
-        {
-            return Err("compiled specialization binding mismatch".into());
-        }
+        selection.check_emission(&plan)?;
     }
     for (name, binding) in &inventory {
         if name.ends_with("initial.snapshot") && binding["sha256"] != startup_sha256 {

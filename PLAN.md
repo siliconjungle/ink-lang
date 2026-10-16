@@ -341,9 +341,10 @@ lineage. These are ordinary database lemmas, with no new trusted kernel case or
 runtime performance claim. [Balanced typed helper composition](docs/frozen-composition.md)
 now proposes longer closed `foldl` computations through conservative source
 extensions and complete action proofs. The 32- and 128-operation cases preserve
-live weights and exact checkpoints across CPU targets and GPU hosts. Next,
-carry that composed-plan path through normal trained-artifact publication and
-verification, generalize capture abstraction, share repeated helper code/prefix
+live weights and exact checkpoints across CPU targets and GPU hosts. The same
+path now passes through normal initialized trained-artifact publication and
+mandatory proof replay, including compiled browser CPU fallbacks. Next,
+generalize capture abstraction, share repeated helper code/prefix
 lemmas to reduce the measured code/first-binding costs, and extend larger
 graph/tape domains. Warm lifecycle measurements now exist for 32/128 operations;
 short-lived and broader upstream workloads still require acceptance evidence.

@@ -432,6 +432,7 @@ live weights and the original checkpoint namespace through conservative helper
 extensions and ordinary prefix/action proofs. Balanced trees replace a linear
 chain that overflowed the larger execution test. Warm JavaScript serving improves
 about 1.38×/1.30× in six paired processes, with larger code and slower first
-binding/import. This is an explicit composed-plan path; integration into normal
-trained-artifact publication, broader graph/tape compilation and upstream parity
+binding/import. Normal `build-model --specialize-frozen` now carries this composed
+plan through initialized artifact publication and mandatory verifier replay.
+Broader graph/tape compilation and upstream parity
 remain required work.
