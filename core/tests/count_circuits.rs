@@ -39,7 +39,7 @@ fn fixed_counts_are_explicit_and_legacy_count_atoms_remain_opaque() {
         for name in ["popcount","leading_zeros","trailing_zeros"] {
             let width=if ty==Type::U64{64}else{32};
             let goal=Equation{from:count(name,zero.clone()),to:s::word(Type::U32,if name=="popcount"{0}else{width})};
-            for encoding in [Encoding::LiteralV1,Encoding::SharedV2] {
+            for encoding in [Encoding::LiteralV1,Encoding::SharedV2,Encoding::SharedSelectV3] {
                 let proof=prove(&p,&env,&goal,encoding);
                 if ty!=Type::I32 {
                     let old=laws::bitvector_problem_with_encoding(&p,&env,&[],&goal,Mode::FixedScalarsV4,encoding).unwrap();
@@ -68,7 +68,7 @@ fn reflected_counts_match_signed_high_bits_zero_and_all_ones() {
                 let expected=if ty==Type::U64 {match name {"popcount"=>raw.count_ones(),"leading_zeros"=>raw.leading_zeros(),_=>raw.trailing_zeros()}}
                     else {let x=raw as u32;match name {"popcount"=>x.count_ones(),"leading_zeros"=>x.leading_zeros(),_=>x.trailing_zeros()}};
                 let goal=Equation{from:count(name,s::word(ty.clone(),raw)),to:s::word(Type::U32,expected as u64)};
-                for encoding in [Encoding::LiteralV1,Encoding::SharedV2]{prove(&p,&BTreeMap::new(),&goal,encoding);}
+                for encoding in [Encoding::LiteralV1,Encoding::SharedV2,Encoding::SharedSelectV3]{prove(&p,&BTreeMap::new(),&goal,encoding);}
                 // Literal computation is shared by Normalize and every older
                 // circuit mode, so test the fixed reification independently.
                 checker(&p).prove(&p,&BTreeMap::new(),&[],&goal,&Proof::Normalize,&mut s::Budget::new(),0).unwrap();
@@ -84,7 +84,7 @@ fn count_mode_preserves_noncount_images_and_refuses_wrong_domains() {
     for ty in [Type::U32,Type::U64,Type::I32,Type::F32] {
         let sort=s::value(ty.clone());let x=s::free(sort.clone(),"x");let env=BTreeMap::from([("x".into(),sort.clone())]);
         let goal=Equation{from:if ty==Type::F32{s::op(sort,"neg",vec![x.clone()])}else{s::op(sort,"binary:+",vec![x.clone(),s::word(ty,0)])},to:x};
-        for encoding in [Encoding::LiteralV1,Encoding::SharedV2] {
+        for encoding in [Encoding::LiteralV1,Encoding::SharedV2,Encoding::SharedSelectV3] {
             let old=laws::bitvector_problem_with_encoding(&p,&env,&[],&goal,Mode::FixedScalarsV4,encoding).unwrap();
             let new=laws::bitvector_problem_with_encoding(&p,&env,&[],&goal,Mode::FixedCountsV5,encoding).unwrap();assert_eq!(old.identity(),new.identity());
         }
