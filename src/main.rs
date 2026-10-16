@@ -722,6 +722,7 @@ fn run() -> LangResult<()> {
         let encoding = match arg_value(&args, "--circuit")?.as_deref() {
             None | Some("literal-v1") => verified_language::bitproof::Encoding::LiteralV1,
             Some("shared-v2") => verified_language::bitproof::Encoding::SharedV2,
+            Some("shared-select-v3") => verified_language::bitproof::Encoding::SharedSelectV3,
             _ => return Err("unsupported bit circuit encoding".into()),
         };
         let problem = context.bitvector_problem_with_encoding(
@@ -762,6 +763,7 @@ fn run() -> LangResult<()> {
         let encoding=match arg_value(&args,"--encoding")?.as_deref().unwrap_or("literal-v1") {
             "literal-v1"=>verified_language::bitproof::Encoding::LiteralV1,
             "shared-v2"=>verified_language::bitproof::Encoding::SharedV2,
+            "shared-select-v3"=>verified_language::bitproof::Encoding::SharedSelectV3,
             _=>return Err("unknown bit circuit encoding".into()),
         };
         let problem=verified_language::laws::bitvector_problem_with_encoding(module.program(),&goal.params,&goal.conditions,&verified_language::laws::Equation{from:goal.from,to:goal.to},semantics,encoding)?;

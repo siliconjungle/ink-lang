@@ -37,6 +37,7 @@ pub enum Encoding {
     #[default]
     LiteralV1,
     SharedV2,
+    SharedSelectV3,
 }
 impl Encoding {
     fn is_literal(&self) -> bool {
@@ -80,6 +81,7 @@ enum Value {
 struct Circuit {
     encoding: Encoding,
     gates: BTreeMap<(u8, i32, i32), i32>,
+    selects: BTreeMap<(i32, i32, i32), i32>,
     variables: usize,
     clauses: Vec<Vec<i32>>,
     inputs: BTreeMap<String, Value>,
@@ -109,7 +111,7 @@ impl Circuit {
             "xor" => 2,
             _ => return Err("unknown Boolean gate".into()),
         };
-        if self.encoding == Encoding::SharedV2 {
+        if self.encoding != Encoding::LiteralV1 {
             let reduced = match op {
                 "and" if a == -1 || b == -1 || a == -b => Some(-1),
                 "and" if a == 1 || a == b => Some(b),
@@ -150,12 +152,30 @@ impl Circuit {
         for clause in clauses {
             self.clause(clause)?;
         }
-        if self.encoding == Encoding::SharedV2 {
+        if self.encoding != Encoding::LiteralV1 {
             self.gates.insert((kind, a, b), z);
         }
         Ok(z)
     }
-    fn select(&mut self, c: i32, a: i32, b: i32) -> LangResult<i32> {
+    fn select(&mut self, mut c: i32, mut a: i32, mut b: i32) -> LangResult<i32> {
+        if self.encoding == Encoding::SharedSelectV3 {
+            // A separate encoding preserves every historical CNF identity.
+            // Inputs are already Boolean circuit literals, with no source
+            // effects, evaluation order or rewrite authority to infer.
+            if c < 0 {
+                c = -c;
+                std::mem::swap(&mut a, &mut b);
+            }
+            if c == 1 { return Ok(a); }
+            if a == b { return Ok(a); }
+            if a == 1 { return self.gate("or", c, b); }
+            if a == -1 { return self.gate("and", -c, b); }
+            if b == 1 { return self.gate("or", -c, a); }
+            if b == -1 { return self.gate("and", c, a); }
+            if let Some(value) = self.selects.get(&(c, a, b)) {
+                return Ok(*value);
+            }
+        }
         let z = self.fresh()?;
         for clause in [
             vec![-c, -a, z],
@@ -164,6 +184,9 @@ impl Circuit {
             vec![c, b, -z],
         ] {
             self.clause(clause)?;
+        }
+        if self.encoding == Encoding::SharedSelectV3 {
+            self.selects.insert((c, a, b), z);
         }
         Ok(z)
     }
@@ -433,6 +456,7 @@ pub(crate) fn problem_with_encoding_and_work(
     let mut circuit = Circuit {
         encoding,
         gates: BTreeMap::new(),
+        selects: BTreeMap::new(),
         variables: 1,
         clauses: vec![vec![1]],
         inputs: BTreeMap::new(),
@@ -451,6 +475,7 @@ pub(crate) fn problem_with_encoding_and_work(
     let semantics = match encoding {
         Encoding::LiteralV1 => "total-scalar-u64-bit-cnf-v1",
         Encoding::SharedV2 => "total-scalar-u64-bit-cnf-shared-v2",
+        Encoding::SharedSelectV3 => "total-scalar-u64-bit-cnf-shared-select-v3",
     };
     let cost = circuit.variables
         + circuit.clauses.len()
@@ -656,6 +681,7 @@ mod tests {
         Circuit {
             encoding: Encoding::LiteralV1,
             gates: BTreeMap::new(),
+            selects: BTreeMap::new(),
             variables: 1,
             clauses: vec![vec![1]],
             inputs: BTreeMap::new(),
@@ -768,7 +794,7 @@ mod tests {
             seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
             values.push(seed);
         }
-        for encoding in [Encoding::LiteralV1, Encoding::SharedV2] {
+        for encoding in [Encoding::LiteralV1, Encoding::SharedV2, Encoding::SharedSelectV3] {
             for &value in &values {
                 for width in [32, 64] {
                     for name in ["popcount", "leading_zeros", "trailing_zeros"] {
@@ -801,7 +827,7 @@ mod tests {
             seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);let a=seed;
             seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);pairs.push((a,seed));
         }
-        for encoding in [Encoding::LiteralV1,Encoding::SharedV2] {
+        for encoding in [Encoding::LiteralV1,Encoding::SharedV2,Encoding::SharedSelectV3] {
             for &(a,b) in &pairs {
                 let inputs=[("a",Term::U64(a)),("b",Term::U64(b))];
                 let (x,y)=(a as u32,b as u32);let (sx,sy)=(x as i32,y as i32);
@@ -953,7 +979,7 @@ mod tests {
             seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
             values.push(seed);
         }
-        for encoding in [Encoding::LiteralV1, Encoding::SharedV2] {
+        for encoding in [Encoding::LiteralV1, Encoding::SharedV2, Encoding::SharedSelectV3] {
             for &a in &values {
                 // High first-order word bits are deliberately nonzero: fixed
                 // binary32 primitives consume the low 32 bits only.
@@ -992,8 +1018,70 @@ mod tests {
         }
     }
     #[test]
+    fn shared_selects_preserve_all_assignments_constants_and_condition_polarity() {
+        for ci in 0..8 {
+            for ai in 0..8 {
+                for bi in 0..8 {
+                    let mut c = empty_circuit();
+                    c.encoding = Encoding::SharedSelectV3;
+                    let x = c.fresh().unwrap();
+                    let y = c.fresh().unwrap();
+                    let z = c.fresh().unwrap();
+                    let literals = [-1, 1, x, -x, y, -y, z, -z];
+                    let (condition, a, b) = (literals[ci], literals[ai], literals[bi]);
+                    let result = c.select(condition, a, b).unwrap();
+                    let variables = c.variables;
+                    assert_eq!(result, c.select(condition, a, b).unwrap());
+                    assert_eq!(result, c.select(-condition, b, a).unwrap());
+                    assert_eq!(variables, c.variables);
+                    let mut seen = [false; 8];
+                    for mask in 0..1usize << (c.variables - 1) {
+                        let truth = |lit: i32| {
+                            let bit = lit.unsigned_abs() as usize;
+                            let value = bit == 1 || mask & (1 << (bit - 2)) != 0;
+                            if lit > 0 { value } else { !value }
+                        };
+                        if !c.clauses.iter().all(|clause| clause.iter().any(|lit| truth(*lit))) {
+                            continue;
+                        }
+                        seen[(truth(x) as usize) * 4 + (truth(y) as usize) * 2 + truth(z) as usize] = true;
+                        assert_eq!(truth(result), if truth(condition) { truth(a) } else { truth(b) });
+                    }
+                    assert!(seen.iter().all(|value| *value));
+                }
+            }
+        }
+    }
+    #[test]
+    fn selection_sharing_is_versioned_and_does_not_reidentify_legacy_circuits() {
+        let env = BTreeMap::from([("a".into(), Sort::U64), ("b".into(), Sort::U64), ("c".into(), Sort::Bool)]);
+        let term = Term::If { condition: Box::new(var("c")), on_true: Box::new(var("a")), on_false: Box::new(var("b")) };
+        let goal = Equation { from: term.clone(), to: term };
+        let make = |encoding| {
+            let mut work = MAX_WORK;
+            problem_with_encoding_and_work(&env, &[], &goal, encoding, &mut work).unwrap()
+        };
+        let literal = make(Encoding::LiteralV1);
+        let old = make(Encoding::SharedV2);
+        let shared = make(Encoding::SharedSelectV3);
+        assert_eq!(literal.identity(), "33f001e65890ada86841e1fc0a20ad059acf3f9bd3a79618081198fc305b4141");
+        assert_eq!(old.identity(), "628d40dab0a8570932b78c8600737c6e7217392d80feffbed904784b5ddc691c");
+        assert!(shared.variables() < old.variables());
+        assert!(shared.clauses().len() < old.clauses().len());
+        assert_ne!(shared.identity(), old.identity());
+        let final_clause = shared.clauses().len() - 1;
+        let cert = Certificate { encoding: Encoding::SharedSelectV3, problem_sha256: shared.identity().into(), steps: vec![step(&[], &[0, final_clause])] };
+        verify(&shared, &cert).unwrap();
+        let mut wrong_mode = cert.clone();
+        wrong_mode.encoding = Encoding::SharedV2;
+        assert!(verify(&shared, &wrong_mode).is_err());
+        wrong_mode.problem_sha256 = old.identity().into();
+        assert!(verify(&old, &wrong_mode).is_err());
+        assert!(problem_with_encoding_and_work(&env, &[], &goal, Encoding::SharedSelectV3, &mut 1).is_err());
+    }
+    #[test]
     fn shared_gates_preserve_every_boolean_assignment_and_share_commuted_inputs() {
-        for encoding in [Encoding::LiteralV1, Encoding::SharedV2] {
+        for encoding in [Encoding::LiteralV1, Encoding::SharedV2, Encoding::SharedSelectV3] {
             for op in ["and", "or", "xor"] {
                 for ai in 0..6 {
                     for bi in 0..6 {
@@ -1006,7 +1094,7 @@ mod tests {
                         let b = inputs[bi];
                         let out = c.gate(op, a, b).unwrap();
                         let swapped = c.gate(op, b, a).unwrap();
-                        if encoding == Encoding::SharedV2 {
+                        if encoding != Encoding::LiteralV1 {
                             assert_eq!(out, swapped);
                         }
                         let mut seen = [false; 4];
