@@ -1,0 +1,110 @@
+   Compiling ink-core v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/combined-source/core)
+    Finished `test` profile [unoptimized] target(s) in 14.16s
+     Running tests/contract_facts.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/core-target/debug/deps/contract_facts-36c6d26833ce913e)
+
+running 8 tests
+test arbitrary_callbacks_do_not_inherit_a_let_argument_fact ... ok
+test an_unreachable_false_precondition_cannot_launder_a_postcondition ... ok
+test conjunctions_and_branch_facts_remain_scoped_and_source_bound ... ok
+test ieee_preconditions_do_not_authorise_a_float_bit_replacement ... ok
+test function_preconditions_authorise_conditional_database_rewrites ... ok
+test postconditions_travel_through_lexical_bindings_into_callee_preconditions ... ok
+test checked_postconditions_remove_a_composed_observation ... ok
+test action_bindings_that_shadow_the_initializer_do_not_create_false_aliases ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/contract_proof_context.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/core-target/debug/deps/contract_proof_context-8d909305c3d49a81)
+
+running 6 tests
+test authoring_context_keeps_the_original_source_after_the_callers_copy_changes ... ok
+test exported_goals_preserve_derivation_order_without_becoming_proof_authority ... ok
+test authoring_reuse_authenticates_every_view_and_checks_every_proposal ... ok
+test reusable_authoring_laws_remain_bound_to_the_executable_definitions ... ok
+test authoring_context_reuses_exact_obligations_without_admitting_false_contracts ... ok
+test authoring_views_do_not_accumulate_laws_or_import_missing_dependencies ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/contracts.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/core-target/debug/deps/contracts-5d0251a6ccd6245c)
+
+running 24 tests
+test default_body_cannot_bypass_contract ... ok
+test false_and_missing_implementations_reject ... ok
+test metadata_and_ingress_guards_are_authenticated ... ok
+test private_value_state_uses_transactions ... ok
+test callers_must_establish_preconditions ... ok
+test generic_contract_instances ... ok
+test call_obligations_ignore_unrelated_values_but_still_check_guarded_calls ... ok
+test callback_contract_instances ... ok
+test scalar_float_equality_is_not_structural_reflexivity ... ok
+test refinement_allows_different_permitted_values_but_rechecks_callers ... ok
+test public_preconditions_and_total_change_runtime ... ok
+test specifications_check_each_implementation_and_round_trip ... ok
+test uniqueness_sugar_does_not_override_user_functions ... ok
+test keep_initializers_cannot_bypass_callee_preconditions ... ok
+test action_callers_establish_preconditions ... ok
+test action_callback_guards_establish_preconditions_in_their_own_scope ... ok
+test state_postcondition_rejects_wrong_reply ... ok
+test total_change_and_before ... ok
+test action_callback_shadowing_cannot_reuse_outer_preconditions ... ok
+test relational_query_captures_before ... ok
+test invariant_initialisation_is_checked ... ok
+test finite_multisets_and_uniqueness ... ok
+test entry_state_facts_do_not_validate_a_call_after_an_invalidating_write ... ok
+test list_state_invariants_reject_duplicate_initial_ids ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/count_circuits.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/core-target/debug/deps/count_circuits-964f014b61ae6a71)
+
+running 4 tests
+test reified_overloaded_count_arguments_preserve_width_and_lexical_names ... ok
+test count_mode_preserves_noncount_images_and_refuses_wrong_domains ... ok
+test reflected_counts_match_signed_high_bits_zero_and_all_ones ... ok
+test fixed_counts_are_explicit_and_legacy_count_atoms_remain_opaque ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/curried_reification.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/core-target/debug/deps/curried_reification-98f3c5aaf4dada42)
+
+running 1 test
+test curried_known_callbacks_bind_arguments_once_and_preserve_capture ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/definition_context.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/core-target/debug/deps/definition_context-1575308e7e1bd37f)
+
+running 8 tests
+test proof_produced_empty_receivers_keep_their_type_without_changing_checked_contexts ... ok
+test exact_int_literal_contexts_replay_without_inserting_conversions ... ok
+test empty_option_contexts_preserve_explicit_bindings_and_constructor_trees ... ok
+test rehashed_false_contexts_and_unbound_dependencies_have_no_authority ... ok
+test lexical_capture_context_identity_and_context_free_bytes_are_explicit ... ok
+test recursive_components_bind_complete_bodies_without_circular_hashes ... ok
+test portable_admission_requires_exact_original_definitions_at_application ... ok
+test generic_laws_apply_inside_helpers_and_contextual_composed_callers ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running tests/demand_normal.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/core-target/debug/deps/demand_normal-73302f9536d2f39e)
+
+running 1 test
+test observing_a_field_does_not_unfold_unobserved_work_or_drop_required_values ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/direct_delta.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/core-target/debug/deps/direct_delta-c136a8219bb1bcc2)
+
+running 8 tests
+test direct_delta_does_not_turn_an_abstract_interface_into_a_definition ... ok
+test projecting_a_wrapper_does_not_force_its_retained_continuation ... ok
+test wrapper_projection_cannot_replace_an_unrelated_free_input ... ok
+test speculative_unfolding_keeps_the_existing_eight_operation_action_in_budget ... ok
+test the_eight_operation_action_still_requires_its_frozen_state_premise ... ok
+test opening_a_definition_keeps_distinct_free_inputs_distinct ... ok
+test a_complete_owned_continuation_can_unfold_without_computing_its_descendants ... ok
+test a_structural_gate_can_be_exposed_through_a_checked_alias ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

@@ -1,0 +1,49 @@
+{"status": "proposed", "helpers": 16}
+Traceback (most recent call last):
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/probe_graph.py", line 33, in <module>
+    print(run(sys.executable,r/'knowledge/producers/function_equality.py',out/'extended.json',out/'selected.json','--ink',ink,'-o',out/'functions.json'),flush=True)
+          ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/probe_graph.py", line 11, in run
+    if p.returncode:raise RuntimeError(p.stderr[-4000:])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: rs/computation_equality.py", line 143, in prove
+    return self.prove_local(a, z, env, hypotheses, depth)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/computation_equality.py", line 234, in prove_local
+    return finish(compose([self.prove(left,body,env,hypotheses,depth+1), {'Sym':opened}]))
+                           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/computation_equality.py", line 143, in prove
+    return self.prove_local(a, z, env, hypotheses, depth)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/computation_equality.py", line 234, in prove_local
+    return finish(compose([self.prove(left,body,env,hypotheses,depth+1), {'Sym':opened}]))
+                           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/computation_equality.py", line 143, in prove
+    return self.prove_local(a, z, env, hypotheses, depth)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/computation_equality.py", line 209, in prove_local
+    equality=self.prove(x['scrutinee'],y['scrutinee'],env,hypotheses,depth+1)
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/computation_equality.py", line 148, in prove
+    proof = self.prove_local(a, z, env, 0, depth)
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/computation_equality.py", line 176, in prove_local
+    lemma,args = self.chunks.bridge_application(x,y)
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/fold_chunks.py", line 504, in bridge_application
+    return self.bridge(fold,invocation['arguments'][0],helper,layout),arguments
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/fold_chunks.py", line 459, in bridge
+    remaining, builder, prefix, witness = self.consume(fold, rows, helper,layout)
+                                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/fold_chunks.py", line 360, in consume
+    middle_rows, first, first_law, first_rows = self.consume(fold, rows, left_helper,(params,values,left_values))
+                                                ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/fold_chunks.py", line 360, in consume
+    middle_rows, first, first_law, first_rows = self.consume(fold, rows, left_helper,(params,values,left_values))
+                                                ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/fold_chunks.py", line 360, in consume
+    middle_rows, first, first_law, first_rows = self.consume(fold, rows, left_helper,(params,values,left_values))
+                                                ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/knowledge/producers/fold_chunks.py", line 410, in consume
+    raise ValueError('fold chunk has no matching bounded computation')
+ValueError: fold chunk has no matching bounded computation
+
