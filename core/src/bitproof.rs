@@ -9,6 +9,8 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 #[path = "bitproof_division.rs"]
 mod division;
+#[path = "bitproof_hints.rs"]
+mod hint_transport;
 
 const MAX_VARIABLES: usize = 100_000;
 const MAX_CLAUSES: usize = 300_000;
@@ -21,6 +23,10 @@ pub struct Step {
     pub clause: Vec<i32>,
     /// Zero-based indices into the original CNF followed by accepted clauses.
     pub hints: Vec<usize>,
+    /// Optional bounded lossless hint transport. `hints` must be empty.
+    /// This changes storage only; every decoded reference is replayed normally.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hint_deltas_v1: Option<String>,
 }
 /// Selects a fixed, reconstructed Boolean encoding, never proof authority.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -560,37 +566,51 @@ pub(crate) fn verify_with_work(
             literal(lit, problem.variables)?;
             conflict |= assign_tracked(&mut values, &mut touched, -lit);
         }
-        for &index in &step.hints {
-            if conflict {
-                return Err("unused bit proof hint after conflict".into());
-            }
-            let clause = clauses
-                .get(index)
-                .ok_or("bit proof references missing/future clause")?;
-            let mut open = None;
-            let mut multiple = false;
-            let mut satisfied = false;
-            for &lit in clause.iter() {
-                *work = work.checked_sub(1).ok_or("bit proof work limit")?;
-                let value = values[lit.unsigned_abs() as usize];
-                if value == if lit > 0 { 1 } else { -1 } {
-                    satisfied = true;
+        // Preserve the legacy direct slice loop. Only packed steps pay for
+        // decoding; both paths expand the exact same strict propagation body.
+        macro_rules! replay_hint {
+            ($index:ident) => {{
+                if conflict {
+                    return Err("unused bit proof hint after conflict".into());
                 }
-                if value == 0 {
-                    if open.is_some() {
-                        multiple = true;
-                    } else {
-                        open = Some(lit);
+                let clause = clauses
+                    .get($index)
+                    .ok_or("bit proof references missing/future clause")?;
+                let mut open = None;
+                let mut multiple = false;
+                let mut satisfied = false;
+                for &lit in clause.iter() {
+                    *work = work.checked_sub(1).ok_or("bit proof work limit")?;
+                    let value = values[lit.unsigned_abs() as usize];
+                    if value == if lit > 0 { 1 } else { -1 } {
+                        satisfied = true;
+                    }
+                    if value == 0 {
+                        if open.is_some() {
+                            multiple = true;
+                        } else {
+                            open = Some(lit);
+                        }
                     }
                 }
+                if satisfied || multiple {
+                    return Err("bit proof hint is not unit or conflicting".into());
+                }
+                conflict = match open {
+                    Some(lit) => assign_tracked(&mut values, &mut touched, lit),
+                    None => true,
+                };
+            }};
+        }
+        if step.hint_deltas_v1.is_some() {
+            for index in hint_transport::packed_indices(step)? {
+                let index = index?;
+                replay_hint!(index);
             }
-            if satisfied || multiple {
-                return Err("bit proof hint is not unit or conflicting".into());
+        } else {
+            for &index in &step.hints {
+                replay_hint!(index);
             }
-            conflict = match open {
-                Some(lit) => assign_tracked(&mut values, &mut touched, lit),
-                None => true,
-            };
         }
         if !conflict {
             return Err("bit proof clause lacks a unit-propagation derivation".into());
@@ -1014,7 +1034,50 @@ mod tests {
         Step {
             clause: clause.to_vec(),
             hints: hints.to_vec(),
+            hint_deltas_v1: None,
         }
+    }
+    #[test]
+    fn packed_hints_replay_the_same_clauses_and_consume_the_same_shared_work() {
+        let p = toy(vec![vec![1], vec![-1]]);
+        let plain = proof(vec![step(&[], &[0, 1])]);
+        let mut packed = plain.clone();
+        packed.steps[0].hints.clear();
+        packed.steps[0].hint_deltas_v1 = Some("AC".into());
+        let mut plain_work = MAX_WORK;
+        let mut packed_work = MAX_WORK;
+        verify_with_work(&p, &plain, &mut plain_work).unwrap();
+        verify_with_work(&p, &packed, &mut packed_work).unwrap();
+        assert_eq!(plain_work, packed_work);
+        assert!(verify_with_work(&p, &packed, &mut 0).unwrap_err().contains("work limit"));
+        for forged in ["AA", "AE", "ACA", "g"] {
+            packed.steps[0].hint_deltas_v1 = Some(forged.into());
+            assert!(verify(&p, &packed).is_err(), "accepted {forged:?}");
+        }
+        packed.steps[0].hint_deltas_v1 = Some("AC".into());
+        packed.problem_sha256 = "different".into();
+        assert!(verify(&p, &packed).unwrap_err().contains("identity mismatch"));
+    }
+    #[test]
+    fn maximum_length_hint_chains_keep_the_existing_limit_in_both_transports() {
+        let variables = 99_999i32;
+        let mut clauses = vec![vec![1]];
+        clauses.extend((1..variables).map(|i| vec![-i, i + 1]));
+        clauses.push(vec![-variables]);
+        let mut p = toy(clauses);
+        p.variables = variables as usize;
+        let mut plain = proof(vec![step(&[], &(0..100_000).collect::<Vec<_>>())]);
+        let mut packed = proof(vec![step(&[], &[])]);
+        packed.steps[0].hint_deltas_v1 = Some(format!("A{}", "C".repeat(99_999)));
+        let mut ordinary_work = MAX_WORK;
+        let mut packed_work = MAX_WORK;
+        verify_with_work(&p, &plain, &mut ordinary_work).unwrap();
+        verify_with_work(&p, &packed, &mut packed_work).unwrap();
+        assert_eq!(ordinary_work, packed_work);
+        plain.steps[0].hints.push(0);
+        assert!(verify(&p, &plain).unwrap_err().contains("step size limit"));
+        packed.steps[0].hint_deltas_v1.as_mut().unwrap().push('A');
+        assert!(verify(&p, &packed).unwrap_err().contains("count limit"));
     }
     #[test]
     fn learned_clauses_are_checked_and_corrupt_hints_fail_closed() {

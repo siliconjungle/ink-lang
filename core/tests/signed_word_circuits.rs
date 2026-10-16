@@ -14,7 +14,7 @@ fn unit_refutation(problem:&Problem)->Option<Vec<Step>> {
             if clause.iter().any(|lit|values[lit.unsigned_abs()as usize]==if *lit>0{1}else{-1}){continue;}
             let mut unassigned=clause.iter().filter(|lit|values[lit.unsigned_abs()as usize]==0);
             let first=unassigned.next();
-            if first.is_none(){hints.push(index);return Some(vec![Step{clause:vec![],hints}]);}
+            if first.is_none(){hints.push(index);return Some(vec![Step{clause:vec![],hints,hint_deltas_v1:None}]);}
             if unassigned.next().is_none(){let lit=*first.unwrap();values[lit.unsigned_abs()as usize]=if lit>0{1}else{-1};hints.push(index);changed=true;}
         }
         if !changed{return None;}
