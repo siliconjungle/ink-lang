@@ -2501,6 +2501,20 @@ fn a_term(t: &Term, i: usize) -> LangResult<Term> {
         .map(|t| (*t).clone())
         .ok_or("semantic argument".into())
 }
+// One capture-avoiding lexical reduction along the function spine only.
+// Arguments stay opaque: comparing curried applications with their reified
+// lets must not execute an unrelated unchanged loop or helper. This uses the
+// existing beta meaning and the caller's shared work/depth allowance.
+fn beta_head_step(t: &Term, b: &mut Budget, d: usize) -> LangResult<Option<Term>> {
+    b.step(d)?;
+    let Node::Op(name, args) = &t.node else { return Ok(None); };
+    if name != "apply" || args.len() != 2 { return Ok(None); }
+    if let Node::Lambda(body) = &args[0].node {
+        return Ok(Some(beta(body, &args[1], b)?));
+    }
+    Ok(beta_head_step(&args[0], b, d + 1)?.map(|function|
+        op(t.sort.clone(), "apply", vec![function, args[1].clone()])))
+}
 fn equivalent(
     a: &Term,
     c: &Term,
@@ -2525,6 +2539,18 @@ fn equivalent_inner(
     }
     if hyp.iter().any(|h| (h.from == *a && h.to == *c) || (h.from == *c && h.to == *a)) {
         return Ok(true);
+    }
+    // Reification moves curried applications through earlier lexical lets.
+    // Compare those fixed beta steps before expanding any source definition.
+    for (left, right) in [(a, c), (c, a)] {
+        if matches!(&left.node, Node::Op(name, _) if name == "apply") {
+            if let Some(expanded) = beta_head_step(left, b, d + 1)? {
+                if expanded == *right
+                    || equivalent_inner(&expanded, right, hyp, p, b, d + 1, recursive)? {
+                    return Ok(true);
+                }
+            }
+        }
     }
     if same_head(a, c) {
         let mut same = true;
