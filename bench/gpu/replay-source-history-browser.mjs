@@ -38,11 +38,19 @@ try{
    if(t.kind==='result')return Object.hasOwn(v,'Ok')?{Ok:capture(v.Ok,t.ok)}:{Err:capture(v.Err,t.error)};
    return v;
   };
-  let comparisons=0,restores=0,gpuCalls=0,requiredErrors=0;const results=[];
+  let comparisons=0,restores=0,gpuCalls=0,requiredErrors=0,restoreRejections=0;const results=[];
   try{for(const backend of ['javascript','cpu','gpu']){
    let state=backend==='javascript'?host.createJavaScriptState():host.createState();let index=0;
    try{for(const step of steps){
     if(step.restore){const bytes=new Uint8Array(step.restore.map(Number));if(backend==='javascript')await state.restore(bytes);else{const restored=host.restoreState(bytes);state.dispose();state=restored;}restores++;continue;}
+    if(step.reject_restore){
+     const snapshot=()=>backend==='javascript'?state.checkpoint():state.snapshot();
+     const before=Array.from(await snapshot()),bytes=new Uint8Array(step.reject_restore.map(Number));let rejected=false;
+     try{if(backend==='javascript')await state.restore(bytes);else{const unexpected=host.restoreState(bytes);unexpected.dispose?.();}}
+     catch(error){if(!String(error).includes(step.restore_error??'frozen'))throw error;rejected=true;}
+     if(!rejected)throw Error('invalid frozen checkpoint was accepted');
+     equal(Array.from(await snapshot()),before,`${backend} rejected restore changed state`);restoreRejections++;continue;
+    }
     const decl=step.pure?program.metadata.functions.find(f=>f.name===step.pure):program.metadata.state.actions.find(a=>a.name===step.call);
     const args=step.args.map((v,i)=>capture(v,decl.params[i].type));let reply;
     if(step.pure){
@@ -60,7 +68,7 @@ try{
    results.push({backend,observations:index});
   }}finally{await host.dispose();}
   if(gpuCalls===0)throw Error('actual WebGPU dispatch required');
-  return {status:'passed',comparisons,restores,gpuCalls,requiredErrors,results,scope:'complete values, outcomes, ordered events and exact portable snapshots; CPU-host computation, separate actual device computation'};
+  return {status:'passed',comparisons,restores,gpuCalls,requiredErrors,results,...(restoreRejections?{restoreRejections}:{}),scope:'complete values, outcomes, ordered events and exact portable snapshots; CPU-host computation, separate actual device computation'};
  },fixture);
  assert.equal(receipt.status,'passed');await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

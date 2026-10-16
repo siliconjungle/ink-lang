@@ -328,7 +328,16 @@ adds complete 244-value model histories while a separate learner remains live,
 plus explicit browser replays for both the model and the earlier eight-op
 program. It distinguishes native wgpu evidence from browser execution and
 corrects the earlier report's overbroad coverage wording. The next concrete
-proof bottleneck is equivalent long exceptional-value literals: 64 values
-specialize but 128/244 still exhaust the proposer. Factor their transparent
-definition equalities into ordinary reusable lemmas before tackling longer
-generated computation; preserve every existing checking bound.
+proof bottleneck identified there was equivalent long exceptional-value
+literals: 64 values specialized but 128/244 exhausted the proposer. The factored
+literal proofs below resolve that limit without widening checking bounds.
+
+[Factored closed-data proofs](docs/factored-literal-proofs.md) now propose exact
+typed chunk equalities and reuse them in complete action proofs. Finite and
+exceptional parameter lists reach 512 values; wrong payloads and authenticated
+invalid theorems reject. A runnable 244-value build-stage example freezes only
+its model root, preserving separate training state, events and checkpoint
+lineage. These are ordinary database lemmas, with no new trusted kernel case or
+runtime performance claim. Next, factor larger generated computations through
+typed helper definitions and checked composition; long continuations and the
+broader graph/tape, device and upstream-parity programme remain required work.

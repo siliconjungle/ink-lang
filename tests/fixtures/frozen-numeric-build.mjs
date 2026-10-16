@@ -11,6 +11,7 @@ const normalize=v=>typeof v==='bigint'?v.toString():typeof v==='number'&&Number.
 let index=0;
 for(const step of steps){
  if(step.restore){await state.restore(Uint8Array.from(step.restore));continue;}
+ if(step.reject_restore){const before=await state.checkpoint();await assert.rejects(async()=>state.restore(Uint8Array.from(step.reject_restore)),new RegExp(step.restore_error??'frozen'));assert.deepEqual(await state.checkpoint(),before);continue;}
  const reply=step.pure?{value:program.call(step.pure,step.args)}:{outcome:await state.invoke(step.call,step.args)};
  assert.deepEqual(normalize(reply),normalize(expected[index].reply));
  assert.deepEqual([...await state.checkpoint()],expected[index].snapshot);index++;
