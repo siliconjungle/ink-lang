@@ -36,3 +36,12 @@ frozen values can still exhaust the finite definition/work budget. Long action
 continuations, general neural graph/tape specialization, equivalent long literals
 requiring factored producer proofs, device learning and learned physical layouts
 remain further work. Raising compiler limits is not the scaling strategy.
+
+The [retained acquisition](../reports/frozen-literal-sharing-2026-10-16/README.md)
+contains all 450 private core tests, 12 focused knowledge tests, 11 frozen-state
+integration tests and 42 hardening tests. A 244-value parameter model keeps a
+separate live learner; explicit browser replays compare 99 observations for it
+and 432 for the earlier operation sequence, including actual device controls.
+Those browser receipts are separate from native wgpu evidence. The report also
+retains long exceptional-literal proof opportunities that still reject, exact
+executed browser images, and optional fresh proof/browser replay commands.

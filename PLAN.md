@@ -322,3 +322,13 @@ transport. Focused knowledge tests specialize complete finite parameter lists
 up to 512 elements. This removes a data-transport bottleneck; it does not unroll
 long action continuations or complete graph/tape specialization and upstream
 performance parity. Those remain required parts of the full programme.
+
+The [retained sharing acquisition](reports/frozen-literal-sharing-2026-10-16/README.md)
+adds complete 244-value model histories while a separate learner remains live,
+plus explicit browser replays for both the model and the earlier eight-op
+program. It distinguishes native wgpu evidence from browser execution and
+corrects the earlier report's overbroad coverage wording. The next concrete
+proof bottleneck is equivalent long exceptional-value literals: 64 values
+specialize but 128/244 still exhaust the proposer. Factor their transparent
+definition equalities into ordinary reusable lemmas before tackling longer
+generated computation; preserve every existing checking bound.
