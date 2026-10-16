@@ -1332,18 +1332,15 @@ fn run() -> LangResult<()> {
             let module = core::CheckedModule::from_source(p)?;
             let model = verified_language::action_model::Projection::derive(&module)?;
             let out = arg_value(&args, "-o")?.ok_or("emit-action-model requires -o MODEL.json")?;
-            write(
-                &out,
-                &serde_json::to_string_pretty(&model).map_err(|e| e.to_string())?,
-            )?;
+            // Match the checked transport: deeply nested pretty indentation can
+            // exceed its byte bound even when the complete canonical model fits.
+            let wire = verified_language::registry::canonical(&model)?;
+            write(&out, std::str::from_utf8(&wire).map_err(|e| e.to_string())?)?;
             // Derived sortedness predicates, for producers that prove the
             // invariant; the checker recomputes them and grants nothing here.
             if let Some(path) = arg_value(&args, "--sorted-tables")? {
-                write(
-                    &path,
-                    &serde_json::to_string_pretty(&model.sorted_tables()?)
-                        .map_err(|e| e.to_string())?,
-                )?;
+                let wire = verified_language::registry::canonical(&model.sorted_tables()?)?;
+                write(&path, std::str::from_utf8(&wire).map_err(|e| e.to_string())?)?;
             }
             println!(
                 "{}",
