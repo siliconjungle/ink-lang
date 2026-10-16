@@ -2,13 +2,13 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 91 full files, 4 partial files, 512 unread files; 607 inventoried files total.
+Source receipts: 102 full files, 3 partial files, 504 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
 ## Family assessment
 
-- machine-word: **partial** — Full machine reducer read; 83 admitted word/control/conversion laws from 85 proposals. Generic versioned source circuits add fixed rotate semantics and honor shared-gate encodings. Two U64 count-combination proposals remain unadmitted. Signed arithmetic, division and backend-delegation assessment remain open.
+- machine-word: **partial** — Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit 337 of 340 signed/unsigned division, remainder and bit-operation proposals. Three U64 self/zero-numerator acquisitions remain unadmitted and excluded. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim.
 - branch-control: **partial** — Repeated conditions/select proposals admitted; CFG branch threading and merge behavior remain Resumed pass adds database-controlled maximum-arm pricing and scoped zero-extent hypotheses with hygienic binders. Default semantic discovery now selects three guarded callback controls; official native acquisition retains an uncertain smaller cohort and accepts a separate larger workload under unchanged guards. These are untrusted search estimates, never path facts admitted to proofs.
 - value-numbering: **partial** — Full reducer reviewed. Generic exact scalar lexical-sharing proposals admitted through existing Normalize checks, including nested binders; held-out complete-call JavaScript evidence retained. Stateful loads and global dominance reuse remain open. Invocation-local bounded successful-call normalization cache now reuses exact function/argument/depth results in untrusted authoring after a 32-call threshold. Six ordinary Convert proofs and 64 matching old/new normal forms; three-process helper DAG controls improve ~13x/~22x, small captured obligations approximately unchanged. No proof-verdict cache or whole compiler/runtime gain claimed; see bench/v8-learning/normalizer.
 - load-elimination: **partial** — Full late-load implementation/header reviewed. Existing coarse and keyed preservation plus guarded U64/Bool tuple query specialization with original fallback. All laws remain in knowledge; no new core recognizer. CPU conformance and held-out JavaScript lifecycle evidence retained. General alias and loop-load elimination remain open.
@@ -46,6 +46,11 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `docs/compiler/turboshaft/compiler-turboshaft-reducers.md` — read; 85/85 lines recorded
 - [x] `docs/compiler/turboshaft/compiler-turboshaft.md` — read; 78/78 lines recorded
 - [x] `docs/compiler/why-cfg.md` — read; 63/63 lines recorded
+
+### src/base
+
+- [x] `src/base/division-by-constant.cc` — read; 115/115 lines recorded
+- [x] `src/base/division-by-constant.h` — read; 84/84 lines recorded
 
 ### src/compiler
 
@@ -255,8 +260,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/machine-graph-verifier.h` — unread; 0/32 lines recorded
 - [ ] `src/compiler/machine-graph.cc` — unread; 0/138 lines recorded
 - [ ] `src/compiler/machine-graph.h` — unread; 0/119 lines recorded
-- [ ] `src/compiler/machine-operator-reducer.cc` — unread; 0/3065 lines recorded
-- [ ] `src/compiler/machine-operator-reducer.h` — unread; 0/194 lines recorded
+- [x] `src/compiler/machine-operator-reducer.cc` — read; 3065/3065 lines recorded
+- [x] `src/compiler/machine-operator-reducer.h` — read; 194/194 lines recorded
 - [ ] `src/compiler/machine-operator.cc` — unread; 0/2868 lines recorded
 - [ ] `src/compiler/machine-operator.h` — unread; 0/1424 lines recorded
 - [ ] `src/compiler/map-inference.cc` — unread; 0/149 lines recorded
@@ -298,15 +303,15 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/property-access-builder.h` — unread; 0/120 lines recorded
 - [ ] `src/compiler/raw-machine-assembler.cc` — unread; 0/896 lines recorded
 - [ ] `src/compiler/raw-machine-assembler.h` — unread; 0/1267 lines recorded
-- [ ] `src/compiler/redundancy-elimination.cc` — unread; 0/553 lines recorded
-- [ ] `src/compiler/redundancy-elimination.h` — unread; 0/88 lines recorded
+- [x] `src/compiler/redundancy-elimination.cc` — read; 553/553 lines recorded
+- [x] `src/compiler/redundancy-elimination.h` — read; 88/88 lines recorded
 - [ ] `src/compiler/refs-map.cc` — unread; 0/45 lines recorded
 - [ ] `src/compiler/refs-map.h` — unread; 0/54 lines recorded
 - [x] `src/compiler/representation-change.cc` — read; 2090/2090 lines recorded
 - [x] `src/compiler/representation-change.h` — read; 144/144 lines recorded
 - [ ] `src/compiler/schedule.cc` — unread; 0/514 lines recorded
 - [ ] `src/compiler/schedule.h` — unread; 0/326 lines recorded
-- [ ] `src/compiler/scheduler.cc` — partial; 96/1982 lines recorded
+- [x] `src/compiler/scheduler.cc` — read; 1982/1982 lines recorded
 - [ ] `src/compiler/scheduler.h` — unread; 0/158 lines recorded
 - [x] `src/compiler/select-lowering.cc` — read; 59/59 lines recorded
 - [ ] `src/compiler/select-lowering.h` — unread; 0/41 lines recorded
@@ -631,10 +636,10 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/maglev/maglev-pipeline-statistics.h` — unread; 0/45 lines recorded
 - [ ] `src/maglev/maglev-post-hoc-optimizations-processors.h` — unread; 0/999 lines recorded
 - [ ] `src/maglev/maglev-pre-regalloc-codegen-processors.h` — unread; 0/422 lines recorded
-- [ ] `src/maglev/maglev-range-analysis.h` — unread; 0/618 lines recorded
-- [ ] `src/maglev/maglev-range-verification.cc` — unread; 0/66 lines recorded
-- [ ] `src/maglev/maglev-range-verification.h` — unread; 0/38 lines recorded
-- [ ] `src/maglev/maglev-range.h` — unread; 0/473 lines recorded
+- [x] `src/maglev/maglev-range-analysis.h` — read; 618/618 lines recorded
+- [x] `src/maglev/maglev-range-verification.cc` — read; 66/66 lines recorded
+- [x] `src/maglev/maglev-range-verification.h` — read; 38/38 lines recorded
+- [x] `src/maglev/maglev-range.h` — read; 473/473 lines recorded
 - [ ] `src/maglev/maglev-reducer-inl.h` — unread; 0/7191 lines recorded
 - [ ] `src/maglev/maglev-reducer.h` — unread; 0/2023 lines recorded
 - [ ] `src/maglev/maglev-regalloc-data.h` — unread; 0/99 lines recorded

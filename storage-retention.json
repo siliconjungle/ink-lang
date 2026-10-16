@@ -130,8 +130,12 @@
       "reason": "Useful proof/required measurements and exact reproduction inputs from concurrently merged main work; materialized only this report to verify its byte-binding audit. Full report store remains sparse."
     },
     {
-      "path": "build/v8-combined-corpus",
-      "reason": "Active required frozen ten-program corpus against the final published strict-inlining and concurrent helper-composition core, with exact image/pins. Preserve private inputs until terminal; no optional workload or copied shared caches."
+      "path": "build/v8-signed-division/frozen/ink-final-merged",
+      "reason": "Explicit selected current reproducibility baseline for completed integer measurements, corpus and future generic GPU acquisition; only this frozen compiler image retained."
+    },
+    {
+      "path": "build/v8-signed-division/storage-retention.json",
+      "reason": "Exact completed-output retirement and selected current compiler declaration."
     }
   ],
   "safe_to_remove": [
@@ -420,10 +424,6 @@
       "reason": "Owned completed required F32 proof, corpus, lifecycle acquisition and merged-main CPU/device validation outputs. Exact proof packets, typed input/results, emitted sources/locks, observations and terminal receipts retained and authenticated under bench/v8-learning/f32-bits and corpus-f32-bits. Git preserves source revisions; generated targets/private mutable stores are retired. All owned jobs using these paths are terminal."
     },
     {
-      "path": "core/target",
-      "reason": "Owned terminal generated output. Required passing proof/control/corpus evidence and exact reproduction inputs retained under bench/v8-learning/strict-inlining or corpus-call-inlining; prototype corpus and failed adapter/proof attempts provide insight only. No live worker consumes this exact path."
-    },
-    {
       "path": "build/v8-inlining/corpus-scratch",
       "reason": "Owned terminal generated output. Required passing proof/control/corpus evidence and exact reproduction inputs retained under bench/v8-learning/strict-inlining or corpus-call-inlining; prototype corpus and failed adapter/proof attempts provide insight only. No live worker consumes this exact path."
     },
@@ -460,8 +460,372 @@
       "reason": "Owned completed strict-inlining acquisition, proof, corpus and final pin-bound CPU/device validation outputs. Useful proofs, historical lifecycle measurements, exact sources/requests/locks/canonical observations, corpus captures and terminal receipts retained under bench/v8-learning/strict-inlining and corpus-call-inlining. Superseded prototypes supply insight only. All owned consumers are terminal; shared external caches excluded."
     },
     {
+      "path": "build/v8-combined-corpus",
+      "reason": "Owned required run is terminal. Completed combined-core corpus inputs/plans/context/terminal receipts or source-acquisition hash receipt are retained in bench/v8-learning; duplicate private publications, source copies and frozen compiler link are reproducible from pinned Git inputs."
+    },
+    {
+      "path": "build/v8-signed-division/reacquired-source",
+      "reason": "Owned required run is terminal. Completed combined-core corpus inputs/plans/context/terminal receipts or source-acquisition hash receipt are retained in bench/v8-learning; duplicate private publications, source copies and frozen compiler link are reproducible from pinned Git inputs."
+    },
+    {
+      "path": "core/target",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-integer-input",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-integer-parity",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
       "path": "build/parity-gpu-target",
-      "reason": "Owned completed strict-inlining acquisition, proof, corpus and final pin-bound CPU/device validation outputs. Useful proofs, historical lifecycle measurements, exact sources/requests/locks/canonical observations, corpus captures and terminal receipts retained under bench/v8-learning/strict-inlining and corpus-call-inlining. Superseded prototypes supply insight only. All owned consumers are terminal; shared external caches excluded."
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-integer-corpus",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/frozen-composition-32-parity",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/frozen-composition-128-parity",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-javascript-30340-1",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-native-30340-2",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-rust-30340-5",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-webgpu-30340-8",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-wasm32-30340-9",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-cases.json-30340-0",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-native.json-30340-3",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-native.json-30340-6",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-native.snapshot-30340-4",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/trained-build-validation/composed-native.snapshot-30340-7",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/source-acquisition.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/adaptive-final.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/merged-composed-artifacts-final.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/measure-javascript",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/default-discovery.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/inherited-composition.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/final-integer-knowledge.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pilot-authoring.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/published-package-pins.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/knowledge-focused.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/author_parts.py",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/parts-library",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/compiler.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/adaptive-retry.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/measurement-replay.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/final-compiler.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/circuit-oracle.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/final-compiler.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/distribution-locked-fetch.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/parts-batch.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/independent-oracle.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/cross-target.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/next-target",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/package-validation.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/author.py",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/adaptive-pilot.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/library",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/cases.py",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/__pycache__",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/authoring.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/parts-pilot.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/all-authoring.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-gpu-metadata.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/merged-composed-artifacts.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/adaptive-retry-inputs.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/measure-javascript.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/parts-authoring.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-js-fetch.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/measure-rust",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-rust-fetch.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/source-circuit-tests.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/runtime-merged-locked.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/core.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/measure-rust.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/adaptive-final.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/related-knowledge.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/final-cross-target.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/authoring.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-gpu-fetch.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pin-packages.py",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/adaptive-retry.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-runtime-fetch.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/source.ink",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/adaptive-library",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/final-inherited-composition.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/parts-batch.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/parts-batch-inputs.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/package-snapshot.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-wasm-metadata.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/all-authoring.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/next-compiler.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/final-merged-compiler.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-runtime-metadata.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-rust-metadata.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/adaptive-pilot.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/author_parts_adaptive.py",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/parts-authoring.json",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-js-metadata.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/pins-wasm-fetch.log",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/frozen/ink-parts-6425",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/frozen/ink-parts-15751",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/frozen/ink-parts-12570",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
+    },
+    {
+      "path": "build/v8-signed-division/frozen/ink-parts-21568",
+      "reason": "Owned completed required validation/acquisition. Useful proofs, selected performance evidence, exact source pins and reproduction inputs retained in bench/v8-learning and pinned Git history; current selected compiler baseline and unrelated/shared/active work preserved."
     }
   ]
 }
