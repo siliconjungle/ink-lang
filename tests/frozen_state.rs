@@ -653,6 +653,47 @@ fn frozen_program_keeps_weights_trainable_and_compiles_ordered_operations_on_all
 }
 
 #[test]
+fn shared_frozen_parameter_lists_preserve_complete_results_and_live_learning_on_all_targets() {
+    let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
+    let source = "module shared_parameters; state Model:Table<u64,List<f32>>=Table.empty(); trainable state Weights:Table<u64,f32>=Table.empty(); event Seen:f32; query all()->List<f32> reads(Model){return Model.get(0).unwrap_or([]);} query present()->Bool reads(Model){return Model.contains(0);} adaptive query live()->f32 reads(Weights){return Weights.get(0).unwrap_or(0.0);} learn change retune(x:f32,fail:Bool)->Result<Unit,u32> writes(Weights) emits(Seen){Weights.put(0,x);emit Seen(x);if fail{return Err(99);}return Ok(());} fn numeric(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>x*x+0.5);}";
+    let mut program = syntax::parse(source).unwrap();
+    let coefficients = [0u32, 0x80000000, 1, 0x3e800001, 0x4b800000, 0xcb800000];
+    let values = (0..244).map(|i|Value::F32(coefficients[i%coefficients.len()]).json()).collect::<Vec<_>>();
+    program.frozen.insert("Model".into(),vec![(json!(0),json!(values))]);
+    let module = CheckedModule::from_source(program).unwrap();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/shared-frozen-parameters");
+    fs::create_dir_all(&root).unwrap();
+    let input=root.join("input.core.json");fs::write(&input,module.bytes().unwrap()).unwrap();
+    let packet_file=root.join("selection.json");
+    ok(Command::new("python3").arg("knowledge/producers/frozen_specialization.py")
+        .arg(&input).arg("--ink").arg(env!("CARGO_BIN_EXE_ink"))
+        .arg("-o").arg(&packet_file).output().unwrap());
+    let packet=serde_json::from_slice(&fs::read(&packet_file).unwrap()).unwrap();
+    let selected=verified_language::optimisation::check(&module,&packet).unwrap();
+    fs::write(root.join("selected.core.json"),selected.module().bytes().unwrap()).unwrap();
+    let all=selected.module().program().actions.iter().find(|a|a.name=="all").unwrap();
+    assert!(!serde_json::to_string(&all.body).unwrap().contains("Model"));
+    assert!(selected.module().program().contracts.learning.trainable.contains(&"Weights".into()));
+    let mut baseline=Runtime::from_checked(&module).unwrap();
+    let seed=baseline.checkpoint_portable().unwrap();fs::write(root.join("initial.snapshot"),&seed).unwrap();
+    let mut implementation=Runtime::restore_portable_selected(&selected,&seed).unwrap();
+    let mut steps=vec![json!({"restore":seed})];let mut expected=vec![];
+    for (i,bits) in [0u32,0x80000000,1,0x3dcccccd,0x7f7fffff,0x7f800000,0x7fa01234,0xffc05678].into_iter().enumerate() {
+        for (name,args) in [("retune",json!([{"F32Bits":bits},i%3==0])),("live",json!([])),("all",json!([])),("present",json!([]))] {
+            let reply=baseline.invoke_json(name,&args).unwrap();
+            assert_eq!(reply.json(),implementation.invoke_json(name,&args).unwrap().json());
+            assert_eq!(baseline.checkpoint_portable().unwrap(),implementation.checkpoint_portable().unwrap());
+            steps.push(json!({"call":name,"args":args}));
+            expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":baseline.checkpoint_portable().unwrap()}));
+        }
+    }
+    steps.push(json!({"restore":baseline.checkpoint_portable().unwrap()}));
+    steps.push(json!({"pure":"numeric","args":[[0.,0.5,1.]],"expect_gpu":true}));
+    expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":baseline.checkpoint_portable().unwrap()}));
+    parity::conformance_selected("shared-frozen-parameters-parity",&selected,source,steps,expected);
+}
+
+#[test]
 fn specialized_training_build_rechecks_proofs_even_after_inventory_rehashing() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join(format!("build/specialized-build-{}", std::process::id()));
