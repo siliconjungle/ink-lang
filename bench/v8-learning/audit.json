@@ -2913,7 +2913,7 @@
         ]
       ],
       "review_status": "file-read; family assessment open",
-      "note": "Full header read only; legacy 32-bit target lowering is a no-op elsewhere. Explicit low/high replacements, on-stack/visited graph state, call descriptor adaptation and early Phi placeholders are compilation machinery, not source equality authority. Implementation body remains unread; do not infer complete legacy coverage. Existing count split proposals use the independently reviewed Turboshaft implementation and ordinary fixed-count proofs, without adding pair carriers or ABI changes."
+      "note": "Full header read; legacy 32-bit target lowering is a no-op elsewhere. Explicit low/high replacements, on-stack/visited graph state, call descriptor adaptation and early Phi placeholders are compilation machinery, not source equality authority. The corresponding 1,156-line implementation is now separately read and assessed; this does not establish complete architecture coverage. Existing count split proposals use the independently reviewed Turboshaft implementation and ordinary fixed-count proofs, without adding pair carriers or ABI changes."
     },
     {
       "path": "src/compiler/backend/block-position.h",
@@ -2986,6 +2986,18 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full 233-line implementation read. Drop exact redundant moves; disjoint source/destination classes enable a fast path. DFS orders interfering moves, exact representation/location reversals alone permit a swap, and generic cycles reserve scratch registers before spilling one source; intertwined cycles spill and retry. Overlapping FP stack slots are not a swap. Ink has no physical register allocator to replace; existing lexical final-use and simultaneous-update machinery must preserve old values before writes, and cannot infer unique ownership from a local alias. No new optimization or speed claim from this source read."
+    },
+    {
+      "path": "src/compiler/int64-lowering.cc",
+      "sha256": "ef0d82b705d857edc6513654eaef74fe048d2863934a46d6b3f6171e8d757478",
+      "inclusive_lines": [
+        [
+          1,
+          1156
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full legacy 32-bit lowering read. Postorder traversal prepares Phi placeholders before cycles; calls/tail calls/returns/projections and special parameter slots adapt complete descriptors. Pair arithmetic, signed-high/unsigned-low comparisons, zero/sign extension, raw Float64 word insertion/extraction, byte reversal and SIMD lane operations remain machine-specific. Clz/ctz/popcount confirm the same three half-count identities already checked in the new knowledge bank, not extra theorems. Rotate counts explicitly distinguish 0/32 and masked dynamic halves; no naive shift-by-32 transfer. Endian-sensitive ordinary split memory accesses retain effect/control chains, while atomic accesses use pair atomics with memory order; neither raw memory splitting nor low-word-only address rewriting is an Ink source equality. Global pair lowering stays delegated; private source record/loop alternatives would need ordinary codec/step proofs and whole-caller measurements, not necessarily a new arithmetic primitive."
     }
   ],
   "families": [
