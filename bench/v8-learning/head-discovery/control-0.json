@@ -1,0 +1,1325 @@
+{
+  "schema": 1,
+  "inputs_sha256": {
+    "knowledge/producers/data/v8-float-laws/index.json": "c16d8f8215921e323ece51a1aa90218589fe75db1feee46624aea156c189deef",
+    "knowledge/producers/data/v8-integer-laws/index.json": "b444dfe3dae6e61d0c3d1de9a86857410b8631bbb798bd4a12f462903ed493d9",
+    "knowledge/producers/data/v8-word-laws/index.json": "30061706aa53ab15dbbdd550e3adf337e959a637868af017252c4e59b671c982",
+    "knowledge/producers/frozen_laws.py": "224b584e372456510fcd5307ddfec228bf3994ac64540bb024f3c65f28a1fc33",
+    "knowledge/ink_knowledge/pattern_index.py": "1af00d788baff3a1bc946b96e47fb3cbf0d9cdade24ce9c1a7918bc6d96387e5",
+    "planner/ink_planner/semantic_search.py": "cdc6a7059dcd29cd1bc09690a334c60566b2aced4497dd7992b375b47affdfde"
+  },
+  "host": "macOS-26.5.2-arm64-arm-64bit",
+  "python": "3.12.3 (v3.12.3:f6650f9ad7, Apr  9 2024, 08:18:47) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "rounds": 11,
+  "subjects": {
+    "compiler_sha256": "9dd57e18da8c1a61e1bf27f366d734cbb5ecc952bd49fccd24d1a1d4078256eb",
+    "subjects": {
+      "sequence-every": {
+        "path": "build/v8-head-discovery/sequence-every.semantic.json",
+        "sha256": "49a5bee0e285536b206d98723d117b33c3735f80d515c38da84780911cc081eb",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/44dc64a74456ff85189fc9d8969a5d23ca8b1fdfc43db8a28b18656980a840b3.core.json",
+        "core_sha256": "44dc64a74456ff85189fc9d8969a5d23ca8b1fdfc43db8a28b18656980a840b3"
+      },
+      "ast-ancestor": {
+        "path": "build/v8-head-discovery/ast-ancestor.semantic.json",
+        "sha256": "3bc29054d908cbf59ae7b14a76677d4371c5e3d69d77cac27b106c97f8291cf6",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a.core.json",
+        "core_sha256": "c0d643d6882adf3fb46e55fcfd2f1ac9c58bdc6ea6b54a4deb5096bcfa70a68a"
+      },
+      "text-lines": {
+        "path": "build/v8-head-discovery/text-lines.semantic.json",
+        "sha256": "03c6888f82bc09cb4c9c52b28af1c22b72a59ada4f1d751be7566c9aad5b6705",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/0634958705c7abf328f46a587248b142ecc0b787c8f6adc86e7caaec25e98971.core.json",
+        "core_sha256": "0634958705c7abf328f46a587248b142ecc0b787c8f6adc86e7caaec25e98971"
+      },
+      "drawing-hit": {
+        "path": "build/v8-head-discovery/drawing-hit.semantic.json",
+        "sha256": "e4be12fa4b42f3235ecc286724a90ee1f2f059bd2aefb7b6c7560a8906e20421",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/4353976cdb705e415e24e54597fcc71b87812fcff845d5d66e13aa13c678fc12.core.json",
+        "core_sha256": "4353976cdb705e415e24e54597fcc71b87812fcff845d5d66e13aa13c678fc12"
+      },
+      "particle-step": {
+        "path": "build/v8-head-discovery/particle-step.semantic.json",
+        "sha256": "511a3b65fc6a8d1142197bf79031d400a14c14c276cd3e33794ed962ca129bad",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/de0b37ddb9679078d9aa6030d4faabfee76e27d389ab1952329aefb2be9a0ea8.core.json",
+        "core_sha256": "de0b37ddb9679078d9aa6030d4faabfee76e27d389ab1952329aefb2be9a0ea8"
+      },
+      "spatial-collision": {
+        "path": "build/v8-head-discovery/spatial-collision.semantic.json",
+        "sha256": "de12c61553e2c63add46e899a2293f4264e467f55a4c395871d990d7426319cc",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/d7ec714b376b0d6ef96de74d4c82a11f2e5fe1f69741e3a16c3769994167c14f.core.json",
+        "core_sha256": "d7ec714b376b0d6ef96de74d4c82a11f2e5fe1f69741e3a16c3769994167c14f"
+      },
+      "index-membership": {
+        "path": "build/v8-head-discovery/index-membership.semantic.json",
+        "sha256": "81383fabdab1069154ad5237cdbcdc1fb0d7666e385ff977bd11564a93665679",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/3dd1622462455584f5c70eac19f035c668ceedb440472462a006ff6070959693.core.json",
+        "core_sha256": "3dd1622462455584f5c70eac19f035c668ceedb440472462a006ff6070959693"
+      },
+      "incremental-distinct": {
+        "path": "build/v8-head-discovery/incremental-distinct.semantic.json",
+        "sha256": "478daee79de5dc1766e1cb862131d5f5f882f71a1991360c136b6cf02f8d0e20",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/57abb3fd09d2310f001759da691b0514a45611ddadc5c11d7a0f0f9094d2b29b.core.json",
+        "core_sha256": "57abb3fd09d2310f001759da691b0514a45611ddadc5c11d7a0f0f9094d2b29b"
+      },
+      "bulk-update": {
+        "path": "build/v8-head-discovery/bulk-update.semantic.json",
+        "sha256": "35c8f79a7f3499491460ddc0ba37184321aea247857cc78760f8f8180ba9b424",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/4974307099a2517e44d06e4cb6b5e2e8e64aefde0157c06cff2934fc58d01a37.core.json",
+        "core_sha256": "4974307099a2517e44d06e4cb6b5e2e8e64aefde0157c06cff2934fc58d01a37"
+      },
+      "compact-set": {
+        "path": "build/v8-head-discovery/compact-set.semantic.json",
+        "sha256": "78acffa67b3ad79d0cfb74a775c87bc0698ac57e1f8594a964d25a03c235b002",
+        "core": "bench/v8-learning/corpus-integer-division/inputs/eddeb5f9ed8754afd2bb466ff9eab47821ae3aaa79ecaf776f85d6db593a65db.core.json",
+        "core_sha256": "eddeb5f9ed8754afd2bb466ff9eab47821ae3aaa79ecaf776f85d6db593a65db"
+      }
+    }
+  },
+  "baseline_source_sha256": "dd973b30e670863fe4366e9ebdafa6077e187f835a95b47dfc49f4ed92b5d2d9",
+  "current_source_sha256": "224b584e372456510fcd5307ddfec228bf3994ac64540bb024f3c65f28a1fc33",
+  "current_index_source_sha256": "1af00d788baff3a1bc946b96e47fb3cbf0d9cdade24ce9c1a7918bc6d96387e5",
+  "rows": [
+    {
+      "program": "sequence-every",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 151,
+        "indexed": 2
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          232041,
+          257125,
+          207708,
+          198875,
+          199708,
+          201250,
+          195791,
+          193958,
+          194000,
+          195084,
+          192042
+        ],
+        "indexed": [
+          194000,
+          187209,
+          169667,
+          169000,
+          167791,
+          213250,
+          162958,
+          166584,
+          212666,
+          165042,
+          162458
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 198875,
+        "indexed": 169000
+      }
+    },
+    {
+      "program": "sequence-every",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 3371,
+        "indexed": 2
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          2813791,
+          2689458,
+          2849500,
+          2690167,
+          2706375,
+          2668625,
+          2737250,
+          2645958,
+          2746666,
+          2800042,
+          2755375
+        ],
+        "indexed": [
+          2190625,
+          2152459,
+          2143167,
+          2345042,
+          2212417,
+          2142459,
+          2434417,
+          2156041,
+          2098375,
+          2086084,
+          2121458
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 2737250,
+        "indexed": 2152459
+      }
+    },
+    {
+      "program": "sequence-every",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 833,
+        "indexed": 6
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          942709,
+          885917,
+          877250,
+          865458,
+          867583,
+          874417,
+          864208,
+          864667,
+          860958,
+          1124166,
+          956583
+        ],
+        "indexed": [
+          747958,
+          826709,
+          716084,
+          713417,
+          715416,
+          723084,
+          708208,
+          785709,
+          707583,
+          756500,
+          745625
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 874417,
+        "indexed": 723084
+      }
+    },
+    {
+      "program": "ast-ancestor",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 196,
+        "indexed": 2
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          216500,
+          204500,
+          252916,
+          198541,
+          195791,
+          241709,
+          198291,
+          192750,
+          198708,
+          200875,
+          196459
+        ],
+        "indexed": [
+          178167,
+          175166,
+          173584,
+          168125,
+          167334,
+          165417,
+          165167,
+          164083,
+          166042,
+          310208,
+          165584
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 198708,
+        "indexed": 167334
+      }
+    },
+    {
+      "program": "ast-ancestor",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 4381,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          2968833,
+          2877209,
+          2877667,
+          2899375,
+          2950834,
+          2827125,
+          3777417,
+          2860750,
+          2851125,
+          2943875,
+          3042250
+        ],
+        "indexed": [
+          2174917,
+          2140916,
+          2330792,
+          2580584,
+          2119375,
+          2096584,
+          2251250,
+          2150458,
+          2102625,
+          2189333,
+          5148791
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 2899375,
+        "indexed": 2174917
+      }
+    },
+    {
+      "program": "ast-ancestor",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 1092,
+        "indexed": 26
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          943416,
+          920667,
+          919041,
+          997375,
+          911333,
+          1092167,
+          959750,
+          950125,
+          944958,
+          1032167,
+          931209
+        ],
+        "indexed": [
+          752084,
+          742667,
+          739042,
+          731083,
+          729125,
+          752500,
+          755625,
+          748292,
+          757292,
+          755916,
+          731042
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 944958,
+        "indexed": 748292
+      }
+    },
+    {
+      "program": "text-lines",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 408,
+        "indexed": 6
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          286333,
+          273166,
+          323750,
+          266750,
+          266416,
+          489458,
+          331333,
+          283042,
+          278333,
+          262666,
+          260875
+        ],
+        "indexed": [
+          195542,
+          194417,
+          188041,
+          186834,
+          181584,
+          217750,
+          216792,
+          207000,
+          190125,
+          234666,
+          178292
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 278333,
+        "indexed": 194417
+      }
+    },
+    {
+      "program": "text-lines",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 9099,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          3918750,
+          3893625,
+          3910125,
+          4021166,
+          4061542,
+          3885083,
+          3965459,
+          3903000,
+          3879625,
+          3982333,
+          3887834
+        ],
+        "indexed": [
+          2260084,
+          2152208,
+          2113167,
+          2107042,
+          2148375,
+          2125292,
+          2267750,
+          2120708,
+          2112458,
+          2138375,
+          2109917
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 3910125,
+        "indexed": 2125292
+      }
+    },
+    {
+      "program": "text-lines",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 2282,
+        "indexed": 75
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          1382792,
+          1379333,
+          1462625,
+          1419500,
+          1386125,
+          1447500,
+          1358875,
+          1349959,
+          1348000,
+          1348000,
+          1404166
+        ],
+        "indexed": [
+          887917,
+          882459,
+          929666,
+          983125,
+          896375,
+          883875,
+          879375,
+          872583,
+          869917,
+          867625,
+          879125
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 1382792,
+        "indexed": 882459
+      }
+    },
+    {
+      "program": "drawing-hit",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 635,
+        "indexed": 10
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          349667,
+          331583,
+          379625,
+          327000,
+          329959,
+          375708,
+          328250,
+          328000,
+          324875,
+          327917,
+          326458
+        ],
+        "indexed": [
+          200833,
+          192917,
+          192583,
+          190167,
+          188208,
+          187250,
+          188083,
+          185917,
+          187292,
+          235708,
+          186459
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 328250,
+        "indexed": 188208
+      }
+    },
+    {
+      "program": "drawing-hit",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 14154,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          4896833,
+          4913541,
+          4868250,
+          4876584,
+          4909791,
+          4849250,
+          4925750,
+          4831042,
+          5165000,
+          4862792,
+          4847042
+        ],
+        "indexed": [
+          2159000,
+          2213250,
+          2237667,
+          2132375,
+          2208625,
+          2152625,
+          2137084,
+          2119458,
+          2338416,
+          2172334,
+          2174375
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 4876584,
+        "indexed": 2172334
+      }
+    },
+    {
+      "program": "drawing-hit",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 3497,
+        "indexed": 22
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          1671709,
+          1622541,
+          1522834,
+          1503041,
+          1506542,
+          1491958,
+          1638584,
+          1635583,
+          4736833,
+          1560875,
+          1533291
+        ],
+        "indexed": [
+          800166,
+          777458,
+          758000,
+          750541,
+          748875,
+          739667,
+          977125,
+          807334,
+          826042,
+          899083,
+          760875
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 1560875,
+        "indexed": 777458
+      }
+    },
+    {
+      "program": "particle-step",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 360,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          262417,
+          248250,
+          298500,
+          242334,
+          237375,
+          288334,
+          240625,
+          237125,
+          239875,
+          239209,
+          236459
+        ],
+        "indexed": [
+          187917,
+          181375,
+          177500,
+          170792,
+          171458,
+          167708,
+          173167,
+          170042,
+          170917,
+          217917,
+          172334
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 240625,
+        "indexed": 172334
+      }
+    },
+    {
+      "program": "particle-step",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 8088,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          3864875,
+          3577792,
+          4134333,
+          3984333,
+          3886167,
+          3691583,
+          3601833,
+          3902166,
+          3737416,
+          4762458,
+          4446917
+        ],
+        "indexed": [
+          2233875,
+          2187625,
+          5177166,
+          6925500,
+          2894166,
+          2491792,
+          2483667,
+          4891125,
+          2262500,
+          2575208,
+          2470291
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 3886167,
+        "indexed": 2491792
+      }
+    },
+    {
+      "program": "particle-step",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 1992,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          1100042,
+          1075291,
+          1070833,
+          1297375,
+          1231792,
+          1080334,
+          1075333,
+          1099958,
+          1103500,
+          1077458,
+          1171708
+        ],
+        "indexed": [
+          741875,
+          731709,
+          725625,
+          771042,
+          765417,
+          740292,
+          725500,
+          745333,
+          733125,
+          726542,
+          732584
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 1099958,
+        "indexed": 733125
+      }
+    },
+    {
+      "program": "spatial-collision",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 499,
+        "indexed": 8
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          324458,
+          309458,
+          361500,
+          337834,
+          375833,
+          948625,
+          638791,
+          322042,
+          314000,
+          314875,
+          308458
+        ],
+        "indexed": [
+          203709,
+          197709,
+          191500,
+          194625,
+          935458,
+          600375,
+          294333,
+          231792,
+          205209,
+          263791,
+          190042
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 324458,
+        "indexed": 205209
+      }
+    },
+    {
+      "program": "spatial-collision",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 11121,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          4561125,
+          5723166,
+          4596875,
+          4451333,
+          4644917,
+          4682833,
+          5445417,
+          4411125,
+          4414792,
+          4474167,
+          4515333
+        ],
+        "indexed": [
+          2269750,
+          2364250,
+          2278458,
+          2257667,
+          2503834,
+          2495083,
+          2495958,
+          2472583,
+          2308959,
+          2506042,
+          2293792
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 4561125,
+        "indexed": 2364250
+      }
+    },
+    {
+      "program": "spatial-collision",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 2749,
+        "indexed": 20
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          2010250,
+          1430542,
+          1400291,
+          1377084,
+          1367500,
+          1365333,
+          1455917,
+          1419916,
+          1381375,
+          1367709,
+          1551041
+        ],
+        "indexed": [
+          1882291,
+          896334,
+          782667,
+          767375,
+          768917,
+          765750,
+          764542,
+          1546333,
+          761875,
+          760750,
+          909667
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 1400291,
+        "indexed": 768917
+      }
+    },
+    {
+      "program": "index-membership",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 196,
+        "indexed": 2
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          235250,
+          275667,
+          438542,
+          299209,
+          229292,
+          290917,
+          216459,
+          209708,
+          216667,
+          215125,
+          208125
+        ],
+        "indexed": [
+          183833,
+          181542,
+          211541,
+          349917,
+          179333,
+          177125,
+          169500,
+          169958,
+          175958,
+          222000,
+          174916
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 229292,
+        "indexed": 179333
+      }
+    },
+    {
+      "program": "index-membership",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 4381,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          3046916,
+          2993334,
+          2973666,
+          6541917,
+          3065417,
+          2977209,
+          2944084,
+          2973833,
+          2945333,
+          3027000,
+          2960250
+        ],
+        "indexed": [
+          2270708,
+          2310458,
+          2189750,
+          2465459,
+          2239625,
+          2421334,
+          2294417,
+          2280084,
+          2175042,
+          2133000,
+          2266333
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 2977209,
+        "indexed": 2270708
+      }
+    },
+    {
+      "program": "index-membership",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 1092,
+        "indexed": 26
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          1026666,
+          968458,
+          961167,
+          957167,
+          961458,
+          961250,
+          986875,
+          975959,
+          1012916,
+          969916,
+          971625
+        ],
+        "indexed": [
+          776500,
+          772500,
+          857542,
+          746208,
+          749917,
+          739333,
+          831375,
+          779666,
+          1040583,
+          815583,
+          754666
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 969916,
+        "indexed": 776500
+      }
+    },
+    {
+      "program": "incremental-distinct",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 437,
+        "indexed": 4
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          297000,
+          356833,
+          370083,
+          289125,
+          286834,
+          328375,
+          272334,
+          269958,
+          276500,
+          272000,
+          276042
+        ],
+        "indexed": [
+          199959,
+          201792,
+          212625,
+          202625,
+          194208,
+          187458,
+          179125,
+          179458,
+          180834,
+          233625,
+          180500
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 286834,
+        "indexed": 194208
+      }
+    },
+    {
+      "program": "incremental-distinct",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 9773,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          4101208,
+          4619959,
+          4154917,
+          3994792,
+          4211083,
+          4265083,
+          4096625,
+          4035584,
+          4007959,
+          4305667,
+          4103792
+        ],
+        "indexed": [
+          2239625,
+          2256750,
+          2262916,
+          2195083,
+          2274500,
+          2212916,
+          2242959,
+          2167667,
+          2394625,
+          2398875,
+          2409125
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 4103792,
+        "indexed": 2256750
+      }
+    },
+    {
+      "program": "incremental-distinct",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 2421,
+        "indexed": 28
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          1278625,
+          1260083,
+          1277250,
+          1352000,
+          1316208,
+          1252875,
+          1239292,
+          1396209,
+          2127334,
+          1351417,
+          1819417
+        ],
+        "indexed": [
+          770542,
+          796708,
+          1444791,
+          941000,
+          884333,
+          763708,
+          750417,
+          1212250,
+          869500,
+          832542,
+          975291
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 1316208,
+        "indexed": 869500
+      }
+    },
+    {
+      "program": "bulk-update",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 255,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          679875,
+          457334,
+          381791,
+          423208,
+          308167,
+          360958,
+          254500,
+          230042,
+          224041,
+          486417,
+          675209
+        ],
+        "indexed": [
+          515125,
+          474583,
+          220292,
+          336750,
+          216750,
+          201584,
+          496708,
+          207750,
+          174875,
+          229875,
+          301709
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 381791,
+        "indexed": 229875
+      }
+    },
+    {
+      "program": "bulk-update",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 5729,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          3418292,
+          3710167,
+          3472916,
+          4147708,
+          3918125,
+          4111166,
+          4114791,
+          3823208,
+          3915958,
+          3490709,
+          3594041
+        ],
+        "indexed": [
+          2253667,
+          2581041,
+          2276084,
+          2221750,
+          2498041,
+          2243625,
+          3480083,
+          2628750,
+          2464625,
+          2812667,
+          2548083
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 3823208,
+        "indexed": 2498041
+      }
+    },
+    {
+      "program": "bulk-update",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 1421,
+        "indexed": 15
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          1188625,
+          1642875,
+          1301209,
+          1162458,
+          1122250,
+          1135875,
+          1154416,
+          1113375,
+          1133958,
+          1393042,
+          2171167
+        ],
+        "indexed": [
+          954541,
+          3737792,
+          908708,
+          843334,
+          832750,
+          823291,
+          1143375,
+          989042,
+          842333,
+          845750,
+          972875
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 1162458,
+        "indexed": 908708
+      }
+    },
+    {
+      "program": "compact-set",
+      "library": "v8-float-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 707,
+        "indexed": 4
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          378250,
+          425750,
+          369625,
+          340250,
+          375750,
+          381167,
+          369292,
+          359416,
+          346000,
+          329708,
+          329416
+        ],
+        "indexed": [
+          236125,
+          235625,
+          221125,
+          206041,
+          239083,
+          350500,
+          218250,
+          201791,
+          251958,
+          200625,
+          189500
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 369292,
+        "indexed": 221125
+      }
+    },
+    {
+      "program": "compact-set",
+      "library": "v8-integer-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 15839,
+        "indexed": 0
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          5262625,
+          5948792,
+          5224458,
+          5388709,
+          5432542,
+          5260042,
+          5204083,
+          5470959,
+          5281875,
+          5490209,
+          5267791
+        ],
+        "indexed": [
+          2312291,
+          2255791,
+          2287042,
+          2687042,
+          2357208,
+          2536125,
+          2231541,
+          2210250,
+          2295417,
+          2200416,
+          2244250
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 5281875,
+        "indexed": 2287042
+      }
+    },
+    {
+      "program": "compact-set",
+      "library": "v8-word-laws",
+      "matched": [],
+      "match_calls": {
+        "exhaustive": 3927,
+        "indexed": 52
+      },
+      "nanoseconds": {
+        "exhaustive": [
+          1717708,
+          1674625,
+          1607709,
+          1608458,
+          1616750,
+          1621417,
+          1614542,
+          1578042,
+          1984750,
+          1604958,
+          1635167
+        ],
+        "indexed": [
+          874291,
+          824583,
+          980708,
+          818958,
+          823917,
+          842459,
+          846125,
+          843958,
+          995041,
+          903792,
+          825542
+        ]
+      },
+      "median_ns": {
+        "exhaustive": 1616750,
+        "indexed": 843958
+      }
+    }
+  ],
+  "totals": {
+    "match_calls": {
+      "exhaustive": 111086,
+      "indexed": 310
+    },
+    "sum_median_ns": {
+      "exhaustive": 54221791,
+      "indexed": 32746629
+    }
+  },
+  "scope": "Required dispatch mechanism control on all ten frozen subjects and all three installed immutable libraries. Alternating same-process rounds per fresh process. Metadata file reading/parsing and subject head construction included; semantic subject JSON decoding, imports, proof decompression and kernel checking excluded. Shared host. Exact returned order/IDs must equal exhaustive dispatch. Not whole-compiler or runtime speedup evidence."
+}
