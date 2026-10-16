@@ -128,6 +128,10 @@
     {
       "path": "reports/factored-literal-proofs-2026-10-16",
       "reason": "Useful proof/required measurements and exact reproduction inputs from concurrently merged main work; materialized only this report to verify its byte-binding audit. Full report store remains sparse."
+    },
+    {
+      "path": "build/v8-combined-corpus",
+      "reason": "Active required frozen ten-program corpus against the final published strict-inlining and concurrent helper-composition core, with exact image/pins. Preserve private inputs until terminal; no optional workload or copied shared caches."
     }
   ],
   "safe_to_remove": [
@@ -238,10 +242,6 @@
     {
       "path": "build/v8-hot-query",
       "reason": "Owned completed generated validation/measurement output. Exact source, proof closure, selected evidence and reproduction inputs preserved in Git/bench/v8-learning; no active owned job uses this path. Shared Cargo caches are excluded."
-    },
-    {
-      "path": "core/target",
-      "reason": "Owned core test output from completed 454-test F32 validation and terminal focused tests; exact code/proofs in committed Git and passing logs/package receipts retained under bench/v8-learning/f32-bits. No active acquisition depends on the standalone core test target."
     },
     {
       "path": "build/compiled-history-target",
@@ -418,6 +418,50 @@
     {
       "path": "build/f32-bits-parity",
       "reason": "Owned completed required F32 proof, corpus, lifecycle acquisition and merged-main CPU/device validation outputs. Exact proof packets, typed input/results, emitted sources/locks, observations and terminal receipts retained and authenticated under bench/v8-learning/f32-bits and corpus-f32-bits. Git preserves source revisions; generated targets/private mutable stores are retired. All owned jobs using these paths are terminal."
+    },
+    {
+      "path": "core/target",
+      "reason": "Owned terminal generated output. Required passing proof/control/corpus evidence and exact reproduction inputs retained under bench/v8-learning/strict-inlining or corpus-call-inlining; prototype corpus and failed adapter/proof attempts provide insight only. No live worker consumes this exact path."
+    },
+    {
+      "path": "build/v8-inlining/corpus-scratch",
+      "reason": "Owned terminal generated output. Required passing proof/control/corpus evidence and exact reproduction inputs retained under bench/v8-learning/strict-inlining or corpus-call-inlining; prototype corpus and failed adapter/proof attempts provide insight only. No live worker consumes this exact path."
+    },
+    {
+      "path": "build/v8-inlining/corpus-final-scratch",
+      "reason": "Owned terminal generated output. Required passing proof/control/corpus evidence and exact reproduction inputs retained under bench/v8-learning/strict-inlining or corpus-call-inlining; prototype corpus and failed adapter/proof attempts provide insight only. No live worker consumes this exact path."
+    },
+    {
+      "path": "bench/v8-learning/corpus-strict-inlining",
+      "reason": "Owned terminal generated output. Required passing proof/control/corpus evidence and exact reproduction inputs retained under bench/v8-learning/strict-inlining or corpus-call-inlining; prototype corpus and failed adapter/proof attempts provide insight only. No live worker consumes this exact path."
+    },
+    {
+      "path": "build/v8-inlining/javascript",
+      "reason": "Owned terminal generated output. Required passing proof/control/corpus evidence and exact reproduction inputs retained under bench/v8-learning/strict-inlining or corpus-call-inlining; prototype corpus and failed adapter/proof attempts provide insight only. No live worker consumes this exact path."
+    },
+    {
+      "path": "build/v8-inlining/javascript-measured",
+      "reason": "Owned terminal generated output. Required passing proof/control/corpus evidence and exact reproduction inputs retained under bench/v8-learning/strict-inlining or corpus-call-inlining; prototype corpus and failed adapter/proof attempts provide insight only. No live worker consumes this exact path."
+    },
+    {
+      "path": "build/v8-inlining/composition-repro",
+      "reason": "Owned terminal generated output. Required passing proof/control/corpus evidence and exact reproduction inputs retained under bench/v8-learning/strict-inlining or corpus-call-inlining; prototype corpus and failed adapter/proof attempts provide insight only. No live worker consumes this exact path."
+    },
+    {
+      "path": "build/v8-inlining",
+      "reason": "Owned completed strict-inlining acquisition, proof, corpus and final pin-bound CPU/device validation outputs. Useful proofs, historical lifecycle measurements, exact sources/requests/locks/canonical observations, corpus captures and terminal receipts retained under bench/v8-learning/strict-inlining and corpus-call-inlining. Superseded prototypes supply insight only. All owned consumers are terminal; shared external caches excluded."
+    },
+    {
+      "path": "build/strict-inlining-input",
+      "reason": "Owned completed strict-inlining acquisition, proof, corpus and final pin-bound CPU/device validation outputs. Useful proofs, historical lifecycle measurements, exact sources/requests/locks/canonical observations, corpus captures and terminal receipts retained under bench/v8-learning/strict-inlining and corpus-call-inlining. Superseded prototypes supply insight only. All owned consumers are terminal; shared external caches excluded."
+    },
+    {
+      "path": "build/strict-inlining-parity",
+      "reason": "Owned completed strict-inlining acquisition, proof, corpus and final pin-bound CPU/device validation outputs. Useful proofs, historical lifecycle measurements, exact sources/requests/locks/canonical observations, corpus captures and terminal receipts retained under bench/v8-learning/strict-inlining and corpus-call-inlining. Superseded prototypes supply insight only. All owned consumers are terminal; shared external caches excluded."
+    },
+    {
+      "path": "build/parity-gpu-target",
+      "reason": "Owned completed strict-inlining acquisition, proof, corpus and final pin-bound CPU/device validation outputs. Useful proofs, historical lifecycle measurements, exact sources/requests/locks/canonical observations, corpus captures and terminal receipts retained under bench/v8-learning/strict-inlining and corpus-call-inlining. Superseded prototypes supply insight only. All owned consumers are terminal; shared external caches excluded."
     }
   ]
 }

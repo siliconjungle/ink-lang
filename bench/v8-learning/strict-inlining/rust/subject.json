@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "semantics": "ink-semantic-terms-v1",
+  "input_core_sha256": "8c4e1052ae682797ab37402838e6ee2a4bb73c827e0770a5e3a62264fcd2ff78",
+  "functions": {
+    "reduce": {
+      "sort": {
+        "Value": "U64"
+      },
+      "node": {
+        "Op": [
+          "call:foldl",
+          [
+            {
+              "sort": {
+                "Value": {
+                  "List": "U64"
+                }
+              },
+              "node": {
+                "Free": "xs"
+              }
+            },
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Word": 0
+              }
+            },
+            {
+              "sort": {
+                "Arrow": [
+                  {
+                    "Value": "U64"
+                  },
+                  {
+                    "Arrow": [
+                      {
+                        "Value": "U64"
+                      },
+                      {
+                        "Value": "U64"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "node": {
+                "Lambda": {
+                  "sort": {
+                    "Arrow": [
+                      {
+                        "Value": "U64"
+                      },
+                      {
+                        "Value": "U64"
+                      }
+                    ]
+                  },
+                  "node": {
+                    "Lambda": {
+                      "sort": {
+                        "Value": "U64"
+                      },
+                      "node": {
+                        "Op": [
+                          "binary:+",
+                          [
+                            {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Bound": 0
+                              }
+                            },
+                            {
+                              "sort": {
+                                "Value": "U64"
+                              },
+                              "node": {
+                                "Bound": 1
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "score": {
+      "sort": {
+        "Value": "U64"
+      },
+      "node": {
+        "Op": [
+          "call:twice",
+          [
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Op": [
+                  "call:reduce",
+                  [
+                    {
+                      "sort": {
+                        "Value": {
+                          "List": "U64"
+                        }
+                      },
+                      "node": {
+                        "Free": "xs"
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    },
+    "twice": {
+      "sort": {
+        "Value": "U64"
+      },
+      "node": {
+        "Op": [
+          "binary:+",
+          [
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Free": "x"
+              }
+            },
+            {
+              "sort": {
+                "Value": "U64"
+              },
+              "node": {
+                "Free": "x"
+              }
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "unavailable": []
+}

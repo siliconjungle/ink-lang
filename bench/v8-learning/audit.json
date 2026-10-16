@@ -25,7 +25,7 @@
         ]
       ],
       "review_status": "file-read; family assessment open",
-      "note": "Full file read. Constant folding, conversions/tag casts, IEEE and signalling-NaN restrictions, modular word arithmetic, div/mod default/trap differences, rotate recognition (XOR excludes zero effective count), checked overflow, SIMD reduction grouping, reversible shifts, narrow comparisons, truncation/offset reductions, guard branches and stable-map dependencies. Staged generic versioned source-circuit support and database rotate/widen-comparison proofs are independently checked; final integration/replay pending. Signed/float/memory/SIMD and host-delegation assessments remain open."
+      "note": "Full file read. Constant folding, conversions/tag casts, IEEE and signalling-NaN restrictions, modular word arithmetic, div/mod default/trap differences, rotate recognition (XOR excludes zero effective count), checked overflow, SIMD reduction grouping, reversible shifts, narrow comparisons, truncation/offset reductions, guard branches and stable-map dependencies. Merged generic versioned source-circuit support and database rotate/widen-comparison proofs are independently checked; the related frozen word library is replayed in the final integration suite. Signed/float/memory/SIMD and host-delegation assessments remain open."
     },
     {
       "path": "src/compiler/turboshaft/typed-optimizations-reducer.h",
@@ -1014,6 +1014,150 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Complete typed-lowering declaration/helper inventory read with implementation."
+    },
+    {
+      "path": "src/compiler/js-inlining.cc",
+      "sha256": "6d80b78333bdf84d937c833d52c2a2cd2faa1b01a1af9640d0d26286a1defa06",
+      "inclusive_lines": [
+        [
+          1,
+          979
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full implementation read. Revalidate target/feedback/native context/constructability and source positions before the commit point, bound call depth/arity, build isolated inline graph, rewire existing SSA argument values plus control/effect/frame state, merge returns and forward uncaught exceptions. Wasm wrappers/continuations and one-module/try restrictions are explicit. Existing evaluated argument values are not arbitrary source expressions: Ink data proposals must bind all arguments once in declaration order, including unused and repeated composite/U64 values. New generic lexical beta correspondence avoids unfolding opaque large helper arguments; proofs and runtime profitability remain independent."
+    },
+    {
+      "path": "src/compiler/js-inlining.h",
+      "sha256": "130723fc05e903e46fffe2ece85d0796ad27eba3caaf43fa6ee9a366efe0acb4",
+      "inclusive_lines": [
+        [
+          1,
+          136
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full interface read: mechanical graph inlining deliberately separate from heuristics; exact context, frame-state and exception wiring are inputs, not feedback-derived source facts."
+    },
+    {
+      "path": "src/maglev/maglev-inlining.h",
+      "sha256": "2617746c4e7db0535a2a11c4aeaba695368e334b70b3c3f54769cfb53da5017a",
+      "inclusive_lines": [
+        [
+          1,
+          104
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Complete interface and returned-value representation selector read with implementation. Mechanical graph building, optimizer reruns and budget/target checks are distinct from equality authority."
+    },
+    {
+      "path": "src/maglev/maglev-inlining.cc",
+      "sha256": "1afd74e51f7e199a0f93ce8556d93fd8506f3fff43a36f1cb341f5256decaf5b",
+      "inclusive_lines": [
+        [
+          1,
+          484
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read: score queue, small versus regular cumulative budgets, actual generated-node accounting, candidate failures versus compilation abort, target/feedback revalidation, unreachable-block repair, source argument node reuse, invalidation of caller facts, exception/deopt frames and return-node conversion. Re-run optimization when inlining exposes a constant function; repeat while eligible calls remain under budget. Ink current static source contexts and checked intermediate discovery cover parts; no source assumption follows from target feedback, and resource bounds must remain explicit."
+    },
+    {
+      "path": "src/compiler/wasm-inlining-into-js.h",
+      "sha256": "2dcc3aa2419c671b8a24d156bf2a042c25ff77282b525b58f5f2c2f882c6fb92",
+      "inclusive_lines": [
+        [
+          1,
+          42
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full tiny-Wasm-into-JS inliner declaration and feature guard read."
+    },
+    {
+      "path": "src/compiler/wasm-inlining-into-js.cc",
+      "sha256": "5d1f10f0e57598a9b5e3be105efa1805785c1827aac91b51f72430705c8eb861",
+      "inclusive_lines": [
+        [
+          1,
+          396
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full restricted decoder/inliner read: already-validated Wasm bytes, no locals/multi-return, signature type guards, extern/any casts, selected GC struct/array operations, nullability, bounds traps before reads/writes, signed packed loads, 32-bit I64 rejection and source positions. Current Ink Rust-Wasm uses linear memory rather than these GC operators; no direct patch imports. The NoValidation decoder relies on prior Wasm validation and is not a model for trusting database hints or hashes."
+    },
+    {
+      "path": "src/compiler/value-numbering-reducer.cc",
+      "sha256": "cb2c493ed4b2c5223c5aeb57e556459acd10d3a2d141f4aa7a7cbcbe0da2272e",
+      "inclusive_lines": [
+        [
+          1,
+          182
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Idempotent-node hash table still checks structural equality and compatible types; revisiting a mutated node searches subsequent collisions, skips/reuses dead slots and cleans duplicate tails. Ink exact scalar reuse already uses lexical/type context; source hashes or mutable proposal caches cannot authenticate equality. Assess wider pure composite reuse, bounded memo lifetime and collision behavior separately; no new runtime selection claim."
+    },
+    {
+      "path": "src/compiler/value-numbering-reducer.h",
+      "sha256": "b411999e07640622485afcbe7a44e8184c7aa3939ab438bf185e259a837f1333",
+      "inclusive_lines": [
+        [
+          1,
+          45
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read. Reducer-scoped open-addressed table, bounded initial size/growth, typed replacement helper. General cache organization is implementation policy, not proof authority; no additional Ink transformation from this declaration."
+    },
+    {
+      "path": "src/compiler/late-escape-analysis.cc",
+      "sha256": "f9cba631025fb1725fda7b9028072fff88721144d7f0a643b62e38c4eb539113",
+      "inclusive_lines": [
+        [
+          1,
+          148
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. AllocateRaw nodes escape on non-initializing-store value uses; witness counts permit cascade revisits when removing dead initializing stores/allocations from effect/control chains. Ink owned buffers/mutable state and fallible evaluation require checked ownership/effect interfaces. Existing last-use/literal binding support does not authorize erasing argument work; broader source-level dead allocation proposals and measured ownership lowering remain open."
+    },
+    {
+      "path": "src/compiler/late-escape-analysis.h",
+      "sha256": "3b58a76ba3f4d3d9b3f18d932e6ffd2d1c0e192544e733cc81f3cc719c6abed4",
+      "inclusive_lines": [
+        [
+          1,
+          46
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read. Late dead-initialization cleanup records allocations and escape-witness counts, then revisits newly unreferenced stored allocations. Ink has no equivalent raw heap allocation graph; no direct literal opcode transplant or unchecked dead-work removal."
+    },
+    {
+      "path": "src/compiler/dead-code-elimination.cc",
+      "sha256": "bea457b062231ab9dcd49f6451196c1594b20b48758448a5bdeb12f0ab3f39e5",
+      "inclusive_lines": [
+        [
+          1,
+          385
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Dead control is distinct from DeadValue/Type::None: pure value propagation preserves the unreachable cause, effects insert Unreachable and route throws, and merge/loop pruning compacts matching Phi/EffectPhi lanes. Entry-dead loops and loop exits need special treatment; return/tail/deopt keep effect/control dependencies. Ink strict unused arguments and explicit Result failures cannot be erased from value equality alone. Existing checked lazy-branch database laws cover scoped value choices; broad action dead-work/failure preservation and CFG lowering assessment remain open."
+    },
+    {
+      "path": "src/compiler/dead-code-elimination.h",
+      "sha256": "5b1a0b1abbad9a82de10c675ad549c90ccb751d4b785ff4c2b7a833281837450",
+      "inclusive_lines": [
+        [
+          1,
+          85
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read. DeadValue has a crashing runtime meaning, explicit machine representation and dependency on its impossible producer; Dead control cannot remain in the final graph. Ink has no direct bottom-type/implicit crashing SSA interface. Do not equate an unused source result with unreachable control, or transplant representation-only DeadValue rewrites into database source facts."
     }
   ],
   "families": [
@@ -1111,7 +1255,7 @@
       "name": "inlining",
       "status": "partial",
       "entry_point": "src/compiler/js-inlining-heuristic.cc",
-      "note": "Full TurboFan inlining heuristic/header and pipeline composition reviewed. Strict candidate revalidation, argument work/side effects and budget for newly exposed opportunities matter. Existing Ink checked unfolding, scalar binding and literal record-helper expansion cover subsets; U64 sharing omission and full call/exception transforms remain open."
+      "note": "Full TurboFan heuristic/inliner, Maglev inliner and restricted Wasm-into-JS implementation/headers read. Ink database unfolding now binds every argument once in declaration order, including unused arguments, U64 and composites. Generic lexical beta correspondence avoids unrelated helper expansion. Final isolated core 458 tests, GPU 12 tests, full cross-target 50 cases with ten actual device calls pass. Official JS/native mechanism controls retain baseline; default discovery selects no unfolding and frozen corpus attributes no unfolding law. Maglev builder/selector, broader Wasm interfaces, global search composition and profitability remain open."
     },
     {
       "name": "range-bounds",
@@ -1165,7 +1309,7 @@
     "next_followups": [
       {
         "area": "inlining",
-        "task": "Assess and validate sharing of repeated U64 scalar arguments in knowledge inline_laws; current whitelist omits U64. Preserve strict source argument order, helper contexts, capture hygiene and measured profitability. Check all argument evaluation positions when only a subset is bound; do not infer order/error preservation from scalar value equality alone."
+        "task": "Complete-interface strict unfolding now covers U64, unused arguments and composites with checked lexical beta correspondence. Continue Maglev builder/selector, Wasm interfaces and bounded global inlining/search composition; retain caller laziness, argument work, definition contexts and independent profitability evidence."
       },
       {
         "area": "floating-point",
@@ -1173,10 +1317,11 @@
       },
       {
         "area": "coverage",
-        "task": "Continue unread 524 files plus four partial files/ranges and optimizer dependencies outside selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
+        "task": "Continue unread 512 files plus four partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
       }
     ],
-    "third_batch": "Exact fixed-scalars-v3 F32 circuits and fifteen reusable checked database laws; literal GPU collection carrier bug fixed after real device detection. Local and standalone core each pass 454 tests; 26 related knowledge regressions, eleven GPU package tests and 326 cross-target values/snapshots with four actual GPU dispatches pass. Default roundtrip search structural cost 105\u219273; official JS/native lifecycle cohorts retain baseline. Frozen ten-program corpus: 24 laws/six reused, zero selection/representation and no new F32 attribution; all quick budgets exhausted."
+    "third_batch": "Exact fixed-scalars-v3 F32 circuits and fifteen reusable checked database laws; literal GPU collection carrier bug fixed after real device detection. Local and standalone core each pass 454 tests; 26 related knowledge regressions, eleven GPU package tests and 326 cross-target values/snapshots with four actual GPU dispatches pass. Default roundtrip search structural cost 105\u219273; official JS/native lifecycle cohorts retain baseline. Frozen ten-program corpus: 24 laws/six reused, zero selection/representation and no new F32 attribution; all quick budgets exhausted.",
+    "fourth_batch": "Strict complete-interface database call unfolding, generic bounded lexical beta correspondence and literal GPU word conversions. Exact core package 457 tests; GPU 12; required 50-case CPU/device parity with ten actual dispatches. JS/native explicit checked mechanism controls retain baseline; default structural cost stays 128. Frozen corpus: ten compile, nine admit alternatives, 24 laws/six reused, zero selection/representation or unfolding attribution; all quick budgets expire. Concurrent explicit composition work merged afterward and checked separately. Final integration adopts the already published bounded first-order call-exposure strategy, retires the overlapping local probe, and passes 458 isolated core plus 37 knowledge tests and the same 50 cases/ten device calls."
   },
   "scope_boundaries": [
     "The selected compiler/Maglev inventory is a work queue, not a cap on the user goal. Follow optimizer dependencies outside it when review establishes relevant transformation machinery.",
