@@ -6,6 +6,65 @@ use verified_language::{
 #[path = "support/parity.rs"]
 mod parity;
 const SOURCE: &str = include_str!("../examples/stateful-numerics.ink");
+#[test]
+fn arithmetic_carriers_preserve_pure_values_learning_events_and_snapshots() {
+    let source=include_str!("../lowerings/js/tests/fixtures/float-islands.ink");
+    let module=CheckedModule::from_source(parse(source).unwrap()).unwrap();
+    let mut runtime=Runtime::new(module.program().clone()).unwrap();
+    let mut steps=vec![json!({"restore":runtime.checkpoint_portable().unwrap()})];
+    let mut expected=vec![];
+    let mut bits=vec![0u32,0x80000000,1,0x80000001,0x007fffff,0x00800000,0x7f7fffff,
+        0xff7fffff,0x7f800000,0xff800000,0x7f800001,0x7fc12345,0xffc12345,
+        0x3f800001,0xbf800002,0x4b800000];
+    let mut seed=73u32;
+    for _ in 0..64 {seed=seed.wrapping_mul(1664525).wrapping_add(1013904223);bits.push(seed);}
+    for (i,b) in bits.iter().enumerate() {
+        let a=json!({"F32Bits":b});let c=json!({"F32Bits":bits[(i+1)%bits.len()]});
+        let d=json!({"F32Bits":bits[(i+5)%bits.len()]});
+        let mut calls=vec![("tree",json!([a,c,d])),("chain",json!([a,c,d])),("observe",json!([a,c,d])),
+            ("stop",json!([a,c])),("order",json!([a,c])),("dot",json!([[a,c,d],[d,a,c]])),
+            ("rows",json!([[{"x":a,"y":c,"z":d},{"x":d,"y":a,"z":c}]]))];
+        if i<3 {calls.push(("parallel",json!([a,c,[a,c,d]])));}
+        for (name,args) in calls {
+            let f=module.program().functions.iter().find(|f|f.name==name).unwrap();
+            let values=args.as_array().unwrap().iter().zip(&f.params)
+                .map(|(v,(_,ty))|verified_language::eval::Value::from_program_json(v,ty,module.program()).unwrap()).collect();
+            let value=verified_language::eval::call(module.program(),name,values,&mut 1_000_000).unwrap().json();
+            steps.push(json!({"pure":name,"args":args}));
+            expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+        }
+    }
+    let args=json!([{"F32Bits":0x3f800001u32},{"F32Bits":0x3f800001u32},{"F32Bits":0xbf800002u32}]);
+    let f=module.program().functions.iter().find(|f|f.name=="chain").unwrap();
+    let values=args.as_array().unwrap().iter().zip(&f.params)
+        .map(|(v,(_,ty))|verified_language::eval::Value::from_program_json(v,ty,module.program()).unwrap()).collect();
+    let value=verified_language::eval::call(module.program(),"chain",values,&mut 1_000_000).unwrap().json();
+    steps.push(json!({"pure":"chain","args":args}));
+    expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    for b in &bits[..16] {
+        for (name,args) in [("tune",json!([{"F32Bits":b}])),
+            ("read",json!([{"F32Bits":0x3f800001u32},0.5])),
+            ("frame",json!([1.5,{"F32Bits":0x7f800001u32},false])),
+            ("frame",json!([1.5,{"F32Bits":0x7f800001u32},true])),
+            ("fit",json!([{"F32Bits":b},1.5,0.5,false])),("read",json!([0.5,1.5])),
+            ("fit",json!([{"F32Bits":b},1.5,0.5,true])),("read",json!([0.5,1.5])),
+            ("direct",json!([{"F32Bits":b},1.5,0.5])),
+            ("fit_inline",json!([{"F32Bits":b},1.5,0.5,false])),("read",json!([0.5,1.5])),
+            ("fit_inline",json!([{"F32Bits":b},1.5,0.5,true])),("read",json!([0.5,1.5]))] {
+            let before=runtime.checkpoint_portable().unwrap();
+            let outcome=runtime.invoke_json(name,&args).unwrap().json();
+            let snapshot=runtime.checkpoint_portable().unwrap();
+            if name=="frame"&&args[2]==true || matches!(name,"fit"|"fit_inline")&&args[3]==true {assert_eq!(before,snapshot);}
+            steps.push(json!({"call":name,"args":args}));
+            expected.push(json!({"reply":{"outcome":outcome},"snapshot":snapshot}));
+        }
+        let snapshot=runtime.checkpoint_portable().unwrap();
+        steps.push(json!({"restore":snapshot}));
+        runtime=Runtime::restore_portable_checked(&module,&snapshot).unwrap();
+    }
+    assert_eq!(expected.len(),772);
+    parity::conformance_checked("float-island-state-parity",&module,source,steps,expected);
+}
 fn envelope(bits: u32, word: i32) -> Json {
     let sample = json!({"value":{"F32Bits":bits},"point":[{"F32Bits":bits},{"F32Bits":bits^0x80000000}],"trail":[{"F32Bits":bits},{"F32Bits":bits^0x80000000}],"word":word,"signed":[i32::MIN,i32::MAX],"words":[u32::MAX,0]});
     json!({"items":[sample],"maybe":{"Some":sample},"answer":{"Ok":sample}})
