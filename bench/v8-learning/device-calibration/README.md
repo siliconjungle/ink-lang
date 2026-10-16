@@ -91,3 +91,17 @@ planner regressions, separate from the explicit device performance comparison.
 Run `python3 bench/v8-learning/device-calibration/audit.py` to verify every
 archived byte, paired summary, actual-device counter, rejection control and
 canonical observation identity without rebuilding or launching a browser.
+
+
+Final integration merges the concurrent main changes and checks 102 core unit
+cases plus five affected conversion tests, a locked CLI build/fetch, and 21
+planner regressions. `validate_merged.py` replays both equality plans through that
+merged compiler, rebuilds their CPU Wasm fallbacks through local Cargo, rechecks
+all four independent original source oracles and validates eight actual
+provided-device calls. This is conformance only, with no new performance
+samples or observations. `merged-emission.json` and its indexed input archive
+retain the exact compiler/package/harness identities and device counters.
+Both frozen corpus runs compile ten/admit alternatives, observe 24 laws/six
+reused, select no alternative/representation and end at the measurement-evidence
+gate. All quick budgets expire; these runs establish no causal planning-speed
+change. Source contexts pass terminal verification in both runs.
