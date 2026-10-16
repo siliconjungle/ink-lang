@@ -14,7 +14,7 @@ shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_st
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
-Current receipts cover 177 full files and four partial files, with 428 unread;
+Current receipts cover 184 full files and one partial file, with 424 unread;
 all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
@@ -627,3 +627,39 @@ observes24 old laws/six reused and selects none; all measurement gates/budgets
 remain conservative. No new remainder-law attribution occurs. The52.6435s median
 is an unpaired shared-host observation, not a causal speedup.36 exact timing
 rows publish without changing the proof snapshot or policy.
+
+
+## Composable frozen proof dependencies
+
+The generic database loader now carries explicit supporting proof objects through
+an optional V2 frozen index. It opens only matching roots and their bounded exact
+dependency closure, orders supports before consumers for definition-context
+rebinding and deduplicates shared entries. Ordinary kernel replay still checks
+every object and source application. V1 behaviour and all trusted limits remain
+unchanged.
+
+The three-law quotient/remainder fold previously produced an 18,432,155-byte
+selection that ordinary checking rejected at its 16 MB input limit. Referencing
+the existing quotient witnesses reduces it to 10,130,196 bytes with four objects
+and three roots; the same source now passes normal checking. All original 338
+proof identities stay unchanged. This is a composition-capability improvement,
+not a comparison against a successfully checked old plan or a faster core rule.
+
+All 28 focused knowledge regressions pass, including all 340 integer laws,
+word/float replay, portable dependency rebinding and authentic false-support
+rejection. Fresh authoring reproduces the installed identities; pinned Git inputs
+reproduce the old oversized selection exactly. The new explicit GPU workload has
+held-out warm complete-call medians of 7.223 and 0.634 ms, median paired ratio
+12.083 across three fresh processes. Every process passes the 10% extrema guard
+with observed device dispatch/readback and independent source oracles. CPU
+controls retain the baseline. Whole-browser memory, cold latency, automatic
+placement and broad application gains remain unestablished. Exact evidence and
+reproduction inputs are in `bench/v8-learning/proof-dependencies`.
+
+The required final stable-context corpus compiles all ten frozen programs and
+admits alternatives for all ten. Its 22 old law identities are a subset of the
+preceding 24; six are reused, and no new remainder-law attribution occurs. All
+ten retain the baseline at measurement evidence and exhaust quick budgets, with
+no near-miss reason. The 51.696-second median excludes private preparation and
+is not a causal comparison. Thirty-six exact observations publish without
+changing the proof snapshot or policy. The complete integrity audit passes.
