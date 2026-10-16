@@ -31,3 +31,19 @@ establish a cold-start, memory, neural-network, GPU or upstream-library advantag
 
 The [retained acquisition](../../reports/frozen-composition-2026-10-16/README.md)
 binds the modules, starting snapshots, complete plans and raw process samples.
+
+
+To compare code layouts, preserve the expanded module as `baseline.mjs` and the
+shared module as `program.mjs`, then run the same six-pair protocol. Record their
+hashes and label this comparison separately from the unspecialized baseline.
+`frozen_composition.py --helper-layout expanded` retains the other checked
+proposal; the default is `shared`. Code sharing does not cache returned values.
+
+`prepare-prefix-history.py --ink INK --artifact MODEL --history HISTORY
+--prefix-operations 64 -o NEW_DIRECTORY` extends the concrete frozen-program
+history with eleven actual GPU calls. It independently evaluates the original
+64-operation prefix and the declared eligible helper before writing the fixture.
+Replay it with `replay-source-history-browser.mjs ... --initialized MODEL`.
+This is backend conformance for a pure prefix, not device training or a GPU
+speed measurement. The full 128-operation pure root currently exceeds the graph
+stage budget.
