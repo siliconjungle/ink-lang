@@ -2,7 +2,7 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 239 full files, 1 partial files, 369 unread files; 609 inventoried files total.
+Source receipts: 240 full files, 1 partial files, 368 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
@@ -400,7 +400,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/instruction-selection-phase.h` — unread; 0/139 lines recorded
 - [ ] `src/compiler/turboshaft/int64-lowering-phase.cc` — unread; 0/24 lines recorded
 - [ ] `src/compiler/turboshaft/int64-lowering-phase.h` — unread; 0/20 lines recorded
-- [ ] `src/compiler/turboshaft/int64-lowering-reducer.h` — unread; 0/1002 lines recorded
+- [x] `src/compiler/turboshaft/int64-lowering-reducer.h` — read; 1002/1002 lines recorded
 - [x] `src/compiler/turboshaft/js-generic-lowering-reducer.h` — read; 99/99 lines recorded
 - [x] `src/compiler/turboshaft/late-escape-analysis-reducer.cc` — read; 102/102 lines recorded
 - [x] `src/compiler/turboshaft/late-escape-analysis-reducer.h` — read; 63/63 lines recorded
