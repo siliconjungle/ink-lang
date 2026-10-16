@@ -466,6 +466,14 @@ law. A separate regression checks recursive helper correspondence with two
 recursive children. Boundary tests exposed repeated reads of raw F32 host tags;
 the JavaScript implementation now captures used scalars into private immutable
 carriers while preserving unused-parameter and borrowed-field demand.
+The generated guard now passes learning updates to both structure (`Code`) and
+weights: 335 complete outcomes and six restores match across reference, Rust,
+JavaScript and Wasm. The separate authored-guard control also passes. The aligned
+standalone core passes 503 tests across 83 integration targets; all 59 JavaScript
+package tests and 24 knowledge regressions pass. The [retained report](reports/guarded-function-specialization-2026-10-17/README.md)
+includes an audited 1,030-file compiler inventory with embedded package-root
+resources, a replayable plan and exact runtime images. The earlier inventory's
+missing embedded ABI resource is documented in its historical resource supplement.
 Automatic opportunity discovery, profitable learned representation selection,
 device training and the complete Handwired/Pretext/Freerange performance programme
 remain required; this milestone makes no new performance claim.

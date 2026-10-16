@@ -133,8 +133,8 @@ history checks 200 calls, graph changes, live weight changes, events, rollback a
 five restores. Eight focused core tests cover projection, ownership, exact float
 bits, source binding, missing proofs and invalid replacements. The larger history matches 335 complete outcomes and exact snapshots against the
 reference evaluator on Rust, JavaScript and Wasm, with six restores and seeded
-JavaScript startup. The combined standalone core, including concurrent word-count
-proof support, passes 501 tests across all 83 integration targets, library checks,
+JavaScript startup. That milestone's combined standalone core, including concurrent word-count
+proof support, passed 501 tests across all 83 integration targets, library checks,
 example builds and doctests.
 
 The [retained evidence](../reports/mutable-function-specialization-2026-10-17/summary.json)
@@ -187,6 +187,19 @@ requirements. The JavaScript F32 capture regression also checks the implementati
 boundary: raw host tags become private immutable values, while unused scalar
 parameters and borrowed field reads retain their demand behavior. These finite
 tests do not prove the emitter or ABI correct.
+
+The generated-guard history now exercises learning updates to both `Code` and
+`Weights`: 335 complete reference/Rust/JavaScript/Wasm outcomes, exact snapshots
+and six restores agree. The hand-written guard control also passes. The aligned
+standalone core passes 503 tests, the complete JavaScript package passes 59, and
+24 knowledge regressions pass. See the [retained source, proofs and receipts](../reports/guarded-function-specialization-2026-10-17/README.md).
+Its auditor rechecks the plan, regenerates the JS/Rust images and reruns retained
+JavaScript, Wasm and initialized-startup histories:
+
+```sh
+python3 reports/guarded-function-specialization-2026-10-17/audit.py \
+  --ink target/debug/ink --run
+```
 
 The mathematical word carrier can include more values than a narrower source
 type. The checker currently requires equality over that full carrier; it does not

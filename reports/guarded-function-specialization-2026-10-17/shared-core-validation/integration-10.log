@@ -1,0 +1,61 @@
+   Compiling ink-core v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/shared-core-validation/core)
+    Finished `test` profile [unoptimized] target(s) in 12.84s
+     Running tests/local_collections.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/shared-core-validation/target/debug/deps/local_collections-4a170478e6945d3c)
+
+running 6 tests
+test external_calls_cannot_export_owned_handles ... ok
+test ownership_and_persistence_rejections_are_checked_on_core_replay ... ok
+test lazy_reads_and_branch_local_moves_preserve_ownership ... ok
+test stopping_is_checked_before_each_step_and_limit_is_explicit ... ok
+test buffers_move_through_helpers_without_changing_inputs ... ok
+test maps_are_reusable_ordered_local_values ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/loop_ownership.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/shared-core-validation/target/debug/deps/loop_ownership-2f4eeb865f90291c)
+
+running 6 tests
+test consuming_an_uncarried_capture_still_rejects ... ok
+test conditional_assignment_and_shadowed_names_keep_their_lexical_scope ... ok
+test unmodified_mutable_locals_remain_lexical_captures ... ok
+test bounded_loops_use_only_their_assigned_owners ... ok
+test loop_state_limit_applies_to_carried_locals ... ok
+test nested_loops_do_not_move_unrelated_partially_consumed_owners ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/map_extensionality.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/shared-core-validation/target/debug/deps/map_extensionality-8c0448537a2fd8a3)
+
+running 7 tests
+test binder_opening_visits_both_obligations_and_preserves_fresh_key_names ... ok
+test absent_values_are_vacuous_but_membership_is_required ... ok
+test map_payloads_preserve_signed_zero_nan_bits_and_changed_values ... ok
+test fresh_key_scope_and_complete_domain_cannot_be_forged ... ok
+test source_authoring_keeps_map_algebra_parametric_over_values ... ok
+test overwrite_is_proved_for_every_key_and_exact_payload_sort ... ok
+test distinct_key_updates_commute_only_with_a_checked_condition ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/owned_semantic.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/shared-core-validation/target/debug/deps/owned_semantic-3293e3cc6b2f3c3a)
+
+running 6 tests
+test owned_values_preserve_nan_payloads_and_scalar_reflexivity_excludes_floats ... ok
+test callback_substitution_preserves_map_constructor_observations ... ok
+test symbolic_map_membership_observes_its_keys_and_preserves_captured_queries ... ok
+test symbolic_key_observations_cover_supported_scalar_domains ... ok
+test local_maps_match_order_upsert_removal_and_lazy_reads ... ok
+test buffer_edits_and_owned_iteration_match_reference ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/physical_capabilities.rs (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/function-projection/shared-core-validation/target/debug/deps/physical_capabilities-a0b9853510e6aa55)
+
+running 4 tests
+test paged_columns_keep_the_codec_gate_and_reject_invalid_or_unimplemented_layouts ... ok
+test carrier_fusion_composes_before_source_bound_physical_admission ... ok
+test codecs_are_fixed_to_source_shape_and_column_skips_need_real_equality ... ok
+test bounds_are_source_bound_and_false_rehashed_certificates_cannot_authorise_reads ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+
