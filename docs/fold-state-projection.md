@@ -68,11 +68,21 @@ alternate order and consume every output. One pair has substantial timing noise;
 all raw samples are retained. These are workload-specific Node measurements,
 with no Handwired parity or automatic-selection claim.
 
-The earlier unrolled owned-record layout was slower in its two-process pilot.
-Combining field projection with frozen unrolling currently exhausts proof
-resources at tested owned chunk widths 1, 2 and 4. Smaller state and unrolling
-are independently useful proposals; their profitable composition remains work.
-See the [retained report](../reports/owned-graph-projection-2026-10-17/README.md).
+The earlier unrolled owned-record layout was slower in its two-process pilot;
+its original projected/unrolled proposals also exhausted proof resources. Those
+[historical results](../reports/owned-graph-projection-2026-10-17/README.md) remain
+unchanged. Source-wrapper exposure and checked forwarding-helper prefix equations
+now let the complete four-step composition replay within the same core limits.
+The combined F32 graph passes 88 reference/native Rust/JavaScript/Wasm calls and
+five restores. In six new process triples, however, its JavaScript throughput is
+only 0.876–0.907× baseline, while projection alone reaches 1.144–1.159×. Smaller
+state and graph unrolling remain separate measured choices. On native Rust the
+same combined graph instead reaches 1.744–1.811× baseline throughput, while
+projection alone shows no clear gain. Every native checksum/checkpoint matches
+its JavaScript counterpart. The preferred variant therefore depends on the
+backend and workload; neither proof success nor a single target decides it. See the
+[composition report](../reports/composed-frozen-graph-2026-10-17/README.md) for
+every sample, complete proof, command and limitation.
 
 ## Guarantees and remaining work
 

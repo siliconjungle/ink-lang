@@ -1,0 +1,12 @@
+[package]
+name="ink-composed-graph-measurement"
+version="0.0.0"
+edition="2021"
+[workspace]
+[dependencies]
+num-bigint="=0.4.8"
+serde_json={version="=1.0.151",features=["float_roundtrip"]}
+sha2="=0.10.9"
+[profile.release]
+lto="thin"
+codegen-units=1

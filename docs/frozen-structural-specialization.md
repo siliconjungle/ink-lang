@@ -204,5 +204,11 @@ same compact equation passes without raising limits, and removing its frozen
 premise still rejects. All 488 standalone core tests and the existing 144-outcome
 native/JavaScript/Wasm history pass locally. The
 [regression report](../reports/conversion-and-f32-literals-2026-10-17/README.md)
-retains the failures, exact proof and source-bound validation. Larger combined
-projection/unrolling remains resource-limited.
+retains the failures, exact proof and source-bound validation. The subsequent
+[combined projection/unrolling work](../reports/composed-frozen-graph-2026-10-17/README.md)
+preserves forwarding helpers through universal prefix equations and checks the
+complete four-step plan with that same core. The tested combined JavaScript
+implementation loses to the original loop, while the same transformation reaches
+1.74–1.81× throughput in the native Rust comparison. Both complete result streams
+and checkpoints agree. Profitable selection remains a separate backend/workload
+decision.

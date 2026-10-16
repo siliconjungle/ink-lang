@@ -430,3 +430,19 @@ changes remain near control variation. The
 [retained report](reports/conversion-and-f32-literals-2026-10-17/README.md)
 separates these bounded results from general training, held-out profitability,
 device execution and full upstream parity.
+
+Owned field projection and frozen graph specialization now compose without a
+core change: source wrappers open before generated chunks, and universal prefix
+equations retain forwarding helpers. The four-step F32 plan passes 88 complete
+reference/Rust/JavaScript/Wasm outcomes and five restores. Six process triples
+retain the loss: combined JavaScript throughput is 0.876–0.907× baseline while
+the projected fold reaches 1.144–1.159×. Six native Rust triples instead measure
+1.744–1.811× for the combined graph, with every checksum/checkpoint matching the
+JavaScript controls. The bounded frozen corpus compiles all ten programs; all
+retain baseline at the measurement-evidence gate. Private COW index snapshots
+complete that run without duplicating entire cache files; a subsequent atomic
+replacement/read-pager follow-up passes all 23 corpus/cache tests. See the
+[composition report](reports/composed-frozen-graph-2026-10-17/README.md).
+Profitable code generation for the unrolled choice, mutable graph staging,
+general learned representation selection, device training and upstream parity
+remain required.
