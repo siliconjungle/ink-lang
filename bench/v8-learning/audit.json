@@ -320,16 +320,12 @@
       "sha256": "f6f788588d7554482c83330a7e3835cb4384a6dc71a0d1861872bfee8e34fb29",
       "inclusive_lines": [
         [
-          1538,
-          1597
-        ],
-        [
-          1700,
-          1735
+          1,
+          1982
         ]
       ],
-      "review_status": "partial file review; family open",
-      "note": "Loop hoisting bounded by minimum schedule position, dominator depth and execution on all outgoing paths. Ink knowledge now proposes lexical scalar hoisting from strict non-stopping callbacks with an explicit empty-list guard, hygienic captures and ordinary normalization proofs; no trusted loop matcher added. General CFG scheduling remains delegated/open."
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Effect/control anchored CFG, coupled phis, special RPO with contiguous loops, bounded common-dominator memoization, early input constraints and late use constraints. Loop hoisting stays above its minimum block; pure-node splitting requires complete use-path partitions and excludes projections. Linear effect regions remain ordered. Profile hints affect placement only. Ink source work/error/lazy boundaries require ordinary equality proofs before movement; scheduling metadata grants no semantic or profitability authority. Continue broader scheduling/loop/source-law assessment."
     },
     {
       "path": "src/maglev/maglev-known-node-aspects.h",
@@ -1158,6 +1154,126 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full header read. DeadValue has a crashing runtime meaning, explicit machine representation and dependency on its impossible producer; Dead control cannot remain in the final graph. Ink has no direct bottom-type/implicit crashing SSA interface. Do not equate an unused source result with unreachable control, or transplant representation-only DeadValue rewrites into database source facts."
+    },
+    {
+      "path": "src/compiler/redundancy-elimination.cc",
+      "sha256": "ab1a5d1a26f37c45aab0f4066807d2bdcdb866652fc3c99ff426f6b833cee059",
+      "inclusive_lines": [
+        [
+          1,
+          553
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Effect-path check lists intersect by common persistent tail at merges, use reducible-loop entry dominance, and defer nodes with unknown predecessor facts. Check subsumption requires identical value inputs, compatible output types and exact minus-zero/tagged-input modes; some subsumptions insert an explicit representation conversion. Bounds-derived narrowing may identify signed zero only for observers where that is valid. Ink checked branch/definition contexts and prepared private carriers must not promote these runtime checks to universal source premises; arbitrary host getters/failures, fresh inputs and effect boundaries still execute."
+    },
+    {
+      "path": "src/compiler/redundancy-elimination.h",
+      "sha256": "8bc9ab6a1c0032a2870a2b55864b851e7390e695cec0a80ef9eab326d8f1191f",
+      "inclusive_lines": [
+        [
+          1,
+          88
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read. Persistent check lists plus node-indexed effect summaries separate learned check validity from graph reduction. General structural analysis/cache policy is relevant to Ink; no direct new check-erasure authority or primitive type relation follows from the declaration."
+    },
+    {
+      "path": "src/compiler/machine-operator-reducer.cc",
+      "sha256": "dbc97bbb2e1dd72aa021c9269823198363f88a50d84f855b8282de5084c8d6d1",
+      "inclusive_lines": [
+        [
+          1,
+          3065
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full 3065-line implementation read. Word adapters share 32/64 modular identities, exact signed/unsigned constant division, power-of-two bias/sign corrections, multiply-high magic-number division, masked predicates, range/zero-shift conditions, bitfield combination, Boolean branch inversion and load/store observation narrowing. Float reductions depend on signaling-NaN policy, exact representation and machine preconditions; explicit Ink fallible conversions, payload copies, lazy defaults and signed overflow cannot inherit those assumptions. New versioned signed I32 and checked quotient/remainder proof circuits and ordinary power-of-two proposal acquisition are being validated; old fixed meanings/proof identities remain unchanged. Constant general-divisor magic-number algorithms, F64 arithmetic proof capability, memory/layout and backend-delegation assessment remain open."
+    },
+    {
+      "path": "src/compiler/machine-operator-reducer.h",
+      "sha256": "3ec36a586b649705ea02e29e9f42ea7b1cb8bb04f4adc0700c370c855c1cd87d",
+      "inclusive_lines": [
+        [
+          1,
+          194
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full 194-line header read. Common Word32/Word64 adapters and generic masked condition reductions separate implementation sharing from specific identities. Signaling-NaN propagation is an explicit semantic condition. Ink uses generic fixed interpretation plus external ordinary laws rather than adding this catalogue to the compiler; division-by-constant support dependencies outside the initial inventory must still be followed."
+    },
+    {
+      "path": "src/base/division-by-constant.h",
+      "sha256": "8bab5c0be59f0136ff3247dde821d3d26a13874c5f3080a2b2cbaedd6647c023",
+      "inclusive_lines": [
+        [
+          1,
+          84
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read after following an optimizer dependency outside the initial inventory. Declares signed/unsigned reciprocal multiplier and shift plus add correction; signed excludes -1/0/1, unsigned excludes zero and optionally consumes known leading zeros. These are authoring algorithm inputs, never proof premises or constant/hash authority. General signed/unsigned magic-number rewrites still need exact source expressibility and independent ordinary proofs."
+    },
+    {
+      "path": "src/base/division-by-constant.cc",
+      "sha256": "ccc04bd0ce98d8d88d26ee8c3138b6f2ebff5f2b24c60f2542cdbec9791a47c7",
+      "inclusive_lines": [
+        [
+          1,
+          115
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full implementation read. Unsigned modular recurrences compute reciprocal multipliers/shifts; signed uses magnitude and a stopping inequality, unsigned uses overflow-safe remainder comparisons, add correction and a bounded 2*width loop. Range/leading-zero inputs are semantic assumptions that Ink must independently establish. This algorithm belongs in database authoring; do not transplant it into core as rewrite authority. Arbitrary divisor/multiply-high source expression and reusable correctness proofs remain open."
+    },
+    {
+      "path": "src/maglev/maglev-range.h",
+      "sha256": "05ee72ca6eab5fe684132f2feeb0066a82496c4b82b5df56d25407e427f2d706",
+      "inclusive_lines": [
+        [
+          1,
+          473
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Safe-integer interval lattice with explicit infinities/empty, containment/union/intersection, ordered threshold widening, overflow-conservative arithmetic, signed remainder magnitude, signed bitwise/shift constraints and branch refinements. JS Number safe-integer/deopt/zero-divisor assumptions do not transfer to wrapping Ink integers or lazy fallback arms. Follow range-analysis fixpoint/phi/guard propagation next; use interval results only as untrusted database proposals whose concrete bounds replay ordinary proofs, with correctness separate from measured representation selection."
+    },
+    {
+      "path": "src/maglev/maglev-range-analysis.h",
+      "sha256": "06ee07aa7d7d4be1f6f4e3e7a32d080e3101b8b5704f36a5b5b5574fff435ee9",
+      "inclusive_lines": [
+        [
+          1,
+          618
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Persistent per-block maps union predecessor facts, edge-local narrowing, exact less/equal relations, phi-input mapping and threshold-widened backedges to fixpoint; resumable loops initialize missing phis conservatively. Newly inserted blocks fall back to static widest ranges. Throwing nodes propagate into real exception handlers. Wrapping Int32 operations fall back to full Int32 on possible overflow; checked nodes intersect output carriers, so these ranges cannot justify source truncation. Ink should extend external conditional/range authoring using the explicit signed circuit mode, replay concrete obligations, and invalidate facts on changed source/context. No sampled/profile/host fact grants an assumption."
+    },
+    {
+      "path": "src/maglev/maglev-range-verification.h",
+      "sha256": "d9e5f860442a556dd80f4192ac9c8b9257af17745389a135c4ca4981ce286fd7",
+      "inclusive_lines": [
+        [
+          1,
+          38
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Optional runtime range assertions are inserted after used nonconstant values and at phi starts; all/empty ranges are skipped, Int32 and Float64 use distinct assertions, and branch-narrowed verification remains a TODO. This is diagnostic instrumentation, not mathematical range authority. Existing Ink ordinary proof replay and independent exact conformance remain mandatory; do not infer a bound from a profile or a successful sampled assertion. No new Ink runtime instrumentation is needed to admit these database laws."
+    },
+    {
+      "path": "src/maglev/maglev-range-verification.cc",
+      "sha256": "366d09856a06c210c5ae24af099e9c1f71d2760e49ad67c34226a0c41da1fc8e",
+      "inclusive_lines": [
+        [
+          1,
+          66
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Optional runtime range assertions are inserted after used nonconstant values and at phi starts; all/empty ranges are skipped, Int32 and Float64 use distinct assertions, and branch-narrowed verification remains a TODO. This is diagnostic instrumentation, not mathematical range authority. Existing Ink ordinary proof replay and independent exact conformance remain mandatory; do not infer a bound from a profile or a successful sampled assertion. No new Ink runtime instrumentation is needed to admit these database laws."
     }
   ],
   "families": [
@@ -1165,7 +1281,7 @@
       "name": "machine-word",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
-      "note": "Full machine reducer read; 83 admitted word/control/conversion laws from 85 proposals. Generic versioned source circuits add fixed rotate semantics and honor shared-gate encodings. Two U64 count-combination proposals remain unadmitted. Signed arithmetic, division and backend-delegation assessment remain open."
+      "note": "Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit 337 of 340 signed/unsigned division, remainder and bit-operation proposals. Three U64 self/zero-numerator acquisitions remain unadmitted and excluded. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim."
     },
     {
       "name": "branch-control",
@@ -1295,7 +1411,7 @@
     }
   ],
   "closeout": {
-    "reason": "User requested wrapping up and merging the current batch; broad audit remains partial",
+    "reason": "Historical pre-resume batch closure only; the user resumed the entire V8 optimizer audit, which remains active.",
     "remaining": "Open family statuses describe unimplemented/unassessed scope; no exhaustive V8 coverage or broad runtime speedup claim"
   },
   "resume": {
@@ -1304,7 +1420,7 @@
     "first_batch": "Scoped structural work prices through lazy branch contexts; ordinary proofs and measured selection remain unchanged",
     "evidence": "bench/v8-learning/branch-cardinality",
     "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open.",
-    "coverage_followup": "Complete 607-file source checklist with validated hashes/line ranges; pipeline entry points expose inlining, bounds/truncation/range/representation and builtin passes still requiring individual review. Source reads do not close family assessments.",
+    "coverage_followup": "Complete 609-file source checklist with validated hashes/line ranges; pipeline entry points expose inlining, bounds/truncation/range/representation and builtin passes still requiring individual review. Source reads do not close family assessments.",
     "second_batch": "Range-guided word representation proposals plus three independently replayed whole-branch laws. 28 related tests, three final range regressions and 88 CPU comparisons pass; measured JS/native controls retain baseline. Matched 32-check control improves one rewritten function to two. Frozen corpus: 10 compile, 24 laws, six reused, zero representation/selection, no new range-law attribution; all quick budgets exhausted.",
     "next_followups": [
       {
@@ -1317,14 +1433,27 @@
       },
       {
         "area": "coverage",
-        "task": "Continue unread 512 files plus four partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
+        "task": "Continue unread 504 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
+      },
+      {
+        "area": "signed-range-and-integer",
+        "task": "337 checked signed/division/bit-operation laws now use versioned general integer circuits and bounded word extensionality. Continue three unadmitted U64 self/zero-numerator proofs, arbitrary-divisor magic-number authoring/multiply-high source support, conditional signed range proposals and persistent branch/loop fact construction. Reconstruct source/evaluation/default semantics, replay all concrete bounds and require independent profitability evidence."
+      },
+      {
+        "area": "device-profitability-evidence",
+        "task": "The installed official pure-call offline adapters explicitly support only JavaScript and Rust. Before claiming or automatically choosing a GPU integer-division gain, extend generic complete-call acquisition/context/rank to actual eligible device execution, retain exact reference outputs/unchanged inputs, device/driver identity and fallback rejection, lifecycle/build controls, fresh processes and disjoint holdout. Keep measurements outside runtime and separate from equality/eligibility; do not add a quotient-specific timing shortcut. Current 90 integer device calls plus two shared-helper device calls establish conformance only."
+      },
+      {
+        "area": "database-pattern-dispatch",
+        "task": "Profile generic frozen-library root-pattern dispatch before further catalog growth. The latest saturated quick corpus observes 20 old laws versus 24 in the earlier combined report; different unpaired contexts do not establish a causal regression. Evaluate a generic operator/sort discrimination index against exhaustive match results and deterministic matcher-work counts, then the unchanged frozen corpus. Patterns, indexes and costs grant no admission authority."
       }
     ],
     "third_batch": "Exact fixed-scalars-v3 F32 circuits and fifteen reusable checked database laws; literal GPU collection carrier bug fixed after real device detection. Local and standalone core each pass 454 tests; 26 related knowledge regressions, eleven GPU package tests and 326 cross-target values/snapshots with four actual GPU dispatches pass. Default roundtrip search structural cost 105\u219273; official JS/native lifecycle cohorts retain baseline. Frozen ten-program corpus: 24 laws/six reused, zero selection/representation and no new F32 attribution; all quick budgets exhausted.",
-    "fourth_batch": "Strict complete-interface database call unfolding, generic bounded lexical beta correspondence and literal GPU word conversions. Exact core package 457 tests; GPU 12; required 50-case CPU/device parity with ten actual dispatches. JS/native explicit checked mechanism controls retain baseline; default structural cost stays 128. Frozen corpus: ten compile, nine admit alternatives, 24 laws/six reused, zero selection/representation or unfolding attribution; all quick budgets expire. Concurrent explicit composition work merged afterward and checked separately. Final integration adopts the already published bounded first-order call-exposure strategy, retires the overlapping local probe, and passes 458 isolated core plus 37 knowledge tests and the same 50 cases/ten device calls."
+    "fourth_batch": "Strict complete-interface database call unfolding, generic bounded lexical beta correspondence and literal GPU word conversions. Exact core package 457 tests; GPU 12; required 50-case CPU/device parity with ten actual dispatches. JS/native explicit checked mechanism controls retain baseline; default structural cost stays 128. Frozen corpus: ten compile, nine admit alternatives, 24 laws/six reused, zero selection/representation or unfolding attribution; all quick budgets expire. Concurrent explicit composition work merged afterward and checked separately. Final integration adopts the already published bounded first-order call-exposure strategy, retires the overlapping local probe, and passes 458 isolated core plus 37 knowledge tests and the same 50 cases/ten device calls.",
+    "fifth_batch": "FixedScalarsV4 generic signed-word and checked quotient/remainder circuits plus shared-budget complete word covers. Database default discovery gains 337 independently replayed integer laws from 340 proposals; three U64 cases remain unadmitted. Exact standalone core 464 tests, four new and 35 related knowledge tests, final 150-case CPU/device parity with 90 real dispatches and five-target shared-helper artifacts pass. Default quotient control reduces estimated structural cost 172 to 156; official JavaScript/native complete-call training/holdout decisions retain baseline. Frozen ten-program corpus completes under stable context: nine programs admit alternatives, 20 old laws/six reused, zero alternative or representation selected; all quick budgets expire. No new integer-law admission or broader corpus generalization is observed."
   },
   "scope_boundaries": [
-    "The selected compiler/Maglev inventory is a work queue, not a cap on the user goal. Follow optimizer dependencies outside it when review establishes relevant transformation machinery.",
-    "Supporting .inc files, src/codegen, src/wasm and dynamic feedback/object machinery are not exhaustively inventoried. Their optimizer relevance remains open; do not call this entire V8 coverage when the 607-file checklist is exhausted."
+    "The selected compiler/Maglev inventory is a work queue, not a cap on the user goal. Follow optimizer dependencies outside it when review establishes relevant transformation machinery. The division-by-constant base implementation/header are now explicitly acquired and reviewed as dependency inputs.",
+    "Supporting .inc files, src/codegen, src/wasm and dynamic feedback/object machinery are not exhaustively inventoried. Their optimizer relevance remains open; do not call this entire V8 coverage when the 609-file checklist is exhausted."
   ]
 }
