@@ -42,8 +42,20 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False, share_argume
         if original_id is None:
             original_id = sid
         functions = {f['name']: f for f in core['program']['functions']}
-        laws = dict(specialize(subject, core))
-        store = Store.publish(output / f'knowledge-{iteration}', [semantic_entry(law) for law in laws.values()])
+        laws, objects = {}, []
+        for label, proposal in specialize(subject, core):
+            # Optional unfolding can make a transport-deep law even when the
+            # source is admitted. Reject that candidate, retain independent
+            # candidates, and leave every surviving equation to the checker.
+            try:
+                obj = semantic_entry(proposal)
+            except ValueError as error:
+                rejections.append(dict(iteration=iteration, candidate=label,
+                                       stage='knowledge-entry', reason=str(error)))
+                continue
+            laws[label] = proposal
+            objects.append(obj)
+        store = Store.publish(output / f'knowledge-{iteration}', objects)
         applications, ids, fallbacks = [], [], {}
         for name, body in subject['functions'].items():
             for path, target in positions(body):
@@ -82,8 +94,18 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False, share_argume
                        knowledge=store.bundle(ids), applications=applications)
         package_path = output / f'selection-{iteration}.json'
         write(package_path, package)
+        def check_candidate(candidate):
+            # An individually transportable selection can exceed the same
+            # parser bounds when embedded in a composed plan. Replay that
+            # actual container too; do not publish an unreadable final plan.
+            trial_plan = output / f'trial-plan-{iteration}.json'
+            write(trial_plan, dict(schema=1, semantics='ink-compiled-plan-v1',
+                                  input_core_sha256=original_id,
+                                  steps=steps + [dict(kind='rewrite', package=candidate)]))
+            run('check-plan', original, trial_plan, '--core')
+            return json.loads(run('check-selection', current, package_path))
         try:
-            receipt = json.loads(run('check-selection', current, package_path))
+            receipt = check_candidate(package)
         except RuntimeError:
             # A valid law can still produce an inadmissibly deep combined core.
             # Replay cumulative subsets against the same source; never bypass
@@ -97,7 +119,7 @@ def prepare(compiler, source, output, rounds=3, scalar_calls=False, share_argume
                     trial['knowledge'] = store.bundle([a['law'] for a in trial['applications']])
                     write(package_path, trial)
                     try:
-                        candidate_receipt = json.loads(run('check-selection', current, package_path))
+                        candidate_receipt = check_candidate(trial)
                     except RuntimeError as error:
                         rejections.append(dict(iteration=iteration, application=candidate, reason=str(error)))
                     else:
