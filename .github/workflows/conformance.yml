@@ -166,7 +166,10 @@ jobs:
         cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields --test prepared_sums --test sum_spines --test binary32_literals --test native_f32 --test f32_carriers
         python3 reports/conversion-and-f32-literals-2026-10-17/audit.py
         python3 reports/composed-frozen-graph-2026-10-17/audit.py --ink target/debug/ink
-        python3 reports/mutable-function-specialization-2026-10-17/audit.py --ink target/debug/ink
+        # Retain exact historical image checks, then exercise today's emitter
+        # against the same complete reference history. Its bytes may evolve.
+        python3 reports/mutable-function-specialization-2026-10-17/audit.py
+        python3 tools/replay_historical_cpu.py reports/mutable-function-specialization-2026-10-17 --ink target/debug/ink --out build/current-mutable-function
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
         # The whole suite: fuzz_logic_objects re-declares every first-order
         # knowledge object, so checker changes cannot silently strand proofs.
