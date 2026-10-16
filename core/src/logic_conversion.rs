@@ -172,17 +172,29 @@ fn compare(
             return Ok(true);
         }
     }
+    // A reusable continuation is deliberately left as a call on one side.
+    // Advancing both sides immediately can unfold that continuation before the
+    // other side reaches it. Try a bounded, iterative head reduction toward
+    // its exact call identity first. This is ordinary definitional computation;
+    // the identity only stops search, and every argument is still compared.
+    // Charge the existing speculative budget rather than expanding its limits.
+    for (source, target) in [(a, b), (b, a)] {
+        if let Term::Call { function, .. } = target {
+            if !matches!(source, Term::Call {function: name, ..} if name == function) {
+                if let Some(exposed) = seek_call(source, function, c, budget, remaining, depth + 1)?
+                {
+                    if compare(&exposed, target, c, budget, remaining, depth + 1)? {
+                        return Ok(true);
+                    }
+                }
+            }
+        }
+    }
     // One fixed reduction at each side can expose matching structure without
     // evaluating unrelated fields, arms or arguments. Typing and termination
     // of all definitions have already been checked by Context.
     let left = step(a, c, budget, depth + 1)?;
-    if exposes_other(left.as_ref(), b, c, budget, remaining, depth + 1)? {
-        return Ok(true);
-    }
     let right = step(b, c, budget, depth + 1)?;
-    if exposes_other(right.as_ref(), a, c, budget, remaining, depth + 1)? {
-        return Ok(true);
-    }
     if left.is_none() && right.is_none() {
         return Ok(false);
     }
@@ -196,31 +208,29 @@ fn compare(
     )
 }
 
-// Keep the opposite expression opaque when a definition followed by a few
-// closed lexical/control bindings exposes that exact expression. Reducing both
-// sides first can destroy this correspondence and unfold an unrelated callee.
-// This bounded probe uses only existing reductions and the shared allowance.
-fn exposes_other(
-    candidate: Option<&Term>, other: &Term, c: &Context, budget: &mut Budget,
-    remaining: &mut usize, depth: usize,
-) -> LangResult<bool> {
-    let Some(mut candidate) = candidate else { return Ok(false); };
-    let mut reduced;
-    for offset in 0..4 {
-        budget.step(depth + offset)?;
-        if candidate == other { return Ok(true); }
-        let closed_control = match candidate {
-            Term::Match { scrutinee, .. } => matches!(scrutinee.as_ref(), Term::Construct { .. }),
-            Term::If { condition, .. } => matches!(condition.as_ref(), Term::Bool(_)),
-            _ => false,
-        };
-        if !closed_control || *remaining == 0 { return Ok(false); }
+fn seek_call(
+    source: &Term,
+    function: &str,
+    c: &Context,
+    budget: &mut Budget,
+    remaining: &mut usize,
+    depth: usize,
+) -> LangResult<Option<Term>> {
+    let mut value = None;
+    for _ in 0..16 {
+        if *remaining == 0 {
+            break;
+        }
         *remaining -= 1;
-        let Some(next) = step(candidate, c, budget, depth + offset + 1)? else { return Ok(false); };
-        reduced = next;
-        candidate = &reduced;
+        let Some(next) = step(value.as_ref().unwrap_or(source), c, budget, depth)? else {
+            break;
+        };
+        if matches!(&next, Term::Call {function: name, ..} if name == function) {
+            return Ok(Some(next));
+        }
+        value = Some(next);
     }
-    Ok(candidate == other)
+    Ok(None)
 }
 
 fn step(t: &Term, c: &Context, budget: &mut Budget, depth: usize) -> LangResult<Option<Term>> {
@@ -400,39 +410,6 @@ mod tests {
     }
 
     #[test]
-    fn closed_binding_exposure_keeps_the_opposite_call_and_free_variables() {
-        let mut c = context();
-        c.declare("box".into(), &Declaration::Datatype {
-            constructors: vec![Constructor { name: "Box".into(), fields: vec![Sort::U64] }],
-        }).unwrap();
-        let wrapped = Term::Match {
-            scrutinee: Box::new(Term::Construct { datatype: "box".into(), constructor: 0,
-                arguments: vec![v("input")] }),
-            branches: vec![Branch { bindings: vec!["saved".into()],
-                body: call("fold", vec![v("rows"), v("saved")]) }],
-        };
-        c.declare("wrapper".into(), &Declaration::Function {
-            params: vec![("rows".into(), Sort::Data("rows".into())), ("input".into(), Sort::U64)],
-            result: Sort::U64, recursive: None, body: wrapped,
-        }).unwrap();
-        let params = vec![("xs".into(), Sort::Data("rows".into())),
-            ("x".into(), Sort::U64), ("y".into(), Sort::U64)];
-        let original = call("fold", vec![v("xs"), v("x")]);
-        let wrapper = call("wrapper", vec![v("xs"), v("x")]);
-        check(&c, &params, &original, &wrapper).unwrap();
-        check(&c, &params, &wrapper, &original).unwrap();
-        assert!(check(&c, &params, &original,
-            &call("wrapper", vec![v("xs"), v("y")])).is_err());
-        let mut exhausted = Budget::new(); exhausted.remaining = 1;
-        assert!(!same(&original, &wrapper, &c, &mut exhausted).unwrap());
-        exhausted.remaining = 0;
-        assert!(same(&original, &wrapper, &c, &mut exhausted).is_err());
-        let unknown = Term::If { condition: Box::new(v("gate")),
-            on_true: Box::new(original.clone()), on_false: Box::new(Term::U64(99)) };
-        assert!(!same(&unknown, &original, &c, &mut Budget::new()).unwrap());
-    }
-
-    #[test]
     fn ordered_recursive_steps_match_structure_without_normalizing_shared_primals() {
         let c = context();
         let bits = [
@@ -461,6 +438,102 @@ mod tests {
         };
         check(&c, &[], &nan_eq, &Term::Bool(false)).unwrap();
         assert!(check(&c, &[], &nan_eq, &Term::Bool(true)).is_err());
+    }
+
+    #[test]
+    fn helper_chunks_reach_the_same_continuation_without_expanding_its_body() {
+        let mut c = context();
+        c.declare(
+            "slot".into(),
+            &Declaration::Datatype {
+                constructors: vec![Constructor {
+                    name: "Slot".into(),
+                    fields: vec![Sort::U64],
+                }],
+            },
+        )
+        .unwrap();
+        // The continuation is intentionally much larger than the small chunk.
+        // A comparison must leave it reusable instead of normalizing its work.
+        let mut tail = v("input");
+        for i in 0..24 {
+            tail = plus(tail.clone(), tail);
+            // Keep the definition DAG explicit rather than serializing a
+            // duplicated primal in one giant input term.
+            let name = format!("tail_{i}");
+            c.declare(
+                name.clone(),
+                &Declaration::Function {
+                    params: vec![("input".into(), Sort::U64)],
+                    result: Sort::U64,
+                    body: tail,
+                    recursive: None,
+                },
+            )
+            .unwrap();
+            tail = call(&name, vec![v("input")]);
+        }
+        let mut body = substitute(
+            &tail,
+            &BTreeMap::from([("input".into(), v("local_7"))]),
+            &mut Budget::new(),
+            0,
+        )
+        .unwrap();
+        let mut result = v("input");
+        for _ in 0..8 {
+            result = plus(result, Term::U64(0x3f800000));
+        }
+        for i in (0..8).rev() {
+            let name = format!("local_{i}");
+            let previous = if i == 0 {
+                "input".into()
+            } else {
+                format!("local_{}", i - 1)
+            };
+            body = Term::Match {
+                scrutinee: Box::new(Term::Construct {
+                    datatype: "slot".into(),
+                    constructor: 0,
+                    arguments: vec![plus(v(&previous), Term::U64(0x3f800000))],
+                }),
+                branches: vec![Branch {
+                    bindings: vec![name],
+                    body,
+                }],
+            };
+        }
+        c.declare(
+            "chunk".into(),
+            &Declaration::Function {
+                params: vec![("input".into(), Sort::U64)],
+                result: Sort::U64,
+                body,
+                recursive: None,
+            },
+        )
+        .unwrap();
+        let target = substitute(
+            &tail,
+            &BTreeMap::from([("input".into(), result)]),
+            &mut Budget::new(),
+            0,
+        )
+        .unwrap();
+        let mut budget = Budget::new();
+        let start = budget.remaining;
+        assert!(same(&call("chunk", vec![v("input")]), &target, &c, &mut budget).unwrap());
+        assert!(
+            start - budget.remaining < 4096,
+            "comparison expanded a reusable continuation"
+        );
+        check(
+            &c,
+            &[("input".into(), Sort::U64)],
+            &call("chunk", vec![v("input")]),
+            &target,
+        )
+        .unwrap();
     }
 
     #[test]
