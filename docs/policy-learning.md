@@ -120,8 +120,8 @@ requires one actual GPU dispatch. Policy training itself executes on CPU hosts.
 
 These checks are not proofs of the AD transform, policy-gradient theorem under all
 machine inputs, convergence, generalization, reward quality or generated code.
-PPO/off-policy correction, automatic value-network training, general source reverse
-AD, frozen specialization, parallel/device training, F64/Pretext fidelity and the
+PPO/off-policy correction, automatic value-network training, broader source reverse
+AD and frozen graph/tape specialization, parallel/device training, F64/Pretext fidelity and the
 broader Handwired performance target remain required work.
 
 [Retained source, complete checkpoint, trained package and target logs](../reports/policy-learning-2026-10-15/README.md).

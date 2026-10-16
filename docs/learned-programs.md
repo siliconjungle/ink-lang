@@ -45,6 +45,10 @@ the goal itself.
 | `mean_gradient(decisions,return_values,baselines)` | That same sum divided by the decision count |
 | `score_action(masses,derivatives,allowed,action)` | Score a specified allowed action at the current policy without sampling |
 
+The F32 implementation forms each negative-advantage-weighted score vector and
+then adds those vectors in source order. It does not reassociate multiplication
+by summing unweighted scores first. The mean divides that completed sum once.
+
 The log probability of a sampled computation is the sum of its conditional
 decision log probabilities. For one whole-computation return, summing those
 scores expresses the joint estimator; averaging changes its scale with the

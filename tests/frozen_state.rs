@@ -403,7 +403,14 @@ fn neural_and_reward_models_freeze_complete_optimizer_and_control_state() {
         let module =
             CheckedModule::from_source(verified_language::modules::load(source).unwrap().program)
                 .unwrap();
-        let bytes = fs::read(checkpoint).unwrap();
+        let bytes = if source == "examples/reward-policy.ink" {
+            // The archived namespace belongs to the historical library/example.
+            // Replay its observations on today's source; never rebase headers.
+            let historical = fs::read(checkpoint).unwrap();
+            assert!(Runtime::restore_portable_checked(&module,&historical).is_err());
+            let trace = serde_json::from_slice(&fs::read("reports/policy-learning-2026-10-15/trace.json").unwrap()).unwrap();
+            verified_language::training::replay(&module,&trace).unwrap().snapshot
+        } else { fs::read(checkpoint).unwrap() };
         let roots = roots.into_iter().map(str::to_owned).collect::<Vec<_>>();
         let frozen = verified_language::freezing::restrict(&module, &bytes, &roots).unwrap();
         let mut adaptive = Runtime::restore_portable_checked(&module, &bytes).unwrap();
@@ -798,6 +805,8 @@ fn learned_instruction_program_resumes_adapts_and_freezes_with_complete_proofs()
         steps.push(json!({"call":name,"args":args}));
         expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
     }
+    steps.push(json!({"pure":"numeric","args":[[0.0,0.5,1.0]],"expect_gpu":true}));
+    expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":runtime.checkpoint_portable().unwrap()}));
     parity::conformance_checked("learned-program-adaptive-parity",&module,source,steps,expected);
     let frozen=verified_language::freezing::restrict(&module,&complete.snapshot,&["Structure".into()]).unwrap();
     let input=root.join("frozen.core.json");fs::write(&input,frozen.module.bytes().unwrap()).unwrap();

@@ -55,6 +55,7 @@ jobs:
         python3 reports/shared-helper-code-2026-10-16/audit.py
         python3 reports/parametric-prefix-proofs-2026-10-16/audit.py
         python3 reports/scalar-gpu-stages-2026-10-16/audit.py
+        python3 reports/learned-programs-2026-10-16/audit.py
     - name: Check conformance partition coverage
       run: python3 tools/test_ci_partitions.py
     - name: Retain explicit missing capabilities
@@ -157,6 +158,7 @@ jobs:
         subprocess.run(['git','fetch','--no-recurse-submodules','--depth=1','origin',r['commit'],r['source']],check=True)
         PYCORE
         python3 tools/check_core_package.py reports/learned-programs-2026-10-16/integration-core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
+        python3 reports/learned-programs-2026-10-16/audit.py --ink target/debug/ink
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
         cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields --test prepared_sums --test sum_spines
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
@@ -1213,7 +1215,7 @@ jobs:
         cargo test --test frozen_state frozen_program_keeps_weights_trainable_and_compiles_ordered_operations_on_all_targets -- --exact --nocapture
         cargo test --test frozen_state shared_frozen_parameter_lists_preserve_complete_results_and_live_learning_on_all_targets -- --exact --nocapture
         cargo test --test frozen_state frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_on_all_targets -- --exact --nocapture
-        python3 tools/build_gpu_wasm.py build/learned-program-adaptive-parity/gpu-module build/learned-program-frozen-parity/gpu-module
+        python3 tools/build_gpu_wasm.py build/learned-program-adaptive-parity/gpu-module build/learned-program-frozen-parity/gpu-module --target-dir build/learned-program-browser-target
         python3 tools/build_gpu_wasm.py build/source-reverse-parity/gpu-module build/source-reverse-until-parity/gpu-module
         python3 tools/build_gpu_wasm.py build/prepared-complex-lifecycle/gpu-module build/scalar-statements-parity/gpu-module
         python3 tools/build_gpu_wasm.py build/frozen-program-parity/gpu-module build/shared-frozen-parameters-parity/gpu-module
