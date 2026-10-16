@@ -89,6 +89,10 @@ fn count_mode_preserves_noncount_images_and_refuses_wrong_domains() {
             let new=laws::bitvector_problem_with_encoding(&p,&env,&[],&goal,Mode::FixedCountsV5,encoding).unwrap();assert_eq!(old.identity(),new.identity());
         }
     }
+    for arguments in [vec![],vec![s::word(Type::U32,0),s::word(Type::U32,0)]] {
+        let malformed=s::op(s::value(Type::U32),"call:popcount",arguments);
+        assert!(s::reify(&malformed,&p).is_err());
+    }
     for ty in [Type::Bool,Type::F32,Type::F64,Type::Int] {
         let sort=s::value(ty);let x=s::free(sort.clone(),"x");let env=BTreeMap::from([("x".into(),sort)]);
         let goal=Equation{from:count("popcount",x),to:s::word(Type::U32,0)};
