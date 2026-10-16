@@ -344,7 +344,7 @@ extensions and complete action proofs. The 32- and 128-operation cases preserve
 live weights and exact checkpoints across CPU targets and GPU hosts. The same
 path now passes through normal initialized trained-artifact publication and
 mandatory proof replay, including compiled browser CPU fallbacks. Next,
-generalize capture abstraction, share universal prefix lemmas and extend larger
+generalize capture abstraction and extend larger
 graph/tape domains. Warm lifecycle measurements now exist for 32/128 operations;
 short-lived and broader upstream workloads still require acceptance evidence.
 Device training and the broader upstream-parity programme remain required work.
@@ -360,3 +360,13 @@ Actual GPU prefix checks cover 64 operations and eleven raw F32 input/weight
 classes. The 128-operation pure root still exceeds the graph stage budget;
 source/dispatch fusion, broader graph/tape domains and device training remain
 required. Prefix proof views are still substantial (3.29 MB for the 128 case).
+
+
+Suffix-parametric prefix proofs now share universal helper equations across
+remaining tails, with separate checked witnesses for closed data. The 128-operation
+plan falls from 3.29 MB to 836 KB without changing selected runtime code. The
+512-operation configured model now checks and passes full CPU/GPU-host histories,
+including live weights and exact checkpoints. Existing checker and authoring
+budgets remain unchanged; same-typed false-tail claims reject. This resolves the
+recorded prefix-proof bottleneck, while capture abstraction, general graph/tape
+fusion, learned representation choices and device training remain required.

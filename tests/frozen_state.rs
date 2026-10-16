@@ -655,7 +655,7 @@ fn frozen_program_keeps_weights_trainable_and_compiles_ordered_operations_on_all
 #[test]
 fn frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_on_all_targets() {
     let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
-    for repeat in [4usize, 16] {
+    for repeat in [4usize, 16, 64] {
         let source = include_str!("../examples/frozen-program.ink");
         let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
         let mut trace: serde_json::Value = serde_json::from_str(include_str!("../examples/frozen-program-training.json")).unwrap();
