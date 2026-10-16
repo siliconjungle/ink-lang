@@ -352,7 +352,7 @@ pub struct Context {
     visible: BTreeMap<String, Arc<Entry>>,
     all: BTreeMap<String, Arc<Entry>>,
 }
-fn name(n: &str) -> LangResult<()> {
+pub(crate) fn name(n: &str) -> LangResult<()> {
     if n.is_empty()
         || n.len() > 64
         || !n.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
@@ -758,6 +758,32 @@ impl Context {
         let mut budget = Budget::new();
         infer(term, &env, self, None, false, &mut budget, 0)?;
         normal(term, self, &mut budget, 0)
+    }
+    /// Internal type inspection for fixed source projection. This neither
+    /// installs a declaration nor establishes an equality or termination fact.
+    pub(crate) fn projection_term_sort(
+        &self, definition: &Declaration, bindings: &[(String, Sort)], term: &Term,
+    ) -> LangResult<Sort> {
+        let Declaration::Function { params, result, recursive, .. } = definition else {
+            return Err("projected term requires a function signature".into());
+        };
+        self.env(params)?;
+        self.sort(result)?;
+        let pending = Function { params: params.clone(), result: result.clone(),
+            recursive: *recursive, body: Term::Bool(false) };
+        // Lexical match scopes can contain more names than a function's
+        // parameter list. Keep the ordinary signature cap; do not apply it to
+        // these already exposed local constructor fields.
+        let mut env=Env::new();let mut budget=Budget::new();
+        for (n,s) in bindings {
+            budget.step(0)?;name(n)?;self.sort(s)?;
+            if env.insert(n.clone(),s.clone()).is_some(){return Err("duplicate logic parameter".into());}
+        }
+        infer(term, &env, self, Some(&pending), false, &mut budget, 0)
+    }
+    pub(crate) fn projection_constructor_fields(&self, datatype: &str, constructor: usize) -> LangResult<Vec<Sort>> {
+        Ok(self.datatype(datatype, false)?.get(constructor)
+            .ok_or("unknown projected constructor")?.fields.clone())
     }
 }
 /// Arithmetic has one portable quiet NaN; transport and negation preserve bits.

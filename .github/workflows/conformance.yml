@@ -160,6 +160,7 @@ jobs:
         python3 tools/check_core_package.py core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
         python3 reports/learned-programs-2026-10-16/audit.py --ink target/debug/ink
         python3 reports/closed-learned-computations-2026-10-17/audit.py --ink target/debug/ink
+        python3 reports/modular-action-projection-2026-10-17/audit.py
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
         cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields --test prepared_sums --test sum_spines
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
