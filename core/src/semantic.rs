@@ -1466,7 +1466,8 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     // semantic tree and prevents portable definition replay.
                     Expr::Var("None".into())
                 } else if n.strip_prefix("call:").is_some_and(crate::primitives::bit_count) {
-                    let argument = a.first().ok_or("count reification argument")?;
+                    if a.len() != 1 { return Err("count reification argument count".into()); }
+                    let argument = &a[0];
                     let ty = val(&argument.sort)?;
                     let mut env = check::Env::new();
                     environment(argument, bound, 0, &mut env);
