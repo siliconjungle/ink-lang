@@ -59,6 +59,12 @@ the previous requested output intact. Tests cover a wrapping-word fold as well
 as floating-point operation sequences; the general F64 proof domain remains
 unsupported.
 
+The current producer requires the same ordered dynamic argument correspondence
+between a projected traversal and its helpers. Reordered scalar captures,
+partially fixed captures and additional initializer forms need more general
+parameter abstraction; valid source outside this opportunity domain can be
+rejected as a proposal. It is not a general whole-application compiler yet.
+
 Six paired fresh Node processes measured about 1.38× faster warm serving for
 32 operations and 1.30× for 128. Updating weights every request measured 1.17×
 and 1.23× respectively. The selected JavaScript is larger; import and first

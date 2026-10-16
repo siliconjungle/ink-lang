@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "source": "5d5dbde518cabdd84c2c92b1276f738172a81ef2",
+  "packages": {
+    "abi": "6356464654b39341d1e442d61c64be1e3a720489",
+    "native-support": "8a87387f9431691eec49439d4a01a9c7eab30bc7",
+    "knowledge": "2d1ac85647e00443bdbfea017bbebb1cdec52f50",
+    "planner": "7026cfe02e4f9ab7c3ce29f9ce0ee2b02b3e4d33",
+    "runtime": "815083be0aa7fbb872fc420c1ada3df17a0d324a",
+    "lowerings/rust": "b8889d78761fd0b7415b4847a405000b0995911c",
+    "lowerings/js": "db857530af5b554ca5c6c27cc64d4b0c5e731009",
+    "lowerings/wasm": "08a39959b864a47e00f87cad94ef1cff1ed7dafb",
+    "lowerings/gpu": "0ce5a18fb353da4191920a458cb973517cbe7cab"
+  },
+  "private_checkout": true,
+  "private_target": true,
+  "tool_source_subsets": {
+    "knowledge": [
+      "ink_knowledge",
+      "producers",
+      "libraries"
+    ],
+    "planner": [
+      "ink_planner",
+      "browser",
+      "plan.py",
+      "compile_plan.py"
+    ]
+  },
+  "fixture": {
+    "program": "examples/frozen-program.ink",
+    "trace": "examples/frozen-program-long-training.json",
+    "freeze_roots": "Structure",
+    "composition": true
+  },
+  "scope": "Fresh committed compiler/package source rebuild and matching executed images for the recorded fixture. Historical tool catalogues/experiments are excluded; not a whole-compiler or toolchain correctness proof.",
+  "resolution_lock_sha256": "a882447a3d4c99c3f4a1415adaeb9e7274d0eed8400a3417825f00098dad33b4",
+  "composition": {
+    "plan_sha256": "2501a03a2ab827cd5f50c161ddebea4fd126462114799225e1f420f19d547b4e",
+    "javascript_sha256": "f760b0ba6ac885de4be919788af5913f6a857864c6857befe17d21f04c02f1a5",
+    "input_core_sha256": "00d9a53f003e6781f8f4252cdb0b6801d1f726eedc8ec34adea5bf5e8da2b07f",
+    "selected_core_sha256": "512904caff93adfb483fc8762d9628a43cc4436cff3c3d1a6fa1bb8a6a8a940b"
+  },
+  "images": {
+    "baseline": {
+      "source.core.json": "02f9989baf3b3d4dbe14646d1abed77ecdd38d6f36618a3152a97dfde1d5d030",
+      "compiled.core.json": "00d9a53f003e6781f8f4252cdb0b6801d1f726eedc8ec34adea5bf5e8da2b07f",
+      "model.snapshot": "35ac8431192978a35323ab588b710de07fecd91f258d5848333496dd989746ad",
+      "deployment.snapshot": "17056d4d7d4b584f555a6695529f1b2a377a4b93e754c54fc6b9b2b4471e406e",
+      "trace.json": "6b55e5673153c0709d6769d8964b4cf883efaed275d51fb19444bdf7f2bfb7c3",
+      "program.mjs": "ad1e490b968e5dc773710167c9908826e74d5ce17b83cdca868248c95a3d1924",
+      "program.mjs.source.mjs": "a0b16a90f235e12273d6302df3913224c6aafa6c48f86345ce926ad6deff59af",
+      "program.mjs.initial-state.mjs": "53cefc4c94122821f822f12e6dad784f5f102cd464b1ef308c6aec376816bb4e",
+      "program.mjs.initial.snapshot": "17056d4d7d4b584f555a6695529f1b2a377a4b93e754c54fc6b9b2b4471e406e"
+    }
+  },
+  "cargo_version": "cargo 1.99.0 (5f94df478 2026-08-27)",
+  "status": "passed",
+  "log_sha256": "dcf6a7c82e5407a4d64c9eaa8f59d9abae1c685ab234199f82c1f34a879e544a"
+}
