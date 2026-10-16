@@ -40,7 +40,7 @@ try:
     work.append(dict(function=function,args=[x]))
    for upper in [4294967296-offset,4294967380+offset]:
     work.append(dict(function='relational',args=[x,upper]))
-  
+
   if a.target=='javascript':
    work=[dict(row,boundary='compact')for row in work]
   spec=dict(schema=3 if a.target=='javascript'else 1,phases={'calls':work},profile={'calls':1},workload=dict(shape={'protocol':'three range-conversion functions; both branches and boundary controls'},distribution=split+' disjoint typed scalar calls',concurrency=1,residency='complete generated compact-wire JS calls or JSON native calls; scalar results fully consumed'))
