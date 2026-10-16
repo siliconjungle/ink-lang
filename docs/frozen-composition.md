@@ -91,11 +91,34 @@ the previous requested output intact. Tests cover a wrapping-word fold as well
 as floating-point operation sequences; the general F64 proof domain remains
 unsupported.
 
-The current producer requires the same ordered dynamic argument correspondence
-between a projected traversal and its helpers. Reordered scalar captures,
-partially fixed captures and additional initializer forms need more general
-parameter abstraction; valid source outside this opportunity domain can be
-rejected as a proposal. It is not a general whole-application compiler yet.
+Prefix laws can abstract fixed, unused or reordered captures with matching
+types. The accumulator remains a distinct parameter even when its initial
+value equals a capture. Unsupported capture/initializer shapes still reject
+as proposals. This is not a general whole-application compiler yet.
+
+## Exact closed calculations
+
+When every argument is known, scalar operations and balanced helper invocations
+can become constants. Binary32 proposals use integer arithmetic with explicit
+rounding, signed-zero and NaN rules; ordinary kernel conversion checks the
+answer independently. Dynamic operands retain their original operations and
+rounding points. This does not authorize floating-point reassociation or
+approximate replacement.
+
+A long closed traversal can disappear from the selected action while its
+balanced helpers remain as ordinary proof witnesses. An auxiliary pure-query
+projection exposes those definitions for authoring; its queries never enter
+the executable source. Universal prefix laws connect the original fold to the
+helper, followed by checked conversion of that closed invocation. Evaluating
+two expressions to the same proposed result does not supply a proof. Short
+traversals retain the existing direct conversion attempt and checker limits.
+
+The proposal expands original calls when an argument becomes newly known,
+keeping already literal initializers behind their existing function boundaries.
+Generated helper calls collapse only when all their arguments are closed.
+Immutable literal maps can also be proposed as literal values; dynamic captures
+or non-value results retain the original map. Complete action proofs continue
+to decide whether any proposed change is admitted.
 
 ## Shared and expanded code layouts
 

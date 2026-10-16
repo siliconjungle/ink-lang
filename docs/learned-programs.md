@@ -150,6 +150,12 @@ JavaScript, Wasm and the GPU host, with actual device work on the specialized
 pure root. These establish finite implementation conformance, not correctness of
 the whole compiler, AD transform, learning algorithm or toolchain.
 
+The [closed-computation report](../reports/closed-learned-computations-2026-10-17/README.md)
+retains the exact artifacts, isolated-process measurements, earlier noisy runs,
+proof-package tampering checks and fresh committed-source image comparison.
+Its request timings exclude construction, proof checking and startup; those
+boundaries must remain separate when assessing profitability.
+
 General learned representations, broader graph/tape specialization, learned goal
 policies with admitted profitability evidence, parallel/device training and the
 full upstream performance targets remain part of the
