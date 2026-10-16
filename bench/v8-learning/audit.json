@@ -1814,6 +1814,378 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full134-line induction-analysis interface read, completing the previously read implementation dependency. Explicit initial/increment/phi/effect-phi identities, strict/non-strict bounds and persistent per-control constraints. Two-control entry/backedge assumptions and restoring guarded ordinary phis are implementation invariants, not general Ink loop premises. No new algorithm or source reread is counted for the already reviewed .cc."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-finder.h",
+      "sha256": "156224ef84fcae3dd49e1484e0283e604474121dc5fce513f573ed7fc22f329b",
+      "inclusive_lines": [
+        [
+          1,
+          126
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full126-line loop-region interface read. Reverse predecessor traversal assumes reducible single-backedge loops; upper-bound op counts and call presence guide bounded copying, not profitability or inductive truth. Ink structured loops already expose lexical regions; no extra trusted CFG premise is needed."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-finder.cc",
+      "sha256": "10329e61a67d0932cd14352db507d14d732bde77f3d4fed8818f6356e0879cab",
+      "inclusive_lines": [
+        [
+          1,
+          113
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full113-line implementation read. Inner-first reverse traversal skips inner backedges, marks closest parent loops and counts only direct loop blocks. Header/backedge graph invariants are checked assumptions of this V8 IR. Generic Ink loop proposal guidance may use structural regions without authorizing source transformations."
+    },
+    {
+      "path": "src/compiler/branch-elimination.h",
+      "sha256": "fa2b74b92677036285e0d3c81501fd942054cad389a7755b1982fe2402a8a711",
+      "inclusive_lines": [
+        [
+          1,
+          100
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full100-line interface read. Conditions carry their exact owner branch and JS versus machine phase; unique-node scoped path state is distinct from source term identity. Repeated-condition laws in Ink remain database proofs, with strict argument work preserved."
+    },
+    {
+      "path": "src/compiler/branch-elimination.cc",
+      "sha256": "fc1443fde36241de8cfbb7b46031f7590456d862b0c70b1c244d31fff26d018f",
+      "inclusive_lines": [
+        [
+          1,
+          405
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full405-line reducer read. Repeated branch elimination, matching branch-semantics checks, narrowly owned merge/phi rewiring, trap/deopt preservation, predecessor readiness, revisit scheduling and longest-common-control ancestry at merges assessed. Loop-entry facts rely on reducibility/dominance. Ink cannot inherit a fact across a binder, mutation or failing check; arbitrary branch facts must appear in ordinary checked Cases/premises. No new CFG checker rule or unconditional runtime gain follows."
+    },
+    {
+      "path": "src/compiler/control-path-state.h",
+      "sha256": "6f70dedcb4dc606c77fa410d56a63df788e9e058644ab75cbf6d4d193cb3c345",
+      "inclusive_lines": [
+        [
+          1,
+          258
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full scoped-state template read. Persistent functional block lists and auxiliary depth-keyed maps must agree; common-ancestor merges remove branch-local facts, and repeated instances use nearest active depth. Reusable persistent proposal context is possible, but lookup metadata alone is never equality authority. No copying into core is needed for Ink structured terms."
+    },
+    {
+      "path": "src/compiler/common-operator-reducer.h",
+      "sha256": "1460760400746d477be471d863e539ea637d0f1ddbc696808badd8c7183d6df9",
+      "inclusive_lines": [
+        [
+          1,
+          79
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full79-line common operator interface read. Phase-specific branch semantics, exact graph ownership and revisits are implementation dependencies, not portable algebraic laws."
+    },
+    {
+      "path": "src/compiler/common-operator-reducer.cc",
+      "sha256": "8e3d379f6ff39ad4f78c4bd1d9ff3fa4e8b6af50cded99a1223d6d34702c79e0",
+      "inclusive_lines": [
+        [
+          1,
+          580
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full580-line implementation read. Constant branches/switches, common input phi/effect-phi collapse, owned empty diamonds, effect-aware return distribution, negated branch hints, trap preservation and arithmetic absolute-value patterns assessed. V8 FloatAbs pattern cannot transfer blindly to exact Ink stored-bit/NaN/signed-zero semantics; signed word abs is an ordinary bitvector candidate. Unused branch conditions and source computation failures remain observable in Ink and must be retained by authored lexical bindings. Host instruction select profitability is separate from fewer nodes."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-unrolling-phase.cc",
+      "sha256": "91d1ec34a9bf4381ab8588aee8e59ae17c897917d6e324cb7da83e01e93cf238",
+      "inclusive_lines": [
+        [
+          1,
+          34
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full34-line phase read. Compose loop stack-check elision, bounded unrolling, machine simplification and value numbering only when analyzer finds work. Analyzer attaches exclusively to input graph and resets on graph swap; Ink source/proof identity bindings similarly forbid carrying stale facts into a changed subject."
+    },
+    {
+      "path": "src/compiler/turboshaft/loop-unrolling-phase.h",
+      "sha256": "faf19dce4464f6712608ecbb03ec6a70c95d190041da23332cd31488174662ed",
+      "inclusive_lines": [
+        [
+          1,
+          20
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full20-line phase header read. Driver declaration adds no proof capability; individual loop legality and profitability assessments remain open."
+    },
+    {
+      "path": "src/compiler/allocation-builder.h",
+      "sha256": "ad483e1108809245e73ebf24f9c01ac43a89ee3a75570eeba8784d6768cd6817",
+      "inclusive_lines": [
+        [
+          1,
+          105
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full105-line inline allocation interface read. New-object field/element initialization threads an explicit effect chain and completes an unobservable region; typed finish and ordinary effect ordering remain required. Ink already distinguishes immutable construction from owned Buffer mutation; no initialized-field fact grants escape or write-elision authority."
+    },
+    {
+      "path": "src/compiler/allocation-builder-inl.h",
+      "sha256": "5c77826224c49dadd0d47b6809b2a4cf6a0e57d933de5098be689a60e94f7250",
+      "inclusive_lines": [
+        [
+          1,
+          85
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full85-line implementation read. Inline heap object sizing is checked against allocation-generation limits; array/context map/length initialization remains explicit. V8 maps, GC and sloppy argument objects do not occur in Ink source. Do not import host heap size constants into source range facts or remove observable initialization work."
+    },
+    {
+      "path": "src/compiler/simplified-operator-reducer.h",
+      "sha256": "35bbc7580e204b5cd47ad421eca3a76f2d4701d59dbd76184fc23ab652a51d9a",
+      "inclusive_lines": [
+        [
+          1,
+          73
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full73-line reducer interface read, completing the already reviewed implementation dependency. Constant construction preserves raw Float64 overloads and declared branch semantics. This grants no F64 proof capability; Ink unsupported nested F64 source terms remain fail-closed."
+    },
+    {
+      "path": "src/compiler/wasm-load-elimination.cc",
+      "sha256": "ea21c0c3ee3010dc0401de124fb60a14cf1684a431e83d1c87bed7f24482e9f7",
+      "inclusive_lines": [
+        [
+          1,
+          603
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full603-line reducer read. Separate mutable/immutable field states, exact merge intersection, narrow-field truncate/extend on forwarded values, alias kills, cast/not-null resolution, unknown-write invalidation and backedge mutation scan assessed. Null/bottom and inconsistent-field paths retain trapping behavior. String internalization/externalization invalidates representation-sensitive cached preparation. Ink Rust-Wasm has no GC structs or WTF16 strings, so no direct operator patch applies. Generic Ink load proposals still need checked preservation across exact actions, portable raw-bit values, errors and rollback; mutable roots cannot inherit immutable-cache lifetime."
+    },
+    {
+      "path": "src/compiler/wasm-load-elimination.h",
+      "sha256": "6571238e33c0d930b3bf30aa436494cddda35c8bad76c58329fe367dce2b3cc8",
+      "inclusive_lines": [
+        [
+          1,
+          166
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full166-line abstract-state interface read. Persistent offset/object maps and disjoint mutable/immutable halves model identity-preserving GC references. Equal node identities and field offsets are implementation metadata, not source equality premises or proof of disjoint Ink ownership."
+    },
+    {
+      "path": "src/compiler/functional-list.h",
+      "sha256": "098f607effce60f7cf7483ea4afcd85cdb08acae743c68fb196bcf640b74bc04",
+      "inclusive_lines": [
+        [
+          1,
+          134
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full134-line persistent list implementation read. Immutable Cons cells make copies constant-time; value equality, physical shared-tail ancestry and optional allocation-reuse hints have distinct contracts. Proposal contexts may share structure, but equal contents never manufacture dominance or source proof facts."
+    },
+    {
+      "path": "src/compiler/persistent-map.h",
+      "sha256": "9e0c77f5b70239e819b78b8db0eb4e76af1e52f41aff7ee9038222a2664ed5d0",
+      "inclusive_lines": [
+        [
+          1,
+          560
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full560-line hash-trie implementation read. O(1) copies, path-copy updates, exact collision maps, default-value deletion/iteration, lockstep Zip and pointer-equality fast rejection assessed. Hash equality alone never establishes key/value equality; exact collision comparison remains required. Generic persistent contexts could reduce untrusted branch authoring copies, but no workload evidence currently warrants replacing Ink dictionaries or checked canonical identities."
+    },
+    {
+      "path": "src/compiler/turboshaft/load-elimination-phase.cc",
+      "sha256": "060ded9a62b10760787e2c647e5f769e10b5b0ee98ba929976e6d8fd2fb935cd",
+      "inclusive_lines": [
+        [
+          1,
+          29
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full29-line composition phase read. Stack-check elision, late load elimination, machine/branch simplification and value numbering run in one copying stack. Tracing broker scope and reducer ordering belong to V8 implementation; exact source/effect proofs remain necessary in Ink."
+    },
+    {
+      "path": "src/compiler/turboshaft/memory-optimization-phase.cc",
+      "sha256": "e4b8368fc99d456c249537fdfb68de85e9e9f6836ccfdfbbe6fb4b037a552947",
+      "inclusive_lines": [
+        [
+          1,
+          35
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full35-line memory phase read. Cascade-to-switch, escape, pretenuring, allocation, machine and value-numbering composition inspected. GC generation placement and pretenuring are host responsibilities in current Ink; no placement or allocation-elision proof is inherited."
+    },
+    {
+      "path": "src/compiler/turboshaft/type-assertions-phase.cc",
+      "sha256": "a0bc44ad84b2a442669293930c2e7403fcfcbbada82852c4fc56e7eb31bec707",
+      "inclusive_lines": [
+        [
+          1,
+          30
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full30-line assertion phase read. Precise input typing and preserved output types are explicitly scoped through assertion/value-numbering/type-inference reducers. Runtime diagnostic assertions validate observations; their presence or successful samples do not establish a universal source theorem."
+    },
+    {
+      "path": "src/compiler/add-type-assertions-reducer.cc",
+      "sha256": "fca5240a68a473ebc79a33af1eb6751efb04855aa9b75a4d6064aad01e609e2a",
+      "inclusive_lines": [
+        [
+          1,
+          88
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full88-line debug assertion insertion read. Only assertable nodes before same-block effect successors are checked; allocation regions, phis, untyped/unreachable nodes are skipped. This deliberately incomplete diagnostic must not be described as full optimizer validation. Ink already distinguishes source proof checking from runtime conformance observations."
+    },
+    {
+      "path": "src/compiler/add-type-assertions-reducer.h",
+      "sha256": "8424984937482458429b5bf770b7c0e14977fb144091e2d79c01debc0b8ce482",
+      "inclusive_lines": [
+        [
+          1,
+          25
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full25-line diagnostic assertion interface read; no new optimization semantics or portable admission surface."
+    },
+    {
+      "path": "src/compiler/csa-load-elimination.h",
+      "sha256": "cfad17c560b016719e7ef1b53b06d30d93364fe41a6d04a5d2272892158442f6",
+      "inclusive_lines": [
+        [
+          1,
+          185
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full185-line abstract-state interface read. Mutable/immutable halves each distinguish fresh, constant and arbitrary objects, and known versus symbolic offsets. Cached values bind representation as well as owner/offset. These metadata categories do not grant raw pointer alias facts to Ink source."
+    },
+    {
+      "path": "src/compiler/csa-load-elimination.cc",
+      "sha256": "dedfc26dbad34a5bd1e34a9ce4545cc7d6a5ff8f9e375b5d5622b3ab2feb8f66",
+      "inclusive_lines": [
+        [
+          1,
+          622
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full622-line CSA load/store forwarding implementation read. Exact merge intersection and loop-write scans, representation-subsumption plus truncate/sign/zero extension, overlapping byte-span invalidation (including earlier larger fields), unknown-offset alias widening and immutable-initialization consistency assessed. Unknown effects discard mutable cache; debug-only special calls preserve it under V8 contracts. Ink typed layouts/Buffer partitions already have explicit bounds/ownership rules; further field-level action reuse must prove raw-bit source preservation and rollback, not infer nonaliasing from matching field names. No direct CSA heap operator exists in current Ink."
+    },
+    {
+      "path": "src/compiler/load-elimination.h",
+      "sha256": "d1f9bd5616d1f479d24d54af12e989570fcdf7e498a20d21fbf975ffcdc161f3",
+      "inclusive_lines": [
+        [
+          1,
+          378
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full378-line TurboFan abstract-state interface read. Bounded element ring and field/object caps evict facts conservatively; fields carry representations, optional property names and const provenance. Byte/index-range overlap, must/may alias and effect-node state are distinct. Cache capacity is an optimization budget, never a semantic premise."
+    },
+    {
+      "path": "src/compiler/load-elimination.cc",
+      "sha256": "67bf8e207779992dddb4aa637a1e6dad631e52d4ffc200810e90ac6aa8457166",
+      "inclusive_lines": [
+        [
+          1,
+          1601
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full1601-line TurboFan implementation read. Exact common field/map/element facts at merges; guarded representation-compatible forwarding and redundant stores; fresh-region aliases; copy-on-write/growth/map migration invalidation; loop backedge scanning and temporary zones assessed. A two-stage transition kill is crucial: first invalidate maps for all transitions, then element fields, so fast A-to-B followed by slow B-to-C cannot preserve stale elements merely because transitions were visited in reverse order. Ink coarse root effects/transaction invalidation are conservative and do not currently require JS-map machinery. Any future finer representation/field cache must model transitive transition effects and prove full observations/errors/rollback before reuse. Existing raw-bit and checked layout boundaries remain required."
+    },
+    {
+      "path": "src/compiler/turboshaft/wasm-load-elimination-reducer.h",
+      "sha256": "77e6f43179c0cd5e9152cab362d766231f6ae47382a27eac64cd44db3dbd6bf3",
+      "inclusive_lines": [
+        [
+          1,
+          676
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full676-line modern Wasm load table/reducer read. Keys bind base, offset, type, size and mutability; snapshot callbacks maintain active base/offset indexes. Atomic loads are never eliminated; shared bases skip racy debug rechecking, narrow representations decline, and debug float equivalence accepts arbitrary NaNs. That verifier is weaker than Ink raw-bit identity and cannot establish source equality. Freshness/no-alias is independently tracked and invalidated by escape; no GC struct or WTF16 operator exists in current Ink Rust-Wasm."
+    },
+    {
+      "path": "src/compiler/turboshaft/wasm-load-elimination-reducer.cc",
+      "sha256": "9345808f67073e0b1cb62cffd07e049cf0081570055238635c064481c7df75ff",
+      "inclusive_lines": [
+        [
+          1,
+          771
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full771-line analyzer read. Memory merges keep exact common values; no-alias joins use conjunction. Calls/stores/phis conservatively invalidate escaped identities, and GC/array/linear-memory atomics all clear mutable shared-base state because synchronization can cross those domains. Loop forward snapshots monotonically restrict stale entry facts, while parallel phi replacement backups/clearing match the real revisit order and prevent infinite revisits. Existing Ink pure parallel callbacks have no shared mutable source heap; introducing that model would require explicit memory-order semantics first. General untrusted proposal worklists may reuse these convergence ideas but must replay ordinary source proofs; no inferred alias/range fact is admitted."
+    },
+    {
+      "path": "src/maglev/maglev-node-type.h",
+      "sha256": "1b0784c4bed2e442985dad079afce1d9db10896a32240b302eca9bf6ede8893f",
+      "inclusive_lines": [
+        [
+          1,
+          197
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full197-line leaf/union bitmask type lattice read. Bottom None is currently allowed by default subtype tests pending Abort propagation; empty/unknown and disjointness must not be confused. Complement-only leaves cannot be tested standalone. Ink fixed sorts and fail-closed unsupported proof sorts must not inherit speculative Smi/heap-class or dead-path facts."
+    },
+    {
+      "path": "src/maglev/maglev-node-type.cc",
+      "sha256": "31b8f9d404e4e35af1e2d490de36cc392fa9fd8dbbb27508fd09844c1f670ab1",
+      "inclusive_lines": [
+        [
+          1,
+          162
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full162-line static constant/map classification and runtime type-membership implementation read. Heap number/string/internalized/callable/receiver/BigInt classes, holes, complement exclusions and printing unions depend on V8 object maps. Ink immutable typed constructors already supply exact declared carriers; no dynamic map test, coercion or representation identity theorem transfers."
+    },
+    {
+      "path": "src/maglev/maglev-reducer.h",
+      "sha256": "0a1e9f801867f5276f0537cce262e028348173a792bb899894ae54c61b375bad",
+      "inclusive_lines": [
+        [
+          1,
+          2023
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full2023-line reusable reducer interface read. Failure/no-value/abort outcomes stay distinct; reusable reducers require explicit effect/deopt/allocation capabilities. Eager versus lazy continuations preserve before/after evaluation state, and throwing intermediate nodes are tracked even if the returned node cannot throw. Owned call-argument buffers versus readonly input views, bounded bound-target recursion, structural subgraph merges, scoped allocation/conversion/property metadata and demand hints assessed. Ink has fixed typed calls and no speculative JS deopt/map/prototype semantics; existing literal argument/error/rollback preservation remains required. The7191-line inline implementation is still unread; declarations do not count as implemented reductions."
+    },
+    {
+      "path": "src/maglev/maglev-reducer-inl.h",
+      "sha256": "27fcd6edc864f1b182ff41e4a5b97ec108465dd5c21f1149b26aabc6bb25ad98",
+      "inclusive_lines": [
+        [
+          1,
+          3200
+        ]
+      ],
+      "review_status": "partial read; remaining inline implementation open",
+      "note": "Lines1..800 read: continuation frame construction and receiver materialization, CSE after exact input conversion/options comparison, graph splice ordering, eager/lazy exception info, effect invalidation, truncation range hints, tracked field loads/stores and write barriers, bounded static context-slot handling. Hashes find candidates only; options/inputs are compared. Type/effect/deopt hints rely on V8 runtime contracts and cannot supply Ink equality or unique-ownership facts. Remainder of7191-line implementation remains unread. Lines801..2400 also read: constant-context initialization/TDZ guards, exact field conversions versus mutable HeapNumber materialization, allocation folding and escape dependencies, map/protector guarded array lookup/negative indexing, exact versus lossy conversion alternatives, raw/holey NaN distinctions, abrupt block termination, stable ordered node insertion, recursion/size/frequency inlining gates and constant array bounds. V8 constants may canonicalize NaNs or reinterpret special NaNs as holes; Ink raw stored bits and explicit source errors/defaults must remain distinct. Remaining lines2401..7191 unread. Lines2401..3200 also read: guarded map/value constants, Boolean coercion, fresh/stable prototype-chain dependencies, bounded bound-function instance checks and exact SameValue distinctions for NaN and signed zeros. V8 SameValue may identify arbitrary NaNs and must not replace Ink stored-bit equality; type-equivalent numeric constants also do not imply Smi tagging. Remaining lines3201..7191 unread."
     }
   ],
   "families": [
@@ -1821,13 +2193,13 @@
       "name": "machine-word",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/machine-optimization-reducer.h",
-      "note": "Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit 338 of 340 signed/unsigned division, remainder and bit-operation proposals. Bounded lossless proof transport and an ordinary Boolean cover now admit U64 self quotient; two U64 remainder acquisitions remain unadmitted and excluded. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim."
+      "note": "Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit all 340 of 340 signed/unsigned division, remainder and bit-operation proposals. Bounded lossless proof transport and an ordinary Boolean cover now admit U64 self quotient; explicit equality-assisted database authoring now admits both remaining U64 remainder laws as self-contained ordinary proofs, preserving all 338 earlier identities. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim."
     },
     {
       "name": "branch-control",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/branch-elimination-reducer.h",
-      "note": "Repeated conditions/select proposals admitted; CFG branch threading and merge behavior remain Resumed pass adds database-controlled maximum-arm pricing and scoped zero-extent hypotheses with hygienic binders. Default semantic discovery now selects three guarded callback controls; official native acquisition retains an uncertain smaller cohort and accepts a separate larger workload under unchanged guards. These are untrusted search estimates, never path facts admitted to proofs."
+      "note": "Repeated conditions/select proposals admitted; CFG branch threading and merge behavior remain Resumed pass adds database-controlled maximum-arm pricing and scoped zero-extent hypotheses with hygienic binders. Default semantic discovery now selects three guarded callback controls; official native acquisition retains an uncertain smaller cohort and accepts a separate larger workload under unchanged guards. These are untrusted search estimates, never path facts admitted to proofs. Full TurboFan branch elimination/common operators and scoped path-state templates now reviewed: facts require matching branch semantics and control ancestry; trap/effect/strict-condition work remains observable. Generic Ink authoring must transport explicit checked facts, not import CFG metadata as premises."
     },
     {
       "name": "value-numbering",
@@ -1839,7 +2211,7 @@
       "name": "load-elimination",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/late-load-elimination-reducer.h",
-      "note": "Full late-load implementation/header reviewed. Existing coarse and keyed preservation plus guarded U64/Bool tuple query specialization with original fallback. All laws remain in knowledge; no new core recognizer. CPU conformance and held-out JavaScript lifecycle evidence retained. General alias and loop-load elimination remain open."
+      "note": "Full late-load implementation/header reviewed. Existing coarse and keyed preservation plus guarded U64/Bool tuple query specialization with original fallback. All laws remain in knowledge; no new core recognizer. CPU conformance and held-out JavaScript lifecycle evidence retained. General alias and loop-load elimination remain open. Full CSA load elimination implementation/header now read: representation-sensitive forwarding and overlapping-byte invalidation matter; arbitrary field-name equality cannot establish no-alias or portable source preservation. Full TurboFan load elimination/header now reviewed: bounded conservative fact eviction, representation checks, COW/migration, merge intersection and transitive two-stage loop transition invalidation. Current coarse Ink effects stay conservative; finer cache proposals need ordinary source proofs."
     },
     {
       "name": "store-elimination",
@@ -1869,7 +2241,7 @@
       "name": "loop-transforms",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/loop-optimization-reducer.h",
-      "note": "Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open. Scheduler hoisting ranges and TurboFan peeling implementation reviewed; guarded scalar callback hoisting proposals added to knowledge. Broader dynamic CFG transforms remain open."
+      "note": "Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open. Scheduler hoisting ranges and TurboFan peeling implementation reviewed; guarded scalar callback hoisting proposals added to knowledge. Broader dynamic CFG transforms remain open. Loop region finder and unrolling phase now fully read; reducible single-backedge and inner-first region assumptions plus input-graph analyzer invalidation are assessed. This adds no dynamic-loop theorem or profitability claim."
     },
     {
       "name": "strings",
@@ -1893,7 +2265,7 @@
       "name": "maglev",
       "status": "partial",
       "entry_point": "src/maglev/maglev-graph-builder.cc",
-      "note": "Optimizer header and full 4050-line implementation read. Scoped facts, representation/check strength, disabled unsafe Smi bypass, NaN/negative-zero distinctions, call specialization/inlining scores and deferred Phi/identity repair assessed. Reducer helpers, graph builder, known-node aspects, representation/inlining passes and generic Ink applicability remain open. Known-node-aspects header and implementation read in full; broader graph builder/reducer and applicability assessment remain open."
+      "note": "Optimizer header and full 4050-line implementation read. Scoped facts, representation/check strength, disabled unsafe Smi bypass, NaN/negative-zero distinctions, call specialization/inlining scores and deferred Phi/identity repair assessed. Reducer helpers, graph builder, known-node aspects, representation/inlining passes and generic Ink applicability remain open. Known-node-aspects header and implementation read in full; broader graph builder/reducer and applicability assessment remain open. Full node-type lattice/classifier now reviewed; default bottom-subtype allowances and complement-only leaf classes cannot establish Ink dead-path, carrier or raw-bit facts. Full reusable reducer header now reviewed: optional failure and abort, readonly call argument views, before/after deopt frames and intermediate-throw reachability matter. Inline reducer implementation remains unread."
     },
     {
       "name": "pipeline-infrastructure",
@@ -1947,7 +2319,7 @@
       "name": "wasm-gc",
       "status": "partial",
       "entry_point": "src/compiler/turboshaft/wasm-gc-typed-optimization-reducer.cc",
-      "note": "Full typed GC analyzer/reducer and composing optimization phase read. Current Ink emits ordinary Rust linear-memory Wasm, without these GC-reference operators; no direct GC check-removal patch applies. Snapshot joins, trap preservation and generic scoped analysis assessed; Wasm load elimination, other lowering and inlining remain open."
+      "note": "Full typed GC analyzer/reducer and composing optimization phase read. Current Ink emits ordinary Rust linear-memory Wasm, without these GC-reference operators; no direct GC check-removal patch applies. Snapshot joins, trap preservation and generic scoped analysis assessed; Wasm load elimination, other lowering and inlining remain open. TurboFan Wasm load elimination and its header now fully read: mutable/immutable cache separation, merge intersection, alias/write invalidation, trap preservation and narrow-field reconstruction assessed. Current Rust-Wasm lacks those GC-reference operators; Turboshaft Wasm load table/analyzer/reducer also fully read, including cross-domain atomic invalidation, escape/no-alias tracking, precise snapshot merges and loop/phi revisit convergence. Its debug NaN equivalence is weaker than Ink exact stored bits; shared-memory ordering has no direct current source counterpart."
     }
   ],
   "closeout": {
@@ -1973,11 +2345,11 @@
       },
       {
         "area": "coverage",
-        "task": "Continue unread 474 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
+        "task": "Continue unread428 files plus four partial files/ranges (including Maglev reducer inline lines3201..7191) and optimizer dependencies outside selected inventory.177full files reviewed; every family remains partial. Source reading alone is not implementation or performance evidence."
       },
       {
         "area": "signed-range-and-integer",
-        "task": "337 checked signed/division/bit-operation laws now use versioned general integer circuits and bounded word extensionality. Continue three unadmitted U64 self/zero-numerator proofs, arbitrary-divisor magic-number authoring/multiply-high source support, conditional signed range proposals and persistent branch/loop fact construction. Reconstruct source/evaluation/default semantics, replay all concrete bounds and require independent profitability evidence. Generic RUP unit factoring/inlining now shrinks 43 existing word proofs with lower checker work and measured batch time. Eight masked quotient-self components check, but the unconditional root still stops at the object byte limit (23762435 bytes after a private general-clause inlining trial); assembled shared-work admission remains unverified. Avoid repeating unchanged acquisitions. A read-only strict replay estimate plus CNF variable/clause/literal charges gives a 17068422 aggregate work lower bound for the eight retained cases, below 20000000; term construction and Cases composition remain excluded. Investigate bounded generic lossless hint transport only after complete shared-work accounting. This estimate grants no admission and does not justify raised limits."
+        "task": "All340 original signed/unsigned division/remainder/bit-operation proposals now admit. Generic explicit equality-assisted authoring reuses checked quotient witnesses for the remaining two U64 remainders under ordinary shared budgets; all prior338 identities preserved. Continue arbitrary-divisor magic-number authoring/multiply-high source expressibility, variable power-of-two remainder guards, conditional signed ranges and two previously unadmitted U64 variable shift-combine proposals. Preserve strict operand work, lazy defaults and exact bit-width semantics; profitability remains independent."
       },
       {
         "area": "device-profitability-evidence",
@@ -2019,7 +2391,8 @@
       "Representation-change, Maglev phi selection and simplified-lowering/verifier now have full receipts. Continue the remaining type/range/demand implementations and conditional refinements; assess which generic fixed-meaning proof/representation machinery Ink lacks, especially explicit exact F64 capability and source multiply-high expressibility. Preserve raw bits, source evaluation and unsupported-mode rejection.",
       "Use the reviewed use-map, snapshots and graph-reducer mechanics only with bounded immutable contexts, unknown-at-join and demand-driven revisiting. Previous eager memo-wave prototype is retired; retain real frozen-corpus controls for any new scheduling change.",
       "Full operation typers/type-cache/TurboFan and Turboshaft type domains now reviewed. Any modular-range proposal work must independently check small-width containment, treat disconnected intersections conservatively, keep false IEEE comparison/NaN cases and full-width truncation facts separate, and emit ordinary source proofs; no interval or inferred type becomes a trusted premise.",
-      "Full TurboFan typer now reviewed: map its prefixed-point induction validation to ordinary Ink initial/guarded-step invariant witnesses, preserving wrapping/overflow, terminal overshoot and lazy defaults. Do not create a trusted interval-rule shortcut. F64 proof support also needs semantic-term/correspondence capability design, not merely widening existing32-bit gates; old domains must retain fail-closed unsupported nested terms."
+      "Full TurboFan typer now reviewed: map its prefixed-point induction validation to ordinary Ink initial/guarded-step invariant witnesses, preserving wrapping/overflow, terminal overshoot and lazy defaults. Do not create a trusted interval-rule shortcut. F64 proof support also needs semantic-term/correspondence capability design, not merely widening existing32-bit gates; old domains must retain fail-closed unsupported nested terms.",
+      "Investigate generic indexed frozen-proof dependency closure: self-contained assisted laws currently inline quotient witnesses. A combined quotient+remainder catalogue may duplicate large witnesses and hit unchanged object/catalogue budgets. First reproduce the composition boundary, then retain exact Use dependencies through untrusted discovery metadata and ordinary checking; do not raise limits or infer authority from index hashes."
     ],
     "eighth_batch": {
       "improvement": "Generic explicit source-checked complete-call GPU calibration companion with independent actual-device counters and exact typed validation; default automatic acquisition/selection/cache unchanged.",
@@ -2043,6 +2416,12 @@
       "corpus": "Observed driver exit0 and final stable context. All10 compile/admit alternatives;22 observed laws/six reused, all identities already present in preceding corpus. Newself law not attributed. Zero alternative/representation selection, all10 final gates measurement_evidence andquick budgets exhausted, median50.725sec excluding preparation. No near-miss reason; unpaired durations/counts establish no causal performance gain.",
       "merged_integration": "Knowledge162b9d8f includes concurrent source-correct scalar/traversal proposals;27 integration methods pass. Separate stable corpus10compile/24oldlaws/6reused/0choice, allquick/time andmeasurement_evidence gates; no newself attribution. Rootproduction1a58a4b6 rebuilt with planner d05401;9 cache/CLI tests and2 affected trained-plan tests pass across5target interfaces/143 exact source/snapshot cases. Final4oracles/8actualGPUcalls pass; both33-file GPUartifact trees equal original measured assets. No timing/context/selection authority transfer.",
       "ci": "Stale historical core pointer failed foundations run38911886680 after current470 core tests passed. Current root receipt now follows live alias through unchanged workflow; original466-test receipt/log remain hashed separately. Full historical integrity/current proof replay pass. Newmain CI queued/unverified."
+    },
+    "tenth_batch": {
+      "mechanism": "Database-only bounded explicit equality assistance through existing Congruence/AssertEquality; no core, proof rule, source meaning or budget change.",
+      "database": "340/340 integer proposals, both missing U64 remainder laws added;338 previous proof identities preserved. Self-contained inlined quotient witnesses fit16MB and complete shared20M circuit/RUP budgets.",
+      "validation": "14 regression methods pass in563.352s: all340 integer laws, independent integer oracle, strict/lazy/fullwidth source selections and authentic false-premise/corruption controls. Fresh authoring reproduces exact installed proofs. Stable final frozen10-program corpus compiles all10/admit alternatives,24oldlaws/sixreused/zerochoices, all final measurement-evidence gates and quick timeouts, median52.6435sec; no new remainder attribution. Corrected GPU holdout4.6925ms to0.601875ms, paired median7.4792626728 with all six process guards; CPU controls retain baseline.36 exact observations published/readback, proof snapshot/policy unchanged. No broad/automatic/cold performance claim.",
+      "evidence": "bench/v8-learning/remainder-facts"
     }
   },
   "scope_boundaries": [

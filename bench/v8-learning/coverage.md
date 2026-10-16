@@ -2,25 +2,25 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 147 full files, 3 partial files, 459 unread files; 609 inventoried files total.
+Source receipts: 177 full files, 4 partial files, 428 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
 ## Family assessment
 
-- machine-word: **partial** — Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit 338 of 340 signed/unsigned division, remainder and bit-operation proposals. Bounded lossless proof transport and an ordinary Boolean cover now admit U64 self quotient; two U64 remainder acquisitions remain unadmitted and excluded. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim.
-- branch-control: **partial** — Repeated conditions/select proposals admitted; CFG branch threading and merge behavior remain Resumed pass adds database-controlled maximum-arm pricing and scoped zero-extent hypotheses with hygienic binders. Default semantic discovery now selects three guarded callback controls; official native acquisition retains an uncertain smaller cohort and accepts a separate larger workload under unchanged guards. These are untrusted search estimates, never path facts admitted to proofs.
+- machine-word: **partial** — Full TurboFan and Turboshaft machine reducers plus external division-by-constant dependency read. Existing 83 word/control/conversion laws remain; the new FixedScalarsV4 source-circuit mode and generic shared-budget word extensionality admit all 340 of 340 signed/unsigned division, remainder and bit-operation proposals. Bounded lossless proof transport and an ordinary Boolean cover now admit U64 self quotient; explicit equality-assisted database authoring now admits both remaining U64 remainder laws as self-contained ordinary proofs, preserving all 338 earlier identities. Arbitrary-divisor magic-number proofs/multiply-high expressibility, remaining signed reductions and backend-delegation/profitability assessment stay open; no broad speedup claim.
+- branch-control: **partial** — Repeated conditions/select proposals admitted; CFG branch threading and merge behavior remain Resumed pass adds database-controlled maximum-arm pricing and scoped zero-extent hypotheses with hygienic binders. Default semantic discovery now selects three guarded callback controls; official native acquisition retains an uncertain smaller cohort and accepts a separate larger workload under unchanged guards. These are untrusted search estimates, never path facts admitted to proofs. Full TurboFan branch elimination/common operators and scoped path-state templates now reviewed: facts require matching branch semantics and control ancestry; trap/effect/strict-condition work remains observable. Generic Ink authoring must transport explicit checked facts, not import CFG metadata as premises.
 - value-numbering: **partial** — Full reducer reviewed. Generic exact scalar lexical-sharing proposals admitted through existing Normalize checks, including nested binders; held-out complete-call JavaScript evidence retained. Stateful loads and global dominance reuse remain open. Invocation-local bounded successful-call normalization cache now reuses exact function/argument/depth results in untrusted authoring after a 32-call threshold. Six ordinary Convert proofs and 64 matching old/new normal forms; three-process helper DAG controls improve ~13x/~22x, small captured obligations approximately unchanged. No proof-verdict cache or whole compiler/runtime gain claimed; see bench/v8-learning/normalizer.
-- load-elimination: **partial** — Full late-load implementation/header reviewed. Existing coarse and keyed preservation plus guarded U64/Bool tuple query specialization with original fallback. All laws remain in knowledge; no new core recognizer. CPU conformance and held-out JavaScript lifecycle evidence retained. General alias and loop-load elimination remain open.
+- load-elimination: **partial** — Full late-load implementation/header reviewed. Existing coarse and keyed preservation plus guarded U64/Bool tuple query specialization with original fallback. All laws remain in knowledge; no new core recognizer. CPU conformance and held-out JavaScript lifecycle evidence retained. General alias and loop-load elimination remain open. Full CSA load elimination implementation/header now read: representation-sensitive forwarding and overlapping-byte invalidation matter; arbitrary field-name equality cannot establish no-alias or portable source preservation. Full TurboFan load elimination/header now reviewed: bounded conservative fact eviction, representation checks, COW/migration, merge intersection and transitive two-stage loop transition invalidation. Current coarse Ink effects stay conservative; finer cache proposals need ordinary source proofs.
 - store-elimination: **partial** — Full reducer read. Existing replace_overwrite database laws identified; whole-action observation/error/transaction assessment and profitability remain open.
 - escape-allocation: **partial** — Late escape and full TurboFan escape analysis/reducer plus Wasm dead-allocation pass read. Existing affine owners, last-use moves and record-elision proposals cover parts of allocation avoidance. Effect-sensitive virtual fields, dominance merges, identity-preserving materialization, failure boundaries and lifecycle profitability need further Ink-specific assessment. No allocation rewrite authority follows from source review.
 - representation-types: **partial** — Typed/simplified reducers and complete representation changer read. New range-guided lossless U64/U32 round-trip proposal generation plus three reusable whole-branch checked laws. Exact boundaries, relational guards and wrapped-sum subjects validated; no check/type/F64 authority imported. Profitability measurements retain baseline on both current backends. Wider demand/representation analysis remains open. Exact F32 proof circuits and literal GPU carrier propagation are now integrated separately from any range/check-elision authority; cross-target/GPU validation retained in f32-bits. Simplified-lowering verifier/header now fully read: cached machine constants use per-use context, inferred types remain private until completion, and many operation cases intentionally have no verification. No complete lowering correctness or Ink representation theorem follows. Full simplified-lowering implementation/header now reviewed: complete propagation/retyping/lowering ordering, guarded unused/error behavior, numeric/BigInt/FFI/GC boundaries and type-dependent conversion costs. Ink fixed raw-bit/default semantics and proof/evidence gates remain; this is not family completion.
 - floating-point: **partial** — Machine, typed/simplified and complete typed-lowering reductions reviewed. Explicit fixed-scalars-v3 circuits model raw F32 bit casts/negation, classification and IEEE comparisons, with ordinary RUP replay; fifteen database laws admitted. Local/isolated core each pass 454 tests, 26 related knowledge regressions and 326 reference/native/JavaScript/Rust-Wasm/GPU-host cases match with four actual GPU dispatches. Device validation exposed and fixed general loss of checked literal carriers in direct GPU collection shaders; eleven GPU package tests pass. F64 nested proof terms still reject; exact arithmetic and remaining reductions remain open. Complete-call JS/native cohort retains baseline; frozen corpus has no new F32 attribution. No broad runtime speedup claimed.
-- loop-transforms: **partial** — Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open. Scheduler hoisting ranges and TurboFan peeling implementation reviewed; guarded scalar callback hoisting proposals added to knowledge. Broader dynamic CFG transforms remain open.
+- loop-transforms: **partial** — Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open. Scheduler hoisting ranges and TurboFan peeling implementation reviewed; guarded scalar callback hoisting proposals added to knowledge. Broader dynamic CFG transforms remain open. Loop region finder and unrolling phase now fully read; reducible single-backedge and inner-first region assumptions plus input-graph analyzer invalidation are assessed. This adds no dynamic-loop theorem or profitability claim.
 - strings: **partial** — Full string escape reducer reviewed. UTF-16/deoptimization representations are not Ink UTF-8 semantics. String length bounds/concat failures and portable reconstruction need explicit proof; no new string transformation admitted.
 - simd-wasm: **partial** — Revectorization operation compatibility, checked offsets, seed aggregation and profitability ranges read; most SLP legality/tree construction and lowering patterns remain unread. Packing/extraction and partial store effects matter; no SIMD or GPU support/gain inferred from CPU conformance.
 - feedback-tiering: **partial** — TieringManager implementation/header read in full. Request deduplication, hot/stable delay, saturating budgets, large-function/resource gates identified; compare generic offline scheduling and cost provenance. No speculative premise admitted.
-- maglev: **partial** — Optimizer header and full 4050-line implementation read. Scoped facts, representation/check strength, disabled unsafe Smi bypass, NaN/negative-zero distinctions, call specialization/inlining scores and deferred Phi/identity repair assessed. Reducer helpers, graph builder, known-node aspects, representation/inlining passes and generic Ink applicability remain open. Known-node-aspects header and implementation read in full; broader graph builder/reducer and applicability assessment remain open.
+- maglev: **partial** — Optimizer header and full 4050-line implementation read. Scoped facts, representation/check strength, disabled unsafe Smi bypass, NaN/negative-zero distinctions, call specialization/inlining scores and deferred Phi/identity repair assessed. Reducer helpers, graph builder, known-node aspects, representation/inlining passes and generic Ink applicability remain open. Known-node-aspects header and implementation read in full; broader graph builder/reducer and applicability assessment remain open. Full node-type lattice/classifier now reviewed; default bottom-subtype allowances and complement-only leaf classes cannot establish Ink dead-path, carrier or raw-bit facts. Full reusable reducer header now reviewed: optional failure and abort, readonly call argument views, before/after deopt frames and intermediate-throw reachability matter. Inline reducer implementation remains unread.
 - pipeline-infrastructure: **partial** — Turboshaft and Turbolev pipeline entry points read in full, including phase ordering and repeated cleanup/fact recomputation. Individual pending passes remain open; complete per-file backlog is generated by tools/v8_audit_status.py. All ten inventoried compiler design documents now read; compact copying, composable reducers, effect/identity constraints and background isolation assessed at overview level. This does not close actual driver/broker/IR/pipeline implementations or outside-inventory baseline sources.
 - instruction-selection-registers: **partial** — Full instruction-selection normalization and physical move optimizer/header reviewed, plus pipeline register stages. Physical registers/spills are owned by configured Rust/LLVM/JS hosts; no new allocator belongs in Ink source checking. Actual host behavior is not assumed equivalent. Register allocator, instruction selectors, scheduling/frame and remaining target implementations still open. Late branch/address duplication and load/store simplification now read in full: deliberate duplication may help fused instructions but increase live ranges; structural node savings do not establish target performance.
 - inlining: **partial** — Full TurboFan heuristic/inliner, Maglev inliner and restricted Wasm-into-JS implementation/headers read. Ink database unfolding now binds every argument once in declaration order, including unused arguments, U64 and composites. Generic lexical beta correspondence avoids unrelated helper expansion. Final isolated core 458 tests, GPU 12 tests, full cross-target 50 cases with ten actual device calls pass. Official JS/native mechanism controls retain baseline; default discovery selects no unfolding and frozen corpus attributes no unfolding law. Maglev builder/selector, broader Wasm interfaces, global search composition and profitability remain open.
@@ -29,7 +29,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - javascript-builtins: **partial** — Targeted map/filter and small-sort implementation/admission ranges read, with other iteration wrappers. Ink fixed typed immutable collections avoid JS map/hole/species assumptions. Capacity/growth profitability and sort callback order/failures need separate proof/evidence; no default algorithm changed. The much larger remaining builtin and call-dispatch set remains unchecked.
 - context-specialization: **partial** — Full lexical-context reducer/header read. Initialized constants and invalidating dependencies differ from mutable/detached slots; store checks remain observable. Ink explicit lexical bindings, frozen source roots and checked preparation cover subsets. Native context/property and module/runtime boundaries remain open.
 - javascript-typed-lowering: **partial** — Full implementation/header read: coercions, strict/loose equality, typed strings, context/module cells, direct-call/arity/receiver restrictions, for-in caches, generators and promise fast paths. Self equality contracts to !isNaN; fifteen new exact F32 database laws use independently replayed circuits. Ink fixed carriers/UTF-8, structural values and explicit state differ from JS coercion/identity/prototypes/UTF-16. No Ink async/generator/dynamic-property patch applies directly. Remaining algorithm alternatives and target profitability require separate proof/evidence; full file read does not close this family.
-- wasm-gc: **partial** — Full typed GC analyzer/reducer and composing optimization phase read. Current Ink emits ordinary Rust linear-memory Wasm, without these GC-reference operators; no direct GC check-removal patch applies. Snapshot joins, trap preservation and generic scoped analysis assessed; Wasm load elimination, other lowering and inlining remain open.
+- wasm-gc: **partial** — Full typed GC analyzer/reducer and composing optimization phase read. Current Ink emits ordinary Rust linear-memory Wasm, without these GC-reference operators; no direct GC check-removal patch applies. Snapshot joins, trap preservation and generic scoped analysis assessed; Wasm load elimination, other lowering and inlining remain open. TurboFan Wasm load elimination and its header now fully read: mutable/immutable cache separation, merge intersection, alias/write invalidation, trap preservation and narrow-field reconstruction assessed. Current Rust-Wasm lacks those GC-reference operators; Turboshaft Wasm load table/analyzer/reducer also fully read, including cross-domain atomic invalidation, escape/no-alias tracking, precise snapshot merges and loop/phi revisit convergence. Its debug NaN equivalence is weaker than Ink exact stored bits; shared-memory ordering has no direct current source counterpart.
 
 ## Complete source checklist
 
@@ -58,12 +58,12 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/access-builder.h` — unread; 0/433 lines recorded
 - [ ] `src/compiler/access-info.cc` — unread; 0/1594 lines recorded
 - [ ] `src/compiler/access-info.h` — unread; 0/353 lines recorded
-- [ ] `src/compiler/add-type-assertions-reducer.cc` — unread; 0/88 lines recorded
-- [ ] `src/compiler/add-type-assertions-reducer.h` — unread; 0/25 lines recorded
+- [x] `src/compiler/add-type-assertions-reducer.cc` — read; 88/88 lines recorded
+- [x] `src/compiler/add-type-assertions-reducer.h` — read; 25/25 lines recorded
 - [ ] `src/compiler/all-nodes.cc` — unread; 0/60 lines recorded
 - [ ] `src/compiler/all-nodes.h` — unread; 0/52 lines recorded
-- [ ] `src/compiler/allocation-builder-inl.h` — unread; 0/85 lines recorded
-- [ ] `src/compiler/allocation-builder.h` — unread; 0/105 lines recorded
+- [x] `src/compiler/allocation-builder-inl.h` — read; 85/85 lines recorded
+- [x] `src/compiler/allocation-builder.h` — read; 105/105 lines recorded
 
 ### src/compiler/backend
 
@@ -154,8 +154,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 
 - [ ] `src/compiler/basic-block-call-graph-profiler.cc` — unread; 0/79 lines recorded
 - [ ] `src/compiler/basic-block-call-graph-profiler.h` — unread; 0/38 lines recorded
-- [ ] `src/compiler/branch-elimination.cc` — unread; 0/405 lines recorded
-- [ ] `src/compiler/branch-elimination.h` — unread; 0/100 lines recorded
+- [x] `src/compiler/branch-elimination.cc` — read; 405/405 lines recorded
+- [x] `src/compiler/branch-elimination.h` — read; 100/100 lines recorded
 - [ ] `src/compiler/bytecode-analysis.cc` — unread; 0/1175 lines recorded
 - [ ] `src/compiler/bytecode-analysis.h` — unread; 0/207 lines recorded
 - [ ] `src/compiler/bytecode-graph-builder.cc` — unread; 0/4903 lines recorded
@@ -170,8 +170,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/code-assembler.h` — unread; 0/2042 lines recorded
 - [ ] `src/compiler/common-node-cache.cc` — unread; 0/40 lines recorded
 - [ ] `src/compiler/common-node-cache.h` — unread; 0/99 lines recorded
-- [ ] `src/compiler/common-operator-reducer.cc` — unread; 0/580 lines recorded
-- [ ] `src/compiler/common-operator-reducer.h` — unread; 0/79 lines recorded
+- [x] `src/compiler/common-operator-reducer.cc` — read; 580/580 lines recorded
+- [x] `src/compiler/common-operator-reducer.h` — read; 79/79 lines recorded
 - [ ] `src/compiler/common-operator.cc` — unread; 0/1763 lines recorded
 - [ ] `src/compiler/common-operator.h` — unread; 0/877 lines recorded
 - [ ] `src/compiler/common-utils.cc` — unread; 0/106 lines recorded
@@ -184,9 +184,9 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `src/compiler/constant-folding-reducer.h` — read; 42/42 lines recorded
 - [ ] `src/compiler/control-equivalence.cc` — unread; 0/235 lines recorded
 - [ ] `src/compiler/control-equivalence.h` — unread; 0/184 lines recorded
-- [ ] `src/compiler/control-path-state.h` — unread; 0/258 lines recorded
-- [ ] `src/compiler/csa-load-elimination.cc` — unread; 0/622 lines recorded
-- [ ] `src/compiler/csa-load-elimination.h` — unread; 0/185 lines recorded
+- [x] `src/compiler/control-path-state.h` — read; 258/258 lines recorded
+- [x] `src/compiler/csa-load-elimination.cc` — read; 622/622 lines recorded
+- [x] `src/compiler/csa-load-elimination.h` — read; 185/185 lines recorded
 - [x] `src/compiler/dead-code-elimination.cc` — read; 385/385 lines recorded
 - [x] `src/compiler/dead-code-elimination.h` — read; 85/85 lines recorded
 - [ ] `src/compiler/diamond.h` — unread; 0/67 lines recorded
@@ -202,7 +202,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/frame-states.h` — unread; 0/281 lines recorded
 - [ ] `src/compiler/frame.cc` — unread; 0/76 lines recorded
 - [ ] `src/compiler/frame.h` — unread; 0/291 lines recorded
-- [ ] `src/compiler/functional-list.h` — unread; 0/134 lines recorded
+- [x] `src/compiler/functional-list.h` — read; 134/134 lines recorded
 - [ ] `src/compiler/globals.h` — unread; 0/165 lines recorded
 - [ ] `src/compiler/graph-assembler.cc` — unread; 0/1384 lines recorded
 - [ ] `src/compiler/graph-assembler.h` — unread; 0/1459 lines recorded
@@ -246,8 +246,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `src/compiler/late-escape-analysis.h` — read; 46/46 lines recorded
 - [ ] `src/compiler/linkage.cc` — unread; 0/858 lines recorded
 - [ ] `src/compiler/linkage.h` — unread; 0/553 lines recorded
-- [ ] `src/compiler/load-elimination.cc` — unread; 0/1601 lines recorded
-- [ ] `src/compiler/load-elimination.h` — unread; 0/378 lines recorded
+- [x] `src/compiler/load-elimination.cc` — read; 1601/1601 lines recorded
+- [x] `src/compiler/load-elimination.h` — read; 378/378 lines recorded
 - [x] `src/compiler/loop-analysis.cc` — read; 772/772 lines recorded
 - [x] `src/compiler/loop-analysis.h` — read; 270/270 lines recorded
 - [x] `src/compiler/loop-peeling.cc` — read; 299/299 lines recorded
@@ -291,7 +291,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/osr.cc` — unread; 0/29 lines recorded
 - [ ] `src/compiler/osr.h` — unread; 0/48 lines recorded
 - [ ] `src/compiler/per-isolate-compiler-cache.h` — unread; 0/63 lines recorded
-- [ ] `src/compiler/persistent-map.h` — unread; 0/560 lines recorded
+- [x] `src/compiler/persistent-map.h` — read; 560/560 lines recorded
 - [ ] `src/compiler/phase.h` — unread; 0/129 lines recorded
 - [ ] `src/compiler/pipeline-data-inl.h` — unread; 0/634 lines recorded
 - [ ] `src/compiler/pipeline-statistics.cc` — unread; 0/152 lines recorded
@@ -320,7 +320,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `src/compiler/simplified-lowering.cc` — read; 6182/6182 lines recorded
 - [x] `src/compiler/simplified-lowering.h` — read; 125/125 lines recorded
 - [x] `src/compiler/simplified-operator-reducer.cc` — read; 411/411 lines recorded
-- [ ] `src/compiler/simplified-operator-reducer.h` — unread; 0/73 lines recorded
+- [x] `src/compiler/simplified-operator-reducer.h` — read; 73/73 lines recorded
 - [ ] `src/compiler/simplified-operator.cc` — unread; 0/2750 lines recorded
 - [ ] `src/compiler/simplified-operator.h` — unread; 0/1533 lines recorded
 - [ ] `src/compiler/state-values-utils.cc` — unread; 0/439 lines recorded
@@ -407,20 +407,20 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `src/compiler/turboshaft/late-load-elimination-reducer.cc` — read; 865/865 lines recorded
 - [x] `src/compiler/turboshaft/late-load-elimination-reducer.h` — read; 1111/1111 lines recorded
 - [ ] `src/compiler/turboshaft/layered-hash-map.h` — unread; 0/197 lines recorded
-- [ ] `src/compiler/turboshaft/load-elimination-phase.cc` — unread; 0/29 lines recorded
+- [x] `src/compiler/turboshaft/load-elimination-phase.cc` — read; 29/29 lines recorded
 - [ ] `src/compiler/turboshaft/load-elimination-phase.h` — unread; 0/20 lines recorded
 - [x] `src/compiler/turboshaft/load-store-simplification-reducer.h` — read; 214/214 lines recorded
 - [ ] `src/compiler/turboshaft/load-store-verification-reducer.h` — unread; 0/117 lines recorded
-- [ ] `src/compiler/turboshaft/loop-finder.cc` — unread; 0/113 lines recorded
-- [ ] `src/compiler/turboshaft/loop-finder.h` — unread; 0/126 lines recorded
+- [x] `src/compiler/turboshaft/loop-finder.cc` — read; 113/113 lines recorded
+- [x] `src/compiler/turboshaft/loop-finder.h` — read; 126/126 lines recorded
 - [ ] `src/compiler/turboshaft/loop-optimization-phase.cc` — unread; 0/21 lines recorded
 - [ ] `src/compiler/turboshaft/loop-optimization-phase.h` — unread; 0/20 lines recorded
 - [x] `src/compiler/turboshaft/loop-optimization-reducer.h` — read; 47/47 lines recorded
 - [ ] `src/compiler/turboshaft/loop-peeling-phase.cc` — unread; 0/26 lines recorded
 - [ ] `src/compiler/turboshaft/loop-peeling-phase.h` — unread; 0/20 lines recorded
 - [x] `src/compiler/turboshaft/loop-peeling-reducer.h` — read; 195/195 lines recorded
-- [ ] `src/compiler/turboshaft/loop-unrolling-phase.cc` — unread; 0/34 lines recorded
-- [ ] `src/compiler/turboshaft/loop-unrolling-phase.h` — unread; 0/20 lines recorded
+- [x] `src/compiler/turboshaft/loop-unrolling-phase.cc` — read; 34/34 lines recorded
+- [x] `src/compiler/turboshaft/loop-unrolling-phase.h` — read; 20/20 lines recorded
 - [x] `src/compiler/turboshaft/loop-unrolling-reducer.cc` — read; 613/613 lines recorded
 - [x] `src/compiler/turboshaft/loop-unrolling-reducer.h` — read; 711/711 lines recorded
 - [x] `src/compiler/turboshaft/machine-lowering-phase.cc` — read; 48/48 lines recorded
@@ -428,7 +428,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/machine-lowering-reducer-inl.h` — unread; 0/4857 lines recorded
 - [x] `src/compiler/turboshaft/machine-optimization-reducer.h` — read; 3314/3314 lines recorded
 - [x] `src/compiler/turboshaft/maglev-assert-types-reducer.h` — read; 38/38 lines recorded
-- [ ] `src/compiler/turboshaft/memory-optimization-phase.cc` — unread; 0/35 lines recorded
+- [x] `src/compiler/turboshaft/memory-optimization-phase.cc` — read; 35/35 lines recorded
 - [ ] `src/compiler/turboshaft/memory-optimization-phase.h` — unread; 0/20 lines recorded
 - [x] `src/compiler/turboshaft/memory-optimization-reducer.cc` — read; 187/187 lines recorded
 - [x] `src/compiler/turboshaft/memory-optimization-reducer.h` — read; 570/570 lines recorded
@@ -469,7 +469,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/turbolev-frontend-pipeline.h` — unread; 0/56 lines recorded
 - [ ] `src/compiler/turboshaft/turbolev-graph-builder.cc` — unread; 0/7416 lines recorded
 - [ ] `src/compiler/turboshaft/turbolev-graph-builder.h` — unread; 0/28 lines recorded
-- [ ] `src/compiler/turboshaft/type-assertions-phase.cc` — unread; 0/30 lines recorded
+- [x] `src/compiler/turboshaft/type-assertions-phase.cc` — read; 30/30 lines recorded
 - [ ] `src/compiler/turboshaft/type-assertions-phase.h` — unread; 0/20 lines recorded
 - [x] `src/compiler/turboshaft/type-inference-analysis.h` — read; 559/559 lines recorded
 - [x] `src/compiler/turboshaft/type-inference-reducer.h` — read; 572/572 lines recorded
@@ -504,8 +504,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/wasm-in-js-inlining-phase.h` — unread; 0/26 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-in-js-inlining-reducer-inl.h` — unread; 0/1212 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-js-lowering-reducer.h` — unread; 0/103 lines recorded
-- [ ] `src/compiler/turboshaft/wasm-load-elimination-reducer.cc` — unread; 0/771 lines recorded
-- [ ] `src/compiler/turboshaft/wasm-load-elimination-reducer.h` — unread; 0/676 lines recorded
+- [x] `src/compiler/turboshaft/wasm-load-elimination-reducer.cc` — read; 771/771 lines recorded
+- [x] `src/compiler/turboshaft/wasm-load-elimination-reducer.h` — read; 676/676 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-lowering-phase.cc` — unread; 0/26 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-lowering-phase.h` — unread; 0/24 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-lowering-reducer.h` — unread; 0/1304 lines recorded
@@ -555,8 +555,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/wasm-graph-assembler.h` — unread; 0/352 lines recorded
 - [x] `src/compiler/wasm-inlining-into-js.cc` — read; 396/396 lines recorded
 - [x] `src/compiler/wasm-inlining-into-js.h` — read; 42/42 lines recorded
-- [ ] `src/compiler/wasm-load-elimination.cc` — unread; 0/603 lines recorded
-- [ ] `src/compiler/wasm-load-elimination.h` — unread; 0/166 lines recorded
+- [x] `src/compiler/wasm-load-elimination.cc` — read; 603/603 lines recorded
+- [x] `src/compiler/wasm-load-elimination.h` — read; 166/166 lines recorded
 - [ ] `src/compiler/wasm-typer.cc` — unread; 0/234 lines recorded
 - [ ] `src/compiler/wasm-typer.h` — unread; 0/43 lines recorded
 - [ ] `src/compiler/write-barrier-kind.h` — unread; 0/60 lines recorded
@@ -627,8 +627,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/maglev/maglev-loop-peeler.cc` — unread; 0/1417 lines recorded
 - [ ] `src/maglev/maglev-loop-peeler.h` — unread; 0/120 lines recorded
 - [ ] `src/maglev/maglev-map-inference.h` — unread; 0/121 lines recorded
-- [ ] `src/maglev/maglev-node-type.cc` — unread; 0/162 lines recorded
-- [ ] `src/maglev/maglev-node-type.h` — unread; 0/197 lines recorded
+- [x] `src/maglev/maglev-node-type.cc` — read; 162/162 lines recorded
+- [x] `src/maglev/maglev-node-type.h` — read; 197/197 lines recorded
 - [ ] `src/maglev/maglev-phase.h` — unread; 0/78 lines recorded
 - [x] `src/maglev/maglev-phi-representation-selector.cc` — read; 1880/1880 lines recorded
 - [x] `src/maglev/maglev-phi-representation-selector.h` — read; 358/358 lines recorded
@@ -640,8 +640,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `src/maglev/maglev-range-verification.cc` — read; 66/66 lines recorded
 - [x] `src/maglev/maglev-range-verification.h` — read; 38/38 lines recorded
 - [x] `src/maglev/maglev-range.h` — read; 473/473 lines recorded
-- [ ] `src/maglev/maglev-reducer-inl.h` — unread; 0/7191 lines recorded
-- [ ] `src/maglev/maglev-reducer.h` — unread; 0/2023 lines recorded
+- [ ] `src/maglev/maglev-reducer-inl.h` — partial; 3200/7191 lines recorded
+- [x] `src/maglev/maglev-reducer.h` — read; 2023/2023 lines recorded
 - [ ] `src/maglev/maglev-regalloc-data.h` — unread; 0/99 lines recorded
 - [ ] `src/maglev/maglev-regalloc-node-info.h` — unread; 0/387 lines recorded
 - [ ] `src/maglev/maglev-regalloc.cc` — unread; 0/2511 lines recorded
