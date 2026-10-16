@@ -17,6 +17,8 @@ mod frozen_values;
 mod shared_terms;
 mod float_words;
 mod pure_pairs;
+mod function_equivalence;
+pub use function_equivalence::{check_functions, FunctionModel, FunctionProjection, FunctionReplacement, FUNCTION_SEMANTICS};
 mod bulk;
 mod equality;
 mod keys;
@@ -273,6 +275,7 @@ struct Lower<'a> {
     loop_fuel: Option<(String,String,String)>,
     helper_active: BTreeSet<usize>,
     intern_declarations: bool,
+    structural_imports: bool,
     shared_declarations: BTreeMap<Vec<u8>, String>,
     shared_declaration_bytes: usize,
     shared_declaration_work: usize,
@@ -333,6 +336,7 @@ impl<'a> Lower<'a> {
             loop_fuel: None,
             helper_active: BTreeSet::new(),
             intern_declarations: false,
+            structural_imports: false,
             shared_declarations: BTreeMap::new(),
             shared_declaration_bytes: 0,
             shared_declaration_work: MAX_WORK,
@@ -361,6 +365,10 @@ impl Lower<'_> {
     }
     fn store_with_implicit_sorts(&mut self, mut d: Declaration, implicit: bool) -> LangResult<String> {
         self.tick()?;
+        // Pure-function correspondence imports the actual declaration and its
+        // implicit field sorts, independent of unrelated helper discovery.
+        // Legacy action projections keep their original import identities.
+        let implicit = implicit && !self.structural_imports;
         if let Declaration::Datatype { constructors } = &mut d {
             // Generated source names can exceed the proof language's binder
             // limit. Constructor labels carry no computation: keep a stable,
@@ -378,6 +386,22 @@ impl Lower<'_> {
             &serde_json::to_value(&d).map_err(|e| e.to_string())?,
             &mut dependencies,
         );
+        if self.structural_imports {
+            let mut pending = dependencies.iter().cloned().collect::<Vec<_>>();
+            while let Some(key) = pending.pop() {
+                self.tick()?;
+                let entry = self.objects.get(&key).ok_or("pure declaration import missing")?;
+                let declaration = &entry.payload["declaration"];
+                let signature = if let Some(function) = declaration.get("Function") {
+                    serde_json::json!([function["params"], function["result"]])
+                } else { declaration.clone() };
+                let mut sorts = BTreeSet::new();
+                refs(&signature, &mut sorts);
+                for sort in sorts {
+                    if dependencies.insert(sort.clone()) { pending.push(sort); }
+                }
+            }
+        }
         // Match field sorts are implicit. Declare them as direct imports too.
         if implicit {
             dependencies.extend(self.types.values().filter_map(|s| {
