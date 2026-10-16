@@ -19,6 +19,30 @@ fn fixture_from(bytes: &[u8]) -> (Context, Declaration) {
 }
 
 #[test]
+fn speculative_unfolding_keeps_the_existing_eight_operation_action_in_budget() {
+    // Exact compact action equation from the frozen-program integration test.
+    // Speculating on incompatible outer symbols exhausted the old work budget.
+    fixture_from(include_bytes!("fixtures/frozen-eight-action.json"));
+}
+
+#[test]
+fn the_eight_operation_action_still_requires_its_frozen_state_premise() {
+    let (context, declaration) = fixture_from(include_bytes!("fixtures/frozen-eight-action.json"));
+    let Declaration::Theorem {
+        params,
+        conditions,
+        from,
+        to,
+        proof,
+    } = declaration
+    else {
+        panic!()
+    };
+    assert!(!conditions.is_empty());
+    assert!(context.check(&params, &[], &from, &to, &proof).is_err());
+}
+
+#[test]
 fn projecting_a_wrapper_does_not_force_its_retained_continuation() {
     fixture_from(include_bytes!("fixtures/owned-continuation-match.json"));
 }

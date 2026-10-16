@@ -230,6 +230,16 @@ fn direct_reduction(
     ) {
         return Ok(false);
     }
+    if let Term::Call { function, .. } = source {
+        if let Kind::Function(f) = &c.entry(function, true)?.kind {
+            // Substitution can replace a root variable, but preserves every
+            // other outer symbol. Do not copy/reduce large arguments for an
+            // alpha comparison whose result cannot have the target's head.
+            if !matches!(f.body, Term::Var(_)) && !alpha_head_compatible(&f.body, target) {
+                return Ok(false);
+            }
+        }
+    }
     let allowance = budget.remaining.min(4096);
     if allowance == 0 {
         return Ok(false);
@@ -243,6 +253,9 @@ fn direct_reduction(
         if &body == target {
             return Ok(true);
         }
+        if !alpha_head_compatible(&body, target) {
+            return Ok(false);
+        }
         lookahead.copy(target)?;
         Ok(alpha_normal_impl(body, &mut lookahead, true)?
             == alpha_normal_impl(target.clone(), &mut lookahead, true)?)
@@ -253,6 +266,48 @@ fn direct_reduction(
             Ok(false)
         }
         result => result,
+    }
+}
+
+// Necessary syntax only: alpha renaming cannot alter these outer symbols.
+// A match's binders may change, but their arities and the branch count may not.
+fn alpha_head_compatible(a: &Term, b: &Term) -> bool {
+    match (a, b) {
+        (Term::Var(a), Term::Var(b)) => a == b,
+        (Term::Bool(a), Term::Bool(b)) => a == b,
+        (Term::U64(a), Term::U64(b)) => a == b,
+        (
+            Term::Call {
+                function: a,
+                arguments: aa,
+            },
+            Term::Call {
+                function: b,
+                arguments: ba,
+            },
+        ) => a == b && aa.len() == ba.len(),
+        (
+            Term::Construct {
+                datatype: a,
+                constructor: ac,
+                arguments: aa,
+            },
+            Term::Construct {
+                datatype: b,
+                constructor: bc,
+                arguments: ba,
+            },
+        ) => a == b && ac == bc && aa.len() == ba.len(),
+        (Term::SelfCall(a), Term::SelfCall(b)) => a.len() == b.len(),
+        (Term::Binary { op: a, .. }, Term::Binary { op: b, .. }) => a == b,
+        (Term::If { .. }, Term::If { .. }) => true,
+        (Term::Match { branches: a, .. }, Term::Match { branches: b, .. }) => {
+            a.len() == b.len()
+                && a.iter()
+                    .zip(b)
+                    .all(|(a, b)| a.bindings.len() == b.bindings.len())
+        }
+        _ => false,
     }
 }
 
