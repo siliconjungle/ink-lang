@@ -343,3 +343,6 @@ mod call_facts;
 
 #[path="support/range_conversions.rs"]
 mod range_conversions;
+
+#[path="support/f32_bits.rs"]
+mod f32_bits;
