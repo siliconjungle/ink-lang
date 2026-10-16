@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "semantics": "ink-evidence-v1",
+  "input_core_sha256": "3f86493514bac5fd111b9130b4872a1dbbe0fb35386b877d779c0cb138ac08bb",
+  "knowledge": {
+    "schema": 1,
+    "snapshot": {
+      "root": "5fc0c09419ba9ac46508d9c7f0a10f6df7b977e88d8b7c7bacff9d0462440244",
+      "schema": 1,
+      "semantics": "ink-knowledge-snapshot-v1"
+    },
+    "roots": [
+      "f82fbe94a90a73f76d59ba85250afa9c82af84f0f238457e9650da6280e70f65"
+    ],
+    "objects": {
+      "f82fbe94a90a73f76d59ba85250afa9c82af84f0f238457e9650da6280e70f65": {
+        "schema": 1,
+        "kind": "rewrite",
+        "semantics": "ink-conditional-laws-v1",
+        "dependencies": [],
+        "interface": {
+          "parameters": {
+            "x": {
+              "Value": "F32"
+            }
+          },
+          "result": {
+            "Value": "F32"
+          },
+          "operations": [
+            "call:f32_bits",
+            "call:f32_from_bits"
+          ],
+          "effects": [],
+          "conditions": []
+        },
+        "payload": {
+          "conditions": [],
+          "from": {
+            "node": {
+              "Op": [
+                "call:f32_from_bits",
+                [
+                  {
+                    "node": {
+                      "Op": [
+                        "call:f32_bits",
+                        [
+                          {
+                            "node": {
+                              "Free": "x"
+                            },
+                            "sort": {
+                              "Value": "F32"
+                            }
+                          }
+                        ]
+                      ]
+                    },
+                    "sort": {
+                      "Value": "U32"
+                    }
+                  }
+                ]
+              ]
+            },
+            "sort": {
+              "Value": "F32"
+            }
+          },
+          "params": {
+            "x": {
+              "Value": "F32"
+            }
+          },
+          "proof": {
+            "BitVector": {
+              "certificate": {
+                "encoding": "shared-v2",
+                "problem_sha256": "0ad3238801beff450e666fc63e6b9ca3597ab9f87ef0ffe2886724783e88503d",
+                "steps": [
+                  {
+                    "clause": [],
+                    "hints": [
+                      0,
+                      1
+                    ]
+                  }
+                ]
+              },
+              "hypotheses": [],
+              "semantics": "fixed-scalars-v3"
+            }
+          },
+          "to": {
+            "node": {
+              "Free": "x"
+            },
+            "sort": {
+              "Value": "F32"
+            }
+          }
+        }
+      }
+    },
+    "membership": {
+      "f82fbe94a90a73f76d59ba85250afa9c82af84f0f238457e9650da6280e70f65": {
+        "entries": [
+          "4477a2dcccc1d33ceb7174b2a1679f5d409954edbd2d595d8299de2ee10c341b",
+          "47b94126ce4be665af343a42eb75e29aec7d7e2ad41a156f3699ece379d94b89",
+          "61c7328107eeedf6b79f90a0b7bcb78c03b9ad57be34035bd08b18ed7373b3e7",
+          "6b1dc0fea9b481d8282ae8a23ee7d85407502ee3ee464f653e005510134d353b",
+          "767a3d91a39c6431339301731f98518b96b0c9481f5c5c8dd914d3c7a181b0b9",
+          "857148135a01d0ffb00c8132ef839d546605222250267b1ee918217f500cc9d0",
+          "dacf02670646a598b53468baec9bf68ee33939365dc6d137be8e3bde1c357737",
+          "f3e4f0f2f24b2a87a9690d8612b9afe3db516bc6e6436ef1b84b7c62b483b8fc",
+          "f657f94bce4c193c23fbae49368477a93913b896c3e6b9806c5d97665837b6d5",
+          "f82fbe94a90a73f76d59ba85250afa9c82af84f0f238457e9650da6280e70f65"
+        ],
+        "path": []
+      }
+    }
+  },
+  "applications": [
+    {
+      "function": "copied",
+      "path": [
+        1,
+        0
+      ],
+      "law": "f82fbe94a90a73f76d59ba85250afa9c82af84f0f238457e9650da6280e70f65",
+      "arguments": {
+        "x": {
+          "sort": {
+            "Value": "F32"
+          },
+          "node": {
+            "Bound": 0
+          }
+        }
+      },
+      "premises": []
+    }
+  ]
+}
