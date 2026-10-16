@@ -147,3 +147,6 @@ mod bit_automata;
 
 #[path = "support/prepared_text.rs"]
 mod prepared_text;
+
+#[path = "support/prepared_complex_text.rs"]
+mod prepared_complex_text;

@@ -36,6 +36,7 @@ jobs:
         python3 bench/prepared-helpers/analyse.py reports/prepared-helpers-2026-10-16 --check
         python3 reports/binary64-2026-10-16/audit.py
         python3 reports/prepared-text-2026-10-16/audit.py
+        python3 reports/prepared-complex-text-2026-10-16/audit.py
         python3 bench/prepared-loops/analyse.py reports/prepared-loops-2026-10-16 --check
         python3 reports/binary64-literals-2026-10-16/audit.py
         python3 reports/source-reverse-2026-10-16/audit.py
@@ -1050,6 +1051,8 @@ jobs:
       run: cargo test --test feature_parity --test database_planning --test physical_capabilities --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test policy_learning --test differentiation --test reverse_learning --test source_reverse --test scalable_state --test programmable_objective --test learned_search -- --nocapture --test-threads=1
     - name: Imported proof composition on the actual device
       run: cargo test --test composable_knowledge imported_algorithms -- --nocapture
+    - name: Complex prepared geometry state recovery and device fallback
+      run: cargo test --test generic_libraries prepared_complex_text::complex_prepared_state -- --nocapture --test-threads=1
     - name: Actual wgpu dispatch and resident feedback
       run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture --test-threads=1
     - name: Retain GPU failure reproductions
@@ -1058,6 +1061,8 @@ jobs:
       with:
         name: wgpu-native-conformance
         path: |
+          build/prepared-complex-lifecycle/*.json
+          build/prepared-complex-lifecycle/source.ink
           build/browser-lowering-parity.json
           build/engine-lifetime-conformance/checks.json
           build/database-plan-browser.json
@@ -1189,12 +1194,15 @@ jobs:
         INK_TEST_WASM=1 cargo test --test lowering_parity resident_collection_lengths_survive_feedback -- --exact --nocapture
         INK_TEST_WASM=1 cargo test --test physical_capabilities semantic_word_parity -- --nocapture --test-threads=1
         cargo test --test source_reverse -- --nocapture --test-threads=1
+        cargo test --test generic_libraries prepared_complex_text::complex_prepared_state -- --nocapture --test-threads=1
         python3 tools/build_gpu_wasm.py build/source-reverse-parity/gpu-module build/source-reverse-until-parity/gpu-module
+        python3 tools/build_gpu_wasm.py build/prepared-complex-lifecycle/gpu-module
         python bench/gpu/prepare-lowering-parity-browser.py
         python bench/gpu/prepare-word-parity-browser.py
         npm ci --prefix bench/gpu --ignore-scripts --no-audit --no-fund
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)"
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/source-reverse-until-parity build/source-reverse-until-browser.json
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/prepared-complex-lifecycle build/prepared-complex-browser.json
         node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
         INK_TEST_WGPU=1 cargo test --test database_planning recursive_database_plan_preserves_every_observation_and_original_checkpoints -- --exact --nocapture
         python bench/gpu/prepare-database-plan-browser.py
@@ -1207,6 +1215,9 @@ jobs:
       with:
         name: wgpu-browser-conformance
         path: |
+          build/prepared-complex-browser.json
+          build/prepared-complex-lifecycle/*.json
+          build/prepared-complex-lifecycle/source.ink
           build/browser-lowering-parity.json
           build/engine-lifetime-conformance/checks.json
           build/database-plan-browser.json
