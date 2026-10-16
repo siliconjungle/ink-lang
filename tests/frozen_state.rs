@@ -403,7 +403,14 @@ fn neural_and_reward_models_freeze_complete_optimizer_and_control_state() {
         let module =
             CheckedModule::from_source(verified_language::modules::load(source).unwrap().program)
                 .unwrap();
-        let bytes = fs::read(checkpoint).unwrap();
+        let bytes = if source == "examples/reward-policy.ink" {
+            // The archived namespace belongs to the historical library/example.
+            // Replay its observations on today's source; never rebase headers.
+            let historical = fs::read(checkpoint).unwrap();
+            assert!(Runtime::restore_portable_checked(&module,&historical).is_err());
+            let trace = serde_json::from_slice(&fs::read("reports/policy-learning-2026-10-15/trace.json").unwrap()).unwrap();
+            verified_language::training::replay(&module,&trace).unwrap().snapshot
+        } else { fs::read(checkpoint).unwrap() };
         let roots = roots.into_iter().map(str::to_owned).collect::<Vec<_>>();
         let frozen = verified_language::freezing::restrict(&module, &bytes, &roots).unwrap();
         let mut adaptive = Runtime::restore_portable_checked(&module, &bytes).unwrap();
@@ -726,6 +733,121 @@ fn frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_o
         expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":baseline.checkpoint_portable().unwrap()}));
         parity::conformance_planned(&format!("frozen-composition-{}-parity",repeat*8),&plan,source,steps,expected);
     }
+}
+
+#[test]
+fn learned_instruction_program_resumes_adapts_and_freezes_with_complete_proofs() {
+    let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
+    use verified_language::{modules, training};
+    let source = include_str!("../examples/learned-program.ink");
+    let module = CheckedModule::from_source(modules::load("examples/learned-program.ink").unwrap().program).unwrap();
+    let trace: training::Trace = serde_json::from_str(include_str!("../examples/learned-program-training.json")).unwrap();
+    let complete = training::replay(&module, &trace).unwrap();
+    let split = 131;
+    let encoded = serde_json::to_value(&trace).unwrap();
+    let observations = encoded["observations"].as_array().unwrap();
+    let first: training::Trace = serde_json::from_value(json!({"schema":1,"epochs":1,"observations":&observations[..split]})).unwrap();
+    let rest: training::Trace = serde_json::from_value(json!({"schema":1,"epochs":1,"observations":&observations[split..]})).unwrap();
+    let first = training::replay(&module, &first).unwrap();
+    let resumed = training::replay_from(&module, &rest, Some(&first.snapshot)).unwrap();
+    assert_eq!(complete.snapshot, resumed.snapshot);
+    let mut runtime = Runtime::restore_portable_checked(&module, &complete.snapshot).unwrap();
+    let policy = runtime.invoke_json("policy", &json!([])).unwrap().result.json();
+    assert_eq!(policy["Ok"]["steps"], 384);
+    for name in ["weights", "first", "second"] {
+        assert_eq!(policy["Ok"][name].as_array().unwrap().len(),16);
+    }
+    let weights: Vec<f64> = policy["Ok"]["weights"].as_array().unwrap().iter().map(|v|v.as_f64().unwrap()).collect();
+    let inputs = [-4.0_f32,-1.5,-0.25,0.0,0.75,2.0,4.0];
+    let evaluate = |motif: [usize;4], input: f32| {
+        let mut x = input;
+        for _ in 0..8 { for op in motif {
+            x = match op { 0=>x, 1=>x*0.75, 2=>x+0.25, 3=>if x>0.0{x}else{0.0}, _=>unreachable!() };
+        }}
+        x
+    };
+    let mut matching = 0; let mut mass = 0.0;
+    for code in 0..256 {
+        let motif = [code/64,(code/16)%4,(code/4)%4,code%4];
+        if inputs.iter().all(|x| evaluate(motif,*x).to_bits()==evaluate([2,1,3,0],*x).to_bits()) {
+            matching += 1;
+            mass += (0..4).map(|slot| {
+                let masses:Vec<_> = weights[slot*4..slot*4+4].iter().map(|z| ((*z as f32)*(*z as f32)+0.1_f32) as f64).collect();
+                masses[motif[slot]]/masses.iter().sum::<f64>()
+            }).product::<f64>();
+        }
+    }
+    assert_eq!(matching,11); assert!(mass>0.8,"matching program probability: {mass}");
+    let code = runtime.invoke_json("structure",&json!([])).unwrap().result.json();
+    assert_eq!(code.as_array().unwrap().len(),32);
+    let loss = runtime.invoke_json("loss",&json!([])).unwrap().result.json();
+    assert!((loss["Ok"].as_f64().unwrap()-24e-6).abs()<1e-10);
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/learned-program-parity");
+    fs::create_dir_all(&root).unwrap();
+    fs::write(root.join("training.snapshot"),&complete.snapshot).unwrap();
+    fs::write(root.join("split.snapshot"),&first.snapshot).unwrap();
+    fs::write(root.join("training.receipt.json"),serde_json::to_vec_pretty(&complete.receipt).unwrap()).unwrap();
+    fs::write(root.join("learning.json"),serde_json::to_vec_pretty(&json!({"matching_motifs":matching,"initial_probability":matching as f64/256.0,"trained_probability":mass})).unwrap()).unwrap();
+    // Continuous runtime learning uses exactly the same authored action and
+    // complete optimizer state as offline replay, including rollback.
+    let mut steps=vec![json!({"restore":complete.snapshot})];let mut expected=vec![];
+    for (name,args) in [
+        ("episode",json!([[0.1,0.2,0.3,0.4],0.02,1])),
+        ("aborted",json!([[0.3,0.4,0.5,0.6],0.02,1])),
+        ("episode",json!([[0.1,0.2,0.3,1.0],0.02,1])),
+        ("retarget",json!([[{"input":-1.,"target":0.5},{"input":1.,"target":0.75}],0.000001,1])),
+        ("episode",json!([[0.1,0.2,0.3,0.4],0.02,1])),
+        ("episode",json!([[0.1,0.2,0.3,0.4],0.02,2])),
+        ("policy",json!([])),("loss",json!([])),
+    ] {
+        let before=runtime.checkpoint_portable().unwrap();let reply=runtime.invoke_json(name,&args).unwrap();
+        if !reply.committed { assert_eq!(before,runtime.checkpoint_portable().unwrap()); }
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    steps.push(json!({"pure":"numeric","args":[[0.0,0.5,1.0]],"expect_gpu":true}));
+    expected.push(json!({"reply":{"value":[0.5,0.75,1.5]},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    parity::conformance_checked("learned-program-adaptive-parity",&module,source,steps,expected);
+    let frozen=verified_language::freezing::restrict(&module,&complete.snapshot,&["Structure".into()]).unwrap();
+    let input=root.join("frozen.core.json");fs::write(&input,frozen.module.bytes().unwrap()).unwrap();
+    let file=root.join("plan.json");
+    ok(Command::new("python3").arg("knowledge/producers/frozen_composition.py").arg(&input)
+        .arg("--ink").arg(env!("CARGO_BIN_EXE_ink")).arg("-o").arg(&file).output().unwrap());
+    let package=serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+    let plan=verified_language::planning::check(&frozen.module,&package).unwrap();
+    fs::write(root.join("selected.core.json"),plan.module().bytes().unwrap()).unwrap();
+    for name in ["episode","aborted"] {assert!(!plan.module().program().actions.iter().any(|a|a.name==name));}
+    for name in ["Weights","Policy","Target"] {assert!(plan.module().program().contracts.learning.trainable.contains(&name.into()));}
+    let mut runtime=Runtime::restore_portable_checked(&frozen.module,&frozen.snapshot).unwrap();
+    let mut steps=vec![json!({"restore":frozen.snapshot})];let mut expected=vec![];
+    let goal=json!([[{"input":-1.,"target":0.5},{"input":1.,"target":0.75}],0.000001,1]);
+    for (name,args) in [
+        ("serve",json!([0.375])),("loss",json!([])),
+        ("retune",json!([{"scale":0.5,"bias":0.125},false])),
+        ("serve",json!([-1.5])),("loss",json!([])),
+        ("retune",json!([{"scale":0.75,"bias":0.25},true])),
+        ("retune",json!([{"scale":2.,"bias":0.25},false])),
+        ("set_live",json!([0.125])),("serve",json!([0.375])),
+        ("retarget",goal.clone()),("retarget",goal),("loss",json!([])),("policy",json!([])),
+    ] {
+        let before=runtime.checkpoint_portable().unwrap();let reply=runtime.invoke_json(name,&args).unwrap();
+        if !reply.committed {assert_eq!(before,runtime.checkpoint_portable().unwrap());}
+        steps.push(json!({"call":name,"args":args}));
+        expected.push(json!({"reply":{"outcome":reply.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    let helper=&plan.module().program().functions.iter().rev().find(|f|
+        f.name.starts_with("__frozen_proposal_") && f.result==syntax::Type::F32 && f.params.len()==2
+        && f.params[0].1==syntax::Type::Named("Coefficients".into()) && f.params[1].1==syntax::Type::F32).unwrap().name;
+    let evaluator=frozen.module.program().functions.iter().find(|f|f.name=="evaluate").unwrap();
+    for bits in [0u32,0x80000000,1,0x80000001,0x3dcccccd,0xbf000001,0x7f7fffff,0x7f800000,0xff800000,0x7fa01234,0xffc05678] {
+        let w=json!({"scale":0.75,"bias":0.25});let x=json!({"F32Bits":bits});
+        let args=[code.clone(),w.clone(),x.clone()].iter().zip(&evaluator.params).map(|(v,(_,ty))|
+            verified_language::eval::Value::from_program_json(v,ty,frozen.module.program()).unwrap()).collect();
+        let value=verified_language::eval::call(frozen.module.program(),"evaluate",args,&mut 1000000).unwrap().json();
+        steps.push(json!({"pure":helper,"args":[w,x],"expect_gpu":true}));
+        expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    parity::conformance_planned("learned-program-frozen-parity",&plan,source,steps,expected);
 }
 
 #[test]

@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "source": "a76708440e15159b6268e7e7d34079a7cb052ecd",
+  "packages": {
+    "abi": "6356464654b39341d1e442d61c64be1e3a720489",
+    "native-support": "8a87387f9431691eec49439d4a01a9c7eab30bc7",
+    "knowledge": "e4d6cec90358af451d53d19a80b8226fe234adb9",
+    "planner": "7026cfe02e4f9ab7c3ce29f9ce0ee2b02b3e4d33",
+    "runtime": "c8ae9ffd6de8e6de12e5f88112469b742eee6425",
+    "lowerings/rust": "ab5d3b1ed2dbecaf411c20f61367d52bc74214e8",
+    "lowerings/js": "5ecb7e7566d61d49c3cacf20f40eb0f4b8e2d4a6",
+    "lowerings/wasm": "1853bb6014ffe8b8ba6f27cf8f968c683b166f3e",
+    "lowerings/gpu": "413bd08f03117df6ecb89a507bef6b44449e3567"
+  },
+  "private_checkout": true,
+  "private_target": true,
+  "tool_source_subsets": {
+    "knowledge": [
+      "ink_knowledge",
+      "producers",
+      "libraries"
+    ],
+    "planner": [
+      "ink_planner",
+      "browser",
+      "plan.py",
+      "compile_plan.py"
+    ]
+  },
+  "fixture": {
+    "program": "examples/learned-program.ink",
+    "trace": "examples/learned-program-training.json",
+    "freeze_roots": "Structure"
+  },
+  "scope": "Fresh committed compiler/package source rebuild and matching executed images for the recorded fixture. Historical tool catalogues/experiments are excluded; not a whole-compiler or toolchain correctness proof.",
+  "resolution_lock_sha256": "a882447a3d4c99c3f4a1415adaeb9e7274d0eed8400a3417825f00098dad33b4",
+  "images": {
+    "baseline": {
+      "source.core.json": "467742644f753db71663f8dbe3796cbd46f2140c5e7a7d418a9b07f659d12d93",
+      "compiled.core.json": "18d878fc8dbd8130b06a383658b175afeaa5b0c57cc476f2c7b753a3704f32a7",
+      "model.snapshot": "1b33a078db826057cf1cbf35df3b1543ed9d7a4663bcb3b25e9a200e4dbadc6e",
+      "deployment.snapshot": "6d699a33a12bca8b926ba3e80326ab7b765b17813a6b8c5946aa0b6a75672ab7",
+      "trace.json": "cd5d0afb63fb55b3b6bca950ecd2102bdd72c5c8a4ea155268485675c04b3a16",
+      "program.mjs": "154f752d77d7cd7fb0b9b13d08b18b3a79983d1eb1b3edb793c60d962e7b02f4",
+      "program.mjs.source.mjs": "650c25e340b67f6679559119c524a955a694e2be546e799b3ae8e0fbd5019ec9",
+      "program.mjs.initial-state.mjs": "53cefc4c94122821f822f12e6dad784f5f102cd464b1ef308c6aec376816bb4e",
+      "program.mjs.initial.snapshot": "6d699a33a12bca8b926ba3e80326ab7b765b17813a6b8c5946aa0b6a75672ab7"
+    },
+    "selected": {
+      "source.core.json": "467742644f753db71663f8dbe3796cbd46f2140c5e7a7d418a9b07f659d12d93",
+      "compiled.core.json": "18d878fc8dbd8130b06a383658b175afeaa5b0c57cc476f2c7b753a3704f32a7",
+      "model.snapshot": "1b33a078db826057cf1cbf35df3b1543ed9d7a4663bcb3b25e9a200e4dbadc6e",
+      "deployment.snapshot": "6d699a33a12bca8b926ba3e80326ab7b765b17813a6b8c5946aa0b6a75672ab7",
+      "trace.json": "cd5d0afb63fb55b3b6bca950ecd2102bdd72c5c8a4ea155268485675c04b3a16",
+      "program.mjs": "154f752d77d7cd7fb0b9b13d08b18b3a79983d1eb1b3edb793c60d962e7b02f4",
+      "program.mjs.source.mjs": "ad1e2c8a77f532156a7cb19bbcf1d3fa8da978953b731ad3049d94fdbef8b3a7",
+      "program.mjs.initial-state.mjs": "53cefc4c94122821f822f12e6dad784f5f102cd464b1ef308c6aec376816bb4e",
+      "program.mjs.initial.snapshot": "6d699a33a12bca8b926ba3e80326ab7b765b17813a6b8c5946aa0b6a75672ab7",
+      "selected.core.json": "a1564b64d7501e1eba5d600fbecccb053fb582806bfb11b257ab4773a6fb745d",
+      "selection.json": "c7d562486092f4494ed8c1f843f03b4cba76079dc5886b7a71e874e6ec03eb8b"
+    }
+  },
+  "cargo_version": "cargo 1.99.0 (5f94df478 2026-08-27)",
+  "status": "passed",
+  "log_sha256": "b67fd416d5399bb1dccd3234ca92911f85a16ba71783c256576abb627bac4039"
+}

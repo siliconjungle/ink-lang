@@ -773,6 +773,9 @@ pub fn f32_primitive(op: &str, a: u64, b: u64) -> LangResult<Term> {
     let x = f32::from_bits(a as u32);
     let y = f32::from_bits(b as u32);
     Ok(match op {
+        "f32:from_u32" => Term::U64(((a as u32) as f32).to_bits() as u64),
+        "f32:from_u64" => Term::U64((a as f32).to_bits() as u64),
+        "f32:from_i32" => Term::U64(((a as u32 as i32) as f32).to_bits() as u64),
         "f32:+" => Term::U64(canonical_f32_bits(x + y) as u64),
         "f32:-" => Term::U64(canonical_f32_bits(x - y) as u64),
         "f32:*" => Term::U64(canonical_f32_bits(x * y) as u64),
@@ -799,7 +802,8 @@ fn primitive(op: &str, left: &Sort, right: &Sort) -> LangResult<Sort> {
     }
     if op.starts_with("f32:") && *left == Sort::U64 {
         return match &op[4..] {
-            "+" | "-" | "*" | "neg" | "sqrt" | "div" | "floor" | "ceil" | "trunc" | "round_ties_even" => Ok(Sort::U64),
+            "+" | "-" | "*" | "neg" | "sqrt" | "div" | "floor" | "ceil" | "trunc" | "round_ties_even"
+            | "from_u32" | "from_u64" | "from_i32" => Ok(Sort::U64),
             "==" | "!=" | "<" | "<=" | ">" | ">=" | "is_nan" | "is_finite" => Ok(Sort::Bool),
             _ => Err("unsupported binary32 primitive".into()),
         };
