@@ -170,6 +170,12 @@ more repeated computation out of portable proofs; it adds no trusted producer
 shortcut. JavaScript also keeps leading lexical bindings in the action body
 instead of nesting a separate function wrapper for each accumulator.
 
+The [release study](../reports/frozen-program-2026-10-16/README.md) retains six
+paired processes, the earlier unrolling regression and the larger proof-bearing
+package. A [private committed-source rebuild](compiler-image-reproducibility.md)
+checks exact executable images and startup state. These finite checks strengthen
+implementation assurance without establishing correctness of the whole compiler.
+
 The action projection remains bounded. This extension adds literal enum
 constructors in pure helpers and fixed `word_and` correspondence for u64/u32/i32.
 Universal neural algebra, floating-point algebraic folding, all word primitives, device
