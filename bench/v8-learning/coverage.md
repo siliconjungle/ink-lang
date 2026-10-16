@@ -2,7 +2,7 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 221 full files, 1 partial files, 387 unread files; 609 inventoried files total.
+Source receipts: 232 full files, 1 partial files, 376 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
@@ -340,8 +340,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 ### src/compiler/turboshaft
 
 - [ ] `src/compiler/turboshaft/access-builder.h` — unread; 0/138 lines recorded
-- [ ] `src/compiler/turboshaft/analyzer-iterator.cc` — unread; 0/81 lines recorded
-- [ ] `src/compiler/turboshaft/analyzer-iterator.h` — unread; 0/134 lines recorded
+- [x] `src/compiler/turboshaft/analyzer-iterator.cc` — read; 81/81 lines recorded
+- [x] `src/compiler/turboshaft/analyzer-iterator.h` — read; 134/134 lines recorded
 - [ ] `src/compiler/turboshaft/assembler.cc` — unread; 0/40 lines recorded
 - [ ] `src/compiler/turboshaft/assembler.h` — unread; 0/6451 lines recorded
 - [x] `src/compiler/turboshaft/assert-types-reducer.h` — read; 173/173 lines recorded
@@ -364,8 +364,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `src/compiler/turboshaft/csa-branch-elimination-phase.h` — read; 20/20 lines recorded
 - [ ] `src/compiler/turboshaft/csa-early-machine-optimization-phase.cc` — unread; 0/22 lines recorded
 - [ ] `src/compiler/turboshaft/csa-early-machine-optimization-phase.h` — unread; 0/20 lines recorded
-- [ ] `src/compiler/turboshaft/csa-effects-computation.cc` — unread; 0/131 lines recorded
-- [ ] `src/compiler/turboshaft/csa-effects-computation.h` — unread; 0/45 lines recorded
+- [x] `src/compiler/turboshaft/csa-effects-computation.cc` — read; 131/131 lines recorded
+- [x] `src/compiler/turboshaft/csa-effects-computation.h` — read; 45/45 lines recorded
 - [ ] `src/compiler/turboshaft/csa-late-escape-analysis-phase.cc` — unread; 0/20 lines recorded
 - [ ] `src/compiler/turboshaft/csa-late-escape-analysis-phase.h` — unread; 0/20 lines recorded
 - [ ] `src/compiler/turboshaft/csa-load-elimination-phase.cc` — unread; 0/20 lines recorded
@@ -379,13 +379,13 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/debug-feature-lowering-reducer.h` — unread; 0/108 lines recorded
 - [ ] `src/compiler/turboshaft/decompression-optimization-phase.cc` — unread; 0/16 lines recorded
 - [ ] `src/compiler/turboshaft/decompression-optimization-phase.h` — unread; 0/20 lines recorded
-- [ ] `src/compiler/turboshaft/decompression-optimization.cc` — unread; 0/258 lines recorded
-- [ ] `src/compiler/turboshaft/decompression-optimization.h` — unread; 0/25 lines recorded
+- [x] `src/compiler/turboshaft/decompression-optimization.cc` — read; 258/258 lines recorded
+- [x] `src/compiler/turboshaft/decompression-optimization.h` — read; 25/25 lines recorded
 - [ ] `src/compiler/turboshaft/deopt-data.h` — unread; 0/190 lines recorded
 - [x] `src/compiler/turboshaft/duplication-optimization-reducer.h` — read; 306/306 lines recorded
 - [x] `src/compiler/turboshaft/explicit-truncation-reducer.h` — read; 79/79 lines recorded
 - [ ] `src/compiler/turboshaft/fast-api-call-lowering-reducer.h` — unread; 0/501 lines recorded
-- [ ] `src/compiler/turboshaft/fast-hash.h` — unread; 0/121 lines recorded
+- [x] `src/compiler/turboshaft/fast-hash.h` — read; 121/121 lines recorded
 - [ ] `src/compiler/turboshaft/graph-builder.cc` — unread; 0/2956 lines recorded
 - [ ] `src/compiler/turboshaft/graph-builder.h` — unread; 0/25 lines recorded
 - [ ] `src/compiler/turboshaft/graph-visualizer.cc` — unread; 0/150 lines recorded
@@ -401,12 +401,12 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/int64-lowering-phase.cc` — unread; 0/24 lines recorded
 - [ ] `src/compiler/turboshaft/int64-lowering-phase.h` — unread; 0/20 lines recorded
 - [ ] `src/compiler/turboshaft/int64-lowering-reducer.h` — unread; 0/1002 lines recorded
-- [ ] `src/compiler/turboshaft/js-generic-lowering-reducer.h` — unread; 0/99 lines recorded
+- [x] `src/compiler/turboshaft/js-generic-lowering-reducer.h` — read; 99/99 lines recorded
 - [x] `src/compiler/turboshaft/late-escape-analysis-reducer.cc` — read; 102/102 lines recorded
 - [x] `src/compiler/turboshaft/late-escape-analysis-reducer.h` — read; 63/63 lines recorded
 - [x] `src/compiler/turboshaft/late-load-elimination-reducer.cc` — read; 865/865 lines recorded
 - [x] `src/compiler/turboshaft/late-load-elimination-reducer.h` — read; 1111/1111 lines recorded
-- [ ] `src/compiler/turboshaft/layered-hash-map.h` — unread; 0/197 lines recorded
+- [x] `src/compiler/turboshaft/layered-hash-map.h` — read; 197/197 lines recorded
 - [x] `src/compiler/turboshaft/load-elimination-phase.cc` — read; 29/29 lines recorded
 - [ ] `src/compiler/turboshaft/load-elimination-phase.h` — unread; 0/20 lines recorded
 - [x] `src/compiler/turboshaft/load-store-simplification-reducer.h` — read; 214/214 lines recorded
@@ -440,8 +440,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/phase.h` — unread; 0/641 lines recorded
 - [x] `src/compiler/turboshaft/pipelines.cc` — read; 212/212 lines recorded
 - [x] `src/compiler/turboshaft/pipelines.h` — read; 600/600 lines recorded
-- [ ] `src/compiler/turboshaft/pretenuring-propagation-reducer.cc` — unread; 0/150 lines recorded
-- [ ] `src/compiler/turboshaft/pretenuring-propagation-reducer.h` — unread; 0/243 lines recorded
+- [x] `src/compiler/turboshaft/pretenuring-propagation-reducer.cc` — read; 150/150 lines recorded
+- [x] `src/compiler/turboshaft/pretenuring-propagation-reducer.h` — read; 243/243 lines recorded
 - [ ] `src/compiler/turboshaft/random-rescheduling-phase.cc` — unread; 0/379 lines recorded
 - [ ] `src/compiler/turboshaft/random-rescheduling-phase.h` — unread; 0/20 lines recorded
 - [ ] `src/compiler/turboshaft/reducer-traits.h` — unread; 0/115 lines recorded
