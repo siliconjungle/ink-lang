@@ -27,6 +27,16 @@ passing validation. Preparing bounded source bodies before dependency-ordered
 lowering corrected the reproduced stack failure. The final full run follows the
 final bound-accounting and observation/hygiene changes.
 
+`compiler-export.json` records the private committed compiler rebuild and exact
+CLI export comparison. The original pretty JSON output was 42,053,579 bytes;
+canonical export produces the identical model in 5,073,076 bytes. This reduces
+proof transport overhead, with no inference speed claim. The optional sorted-table
+export also uses canonical JSON. The retained build logs bind the initial private
+dependency build and the final compiler-source rebuild; the core/package inputs
+are unchanged between them. A development check initially expected canonical
+bytes from the pretty exporter; comparison of the parsed models confirmed equal
+contents before the export fix.
+
 `retained-proof-replay.log` checks the frozen inputs and source-bound selections
 from the baseline, previous and selected artifacts in
 [the earlier learned-computation report](../closed-learned-computations-2026-10-17/README.md).
@@ -35,6 +45,12 @@ development harness mistakenly compared the original training source against the
 frozen compiled input; the corrected harness uses `compiled.core.json` as input
 and `selected.core.json` as the expected output when present. It does not claim
 complete training-artifact verification. `replay.rs` retains the corrected harness.
+
+The subsequent private CLI rebuild also ran `verify-model --replay` against all
+three retained artifacts. `cli-verify-*.json` records successful integrity,
+restriction and deterministic training replay, including specialization checking
+for the previous and selected artifacts. These later checks cover the complete
+artifact verification interface, beyond the initial core-only harness.
 
 `neural-model.json.gz` contains the complete canonical model. `model-export.log`
 and `summary.json` bind its exact bytes to the source fixture retained in the
