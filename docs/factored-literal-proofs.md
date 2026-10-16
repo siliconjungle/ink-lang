@@ -60,3 +60,8 @@ theorem with valid membership and requires ordinary theorem rejection.
 This resolves the exceptional-literal authoring limit recorded by the preceding
 sharing report. Long generated action continuations, general graph/tape
 specialization, device training and learned physical layouts still need work.
+
+The [retained acquisition](../reports/factored-literal-proofs-2026-10-16/README.md)
+binds the exact source and package revisions, ordinary proof replay, complete
+browser images, invalid-restore checks and fresh committed compiler rebuild.
+It retains the initial cached GPU-runner failure and the successful device retry.
