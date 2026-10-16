@@ -111,3 +111,28 @@ old inline baseline remain in knowledge/Git. Completed duplicate proof views,
 private stores and build targets are retired after their workers finish. The
 complete read-only audit, including the stable corpus and exact database
 readback, passes with `audit.py` under `PYTHONPATH=knowledge:planner`.
+
+
+## Integration with concurrently published main
+
+Upstream main added modular neural action projection while this batch was
+validating. Its exact 224-file core tree matches the retained upstream receipt
+for 480 passing tests and standalone core package
+`443f2ae469eac1d7150dfcc90bb6679b59094ace`. Backend/runtime changes only update
+dependency pins and locks. The freshly built merged compiler has SHA256
+`5336041a6cfa461499a6e722b79f4ff1b7aa865e2253f5a1f55b5d2fdc2f9f8a`.
+
+All 28 focused knowledge tests pass again in 692.481 seconds on that image.
+Both source-bound plans re-emit with complete GPU artifact trees identical to
+the measured cohort, and eight fresh actual-device calls match the original
+independent oracles. The 99 declared conformance inputs reuse 93 exact baseline
+files; six new receipts occupy a 13,806-byte archive. These checks do not move
+any historical timing observation to the new compiler context.
+
+A separate final stable-context merged corpus compiles all ten programs, admits
+alternatives for all ten, observes 24 old laws/six reused and selects none.
+All ten finish at measurement evidence and exhaust quick budgets. No near-miss
+reason or new remainder-law attribution occurs. Its 53.851-second median excludes
+private preparation; it is an unpaired shared-host observation. Exact inputs,
+plans and receipts are in `../corpus-proof-dependencies-merged`.
+`audit_merged.py` checks this distinct cohort and the deduplicated device inputs.

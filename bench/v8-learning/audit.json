@@ -2230,6 +2230,150 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full non-eager peeling implementation read: recover post-inline headers using compilation-unit identity and bytecode offset, conservative innermost/resumable/handler/side-table/value-dominance gates, clone original control before mutating exits, remap all deopt/exception metadata and use counts, preserve checkpointed forward jumps, exact predecessor slots, simultaneous phi cross-reference rewiring and downward deopt liveness. Shared no-phi exit targets use2K predecessor merges; arbitrary distinct exits remain unsupported. Interrupt/OSR markers are V8 runtime-specific, not erasable Ink work. Ink loop unfolding already has explicit database proofs; broader first-iteration peeling must prove source condition/count/index, lexical captures, strict work and all early/error/rollback paths, then measure code-growth profitability."
+    },
+    {
+      "path": "src/maglev/maglev-regalloc-node-info.h",
+      "sha256": "4b0742824c970f0e846a67f66672689efe6bd9a893dbd0574f13c0ca7bb9ed6e",
+      "inclusive_lines": [
+        [
+          1,
+          387
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full header read: inclusive live ranges, ordered next-use chains, clobber-at-start inputs, typed physical locations, constants/spill slots, register hints and explicit state-phase unions. Ink currently emits Rust/JavaScript/Wasm/WGSL for host compilers to assign physical registers; no V8 register policy is an Ink rewrite or unique-ownership fact. Source-level final-use analysis remains a separate lexical/evaluation-order analysis. Register-pressure prices would require target-specific measured evidence rather than copying these hints."
+    },
+    {
+      "path": "src/compiler/common-node-cache.h",
+      "sha256": "1d126a63cdd3787f8696897d03be1139b020a0e60b2a43c10fe90483b009af8b",
+      "inclusive_lines": [
+        [
+          1,
+          99
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Typed constant caches keep separate domains and raw IEEE bit keys, including signed zeros and NaN payloads; relocation mode belongs in relocatable keys. Numeric equality is not stored-bit identity. Ink canonical proof/source keys likewise include exact type, bits and immutable context; F64 semantic proof support remains explicitly unsupported."
+    },
+    {
+      "path": "src/compiler/common-node-cache.cc",
+      "sha256": "768997132387f38ef717ea1874de88542eba5d25f79b7de195ca7030525c0c12",
+      "inclusive_lines": [
+        [
+          1,
+          40
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. External/heap handles use process-local addresses, which cannot serve as durable database identities. Cached-node enumeration excludes empty entries; relocation and pointer/number categories remain distinct. No pointer key or cache hit supplies Ink equality authority."
+    },
+    {
+      "path": "src/compiler/node-cache.h",
+      "sha256": "d0f10b2c325ec5c3d4ea90afdec1b00d28a2bed2a6c03034acd6369b378c44a4",
+      "inclusive_lines": [
+        [
+          1,
+          78
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Generic hash and exact-predicate table returns an empty slot for caller construction; cache lifetime is a compilation zone. Durable database content identities and per-source definition contexts remain separate from local interning."
+    },
+    {
+      "path": "src/compiler/node-matchers.cc",
+      "sha256": "c458b5a19cac94dd7983a801542a01b61926109ba2d78ad4931b3d5d302e5dfb",
+      "inclusive_lines": [
+        [
+          1,
+          60
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Branch/diamond matching checks exact control opcodes, arity, opposite arms and a shared branch identity, allowing swapped predecessor order. Structural matching proposes opportunities; Ink must still prove the entire source-bound branch equality and preserve condition/operand execution."
+    },
+    {
+      "path": "src/compiler/all-nodes.h",
+      "sha256": "65471f4dba5fbfdc0f313cc3b5f32d1669983a58e19defa3f25a376bbdf465a7",
+      "inclusive_lines": [
+        [
+          1,
+          52
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. End-root input reachability is distinguished from traversing inputs plus uses; only the input-only mode may be called liveness. Ink must still check complete source signatures/unsupported domains and strict unused work, rather than treating arbitrary graph reachability as source deletion authority."
+    },
+    {
+      "path": "src/compiler/all-nodes.cc",
+      "sha256": "1dd05c73923cd1056e95b3bf24f73a5e9f72a0268163637fb06bd18933f59016",
+      "inclusive_lines": [
+        [
+          1,
+          60
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Deduplicated end-root graph traversal skips null inputs and bounds use IDs. This is graph enumeration, not proof of source unreachability. Frozen proof transport separately computes exact declared dependency closure; every retained object still replays."
+    },
+    {
+      "path": "src/compiler/checkpoint-elimination.h",
+      "sha256": "27ccf48cc44930e026c09a0b8be4cadd88690d08115ce9e2104b4aaa3e8fc160",
+      "inclusive_lines": [
+        [
+          1,
+          34
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Reducer interface only; implementation assessed separately. V8 eager-deopt checkpoints are distinct from Ink durable snapshots, rollback and migration."
+    },
+    {
+      "path": "src/compiler/checkpoint-elimination.cc",
+      "sha256": "6af5cdfa13dbf6ee22adefc59f3185a2347ccc96d0bfa943dba0946ccef31eef",
+      "inclusive_lines": [
+        [
+          1,
+          75
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Redundancy requires the same frame-state function origin and an uninterrupted single-input no-write effect chain. Equal-looking frames or no-throw flags alone are insufficient. Ink source/proof/cache contexts must preserve function/definition origin and concrete mutation/error/rollback effects; no durable checkpoint elision follows."
+    },
+    {
+      "path": "src/compiler/basic-block-call-graph-profiler.h",
+      "sha256": "74b476bbeea36a4f3eb50be0b5044acff21ed3254845cfd3c917e6774adc0271",
+      "inclusive_lines": [
+        [
+          1,
+          38
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Builtin call-graph collection is gated by builtin reordering; it is compiler layout/profile information, not a semantic fact or universal profitable source choice."
+    },
+    {
+      "path": "src/compiler/basic-block-call-graph-profiler.cc",
+      "sha256": "2e29e117980a32d4cd01bf95dfbac962dabff49e62566c329f1c7561e2020fe3",
+      "inclusive_lines": [
+        [
+          1,
+          79
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Call and tail-call targets require code-object descriptors, heap constants, actual Code and builtin IDs before recording a block-local edge. This collects graph edges for layout; it is not a complete-call runtime measurement. Ink observations must bind actual compiled workloads and separate correctness/applicability/profitability."
+    },
+    {
+      "path": "src/compiler/bytecode-liveness-map.cc",
+      "sha256": "cf38719b84b1aa4d0ec48d6df3d234f29a036c53e50f1a060460c7b35f794765",
+      "inclusive_lines": [
+        [
+          1,
+          31
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Diagnostic L/dot formatting of register/accumulator liveness only. This file does not implement liveness transfer or establish new source last-use facts."
     }
   ],
   "families": [
@@ -2376,7 +2520,7 @@
     "first_batch": "Scoped structural work prices through lazy branch contexts; ordinary proofs and measured selection remain unchanged",
     "evidence": "bench/v8-learning/branch-cardinality",
     "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open.",
-    "coverage_followup": "184 full source receipts, one partial, 424 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
+    "coverage_followup": "196 full source receipts, one partial, 412 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
     "second_batch": "Range-guided word representation proposals plus three independently replayed whole-branch laws. 28 related tests, three final range regressions and 88 CPU comparisons pass; measured JS/native controls retain baseline. Matched 32-check control improves one rewritten function to two. Frozen corpus: 10 compile, 24 laws, six reused, zero representation/selection, no new range-law attribution; all quick budgets exhausted.",
     "next_followups": [
       {
@@ -2389,7 +2533,7 @@
       },
       {
         "area": "coverage",
-        "task": "Continue 424 unread files plus the partial JS call reducer and optimizer dependencies outside the selected inventory. 184 full files reviewed, including Maglev reducer/loop peeling, Turbolev escape analysis and Wasm revectorization; every family remains partial. Source reading alone is not implementation or performance evidence."
+        "task": "Continue 412 unread files plus the partial JS call reducer and optimizer dependencies outside the selected inventory. 196 full files reviewed, including Maglev reducer/loop peeling, Turbolev escape analysis and Wasm revectorization; every family remains partial. Source reading alone is not implementation or performance evidence."
       },
       {
         "area": "signed-range-and-integer",
@@ -2405,7 +2549,7 @@
       },
       {
         "area": "guarded-variable-remainder",
-        "task": "Full simplified lowering exposes runtime variable power-of-two remainder specializations. Existing31/63 constant-power rewrites do not cover a variable divisor. Author ordinary whole-source guards (nonzero and power-of-two; signed domains preserve negative/overflow/lazy-default behavior) and independently prove/test/measure before default exposure. Do not copy JS zero-divisor or truncation semantics."
+        "task": "Full simplified lowering exposes runtime variable power-of-two remainder specializations. Existing31/63 constant-power rewrites do not cover a variable divisor. Author ordinary whole-source guards (nonzero and power-of-two; signed domains preserve negative/overflow/lazy-default behavior) and independently prove/test/measure before default exposure. Do not copy JS zero-divisor or truncation semantics. A monolithic U32 shared-v2 attempt with15-second SAT/80000-conflict and45-second total authoring limits produced no admitted proof; this is not a counterexample. Insight-only scratch is retired. Naive existing constant-witness closure already totals20166742 canonical raw bytes for U32/32 roots and134515867 for U64/64 roots before entry overhead, exceeding16MB. Investigate balanced Boolean cases and explicit reusable scalar equality facts, with lossless packed supporting witnesses and unchanged checker budgets."
       }
     ],
     "third_batch": "Exact fixed-scalars-v3 F32 circuits and fifteen reusable checked database laws; literal GPU collection carrier bug fixed after real device detection. Local and standalone core each pass 454 tests; 26 related knowledge regressions, eleven GPU package tests and 326 cross-target values/snapshots with four actual GPU dispatches pass. Default roundtrip search structural cost 105\u219273; official JS/native lifecycle cohorts retain baseline. Frozen ten-program corpus: 24 laws/six reused, zero selection/representation and no new F32 attribution; all quick budgets exhausted.",
@@ -2470,7 +2614,15 @@
       "mechanism": "Generic optional V2 frozen proof-dependency index and bounded child-first closure; existing ordinary Use shares checked quotient witnesses without core/semantic/budget/policy changes.",
       "database": "The same340 root statements remain; only the two newest remainder proof bodies change. All338 earlier proof identities preserved. Exact three-rewrite source selection shrinks18432155 to10130196 bytes/four objects and passes unchanged16MB input/catalogue limits.",
       "validation": "All28 focused regression methods pass in672.141s, including340 integer laws, word/float replay, definition-context retargeting and authentic false supporting proof rejection. Fresh authoring and historical boundary recipes reproduce exact identities/selection. JS/native complete-call controls retain baseline. Explicit GPU holdout7.2225ms to0.63375ms, paired median12.0832755581/all six extrema guards; no broad/automatic/cold claim. Final stable frozen corpus:10 compile/all10 alternatives,22 old law identities (subset of preceding24),six reused,zero selections/representations/all measurement-evidence gates and quick timeouts,median51.696sec; no new remainder attribution or causal timing comparison.36 exact observations published/readback; proof snapshot/policy unchanged. Full integrity audit passes;186-file minimal archive3824293bytes.",
-      "evidence": "bench/v8-learning/proof-dependencies"
+      "evidence": "bench/v8-learning/proof-dependencies",
+      "merged_integration": {
+        "distribution_source": "71eaf55fa8758a76a5a174ec176e2e79f52073c9",
+        "core_tree": "a5a57c9b2a9d5dca37aeb47c35b69cb5b398a0bf",
+        "core_package": "443f2ae469eac1d7150dfcc90bb6679b59094ace",
+        "compiler_sha256": "5336041a6cfa461499a6e722b79f4ff1b7aa865e2253f5a1f55b5d2fdc2f9f8a",
+        "validation": "Exact224-file core matches upstream480-test receipt. Fresh merged28-test suite passes692.481s; eight actual GPU calls/original oracles pass, complete emitted artifact trees unchanged. Distinct stable merged frozen corpus10 compile/all alternatives,24 old laws/six reused/zero choices,all measurement-evidence gates/quick timeouts,median53.851s excluding private prep. Historical timings are not relabelled.",
+        "evidence": "bench/v8-learning/proof-dependencies/audit_merged.py"
+      }
     }
   },
   "scope_boundaries": [
