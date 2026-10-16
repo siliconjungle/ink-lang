@@ -1,0 +1,8 @@
+"""Same checked laws/source: only Merkle membership leaf transport differs."""
+from pathlib import Path
+import hashlib,json,subprocess
+from ink_knowledge import Store,canonical
+b=Path('build/v8-variable-power-cases');p=b/'program';selection=json.loads((p/'selection.json').read_bytes());objects=selection['knowledge']['objects'];roots=selection['knowledge']['roots'];wide=Store.publish(b/'wide-boundary',list(objects.values()),leaf_size=64);old=dict(selection,knowledge=wide.bundle(roots));path=b/'wide.selection.json';path.write_bytes(canonical(old));compiler=Path('build/v8-proof-dependencies-final-cli/frozen/ink-integrated').resolve();r=subprocess.run([compiler,'check-selection',p/'core.json',path],capture_output=True,text=True,timeout=180);(b/'wide.stdout').write_text(r.stdout);(b/'wide.stderr').write_text(r.stderr)
+assert len(canonical(old))>16_000_000 and r.returncode and 'input exceeds size limit'in r.stderr
+assert old['knowledge']['objects']==selection['knowledge']['objects']and old['applications']==selection['applications']
+receipt=dict(schema=1,exit_status=0,source=selection['input_core_sha256'],objects=len(objects),wide_bytes=len(canonical(old)),compact_bytes=len(canonical(selection)),wide_sha256=hashlib.sha256(canonical(old)).hexdigest(),compact_sha256=hashlib.sha256(canonical(selection)).hexdigest(),wide_rejection=r.stderr.strip(),scope='Exact same source, proof bodies, dependencies and applications; only authenticated Merkle transport differs. Ordinary compact source/plan admission recorded separately. Existing limits unchanged; rejection is not a timing baseline.');(b/'boundary.json').write_bytes(canonical(receipt));print(json.dumps(receipt))
