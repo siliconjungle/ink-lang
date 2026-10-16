@@ -109,3 +109,36 @@ receipt live in `../corpus-hint-transport`.
 Selected raw test logs use `.log.gz` compression; receipt hashes refer to their
 original decompressed bytes. The audit rechecks those hashes and470/470/2 test
 totals without altering historical output.
+
+
+## Final merged integration
+
+Concurrent scalar/traversal producer work is included in knowledge main
+`162b9d8f42234f80cb1ad65db72394a03f15bee3`; all 27 focused integration tests pass.
+Its separate stable-context corpus uses the original pinned planner and compiler:
+all ten programs compile/admit alternatives, 24 old laws/six reused, zero choices,
+all final gates measurement evidence and quick budgets exhausted. No self-law
+attribution or new identity appears versus the historical corpus; median 53.394 s
+is not a causal speed comparison. The exact cohort is in
+`../corpus-hint-transport-combined`.
+
+The final CLI built from merged production source `1a58a4b6` uses the same exact
+standalone core/package tree and updated planner `d05401a5`. Nine planner cache
+and CLI tests pass. Two affected trained-plan tests pass with required CPU,
+Rust-Wasm and WebGPU flags, comparing 143 source-reference cases and exact
+snapshots across five target interfaces and checking local proof-byte bindings.
+The test-only `INK_TRAINED_BUILD_ROOT` option confines all generated outputs to the
+owned validation root. Six complete public artifact inventories and reference
+cases are retained in `trained-integration-inputs.tar.gz`; caches/targets are not.
+
+Fresh final emission also rechecks all four original source oracles and eight
+actual GPU-required calls. Both 33-file generated artifact trees are byte-identical
+to the measured cohort, including CPU Wasm. This is conformance, not a new timing
+context or automatic cost transfer. `merged-emission-inputs.tar.gz`, its indexed
+receipt and `final-integration.json` retain exact package/image/proof inputs.
+
+CI initially failed a stale historical package pointer after its current core
+suite passed. The current root receipt now reaches the unchanged workflow through
+a live alias; the original 466-test receipt remains separately hash-audited.
+The complete historical integrity audit and current proof replay pass. CI remains
+unverified until every job of a new run finishes green.
