@@ -7,6 +7,8 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
+#[path = "bitproof_division.rs"]
+mod division;
 
 const MAX_VARIABLES: usize = 100_000;
 const MAX_CLAUSES: usize = 300_000;
@@ -287,11 +289,14 @@ impl Circuit {
                         Value::Bool(self.gate(if op == "&&" { "and" } else { "or" }, a, b)?),
                     ),
                     (Value::Word(a), Value::Word(b)) if op.starts_with("f32:") => self.f32_primitive(op, &a, &b),
+                    (Value::Word(a), Value::Word(b)) if matches!(op.as_str(),
+                        "word32.udiv" | "word32.urem" | "word64.udiv" | "word64.urem" |
+                        "word32.sdiv" | "word32.srem") => self.word_division(op, &a, &b),
                     (Value::Word(a), Value::Word(b)) => match op.as_str() {
                         "|" | "^" => Ok(Value::Word(a.iter().zip(&b).map(|(&a,&b)|
                             self.gate(if op=="|"{"or"}else{"xor"},a,b)
                         ).collect::<LangResult<_>>()?)),
-                        "word32.shl" | "word32.shr" | "word64.shl" | "word64.shr" |
+                        "word32.shl" | "word32.shr" | "word32.sar" | "word64.shl" | "word64.shr" |
                         "word32.rol" | "word32.ror" | "word64.rol" | "word64.ror" => {
                             let width=if op.starts_with("word32."){32}else{64};
                             let left=op.ends_with(".shl") || op.ends_with(".rol");
@@ -303,7 +308,8 @@ impl Circuit {
                                         bits[if left{(index+width-shift)%width}else{(index+shift)%width}]
                                     }else if left{
                                         if index>=shift{bits[index-shift]}else{-1}
-                                    }else if index+shift<width{bits[index+shift]}else{-1};
+                                    }else if index+shift<width{bits[index+shift]}
+                                    else if op.ends_with(".sar"){bits[width-1]}else{-1};
                                     next.push(if index>=width{-1}else{self.select(condition,changed,bits[index])?});
                                 }
                                 bits=next;
@@ -722,6 +728,37 @@ mod tests {
                     .enumerate()
                     .fold(0, |n, (i, bit)| n | if truth(bit) { 1 << i } else { 0 }),
             ),
+        }
+    }
+    #[test]
+    fn division_and_arithmetic_shift_circuits_match_independent_machine_values() {
+        let mut pairs=vec![(0,0),(1,0),(u64::MAX,0),(0,1),(1,1),(u64::MAX,1),
+            (u64::MAX,u64::MAX),(u64::MAX,3),(1u64<<63,2),(1u64<<63,u64::MAX),
+            (0x80000000,0xffffffff),(0x80000000,2),(0x80000000,0x80000000),
+            (0xffffffff,2),(0x7fffffff,0xffffffff),(0xffffffff,0x80000000),
+            (0x12345678abcdef01,7)];
+        let mut seed=6151u64;
+        for _ in 0..12 {
+            seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);let a=seed;
+            seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);pairs.push((a,seed));
+        }
+        for encoding in [Encoding::LiteralV1,Encoding::SharedV2] {
+            for &(a,b) in &pairs {
+                let inputs=[("a",Term::U64(a)),("b",Term::U64(b))];
+                let (x,y)=(a as u32,b as u32);let (sx,sy)=(x as i32,y as i32);
+                for (op,expected) in [
+                    ("word32.udiv",x.checked_div(y).unwrap_or(0) as u64),
+                    ("word32.urem",x.checked_rem(y).unwrap_or(0) as u64),
+                    ("word64.udiv",a.checked_div(b).unwrap_or(0)),
+                    ("word64.urem",a.checked_rem(b).unwrap_or(0)),
+                    ("word32.sdiv",if sy==0 {0} else {sx.wrapping_div(sy) as u32 as u64}),
+                    ("word32.srem",if sy==0 {0} else {sx.wrapping_rem(sy) as u32 as u64}),
+                    ("word32.sar",sx.wrapping_shr(b as u32) as u32 as u64),
+                ] {
+                    assert_eq!(evaluate_encoding(&binary(op,var("a"),var("b")),&inputs,encoding),
+                        Term::U64(expected),"{encoding:?} {a} {op} {b}");
+                }
+            }
         }
     }
     #[test]
