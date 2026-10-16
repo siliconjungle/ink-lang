@@ -38,3 +38,14 @@ buffers. Host-boundary checks include nonrepresentable doubles, repeated and
 throwing getters, and contract-only scalar consumers. The required cross-target
 fixture compares complete values and snapshots; its separate numeric GPU control
 does not imply device execution of the whole fixture.
+
+Finite native F32 constants now use exact binary64 decimal embeddings directly,
+avoiding a per-evaluation bit conversion. Nonfinite values retain their explicit
+bit constructors; stateful word carriers and arithmetic rounding are unchanged.
+All 44 JavaScript integration targets pass, including 4,265 exact constant bit
+patterns. A local six-pair Adam update comparison measured 1.068× throughput;
+small affine-map differences were within the scale of control variation. The
+[complete report](../reports/conversion-and-f32-literals-2026-10-17/README.md)
+retains every clean sample, infrastructure failures and exact published-image
+reproduction. These measurements do not establish general training speed or
+Handwired parity.
