@@ -448,3 +448,12 @@ also passes actual GPU execution for eleven raw F32 input/weight classes; full
 128-operation device compilation still needs graph-stage fusion or other admitted
 structure, and stateful training remains CPU work. See
 [frozen helper layouts](frozen-composition.md#shared-and-expanded-code-layouts).
+
+
+Suffix-parametric proof composition now removes another scaling bottleneck:
+128 operations need an 836 KB plan rather than 3.29 MB, and a configured
+512-operation model passes complete CPU/GPU-host histories under unchanged
+checking budgets. The 32/128-operation runtime images are unchanged, so this
+adds proof/build scalability rather than a new warm serving gain. Larger general
+graphs, whole-query GPU fusion and learned representation/goal selection remain
+required. See [the universal prefix equations](frozen-composition.md#suffix-parametric-prefix-proofs).

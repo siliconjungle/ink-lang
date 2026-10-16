@@ -2,8 +2,8 @@
 
 The knowledge producer can split a closed `foldl` into small pure helpers and
 combine them in a balanced call graph. Fixed opcodes disappear from serving work while
-the original weights, input and live state stay dynamic. The supplied 32- and
-128-operation cases retain learning actions, failed-update rollback, ordered
+the original weights, input and live state stay dynamic. The supplied 32-, 128- and
+512-operation cases retain learning actions, failed-update rollback, ordered
 events and the original portable checkpoint namespace.
 
 Helpers come from the already checked parameter/result types. Missing types,
@@ -13,8 +13,10 @@ bindings, purity, ownership and termination. This step adds definitions; it
 does not authorize a replacement.
 
 A separate rewrite step proves every complete action transition. Generic cons
-equations describe the original fold; small lemmas describe the prefix consumed
-by each helper, and parent lemmas compose those prefixes in order. Constructor
+equations describe the original fold; suffix-parametric lemmas describe the prefix consumed
+by each helper, and parent lemmas compose those prefixes in order. The same
+universal law works for every remaining tail; separate closed-data witnesses
+bind it to the exact frozen list. Constructor
 data and proof transitivity are also factored to retain bounded transport depth.
 There is no opcode theorem whitelist, trusted producer result, reassociation or
 change to NaN/rounding policy. Complete source-derived definitions are rebound
@@ -107,7 +109,8 @@ Repeated eight-operation blocks in the 32/128-operation examples now need 3/5
 helper definitions rather than 7/31. Distinct word chunks retain separate
 helpers. The same operation sequence executes in the same order. The standalone
 producer also accepts `--helper-layout expanded`; both layouts require the full
-plan proofs. Expanded layout exactly reproduces the earlier 128-operation plan.
+plan proofs. Expanded layout preserves the earlier selected source and runtime
+code; the new prefix proof packaging changes its plan bytes.
 This preserves an explicit alternative for different target/objective tradeoffs.
 
 Six paired fresh Node processes per size measure about 1.46×/1.52× faster warm
@@ -118,13 +121,14 @@ updates. Every result is consumed and ending checkpoints match; source/proof
 construction and startup remain outside these warm samples.
 
 At 128 operations, JavaScript falls from 312,961 to 241,773 bytes. The complete
-plan falls from 3,631,618 to 3,292,182 bytes; its 34 prefix/action theorems remain.
+plan originally fell from 3,631,618 to 3,292,182 bytes in the sharing study.
+Suffix-parametric proofs now reduce it further to 836,086 bytes, with the same
+selected source and JavaScript bytes.
 The initialized WebGPU-host artifact inventory falls from 86,615,083 to
 22,148,048 bytes, including generated sources and compiled CPU fallbacks. These
 are file bytes, not download size or retained runtime memory. Import/first-binding
 diagnostics improve over expanded layout, but still trail the unspecialized
-baseline. Universal prefix-proof sharing, wider capture abstraction and lifecycle
-profitability remain open.
+baseline. Wider capture abstraction and lifecycle profitability remain open.
 
 Browser checks additionally execute a 64-operation pure model prefix for eleven
 raw F32 input/coefficient classes on the actual GPU, comparing against the
@@ -136,3 +140,47 @@ The earlier [expanded-layout acquisition](../reports/frozen-composition-2026-10-
 retains its original measurements and limits. The [sharing study](../reports/shared-helper-code-2026-10-16/README.md) retains the
 new paired measurements, complete plans, initialized artifacts and prefix history,
 along with the 512-operation proof-budget failure and planning-corpus funnels.
+
+
+## Suffix-parametric prefix proofs
+
+The current proof proposal proves, for every tail, capture and initial value:
+
+```text
+fold(prefix(tail), captures, initial)
+  = fold(tail, captures, helper(captures, initial))
+```
+
+Leaf prefixes use at most eight ordered operations. Parent prefixes compose
+checked child equations. Separate bounded witnesses connect the closed opcode
+list to these abstract prefixes. Thus repeated helpers share a law without
+embedding a different long suffix in every proof. Every equation and witness
+still passes the ordinary checker; no axiom, trusted cache or budget increase
+is introduced. Identity steps consume the longest checked prefix, including a
+short final chunk.
+
+The 32/128/512-operation cases use 3/5/7 universal prefix laws. The previously
+rejected 512-operation proposal now produces a 1,924,553-byte plan and passes
+144 reference observations per target across JavaScript, Rust, Wasm and the
+GPU host, including live updates, rollback and exact checkpoints. The initialized
+512-operation JavaScript artifact also passes proof/training replay and those
+histories. The initialized WebGPU package passes 432 browser comparisons, six
+seeded-instance checks and three invalid-checkpoint rejections. Its model still
+runs on the CPU; a separate numeric control confirms one actual GPU dispatch.
+GPU-host execution here does not establish full device execution.
+
+```sh
+ink build-model examples/frozen-program.ink \
+    examples/frozen-program-512-training.json \
+    --freeze-roots Structure --specialize-frozen \
+    --target javascript -o build/model-512
+ink verify-model build/model-512 --replay
+```
+
+This trace explicitly configures the opcode sequence; it does not demonstrate
+learning that sequence. The new strategy changes proof construction, not the
+32/128-operation runtime images. Existing warm serving measurements therefore
+remain the relevant evidence; no new serving speedup is claimed. Rehashed
+same-typed false-tail claims reject, including fail-closed resource exhaustion.
+General graph/tape specialization, capture abstraction, learned representation
+selection and device training remain required work.
