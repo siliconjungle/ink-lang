@@ -87,6 +87,42 @@ fn fixture() -> (CheckedModule, Vec<u8>, PathBuf, Vec<Value>) {
     (module, trained.snapshot, trace_file, cases)
 }
 #[test]
+fn direct_specialization_references_bind_exact_checked_local_proof_bytes() {
+    use sha2::{Digest,Sha256};
+    let directory=fresh("direct-proof-reference");
+    ok(Command::new(env!("CARGO_BIN_EXE_ink")).args(["build-model",
+        "examples/frozen-numeric-structure.ink","examples/frozen-numeric-structure-training.json",
+        "--freeze-roots","Model","--specialize-frozen","--target","javascript","-o"])
+        .arg(&directory).output().unwrap());
+    verify(&directory);
+    let manifest=fs::read(directory.join("artifact.json")).unwrap();
+    let path=directory.join("program.mjs.plan.json");let bytes=fs::read(&path).unwrap();
+    let original:Value=serde_json::from_slice(&bytes).unwrap();
+    let package=fs::read(directory.join("selection.json")).unwrap();
+    assert!(original.get("semantic_package").is_none());
+    assert_eq!(original["specialization_package"]["sha256"],format!("{:x}",Sha256::digest(&package)));
+    let write=|descriptor:&Value|{
+        let bytes=serde_json::to_vec(descriptor).unwrap();fs::write(&path,&bytes).unwrap();
+        let mut inventory:Value=serde_json::from_slice(&manifest).unwrap();
+        inventory["files"]["program.mjs.plan.json"]=json!({"bytes":bytes.len(),"sha256":format!("{:x}",Sha256::digest(&bytes))});
+        fs::write(directory.join("artifact.json"),serde_json::to_vec(&inventory).unwrap()).unwrap();
+    };
+    let mut embedded=original.clone();embedded.as_object_mut().unwrap().remove("specialization_package");
+    embedded["semantic_package"]=serde_json::from_slice::<Value>(&package).unwrap();
+    write(&embedded);training::verify_model(&directory,false).unwrap();
+    for mut changed in [original.clone(),embedded] {
+        changed["compiled_plan"]=json!({});write(&changed);
+        assert!(training::verify_model(&directory,false).unwrap_err().contains("compiled specialization binding"));
+    }
+    let mut changed=original.clone();changed["specialization_package"]["path"]=json!("https://example.invalid/proof.json");
+    write(&changed);
+    assert!(training::verify_model(&directory,false).unwrap_err().contains("compiled specialization binding"));
+    let mut changed=original;changed["semantic_selection"]=Value::Null;write(&changed);
+    assert!(training::verify_model(&directory,false).unwrap_err().contains("compiled specialization binding"));
+    fs::write(path,bytes).unwrap();fs::write(directory.join("artifact.json"),manifest).unwrap();
+    verify(&directory);
+}
+#[test]
 fn build_stage_packages_trained_state_and_continues_across_cpu_targets() {
     let (module, seed, trace, cases) = fixture();
     let cases_file = fresh("cases.json");
@@ -302,6 +338,18 @@ fn failed_training_and_tampered_artifacts_fail_without_replacing_publication() {
         .unwrap_err()
         .contains("compiled initial checkpoint"));
     fs::write(&private, original_seed).unwrap();
+    fs::write(directory.join("artifact.json"), &manifest).unwrap();
+    let plan_path=directory.join("program.mjs.plan.json");
+    let original_plan=fs::read(&plan_path).unwrap();
+    let mut plan:Value=serde_json::from_slice(&original_plan).unwrap();
+    plan["specialization_package"]=json!({"schema":1,"semantics":"ink-trained-proof-reference-v1",
+        "path":"selection.json","sha256":"0".repeat(64)});
+    let changed_plan=serde_json::to_vec(&plan).unwrap();fs::write(&plan_path,&changed_plan).unwrap();
+    let mut changed:Value=serde_json::from_slice(&manifest).unwrap();
+    changed["files"]["program.mjs.plan.json"]=json!({"bytes":changed_plan.len(),"sha256":format!("{:x}",Sha256::digest(&changed_plan))});
+    fs::write(directory.join("artifact.json"),serde_json::to_vec(&changed).unwrap()).unwrap();
+    assert!(training::verify_model(&directory,false).unwrap_err().contains("unexpected specialization package reference"));
+    fs::write(plan_path,original_plan).unwrap();
     fs::write(directory.join("artifact.json"), manifest).unwrap();
     fs::write(directory.join("program.mjs"), "changed").unwrap();
     assert!(training::verify_model(&directory, false).is_err());
@@ -645,24 +693,47 @@ fn composed_frozen_artifacts_initialize_live_weights_and_recheck_complete_plans(
             let path = directory.join("program.mjs.plan.json");
             let original_plan = fs::read(&path).unwrap();
             let original_manifest = fs::read(directory.join("artifact.json")).unwrap();
-            let mut changed: Value = serde_json::from_slice(&original_plan).unwrap();
-            changed["compiled_plan"]["steps"]
-                .as_array_mut()
-                .unwrap()
-                .pop();
-            let changed = serde_json::to_vec(&changed).unwrap();
-            fs::write(&path, &changed).unwrap();
-            let mut manifest: Value = serde_json::from_slice(&original_manifest).unwrap();
-            manifest["files"]["program.mjs.plan.json"] =
-                json!({"bytes":changed.len(),"sha256":format!("{:x}",Sha256::digest(&changed))});
-            fs::write(
-                directory.join("artifact.json"),
-                serde_json::to_vec(&manifest).unwrap(),
-            )
-            .unwrap();
-            assert!(training::verify_model(&directory, false)
-                .unwrap_err()
-                .contains("compiled specialization binding"));
+            let descriptor: Value = serde_json::from_slice(&original_plan).unwrap();
+            let selection_bytes=fs::read(directory.join("selection.json")).unwrap();
+            assert!(descriptor.get("compiled_plan").is_none());
+            assert!(descriptor.get("semantic_package").is_none());
+            assert_eq!(descriptor["specialization_package"],json!({"schema":1,
+                "semantics":"ink-trained-proof-reference-v1","path":"selection.json",
+                "sha256":format!("{:x}",Sha256::digest(&selection_bytes))}));
+            assert!(original_plan.len()<selection_bytes.len(),"proof bytes must not be duplicated");
+            let write_plan = |value:&Value| {
+                let changed=serde_json::to_vec(value).unwrap();fs::write(&path,&changed).unwrap();
+                let mut manifest:Value=serde_json::from_slice(&original_manifest).unwrap();
+                manifest["files"]["program.mjs.plan.json"]=json!({"bytes":changed.len(),
+                    "sha256":format!("{:x}",Sha256::digest(&changed))});
+                fs::write(directory.join("artifact.json"),serde_json::to_vec(&manifest).unwrap()).unwrap();
+            };
+            for damage in ["hash","path","schema","semantics","extra","inline","other","missing","evidence"] {
+                let mut changed=descriptor.clone();
+                match damage {
+                    "hash"=>changed["specialization_package"]["sha256"]=json!("0".repeat(64)),
+                    "path"=>changed["specialization_package"]["path"]=json!("../selection.json"),
+                    "schema"=>changed["specialization_package"]["schema"]=json!(2),
+                    "semantics"=>changed["specialization_package"]["semantics"]=json!("unknown"),
+                    "extra"=>changed["specialization_package"]["extra"]=json!(true),
+                    "inline"=>changed["compiled_plan"]=packet.clone(),
+                    "other"=>changed["semantic_package"]=packet.clone(),
+                    "missing"=>{changed.as_object_mut().unwrap().remove("specialization_package");},
+                    _=>changed["specialization"]=Value::Null,
+                }
+                write_plan(&changed);
+                let error=training::verify_model(&directory,false).unwrap_err();
+                assert!(error.contains("compiled specialization binding"),"{damage}: {error}");
+            }
+            // Existing artifacts with one exact embedded package still replay.
+            // Neither form may coexist with a second ambiguous package.
+            let mut embedded=descriptor.clone();
+            embedded.as_object_mut().unwrap().remove("specialization_package");
+            embedded["compiled_plan"]=packet.clone();write_plan(&embedded);
+            training::verify_model(&directory,false).unwrap();
+            embedded["compiled_plan"]["steps"].as_array_mut().unwrap().pop();
+            write_plan(&embedded);
+            assert!(training::verify_model(&directory,false).unwrap_err().contains("compiled specialization binding"));
             fs::write(path, original_plan).unwrap();
             fs::write(directory.join("artifact.json"), original_manifest).unwrap();
             training::verify_model(&directory, false).unwrap();
