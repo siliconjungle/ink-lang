@@ -2674,6 +2674,138 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read. Wasm-only growable stack checks load a thread-mutable stack limit with NotLoadEliminable, preserve call-descriptor slot/return sizes and throwing guard calls, and remap32-bit signatures. Stack/context/environment reads are not immutable merely because source code does not write them. Host/runtime stack support remains separate from Ink source algebraic authority."
+    },
+    {
+      "path": "src/compiler/turboshaft/layered-hash-map.h",
+      "sha256": "2b2ed19db2e6f5fdbb55e9330d72869f0aeb88ee7e786bb4532d3a72109d6100",
+      "inclusive_lines": [
+        [
+          1,
+          197
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Dominator layers use insertion-only keys and drop whole suffix layers; rehash preserves increasing depth to avoid linear-probe holes. Ink scoped facts must restore sibling visibility and compare canonical keys after hash hits. No need to replace existing checked store indexes or authenticated hashes with this deliberately weak hot-table hash; no direct implementation change justified."
+    },
+    {
+      "path": "src/compiler/turboshaft/fast-hash.h",
+      "sha256": "52ca8adbd99b95e5da01c8adc6d1d60402e495e3d1d66b96a2aab91ee37270e8",
+      "inclusive_lines": [
+        [
+          1,
+          121
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Weak low-bit polynomial combines for already high-variance hot hash-table inputs, optional/pair/tuple/vector and handle support. This is a lookup accelerator only. Ink proof/source/publication identities remain cryptographic and every matching object reauthenticates; collisions never establish equality."
+    },
+    {
+      "path": "src/compiler/turboshaft/csa-effects-computation.cc",
+      "sha256": "feacfe4d62dad563ace509bb6014cb987719ce11da01eb04edbf4feb88c416f9",
+      "inclusive_lines": [
+        [
+          1,
+          131
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Direct allocation, runtime GC capability and transitive builtin-call graph effects; unknown calls conservative, self calls deferred, external calls rely on V8 ABI. Abort allocation exclusion is runtime-specific and cannot justify Ink work/failure elision. Existing Ink ownership/provenance/effect summaries already require conservative unknown/recursive handling; no automatic loop hoist from purity."
+    },
+    {
+      "path": "src/compiler/turboshaft/csa-effects-computation.h",
+      "sha256": "d3ff47db85a1f97880c163cef99911a31f32398186db4ae23a598627c55798a4",
+      "inclusive_lines": [
+        [
+          1,
+          45
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Describes transitive allocation summary finalization across builtins, currently debug checks rather than optimisation authority. Potential reusable effect infrastructure must bind exact checked definitions and conservatively join calls; this does not prove commutation, totality or profitability."
+    },
+    {
+      "path": "src/compiler/turboshaft/decompression-optimization.cc",
+      "sha256": "8fb48305eb40fc43889810be5b4fc11f84a533303ed69de182e08e2ac6304e7c",
+      "inclusive_lines": [
+        [
+          1,
+          258
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Backward demanded-representation analysis revisits loop-phi backedges to a fixed point, recording only candidate constants/loads/phis/bitcasts. Word64 consumers and address bases force decompression; x64 address-mode folding requires exact single-use/load/phi constraints. Ink has no V8 compressed tagged pointer or deopt register representation; no direct pointer compression patch. Generic demanded-bit/representation proposals need checked codecs and complete consumer coverage, never an unchecked narrow value."
+    },
+    {
+      "path": "src/compiler/turboshaft/decompression-optimization.h",
+      "sha256": "4b461a17ce1a8ce6bec2f2afbd36ed42b21c70ed85254573d4dc2999d27bfa38",
+      "inclusive_lines": [
+        [
+          1,
+          25
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Late pointer decompression elimination preserves preceding phases single decompressed representation. Ink backend-specific representations require explicit checked boundaries; a V8 GC pointer encoding is not a source layout law."
+    },
+    {
+      "path": "src/compiler/turboshaft/pretenuring-propagation-reducer.cc",
+      "sha256": "bb8d69af84ebb157bb1dff5bf10f55c2f94d99a9768dd39def81b72c43eba905",
+      "inclusive_lines": [
+        [
+          1,
+          150
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Directed containment graph from stores and allocation phis, DFS from existing old allocations with visited marks. Phi summaries deliberately approximate loop/backedge opportunities. This is GC placement policy, not alias/ownership or equality evidence; Ink Rust/Wasm owners and JS-host GC expose no matching young/old allocator API."
+    },
+    {
+      "path": "src/compiler/turboshaft/pretenuring-propagation-reducer.h",
+      "sha256": "0a8fa3c358dac1c937a283c5489c488784af348e94f552cd77ec9425ef6a1624",
+      "inclusive_lines": [
+        [
+          1,
+          243
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Pretenuring propagates from retained containers to contained allocations, not reverse; phi-as-container graph limitations prevent all-old-phi store propagation without additional fixed-point data. Runs before allocation folding. Ink maintained layout/lifetime policies should keep containment direction and bounded analysis, but no current direct generational-allocation surface or profitable implementation change is established."
+    },
+    {
+      "path": "src/compiler/turboshaft/analyzer-iterator.h",
+      "sha256": "8065bacb18d9fe636d700f6e6fe3a973c4bb549de1c62486ee43c5ea4db149c8",
+      "inclusive_lines": [
+        [
+          1,
+          134
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Dominator traversal prioritizes blocks inside the current loop, with generation stamps skipping duplicate loop exits during revisits; avoids quadratic visits from late backedges. Header describes BFS but actual stack-based implementation is DFS. Ink currently uses structured expression/callback analysis rather than this SSA block worklist; preserve exact-context facts and conservative joins before any future scheduling optimisation."
+    },
+    {
+      "path": "src/compiler/turboshaft/analyzer-iterator.cc",
+      "sha256": "3a670badf987cff6f5cd0d3d25b3c55da341a6beee0fe57eb00657778a17fb07",
+      "inclusive_lines": [
+        [
+          1,
+          81
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. LIFO dominates children in same loop first, marks generation before discarding stale stack nodes; backedge revisit increments generation, optional header skip schedules children. Revisit work ordering can improve generic analysis but cannot assume loop facts valid or prove transformations. No equivalent block worklist bottleneck established in Ink yet."
+    },
+    {
+      "path": "src/compiler/turboshaft/js-generic-lowering-reducer.h",
+      "sha256": "cc21455052f45c9dc3a39995acb3d21902672245c1fd2b45210274b57e240875",
+      "inclusive_lines": [
+        [
+          1,
+          99
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Generic JS binary/unary builtins retain lazy frame-state/deopt-on-throw metadata; intentionally avoid feedback variants after negative experiments. ToNumber/ToNumeric bypass conversion only for already checked Number. Ink fixed typed arithmetic has no JS coercion counterpart; negative target-specific measurements should remain database evidence rather than universal strength-reduction preference."
     }
   ],
   "families": [
