@@ -51,6 +51,18 @@ structure with staging of work whose inputs have become immutable. It is a
 step toward learned structure and representations; it does not complete general
 network lowering, device training or the upstream performance requirement.
 
+Owned field projection and frozen graph specialization now compose in one
+four-step checked plan while weights remain live. Ordinary forwarding-helper
+equations preserve balanced graph boundaries; no core rule or limit changes.
+The new 88-outcome native/JavaScript/Wasm regression includes five restores.
+The [measured combination](../reports/composed-frozen-graph-2026-10-17/README.md)
+is slower than the original JavaScript loop; projection alone remains faster.
+In native Rust the same combination reaches 1.74–1.81× throughput, with complete
+checksums/checkpoints matching JavaScript. The preferred structure differs by
+backend even for identical source behavior.
+This supplies another legal representation/code-structure choice for measured
+planning, not an automatic unrolling preference or general upstream parity.
+
 ## Performance acceptance
 
 A result must identify the same task, input corpus, arithmetic, output boundary,
