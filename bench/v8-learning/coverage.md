@@ -2,7 +2,7 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 247 full files, 1 partial files, 361 unread files; 609 inventoried files total.
+Source receipts: 248 full files, 1 partial files, 360 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
@@ -213,7 +213,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/graph-zone-traits.h` — unread; 0/27 lines recorded
 - [ ] `src/compiler/heap-refs.cc` — unread; 0/2827 lines recorded
 - [ ] `src/compiler/heap-refs.h` — unread; 0/1480 lines recorded
-- [ ] `src/compiler/int64-lowering.cc` — unread; 0/1156 lines recorded
+- [x] `src/compiler/int64-lowering.cc` — read; 1156/1156 lines recorded
 - [x] `src/compiler/int64-lowering.h` — read; 111/111 lines recorded
 - [ ] `src/compiler/js-call-reducer.cc` — partial; 901/10075 lines recorded
 - [ ] `src/compiler/js-call-reducer.h` — unread; 0/334 lines recorded
