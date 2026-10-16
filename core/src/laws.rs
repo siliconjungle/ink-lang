@@ -21,6 +21,7 @@ pub enum BitVectorSemantics {
     #[default]
     OpaqueV1,
     FixedWordsV2,
+    FixedScalarsV3,
 }
 impl BitVectorSemantics {
     fn is_legacy(&self) -> bool { *self == Self::OpaqueV1 }
@@ -226,16 +227,39 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
     struct Lower{atoms:BTreeMap<String,String>,env:BTreeMap<String,S>,semantics:BitVectorSemantics}
     fn bin(op:&str,left:L,right:L)->L{L::Binary{op:op.into(),left:Box::new(left),right:Box::new(right)}}
     impl Lower {
+        fn atom(&mut self,t:&Term,kind:S)->LangResult<L>{
+            let key=serde_json::to_string(t).map_err(|e|e.to_string())?;
+            if key.len()>1_000_000 || (!self.atoms.contains_key(&key) && self.atoms.len()>=128){return Err("source bit circuit atom limit".into());}
+            let count=self.atoms.len();let name=self.atoms.entry(key).or_insert_with(||format!("atom{count}")).clone();
+            self.env.insert(name.clone(),kind);Ok(L::Var(name))
+        }
         fn lower(&mut self,t:&Term,b:&mut Budget,d:usize)->LangResult<L>{
             b.step(d)?;
             let kind=match &t.sort{
                 Sort::Value(Type::U64)=>S::U64,
                 Sort::Value(Type::U32)=>S::U64,
                 Sort::Value(Type::Bool)=>S::Bool,
-                _=>return Err("source bit circuits support only u32, u64 and Bool endpoints".into()),
+                Sort::Value(Type::F32) if self.semantics==BitVectorSemantics::FixedScalarsV3=>S::U64,
+                _=>return Err("source bit circuit carrier is unsupported in selected semantics".into()),
             };
             let raw=match &t.node{
                 Node::Word(n)=>L::U64(*n),Node::Bool(v)=>L::Bool(*v),
+                Node::Float(bits) if self.semantics==BitVectorSemantics::FixedScalarsV3=>L::U64(*bits as u64),
+                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV3 &&
+                    ["call:f32_bits","call:f32_from_bits"].contains(&n.as_str()) && args.len()==1=>self.lower(&args[0],b,d+1)?,
+                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV3 &&
+                    n=="neg" && t.sort==value(Type::F32) && args.len()==1=>
+                    bin("f32:neg",self.lower(&args[0],b,d+1)?,L::U64(0)),
+                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV3 &&
+                    ["call:is_nan","call:is_finite"].contains(&n.as_str()) && args.len()==1 && args[0].sort==value(Type::F32)=>
+                    bin(&format!("f32:{}",&n[5..]),self.lower(&args[0],b,d+1)?,L::U64(0)),
+                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedScalarsV3 &&
+                    n.starts_with("binary:") && args.len()==2 && args[0].sort==value(Type::F32)=>{
+                    let op=&n[7..];
+                    if ["==","!=","<",">","<=",">="].contains(&op){
+                        bin(&format!("f32:{op}"),self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
+                    }else{self.atom(t,kind)?}
+                },
                 Node::Op(n,args) if n=="call:choose" && args.len()==3=>L::If{
                     condition:Box::new(self.lower(&args[0],b,d+1)?),
                     on_true:Box::new(self.lower(&args[1],b,d+1)?),
@@ -257,7 +281,7 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                     let op=format!("{width}.{}",if n.ends_with("shl"){"shl"}else{"shr"});
                     bin(&op,self.lower(&args[0],b,d+1)?,self.lower(&args[1],b,d+1)?)
                 },
-                Node::Op(n,args) if self.semantics==BitVectorSemantics::FixedWordsV2 &&
+                Node::Op(n,args) if self.semantics!=BitVectorSemantics::OpaqueV1 &&
                     ["call:rotate_left","call:rotate_right"].contains(&n.as_str()) && args.len()==2=>{
                     let width=if t.sort==value(Type::U32){"word32"}else{"word64"};
                     let op=format!("{width}.{}",if n.ends_with("left"){"rol"}else{"ror"});
@@ -268,14 +292,11 @@ fn bitvector_problem_with_budget(p:&Program,env:&Env,hyp:&[Equation],goal:&Equat
                 // the observation; no relationship between distinct atoms is
                 // presumed. Structural equality alone identifies repeated atoms.
                 Node::Free(_) | Node::Bound(_) | Node::Op(_,_)=>{
-                    let key=serde_json::to_string(t).map_err(|e|e.to_string())?;
-                    if key.len()>1_000_000 || (!self.atoms.contains_key(&key) && self.atoms.len()>=128){return Err("source bit circuit atom limit".into());}
-                    let count=self.atoms.len();let name=self.atoms.entry(key).or_insert_with(||format!("atom{count}")).clone();
-                    self.env.insert(name.clone(),kind);L::Var(name)
+                    self.atom(t,kind)?
                 },
                 _=>return Err("unsupported source bit circuit term".into()),
             };
-            Ok(if t.sort==value(Type::U32){bin("&",raw,L::U64(u32::MAX as u64))}else{raw})
+            Ok(if t.sort==value(Type::U32) || t.sort==value(Type::F32){bin("&",raw,L::U64(u32::MAX as u64))}else{raw})
         }
         fn equation(&mut self,e:&Equation,p:&Program,env:&Env,b:&mut Budget)->LangResult<E>{
             validate(&e.from,env,p,b)?;validate(&e.to,env,p,b)?;
