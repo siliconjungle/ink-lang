@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "semantics": "source-collections-v1",
+  "library": "lock.json",
+  "proposals": [
+    {
+      "function": "add_zero",
+      "from": {
+        "Binary": [
+          "+",
+          {
+            "Var": "p0"
+          },
+          {
+            "Num": 0
+          }
+        ]
+      },
+      "to": {
+        "Var": "p0"
+      },
+      "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "from_definitions": [],
+      "to_definitions": [],
+      "proof": {
+        "Use": {
+          "theorem": "65bedb13a4bbb2c355e9f8717966d591483f85edc49e613fc9571ff4bc952170",
+          "arguments": [
+            {
+              "Var": "p0"
+            }
+          ],
+          "premises": []
+        }
+      }
+    },
+    {
+      "function": "add_commute",
+      "from": {
+        "Binary": [
+          "+",
+          {
+            "Var": "p0"
+          },
+          {
+            "Var": "p1"
+          }
+        ]
+      },
+      "to": {
+        "Binary": [
+          "+",
+          {
+            "Var": "p1"
+          },
+          {
+            "Var": "p0"
+          }
+        ]
+      },
+      "datatype": "8f3ce4e1fb4435fa83d81d0d0b24a3375f52febb96505737a24cfaba0238842a",
+      "from_definitions": [],
+      "to_definitions": [],
+      "proof": {
+        "Use": {
+          "theorem": "02e6fab8716db89ef2c4fe46e702b089fbb7f46caa74690e20dad215c23b8487",
+          "arguments": [
+            {
+              "Var": "p0"
+            },
+            {
+              "Var": "p1"
+            }
+          ],
+          "premises": []
+        }
+      }
+    }
+  ]
+}

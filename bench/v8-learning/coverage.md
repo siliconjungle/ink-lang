@@ -2,7 +2,7 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 105 full files, 3 partial files, 501 unread files; 609 inventoried files total.
+Source receipts: 126 full files, 3 partial files, 480 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
@@ -180,8 +180,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/compilation-dependencies.h` — unread; 0/225 lines recorded
 - [ ] `src/compiler/compiler-source-position-table.cc` — unread; 0/83 lines recorded
 - [ ] `src/compiler/compiler-source-position-table.h` — unread; 0/85 lines recorded
-- [ ] `src/compiler/constant-folding-reducer.cc` — unread; 0/68 lines recorded
-- [ ] `src/compiler/constant-folding-reducer.h` — unread; 0/42 lines recorded
+- [x] `src/compiler/constant-folding-reducer.cc` — read; 68/68 lines recorded
+- [x] `src/compiler/constant-folding-reducer.h` — read; 42/42 lines recorded
 - [ ] `src/compiler/control-equivalence.cc` — unread; 0/235 lines recorded
 - [ ] `src/compiler/control-equivalence.h` — unread; 0/184 lines recorded
 - [ ] `src/compiler/control-path-state.h` — unread; 0/258 lines recorded
@@ -206,8 +206,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/globals.h` — unread; 0/165 lines recorded
 - [ ] `src/compiler/graph-assembler.cc` — unread; 0/1384 lines recorded
 - [ ] `src/compiler/graph-assembler.h` — unread; 0/1459 lines recorded
-- [ ] `src/compiler/graph-reducer.cc` — unread; 0/319 lines recorded
-- [ ] `src/compiler/graph-reducer.h` — unread; 0/219 lines recorded
+- [x] `src/compiler/graph-reducer.cc` — read; 319/319 lines recorded
+- [x] `src/compiler/graph-reducer.h` — read; 219/219 lines recorded
 - [x] `src/compiler/graph-trimmer.cc` — read; 47/47 lines recorded
 - [x] `src/compiler/graph-trimmer.h` — read; 60/60 lines recorded
 - [ ] `src/compiler/graph-zone-traits.h` — unread; 0/27 lines recorded
@@ -248,12 +248,12 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/linkage.h` — unread; 0/553 lines recorded
 - [ ] `src/compiler/load-elimination.cc` — unread; 0/1601 lines recorded
 - [ ] `src/compiler/load-elimination.h` — unread; 0/378 lines recorded
-- [ ] `src/compiler/loop-analysis.cc` — unread; 0/772 lines recorded
-- [ ] `src/compiler/loop-analysis.h` — unread; 0/270 lines recorded
+- [x] `src/compiler/loop-analysis.cc` — read; 772/772 lines recorded
+- [x] `src/compiler/loop-analysis.h` — read; 270/270 lines recorded
 - [x] `src/compiler/loop-peeling.cc` — read; 299/299 lines recorded
-- [ ] `src/compiler/loop-peeling.h` — unread; 0/72 lines recorded
-- [ ] `src/compiler/loop-unrolling.cc` — unread; 0/211 lines recorded
-- [ ] `src/compiler/loop-unrolling.h` — unread; 0/44 lines recorded
+- [x] `src/compiler/loop-peeling.h` — read; 72/72 lines recorded
+- [x] `src/compiler/loop-unrolling.cc` — read; 211/211 lines recorded
+- [x] `src/compiler/loop-unrolling.h` — read; 44/44 lines recorded
 - [x] `src/compiler/loop-variable-optimizer.cc` — read; 358/358 lines recorded
 - [ ] `src/compiler/loop-variable-optimizer.h` — unread; 0/134 lines recorded
 - [ ] `src/compiler/machine-graph-verifier.cc` — unread; 0/1097 lines recorded
@@ -268,8 +268,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/map-inference.h` — unread; 0/108 lines recorded
 - [ ] `src/compiler/node-aux-data.h` — unread; 0/139 lines recorded
 - [ ] `src/compiler/node-cache.h` — unread; 0/78 lines recorded
-- [ ] `src/compiler/node-marker.cc` — unread; 0/21 lines recorded
-- [ ] `src/compiler/node-marker.h` — unread; 0/78 lines recorded
+- [x] `src/compiler/node-marker.cc` — read; 21/21 lines recorded
+- [x] `src/compiler/node-marker.h` — read; 78/78 lines recorded
 - [ ] `src/compiler/node-matchers.cc` — unread; 0/60 lines recorded
 - [ ] `src/compiler/node-matchers.h` — unread; 0/896 lines recorded
 - [ ] `src/compiler/node-observer.cc` — unread; 0/61 lines recorded
@@ -314,7 +314,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `src/compiler/scheduler.cc` — read; 1982/1982 lines recorded
 - [ ] `src/compiler/scheduler.h` — unread; 0/158 lines recorded
 - [x] `src/compiler/select-lowering.cc` — read; 59/59 lines recorded
-- [ ] `src/compiler/select-lowering.h` — unread; 0/41 lines recorded
+- [x] `src/compiler/select-lowering.h` — read; 41/41 lines recorded
 - [ ] `src/compiler/simplified-lowering-verifier.cc` — unread; 0/770 lines recorded
 - [ ] `src/compiler/simplified-lowering-verifier.h` — unread; 0/145 lines recorded
 - [ ] `src/compiler/simplified-lowering.cc` — unread; 0/6182 lines recorded
@@ -423,8 +423,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/loop-unrolling-phase.h` — unread; 0/20 lines recorded
 - [x] `src/compiler/turboshaft/loop-unrolling-reducer.cc` — read; 613/613 lines recorded
 - [x] `src/compiler/turboshaft/loop-unrolling-reducer.h` — read; 711/711 lines recorded
-- [ ] `src/compiler/turboshaft/machine-lowering-phase.cc` — unread; 0/48 lines recorded
-- [ ] `src/compiler/turboshaft/machine-lowering-phase.h` — unread; 0/20 lines recorded
+- [x] `src/compiler/turboshaft/machine-lowering-phase.cc` — read; 48/48 lines recorded
+- [x] `src/compiler/turboshaft/machine-lowering-phase.h` — read; 20/20 lines recorded
 - [ ] `src/compiler/turboshaft/machine-lowering-reducer-inl.h` — unread; 0/4857 lines recorded
 - [x] `src/compiler/turboshaft/machine-optimization-reducer.h` — read; 3314/3314 lines recorded
 - [x] `src/compiler/turboshaft/maglev-assert-types-reducer.h` — read; 38/38 lines recorded
@@ -454,10 +454,10 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/sidetable.cc` — unread; 0/18 lines recorded
 - [ ] `src/compiler/turboshaft/sidetable.h` — unread; 0/272 lines recorded
 - [x] `src/compiler/turboshaft/simplified-optimization-reducer.h` — read; 294/294 lines recorded
-- [ ] `src/compiler/turboshaft/simplify-tf-loops.cc` — unread; 0/58 lines recorded
-- [ ] `src/compiler/turboshaft/simplify-tf-loops.h` — unread; 0/31 lines recorded
-- [ ] `src/compiler/turboshaft/snapshot-table-opindex.h` — unread; 0/79 lines recorded
-- [ ] `src/compiler/turboshaft/snapshot-table.h` — unread; 0/580 lines recorded
+- [x] `src/compiler/turboshaft/simplify-tf-loops.cc` — read; 58/58 lines recorded
+- [x] `src/compiler/turboshaft/simplify-tf-loops.h` — read; 31/31 lines recorded
+- [x] `src/compiler/turboshaft/snapshot-table-opindex.h` — read; 79/79 lines recorded
+- [x] `src/compiler/turboshaft/snapshot-table.h` — read; 580/580 lines recorded
 - [x] `src/compiler/turboshaft/stack-check-lowering-reducer.h` — read; 187/187 lines recorded
 - [x] `src/compiler/turboshaft/store-store-elimination-reducer-inl.h` — read; 611/611 lines recorded
 - [x] `src/compiler/turboshaft/string-escape-analysis-reducer.cc` — read; 182/182 lines recorded
@@ -484,12 +484,12 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/turboshaft/types.h` — unread; 0/942 lines recorded
 - [ ] `src/compiler/turboshaft/typeswitch.h` — unread; 0/527 lines recorded
 - [ ] `src/compiler/turboshaft/uniform-reducer-adapter.h` — unread; 0/153 lines recorded
-- [ ] `src/compiler/turboshaft/use-map.cc` — unread; 0/103 lines recorded
-- [ ] `src/compiler/turboshaft/use-map.h` — unread; 0/90 lines recorded
+- [x] `src/compiler/turboshaft/use-map.cc` — read; 103/103 lines recorded
+- [x] `src/compiler/turboshaft/use-map.h` — read; 90/90 lines recorded
 - [ ] `src/compiler/turboshaft/utils.cc` — unread; 0/26 lines recorded
 - [ ] `src/compiler/turboshaft/utils.h` — unread; 0/166 lines recorded
 - [x] `src/compiler/turboshaft/value-numbering-reducer.h` — read; 508/508 lines recorded
-- [ ] `src/compiler/turboshaft/variable-reducer.h` — unread; 0/370 lines recorded
+- [x] `src/compiler/turboshaft/variable-reducer.h` — read; 370/370 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-assembler-helpers.h` — unread; 0/48 lines recorded
 - [ ] `src/compiler/turboshaft/wasm-code-coverage-reducer.h` — unread; 0/37 lines recorded
 - [x] `src/compiler/turboshaft/wasm-dead-code-elimination-phase.cc` — read; 37/37 lines recorded

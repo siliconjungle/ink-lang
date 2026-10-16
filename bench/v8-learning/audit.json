@@ -1310,6 +1310,258 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full file read. Backward input closure starts at graph end plus explicit extra roots, then removes dead-user edges into live nodes. This is graph reachability, not source observational equality. Ink proof-certificate dependency closure may discard unreachable proof steps; source work/error/control obligations must stay roots and runtime evaluation may not be dropped through this analogy."
+    },
+    {
+      "path": "src/compiler/turboshaft/use-map.h",
+      "sha256": "1eff4464bd117f00b017aa9ece926d5c418499636b5e4d10cb25df4e5ef0d42c",
+      "inclusive_lines": [
+        [
+          1,
+          90
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Immutable-graph definition/use map, exact per-definition counts with a separate saturated-use store, filtered SIMD maps including Return/FrameState inputs. Synthetic MakeTuple is excluded explicitly. Single-use is a property of the full relevant use graph, not structural equality or a license to skip source work."
+    },
+    {
+      "path": "src/compiler/turboshaft/use-map.cc",
+      "sha256": "337795ecc449d7a1c95d910b247ca5a76c57eb51c91c18a95ee287b8170036d8",
+      "inclusive_lines": [
+        [
+          1,
+          103
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Preallocated contiguous use ranges for unsaturated counts, separate saturated vectors, delayed loop-phi back edges after all definitions and explicit MakeTuple exclusion. Ink RUP packaging can build exact clause-consumer sets on its acyclic proof graph and inline sole consumers, followed by ordinary replay. Source ownership, effects and repeated runtime arguments require their separate fixed contracts."
+    },
+    {
+      "path": "src/compiler/loop-unrolling.h",
+      "sha256": "638aec4f28229e811193d1b04e81c58c80d1f855e1356dc5caaf9c38776f44ef",
+      "inclusive_lines": [
+        [
+          1,
+          44
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Size/depth heuristic caps additional copies at five and favors small deeply nested loops. This is a V8 untrusted policy choice, not Ink profitability evidence. Keep candidate factor/code-size budgets in knowledge/planner and retain literal loop semantics in backends."
+    },
+    {
+      "path": "src/compiler/loop-unrolling.cc",
+      "sha256": "18e542d430022f092d1263c5e874065c764e40253228af0fdd3ddac42d269227",
+      "inclusive_lines": [
+        [
+          1,
+          211
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Copies full loop body with provenance, reconnects graph terminators, preserves first stack check while eliding copied checks, merges all loop exits and value/effect phis, rewires each copy to its predecessor and the last back to the original header. Ink database fold chunking/induction must preserve source strict evaluation, callbacks, errors and all tails; no imported stack-check-elision authority. General multiple-backedge/action-loop transformation and profitability remain open."
+    },
+    {
+      "path": "src/compiler/loop-peeling.h",
+      "sha256": "d6da7be0ae46c9e7c121f7937cadee982b844c78712320cd67fa408a67af2cea",
+      "inclusive_lines": [
+        [
+          1,
+          72
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Peel admission requires explicitly marked exits, output maps original nodes to the copied iteration, graph provenance tables travel with cloning and peeled-node budget is 1000. Body already reviewed separately. Ink bounded untrusted proposals and checked helper composition cover only parts; this header grants no new rewrite."
+    },
+    {
+      "path": "src/compiler/turboshaft/simplify-tf-loops.h",
+      "sha256": "3f4e305b266de8bb4213f5a813cf3117dec3a76a185f28823744e288996b35fa",
+      "inclusive_lines": [
+        [
+          1,
+          31
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Declares conversion of multi-input loop headers to at most two inputs using explicit merges. This is graph structural canonicalization; Ink term/fold proof composition is a separate checked domain."
+    },
+    {
+      "path": "src/compiler/turboshaft/simplify-tf-loops.cc",
+      "sha256": "8afcd04020847a51015dc1eb45969a770b45e3f8035063c3521c7eeda33aa35a",
+      "inclusive_lines": [
+        [
+          1,
+          58
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Multi-backedge loop becomes a new two-input loop plus a merge of backedges; every value/effect phi splits into dominating-entry and merged-backedge phis, replacements repair the introduced self edge, and nonphi control uses redirect to the new header. Changes must be atomic over all dependent phis/control; no Ink source transformation or equality has been admitted from this review."
+    },
+    {
+      "path": "src/compiler/node-marker.h",
+      "sha256": "93f4dd6d6f3fa40951e908c27e6233a796746b62c7dc0c37c3cd1bc14b994b71",
+      "inclusive_lines": [
+        [
+          1,
+          78
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Epoch-partitioned in-node state gives constant-time conceptual initialization, but only the newest NodeMarker on a graph remains valid; reducers cannot nest a second marker inside GraphReducer. Ink immutable per-subject indexes avoid importing mutable graph epochs; any future cache needs explicit context and invalidation. Marker identity is never proof authority."
+    },
+    {
+      "path": "src/compiler/node-marker.cc",
+      "sha256": "573e3967e1b3f6dc1fcaab81a87a20d36ba08e2d60e616442a4e1bcd76f52612",
+      "inclusive_lines": [
+        [
+          1,
+          21
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Allocates a nonzero contiguous mark-state interval from graph mark_max with debug overflow/zero checks. This is resource/state bookkeeping, not source fact derivation. No additional Ink semantic primitive is needed."
+    },
+    {
+      "path": "src/compiler/graph-reducer.h",
+      "sha256": "3b1b78890e8886dc0ab94b54d0b5ca6f9bb621012bce3b6903cdc3fb0da487a4",
+      "inclusive_lines": [
+        [
+          1,
+          219
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Extension interface distinguishes no change, in-place update and replacement, with explicit editor operations for revisiting and separate value/effect/control replacement. ReplaceWithValue assumes nonthrowing behavior when relaxing control. Ink ordinary source proofs and error/work obligations must establish corresponding facts; reducer names/results provide no authority."
+    },
+    {
+      "path": "src/compiler/graph-reducer.cc",
+      "sha256": "a3ade73754bc0e0d2b8b1e99971bab2401ac90b12d7502fe6a99cc776f8b2453",
+      "inclusive_lines": [
+        [
+          1,
+          319
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Input-first explicit stack plus deduplicated revisit states; reruns other reducers after an in-place change, revisits consumers and finalizers, and polls tick budgets. Replacement snapshots max node ID so freshly created users may keep the old node without creating a replacement cycle; old/new replacements get distinct processing. Value, effect, success and exception edges route separately. Relevant followup is lazy demand-directed immutable-context rechecking in untrusted planner; previous eager memo-wave rejection remains recorded, and no general graph mutation or exception elision is admitted."
+    },
+    {
+      "path": "src/compiler/loop-analysis.h",
+      "sha256": "1e06fa08f17e9cba57a1682c3c65dc1fbd7a5b819560a7ed71a8f360a0298b30",
+      "inclusive_lines": [
+        [
+          1,
+          270
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Loop tree stores nested header/body/exit intervals and an innermost node mapping; entry index zero is an explicit assumption. NodeCopier first creates all copies with source/origin provenance then repairs their inputs, retaining external nodes unchanged. Ink hygienic binder/capture identities and exact source contexts must survive any analogous authoring transformation; no arbitrary graph clone is a semantic proof."
+    },
+    {
+      "path": "src/compiler/loop-analysis.cc",
+      "sha256": "74793d0fb20575b7bf6cf916698493176287a94cba0f903887c050b3a1c7915f",
+      "inclusive_lines": [
+        [
+          1,
+          772
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Two directional fixed-point reachability passes treat loop headers and phis together, filter entry/backedge marks and intersect marks to distinguish nested loops in non-CFG sea-of-nodes graphs. Work queues deduplicate and poll budgets; nested intervals serialize headers/body/exits. Small innermost-loop discovery caps graph size, rejects nesting/unrolling opaque calls except explicit Wasm builtins, checks floating control and only peels selected potentially useful loads. Marked-exit verification includes value/effect exits. Ink loop proposal policy should use checked interfaces and database work models, preserve all exits/errors/tails and derive correctness separately; no copied builtin whitelist or V8 heuristic establishes Ink profitability."
+    },
+    {
+      "path": "src/compiler/turboshaft/snapshot-table.h",
+      "sha256": "8635f3df45f52ee406096fe673419bf417bd0fb415937540cdf81ee2b0405d81",
+      "inclusive_lines": [
+        [
+          1,
+          580
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Delta-logged sealed snapshots reset/replay through common ancestors, merge only changed keys with explicit values for every predecessor and reuse scratch vectors. Empty snapshots coalesce with the parent. Keys have identity and initial values apply independently of creation snapshot; secondary-index callbacks may observe several rollback/replay updates for one logical switch and must preserve the aggregate state. This can inform bounded speculative database/planner metadata, but equality/hash/absence and snapshot identity grant no Ink source fact. Preserve complete context, conservative joins, rollback/invalidation and ordinary proof replay."
+    },
+    {
+      "path": "src/compiler/turboshaft/snapshot-table-opindex.h",
+      "sha256": "39d7097d725642cf58cd5515789f021b3dc09633320db03574dd00fad3375567",
+      "inclusive_lines": [
+        [
+          1,
+          79
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Sparse OpIndex-to-snapshot-key wrapper uses an explicit map; missing keys return default unknown values, Set creates a fresh key, and predecessor reads delegate to the currently merged snapshot. Appropriate only for sparse tracked indices. Ink absent metadata must stay unknown and cannot satisfy source applicability."
+    },
+    {
+      "path": "src/compiler/turboshaft/variable-reducer.h",
+      "sha256": "cea0bcf838d8a3fcb15a1de13d805c83255bc5119301433e8041d40c2d0fd1a6",
+      "inclusive_lines": [
+        [
+          1,
+          370
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Block snapshots merge predecessor mappings with invalid-on-any-missing, create representation-aware phis and recursively merge compatible frame states. Active non-invariant variables get pending loop phis fixed on the backedge; invariant flags require genuine loop invariance. Temporary snapshots are readonly and sealed. Cloning may bail out when maximum merge predecessors times variable count reaches 100000. Ink future context reuse needs explicit unknown joins and product resource bounds; database work models rank candidates, while ordinary whole-source proofs retain semantic authority."
+    },
+    {
+      "path": "src/compiler/constant-folding-reducer.h",
+      "sha256": "73370cb45aba37838630a517bfa707ed178b86c5bf12e9c25ed5f6e7aed5695c",
+      "inclusive_lines": [
+        [
+          1,
+          42
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Advanced graph reducer is parameterized by JSGraph and heap broker; reduction interface is separate from constant/type authority. No Ink recognizer follows from the interface."
+    },
+    {
+      "path": "src/compiler/constant-folding-reducer.cc",
+      "sha256": "138906328d29c98ad7309470814107727907eb7e01d1d596c06b51419f67d3e8",
+      "inclusive_lines": [
+        [
+          1,
+          68
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Folds typed singleton values only for eliminatable nonconstant nodes and explicitly excludes FinishRegion/TypeGuard; handles null/undefined/minus-zero/NaN/heap constants and singleton plain-number ranges. Ink fixed closed-term normalization and admitted source laws cover compatible exact constants, but a type/profile singleton is no proof. In particular raw F32 payloads are observable and F64 proof terms remain unsupported: never import JS Number NaN canonicalization or heap/type-guard elision. Effects/work/errors and proof applicability remain explicit."
+    },
+    {
+      "path": "src/compiler/select-lowering.h",
+      "sha256": "156844149c5837612685579cbb27dcd341b9656b84d6ec5c3a327cb1a6a7cd14",
+      "inclusive_lines": [
+        [
+          1,
+          41
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Declares Select-to-control-diamond lowering via graph assembler; implementation previously reviewed. Ink source choose remains lazy and strict operand evaluation remains explicit; this interface adds no target-independent rewrite."
+    },
+    {
+      "path": "src/compiler/turboshaft/machine-lowering-phase.h",
+      "sha256": "06bcbd7ae06a64a97da913d60eba9aed79f6c2a8c3d90d6b3a44351150fa2e90",
+      "inclusive_lines": [
+        [
+          1,
+          20
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. Declares a lowering phase with standard phase metadata; no transformation or profitability conclusion follows."
+    },
+    {
+      "path": "src/compiler/turboshaft/machine-lowering-phase.cc",
+      "sha256": "773ed2a7dfbc883aec873dba64fd63280e8f97d49e1feb770adb1a8a4000bf79",
+      "inclusive_lines": [
+        [
+          1,
+          48
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full file read. CopyingPhase composes optional Wasm lowering, string escape, generic JS, DataView, machine, fast API, variable/phi, select, machine optimization and value numbering reducers. Ordering and support dependencies matter; the generic JS placement is documented as temporary pipeline policy. Ink generic scheduling belongs in planner/database and backends remain literal, with explicit target capabilities; do not copy this target/language-specific reducer ordering into core."
     }
   ],
   "families": [
@@ -1456,7 +1708,7 @@
     "first_batch": "Scoped structural work prices through lazy branch contexts; ordinary proofs and measured selection remain unchanged",
     "evidence": "bench/v8-learning/branch-cardinality",
     "worklist_followup": "An eager memo-wave prototype passed an isolated fake-clock starvation regression but left real default quick-search coverage unchanged in three paired runs (two of three callback functions in every lane). The default change and insight-only experiment are retired; global quick-search dispatch/composition remains open.",
-    "coverage_followup": "105 full source receipts, three partial, 501 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
+    "coverage_followup": "126 full source receipts, three partial, 480 unread of 609 inventoried files; all 22 families partial. Inventory remains a queue, not a scope cap.",
     "second_batch": "Range-guided word representation proposals plus three independently replayed whole-branch laws. 28 related tests, three final range regressions and 88 CPU comparisons pass; measured JS/native controls retain baseline. Matched 32-check control improves one rewritten function to two. Frozen corpus: 10 compile, 24 laws, six reused, zero representation/selection, no new range-law attribution; all quick budgets exhausted.",
     "next_followups": [
       {
@@ -1469,11 +1721,11 @@
       },
       {
         "area": "coverage",
-        "task": "Continue unread 503 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
+        "task": "Continue unread 480 files plus three partial files/ranges and optimizer dependencies outside the selected inventory. Every family remains partial; no exhaustive or broad speedup claim."
       },
       {
         "area": "signed-range-and-integer",
-        "task": "337 checked signed/division/bit-operation laws now use versioned general integer circuits and bounded word extensionality. Continue three unadmitted U64 self/zero-numerator proofs, arbitrary-divisor magic-number authoring/multiply-high source support, conditional signed range proposals and persistent branch/loop fact construction. Reconstruct source/evaluation/default semantics, replay all concrete bounds and require independent profitability evidence."
+        "task": "337 checked signed/division/bit-operation laws now use versioned general integer circuits and bounded word extensionality. Continue three unadmitted U64 self/zero-numerator proofs, arbitrary-divisor magic-number authoring/multiply-high source support, conditional signed range proposals and persistent branch/loop fact construction. Reconstruct source/evaluation/default semantics, replay all concrete bounds and require independent profitability evidence. Generic RUP unit factoring/inlining now shrinks 43 existing word proofs with lower checker work and measured batch time. Eight masked quotient-self components check, but the unconditional root still stops at the object byte limit (23762435 bytes after a private general-clause inlining trial); assembled shared-work admission remains unverified. Avoid repeating unchanged acquisitions."
       },
       {
         "area": "device-profitability-evidence",
@@ -1494,7 +1746,23 @@
       "tests": "10 focused and 7 existing integration tests pass; merged upstream fold-prefix work adds a 16-test combined check.",
       "corpus": "All ten compile and admit alternatives, 24 observed laws, six reused, no selected alternative/representation; all final gates request measurement evidence. All quick budgets expire; median 51.0765 seconds. Unpaired saturation counts are not causal performance evidence.",
       "private_proof_followup": "Three U64 self/zero-numerator laws remain unadmitted after whole, incremental-root-unit and balanced conditional-case authoring: assembled laws exceed unchanged object bytes. One conditional high-bit lemma checks; private RUP factoring and single-use inlining reduce its law from 3193378 to 113209 bytes. This grants no unconditional law or runtime speedup."
-    }
+    },
+    "seventh_batch": {
+      "improvement": "Opt-in bounded untrusted RUP root-unit factoring, single-consumer inlining with strict hint propagation and contradiction-root dependency pruning. No CNF/proof schema/core budget/source statement changes.",
+      "evidence": "bench/v8-learning/rup-compaction",
+      "libraries": "98 existing word/F32 laws replay; 43 word certificates shrink. Combined raw law bytes 34374885 to 30066164; gzip proof bytes 7705664 to 7454657. All replacements reduce the untrusted replay-work estimate; ordinary kernel admission remains the authority.",
+      "tests": "28 focused/integration tests pass, including all 83 word/15 F32 admissions, exact source applications, encoding/semantics and corruption boundaries. Separate two-case CLI authoring/verify-library/source replacement passes. Seven same-CNF controls admit original and packed proof and reject rehashed empty-hint corruption.",
+      "conditional": "Selected conditional U64 high-bit pilot remains only a conditional theorem; raw checked law 3193378 to 113209 bytes under unchanged budgets. No new unconditional U64 law or runtime speedup follows.",
+      "corpus": "Terminal zero with stable final source context: all ten compile and admit alternatives, 24 observed laws, six reused, no selected alternative/representation, all final gates measurement_evidence, all ten quick budgets expire, median interval 51.422 sec, no near-miss reason. Shared-host unpaired duration is not a causal compiler/runtime speedup.",
+      "followup": "Read full graph-trimmer, use-map, marker and graph-reducer machinery, plus TurboFan loop-unroll and loop-header canonicalization. Keep effect/control/exception roots, immutable context, cloned-node boundaries and all tails explicit. Masked eight-way U64 proof trials remain private until ordinary unconditional admission.",
+      "checker_control": "Three fresh processes, seven alternating rounds each over the same 43 statements in three fixed groups: median of process medians 9.340251749 to 7.7330125 sec; median paired process reduction 16.298%. Complete fresh knowledge-check call sums include startup/read/hash/admission/replay, exclude publication prep/Python import. Shared host with corpus; no whole compiler/runtime speedup attribution. All exact input hashes reverified at terminal status zero.",
+      "private_proof_followup": "Eight masked U64 quotient-self cases check individually. A private strict-replay extension trying non-unit single-consumer clauses yields a 23762435-byte assembled root, still beyond unchanged object bytes. Only the smallest useful checked conditional component revision is retained; the private extension and all three unconditional goals stay outside production."
+    },
+    "next_batch_priority": [
+      "Extend the generic pure-call offline acquisition/context to actual eligible GPU work, with complete-call reference controls, exact source/artifact/device identity, no fallback or runtime probes and disjoint holdout. The completed CPU quotient cohort retained baseline; current device conformance is not a performance proof.",
+      "Continue unread Maglev phi/representation selection and simplified lowering; assess which generic fixed-meaning proof/representation machinery Ink lacks, especially explicit exact F64 capability and source multiply-high expressibility. Preserve raw bits, source evaluation and unsupported-mode rejection.",
+      "Use the reviewed use-map, snapshots and graph-reducer mechanics only with bounded immutable contexts, unknown-at-join and demand-driven revisiting. Previous eager memo-wave prototype is retired; retain real frozen-corpus controls for any new scheduling change."
+    ]
   },
   "scope_boundaries": [
     "The selected compiler/Maglev inventory is a work queue, not a cap on the user goal. Follow optimizer dependencies outside it when review establishes relevant transformation machinery. The division-by-constant base implementation/header are now explicitly acquired and reviewed as dependency inputs.",
