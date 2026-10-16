@@ -1,7 +1,49 @@
 //! Fixed literal state correspondence, including values without surface literals.
 use super::*;
 use crate::stateful::Value;
+
+// Long literal spines belong in transparent, separately checked definitions.
+// Keep small literals unchanged; every stored chunk remains within the existing
+// canonical/term depth budgets. This shares data, never an equality verdict.
+const INLINE_SPINE: usize = 32;
+const SPINE_CHUNK: usize = 16;
+
 impl Lower<'_> {
+    fn fixed_chunk(&mut self, sort: &Sort, body: Term) -> LangResult<Term> {
+        // Closed constructor data has no implicit match-field sorts. Import
+        // exactly its syntax references so unrelated action helpers cannot
+        // change the identity of the same fixed source value.
+        let function = self.store_with_implicit_sorts(Declaration::Function {
+            params: vec![], result: sort.clone(), body, recursive: None,
+        }, false)?;
+        Ok(call(&function, vec![]))
+    }
+
+    pub(super) fn literal_list(&mut self, sort: &Sort, xs: Vec<Term>) -> LangResult<Term> {
+        let mut closed = xs.len() > INLINE_SPINE;
+        if closed {
+            let mut work = 0usize;
+            for value in &xs {
+                crate::logic::walk_term(value, |term| {
+                    work += 1;
+                    // Match binders could close Vars, but conservative refusal
+                    // keeps this fast path limited to explicit closed syntax.
+                    closed &= !matches!(term, Term::Var(_) | Term::SelfCall(_) | Term::Match { .. });
+                });
+            }
+            self.work = self.work.checked_sub(work).ok_or("action model work limit")?;
+        }
+        let count = xs.len();
+        let mut tail = c(id(sort)?, 0, vec![]);
+        for (index, value) in xs.into_iter().rev().enumerate() {
+            tail = c(id(sort)?, 1, vec![value, tail]);
+            if closed && (index + 1) % SPINE_CHUNK == 0 && index + 1 < count {
+                tail = self.fixed_chunk(sort, tail)?;
+            }
+        }
+        Ok(tail)
+    }
+
     fn fixed_value(&mut self, ty: &Type, value: &Value) -> LangResult<Term> {
         self.tick()?;
         let sort = self.sort(ty)?;
@@ -85,11 +127,8 @@ impl Lower<'_> {
                 vec![self.fixed_value(if *ok { yes } else { no }, x)?],
             ),
             (Type::List(element), Value::List(xs)) => {
-                let mut tail = c(id(&sort)?, 0, vec![]);
-                for x in xs.iter().rev() {
-                    tail = c(id(&sort)?, 1, vec![self.fixed_value(element, x)?, tail]);
-                }
-                tail
+                let values = xs.iter().map(|x| self.fixed_value(element, x)).collect::<LangResult<Vec<_>>>()?;
+                self.literal_list(&sort, values)?
             }
             _ => return Err("fixed value outside admitted source correspondence".into()),
         })
@@ -103,7 +142,7 @@ impl Lower<'_> {
         for (root, table) in self.program.states.iter().zip(self.tables.clone()) {
             let mut tail = c(&table.datatype, 0, vec![]);
             if let Some(rows) = tables.get(&root.name) {
-                for (key, value) in rows.iter().rev() {
+                for (index, (key, value)) in rows.iter().rev().enumerate() {
                     tail = c(
                         &table.datatype,
                         1,
@@ -113,6 +152,12 @@ impl Lower<'_> {
                             tail,
                         ],
                     );
+                    if rows.len() > INLINE_SPINE
+                        && (index + 1) % SPINE_CHUNK == 0
+                        && index + 1 < rows.len()
+                    {
+                        tail = self.fixed_chunk(&Sort::Data(table.datatype.clone()), tail)?;
+                    }
                 }
             }
             arguments.push(tail);

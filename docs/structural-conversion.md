@@ -32,7 +32,10 @@ test replays complete action proofs and compares updated weights, results,
 errors, events and exact checkpoints on compiled targets. These are tests of
 trusted implementation code, not a formal proof of the checker or lowerers.
 
-Large frozen lists still hit canonical proof-value depth limits, and long
-straight-line action bodies can hit continuation limits. Scalable graph/tape
-specialization still needs checked sharing or factored proofs; raising existing
-caps is not the solution. Profitability remains a separate measured obligation.
+[Shared frozen literals](frozen-literal-sharing.md) now keep long list/table
+spines in transparent definitions, and exhaustive case proofs retain their exact
+checked conclusion without expanding all data again. Bounded case-normalization
+hints can retain their typed call. Long straight-line action bodies can still hit
+continuation limits. Scalable graph/tape specialization needs further checked
+sharing and factored producer proofs; raising existing caps is not the solution.
+Profitability remains a separate measured obligation.

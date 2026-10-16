@@ -2896,7 +2896,11 @@ fn derive(
                     return Err("constructor case proves a different statement".into());
                 }
             }
-            normalize_pair(original, c, budget)?
+            // Exhaustive branches established this exact equation. Expanding
+            // its complete values again is unnecessary and destroys sharing
+            // in closed data definitions. Later uses retain ordinary checked
+            // conversion, just as the scrutinee form below does.
+            original
             } else {
                 let scrutinee = scrutinee.as_ref().unwrap();
             let Sort::Data(id) = infer(scrutinee, env, c, None, false, budget, 0)? else {
