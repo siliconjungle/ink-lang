@@ -9,6 +9,8 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 #[path = "bitproof_division.rs"]
 mod division;
+#[path = "bitproof_counts.rs"]
+mod counts;
 #[path = "bitproof_hints.rs"]
 mod hint_transport;
 
@@ -298,6 +300,10 @@ impl Circuit {
                     (Value::Word(a), Value::Word(b)) if matches!(op.as_str(),
                         "word32.udiv" | "word32.urem" | "word64.udiv" | "word64.urem" |
                         "word32.sdiv" | "word32.srem") => self.word_division(op, &a, &b),
+                    (Value::Word(a), Value::Word(_)) if matches!(op.as_str(),
+                        "word32.popcount" | "word64.popcount" |
+                        "word32.leading_zeros" | "word64.leading_zeros" |
+                        "word32.trailing_zeros" | "word64.trailing_zeros") => self.word_count(op, &a),
                     (Value::Word(a), Value::Word(b)) => match op.as_str() {
                         "|" | "^" => Ok(Value::Word(a.iter().zip(&b).map(|(&a,&b)|
                             self.gate(if op=="|"{"or"}else{"xor"},a,b)
@@ -748,6 +754,39 @@ mod tests {
                     .enumerate()
                     .fold(0, |n, (i, bit)| n | if truth(bit) { 1 << i } else { 0 }),
             ),
+        }
+    }
+    #[test]
+    fn word_count_circuits_match_independently_evaluated_full_width_inputs() {
+        let mut values = vec![0, u64::MAX, 0xaaaaaaaaaaaaaaaa, 0x5555555555555555,
+            0xffffffff00000000, 0x00000000ffffffff];
+        for bit in 0..64 {
+            values.extend([1u64 << bit, !(1u64 << bit)]);
+        }
+        let mut seed = 731u64;
+        for _ in 0..16 {
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+            values.push(seed);
+        }
+        for encoding in [Encoding::LiteralV1, Encoding::SharedV2] {
+            for &value in &values {
+                for width in [32, 64] {
+                    for name in ["popcount", "leading_zeros", "trailing_zeros"] {
+                        let expected = if width == 32 {
+                            let x = value as u32;
+                            match name { "popcount" => x.count_ones(),
+                                "leading_zeros" => x.leading_zeros(), _ => x.trailing_zeros() }
+                        } else {
+                            match name { "popcount" => value.count_ones(),
+                                "leading_zeros" => value.leading_zeros(), _ => value.trailing_zeros() }
+                        };
+                        let op = format!("word{width}.{name}");
+                        assert_eq!(evaluate_encoding(&binary(&op, var("x"), Term::U64(0)),
+                            &[("x", Term::U64(value))], encoding), Term::U64(expected as u64),
+                            "{encoding:?} {op} {value:016x}");
+                    }
+                }
+            }
         }
     }
     #[test]

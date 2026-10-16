@@ -1331,6 +1331,28 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
             _ => Err("unresolved function hole cannot execute".into()),
         }
     }
+    fn environment(t: &Term, bound: &[String], local: usize, env: &mut check::Env) {
+        if let Sort::Value(ty) = &t.sort {
+            let name = match &t.node {
+                Node::Free(name) => Some(name),
+                Node::Bound(index) if *index >= local => {
+                    bound.iter().rev().nth(index - local)
+                }
+                _ => None,
+            };
+            if let Some(name) = name {
+                env.insert(name.clone(), ty.clone());
+            }
+        }
+        for child in children(t) {
+            environment(
+                child,
+                bound,
+                local + usize::from(matches!(t.node, Node::Lambda(_))),
+                env,
+            );
+        }
+    }
     fn go(t: &Term, bound: &mut Vec<String>, free: &[String], p: &Program, shadowed:&std::collections::BTreeSet<String>) -> LangResult<Expr> {
         Ok(match &t.node {
             Node::Free(n) => Expr::Var(n.clone()),
@@ -1443,33 +1465,29 @@ pub fn reify(t: &Term, p: &Program) -> LangResult<Expr> {
                     // binding. Inserting another binding changes the exact
                     // semantic tree and prevents portable definition replay.
                     Expr::Var("None".into())
+                } else if n.strip_prefix("call:").is_some_and(crate::primitives::bit_count) {
+                    let argument = a.first().ok_or("count reification argument")?;
+                    let ty = val(&argument.sort)?;
+                    let mut env = check::Env::new();
+                    environment(argument, bound, 0, &mut env);
+                    if check::infer(&args[0], &env, p).as_ref() == Ok(ty) {
+                        Expr::Call(n[5..].into(), args)
+                    } else {
+                        // The result is always U32, independently of the input
+                        // width. A bare literal would otherwise default to U64.
+                        // Preserve the exact checked type and evaluation once.
+                        let mut name = "__ink_count_argument".to_string();
+                        while free.contains(&name) || bound.contains(&name) || shadowed.contains(&name) {
+                            name.push('_');
+                        }
+                        Expr::Let(name.clone(), Some(Box::new(ty.clone())), Box::new(args[0].clone()),
+                            Box::new(Expr::Call(n[5..].into(), vec![Expr::Var(name)])))
+                    }
                 } else if n.starts_with("call:") {
                     Expr::Call(n[5..].into(), args)
                 } else if n.starts_with("method:") {
                     let mut receiver = args[0].clone();
                     let mut env = check::Env::new();
-                    fn environment(t: &Term, bound: &[String], local: usize, env: &mut check::Env) {
-                        if let Sort::Value(ty) = &t.sort {
-                            let name = match &t.node {
-                                Node::Free(name) => Some(name),
-                                Node::Bound(index) if *index >= local => {
-                                    bound.iter().rev().nth(index - local)
-                                }
-                                _ => None,
-                            };
-                            if let Some(name) = name {
-                                env.insert(name.clone(), ty.clone());
-                            }
-                        }
-                        for child in children(t) {
-                            environment(
-                                child,
-                                bound,
-                                local + usize::from(matches!(t.node, Node::Lambda(_))),
-                                env,
-                            );
-                        }
-                    }
                     environment(&a[0], bound, 0, &mut env);
                     let ty = val(&a[0].sort)?;
                     if check::infer(&receiver, &env, p).as_ref() != Ok(ty) {
