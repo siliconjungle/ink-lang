@@ -42,6 +42,13 @@ separate trainable cell. The restricted package withdraws `configure`, retains
 parameter. This is configuration and a live training API, not a fitted neural
 model or a convergence result.
 
+Build-stage packaging keeps the rebased plan sidecar as compact JSON, retaining
+every field and proof. In the 244-value example, this reduces the selected
+package from 4,131,526 to 1,704,472 inventoried bytes; the compact baseline is
+296,952 bytes. Parsed plan values, executable images and selection proofs are
+unchanged, and older pretty-printed packages still verify. This reduces storage
+overhead; it is not a serving-speed measurement.
+
 The producer's generated database view carries the closed lemmas with the
 selected model; the default global catalogue is unchanged. Existing short
 specializations keep their normal source/proof path. Large finite and exceptional
