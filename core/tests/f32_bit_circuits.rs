@@ -17,7 +17,7 @@ fn exact_float_bits_have_explicit_mode_and_replay_ordinary_rup() {
     }
     let problem=laws::bitvector_problem_with_encoding(&p,&env,&[],&goal,Mode::FixedScalarsV3,Encoding::SharedV2).unwrap();
     assert_eq!(problem.clauses().last().unwrap(),&vec![-1]);
-    let certificate=Certificate{encoding:Encoding::SharedV2,problem_sha256:problem.identity().into(),steps:vec![Step{clause:vec![],hints:vec![0,problem.clauses().len()-1]}]};
+    let certificate=Certificate{encoding:Encoding::SharedV2,problem_sha256:problem.identity().into(),steps:vec![Step{clause:vec![],hints:vec![0,problem.clauses().len()-1],hint_deltas_v1:None}]};
     let proof=Proof::BitVector{semantics:Mode::FixedScalarsV3,hypotheses:vec![],certificate:certificate.clone()};
     let c=checked(&p);c.prove(&p,&env,&[],&goal,&proof,&mut s::Budget::new(),0).unwrap();
     for mode in [Mode::OpaqueV1,Mode::FixedWordsV2] {
@@ -40,7 +40,7 @@ fn float_arithmetic_is_not_mistaken_for_word_arithmetic_or_nan_reflexivity() {
         let goal=Equation{from,to};
         let problem=laws::bitvector_problem_with_encoding(&p,&env,&[],&goal,Mode::FixedScalarsV3,Encoding::SharedV2).unwrap();
         // A correctly bound digest does not turn an absent refutation into one.
-        let proof=Proof::BitVector{semantics:Mode::FixedScalarsV3,hypotheses:vec![],certificate:Certificate{encoding:Encoding::SharedV2,problem_sha256:problem.identity().into(),steps:vec![Step{clause:vec![],hints:vec![0,problem.clauses().len()-1]}]}};
+        let proof=Proof::BitVector{semantics:Mode::FixedScalarsV3,hypotheses:vec![],certificate:Certificate{encoding:Encoding::SharedV2,problem_sha256:problem.identity().into(),steps:vec![Step{clause:vec![],hints:vec![0,problem.clauses().len()-1],hint_deltas_v1:None}]}};
         assert!(checked(&p).prove(&p,&env,&[],&goal,&proof,&mut s::Budget::new(),0).is_err());
     }
 }
