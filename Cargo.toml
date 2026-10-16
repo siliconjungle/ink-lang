@@ -34,6 +34,10 @@ sha2 = "0.10"
 num-bigint = { version = "0.4", features = ["serde"] }
 num-traits = "0.2"
 
+[dev-dependencies]
+# The distribution hardening suite also includes the lowering's shader tests.
+naga = { version = "30.0.1", features = ["wgsl-in"] }
+
 [profile.release]
 lto = "thin"
 codegen-units = 1
