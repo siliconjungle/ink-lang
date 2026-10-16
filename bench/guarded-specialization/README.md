@@ -26,3 +26,10 @@ Ratios above one favor the guarded image. The driver never publishes a planner
 measurement or admits a candidate. Graph/weight writes exercise learning state;
 they do not measure gradient descent or another full training algorithm. Native,
 GPU and upstream matched-workload performance remain separate requirements.
+
+`emitter-provenance.json` records whether the current guarded image reproduces
+the historical report's emitted bytes. A later literal emitter may legitimately
+change those bytes: the current acquisition still replays every plan and all
+independent reference controls. The archived runner and historical auditor retain
+their original exact-compiler reproduction contract. Image equality or a changed
+image hash grants no correctness or profitability authority.
