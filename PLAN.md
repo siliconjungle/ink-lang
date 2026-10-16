@@ -395,3 +395,15 @@ Result helpers, without increasing checker budgets. Fixed integer-to-F32 source
 correspondence has 466 private standalone core checks. Learned representations,
 general graph/tape compilation, automatic goal-directed profitable selection,
 device training and the full upstream workload/performance programme remain open.
+
+
+[Modular mathematical action projection](docs/modular-action-projection.md) has
+480 passing standalone core tests across all 80 integration targets. The complete
+staged neural fixture projects all six actions with live optimizer/control state.
+Transparent lexical helpers, dependency-ordered source functions and shared branch
+suffixes preserve the source's control/state interfaces; cast and paired/sum
+callback correspondence extend the ordinary checking domain. Matching independent
+packages are published. This is a foundation for graph specialization, with no
+new executable graph rewrite or measured runtime gain. Source graph/code
+transformations and the broad Handwired/Pretext/Freerange acceptance programme
+remain required.

@@ -4,17 +4,89 @@ use super::*;
 use crate::semantic::{self, Node, Sort as SemanticSort, Term as SemanticTerm};
 
 impl Lower<'_> {
+    pub(super) fn prepare_pure_sources(&mut self) {
+        // Elaborate reachable source bodies before descending through other
+        // helpers. This does not allocate mathematical names or definitions,
+        // so the old projection's declaration order and identities stay exact.
+        // Preparation is bounded and optional; exhausted entries retain the
+        // ordinary source elaboration path and its checks.
+        let mut pending=BTreeSet::new();let mut keeps=vec![];let mut seen_keeps=BTreeSet::new();
+        fn roots(body:&Body,pending:&mut BTreeSet<usize>,keeps:&mut Vec<usize>) {
+            for node in &body.nodes {match &node.kind {
+                Kind::PureCall {function,..}=>{pending.insert(*function);}
+                Kind::Keep(index)=>keeps.push(*index),
+                _=>(),
+            }}
+        }
+        for index in 0..self.program.actions.len() {
+            if let Some(body)=self.typed.action(index){roots(body,&mut pending,&mut keeps);}
+        }
+        while let Some(index)=keeps.pop() {
+            if seen_keeps.insert(index) {
+                if let Some(body)=self.typed.keep(index){roots(body,&mut pending,&mut keeps);}
+            }
+        }
+        self.pure_roots=pending.clone();
+        let names=self.program.functions.iter().enumerate().map(|(i,f)|(f.name.as_str(),i)).collect::<BTreeMap<_,_>>();
+        let mut seen=BTreeSet::new();let mut work=MAX_WORK;let mut bytes=crate::core::MAX_BYTES;
+        while let Some(index)=pending.pop_first() {
+            if !seen.insert(index){continue;}
+            let Some(function)=self.program.functions.get(index) else {continue;};
+            let Some(nodes)=crate::analysis::node_count(&function.body,work) else {break;};work-=nodes;
+            crate::analysis::walk(&function.body,|e| if let crate::core::Expr::Call(name,_)=e {
+                if let Some(index)=names.get(name.as_str()){pending.insert(*index);}
+            });
+            let types=function.params.iter().cloned().collect();
+            let tree=semantic::elaborate(&function.body,&types,self.program,&function.result);
+            let size=match &tree {Ok(tree)=>serde_json::to_vec(tree).ok().map(|data|data.len()),Err(error)=>Some(error.len())};
+            if let Some(size)=size.filter(|size|*size<=bytes) {
+                bytes-=size;self.pure_sources.insert(index,tree.map(std::sync::Arc::new));
+            }
+        }
+    }
+
+    pub(super) fn prepare_pure_definitions(&mut self)->LangResult<()> {
+        // Modular construction checks each reachable source function once,
+        // before its callers. Explicit graph frames avoid multiplying host
+        // recursion by source helper depth. Cycles still fail closed.
+        let names=self.program.functions.iter().enumerate().map(|(i,f)|(f.name.as_str(),i)).collect::<BTreeMap<_,_>>();
+        let mut done=BTreeSet::new();let mut active=BTreeSet::new();let mut order=vec![];
+        for root in &self.pure_roots {
+            let mut pending=vec![(*root,false)];
+            while let Some((index,finish))=pending.pop() {
+                if done.contains(&index){continue;}
+                if finish {active.remove(&index);done.insert(index);order.push(index);continue;}
+                if !active.insert(index){return Err("action model pure helper call depth/cycle limit".into());}
+                let function=self.program.functions.get(index).ok_or("missing source helper")?;
+                if crate::analysis::node_count(&function.body,MAX_WORK).is_none(){return Err("action model source function size limit".into());}
+                let mut callees=BTreeSet::new();
+                crate::analysis::walk(&function.body,|e|if let crate::core::Expr::Call(name,_)=e {
+                    if let Some(index)=names.get(name.as_str()){callees.insert(*index);}
+                });
+                pending.push((index,true));pending.extend(callees.into_iter().rev().map(|i|(i,false)));
+            }
+        }
+        for index in order {
+            self.work=MAX_WORK;
+            self.pure_function(index).map_err(|error|if error=="action model work limit" {
+                format!("{error} while projecting source helper {}",self.program.functions[index].name)
+            }else{error})?;
+        }
+        Ok(())
+    }
+
     pub(super) fn pure_function(&mut self, index: usize) -> LangResult<String> {
-        self.tick()?;
         if let Some(id) = self.helpers.get(&index) {
             return Ok(id.clone());
         }
+        self.tick()?;
         if self.helper_active.len() >= 32 || !self.helper_active.insert(index) {
             return Err("action model pure helper call depth/cycle limit".into());
         }
         let f = self.program.functions[index].clone();
         let types = f.params.iter().cloned().collect();
-        let tree = semantic::elaborate(&f.body, &types, self.program, &f.result)?;
+        let tree = if let Some(tree)=self.pure_sources.get(&index) {tree.clone()?}
+            else {std::sync::Arc::new(semantic::elaborate(&f.body, &types, self.program, &f.result)?)};
         let mut env = BTreeMap::new();
         let mut params = vec![];
         for (i, (name, ty)) in f.params.iter().enumerate() {
@@ -23,7 +95,9 @@ impl Lower<'_> {
             env.insert(name.clone(), v(&n));
         }
         let result = self.sort(&f.result)?;
-        let body = self.pure_term(&tree, &env, &[], 0)?;
+        let tracking=self.track_projection_variables;self.track_projection_variables=false;
+        let body=self.pure_term(&tree,&env,&[],0);
+        self.track_projection_variables=tracking;let body=body?;
         // Local-owner helpers can remain symbolic until their inductive input
         // is exposed. These helpers have no SelfCall; the existing structural
         // definition form is total and emits the same literal body. This avoids
@@ -233,6 +307,10 @@ impl Lower<'_> {
                     return self.pure_term(&reduced,env,bound,depth+1);
                 }
                 if op=="call:repeat"||op=="call:repeat_until" {return self.pure_loop(t,op,args,env,bound,depth);}
+                if op=="method:zip" {return self.pure_zip(t,args,env,bound,depth);}
+                if op=="method:map" && matches!(&args[0].sort, SemanticSort::Value(Type::Option(_) | Type::Result(..))) {
+                    return self.pure_sum_map(t,args,env,bound,depth);
+                }
                 if let Some(value)=self.pure_local(t,op,args,env,bound,depth)? {return Ok(value);}
                 if ["method:map", "method:filter", "call:foldr", "call:foldl"].contains(&op.as_str()) {
                     return self.pure_collection(t, op, args, env, bound, depth);
@@ -283,6 +361,12 @@ impl Lower<'_> {
                     };
                 }
                 if let Some(name)=op.strip_prefix("call:") {
+                    if ["u32_from_f32","u64_from_f32","i32_from_f32"].contains(&name) {
+                        let [argument] = args.as_slice() else {return Err("pure float-to-word conversion arity".into());};
+                        let value=self.pure_term(argument,env,bound,depth+1)?;
+                        let function=self.float_word_conversion(name)?;
+                        return Ok(call(&function,vec![value]));
+                    }
                     if ["f32_from_u32","f32_from_u64","f32_from_i32"].contains(&name) {
                         let [argument] = args.as_slice() else { return Err("pure fixed-width float conversion arity".into()); };
                         let x=self.pure_term(argument,env,bound,depth+1)?;
