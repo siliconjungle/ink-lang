@@ -436,3 +436,15 @@ binding/import. Normal `build-model --specialize-frozen` now carries this compos
 plan through initialized artifact publication and mandatory verifier replay.
 Broader graph/tape compilation and upstream parity
 remain required work.
+
+
+Exact typed helper code sharing now retains repeated algorithmic structure
+without memoizing computations. The 128-operation repeated circuit needs five
+helper definitions instead of 31; complete action proofs preserve live weights,
+rollback and checkpoints. Expanded code remains an explicit proposal alternative.
+Paired JavaScript measurements compare both against the unspecialized baseline
+and against the previous expanded implementation. A 64-operation pure prefix
+also passes actual GPU execution for eleven raw F32 input/weight classes; full
+128-operation device compilation still needs graph-stage fusion or other admitted
+structure, and stateful training remains CPU work. See
+[frozen helper layouts](frozen-composition.md#shared-and-expanded-code-layouts).
