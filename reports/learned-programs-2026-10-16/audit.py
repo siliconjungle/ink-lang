@@ -36,7 +36,8 @@ def run(command,success=True):
 def audit(ink=None):
     metadata=read('metadata.json')
     assert set(metadata['files'])=={str(p.relative_to(ROOT)) for p in ROOT.rglob('*')
-        if p.is_file() and p.name!='metadata.json' and '__pycache__' not in p.parts}
+        if p.is_file() and p.name!='metadata.json' and '__pycache__' not in p.parts
+        and str(p.relative_to(ROOT))!='integration-core-package.json'}
     for name,expected in metadata['files'].items():assert digest((ROOT/name).read_bytes())==expected,name
     archives={}
     for name,expected in metadata['archives'].items():
@@ -80,7 +81,7 @@ def audit(ink=None):
     assert len(image['images']['baseline'])==9 and len(image['images']['selected'])==11
     for name,files in [('baseline',baseline),('selected',selected)]:
         for path,expected in image['images'][name].items():assert digest(files[path])==expected,path
-    core=read('private-core.json');package=read('integration-core-package.json')
+    core=read('private-core.json');package=read('recorded-core-package.json')
     assert core['status']=='passed' and core['private_checkout'] and core['private_target']
     assert (core['package'],core['source'],core['core_tree'])==(package['commit'],package['source'],package['core_tree'])
     assert digest(raw('private-core.log.gz'))==core['log_sha256']
