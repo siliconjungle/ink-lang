@@ -499,23 +499,15 @@ jobs:
         INK_COMPILER: target/release/ink
       run: |
         cargo build --release --bin ink
+        python -m unittest discover -s planner/tests -p 'test_*.py'
         python planner/tests/automatic_candidates_integration.py target/release/ink planner/tests/fixtures/generic-batching.ink
         python planner/tests/compiled_pool_integration.py target/release/ink examples/point-query-delta.ink
         python -m unittest discover -s knowledge/tests -p test_generic_indexed.py
         python -m unittest discover -s knowledge/tests -p test_generic_extensions.py
         python -m unittest discover -s knowledge/tests -p test_point_authoring_hygiene.py
-        python -m unittest discover -s planner/tests -p test_proposal_recipe.py
         python -m unittest discover -s knowledge/tests -p test_selection_probes.py
-        python -m unittest discover -s planner/tests -p test_probe_validation.py
-        python -m unittest discover -s planner/tests -p test_measurement_context.py
-        python -m unittest discover -s planner/tests -p test_compiled_cache.py
-        python -m unittest discover -s planner/tests -p test_work_model_cli.py
         python planner/tests/automatic_measurement_integration.py target/release/ink javascript build/measurement-context/validation.json
         python planner/tests/measurement_context_state_integration.py target/release/ink build/measurement-context/state.json
-        python -m unittest discover -s planner/tests -p test_offline_measurements.py
-        python -m unittest discover -s planner/tests -p test_maintained_evidence.py
-        python -m unittest discover -s planner/tests -p test_refinement_measurements.py
-        python -m unittest discover -s planner/tests -p test_representation_selection.py
     - name: Retain reproducible programs, seeds and expected outcomes
       if: always()
       uses: actions/upload-artifact@v4
