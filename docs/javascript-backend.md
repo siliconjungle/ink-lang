@@ -37,6 +37,18 @@ into JSON null. The emitter preserves operation order, signed zero and
 subnormals. Arithmetic-produced NaNs use the canonical quiet payload `0x7fc00000`;
 transport and sign-bit negation retain the original payload.
 
+Stateful modules can keep adjacent F32 arithmetic and fresh immutable arithmetic
+locals as rounded Number intermediates. Each source operation still rounds in
+its original grouping; calls, negation, containers, bit observations, worker
+captures and state/result boundaries encode the ordinary exact bits. Mutable
+slots and arbitrary field reads do not acquire Number facts. This removes
+intermediate conversions without enabling reassociation or FMA. Repeated local
+measurements show 1.13–1.24× throughput on two complete neural training examples,
+while prediction is mostly unchanged. Small cases can regress. See the
+[source-bound measurements and complete limits](../reports/rounded-f32-carriers-2026-10-17/README.md);
+these observations do not authorize automatic planner selection or claim GPU
+training or Handwired performance parity.
+
 Bool, vectors, records and nested lists retain their declared types. Functions,
 lexical bindings, map/filter, indexed map, truncating zip, ordered sums, right
 folds, scans, numeric sort, bounded repeat and lazy branches/fallbacks are

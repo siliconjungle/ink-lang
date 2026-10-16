@@ -1,0 +1,49 @@
+// The JSON image contains exact, already checked bodies, never unchecked proofs.
+const MAX_NODES=100000, MAX_WORK=2000000, MAX_FRAMES=16384, MAX_DEPTH=8192;
+const word=x=>BigInt.asUintN(64,x);
+const data=(datatype,constructor,args)=>Object.freeze({datatype,constructor,arguments:Object.freeze(args)});
+function validate(args,params){
+ if(args.length!==params.length||args.length>64)throw Error('argument count');
+ const pending=args.map((x,i)=>[x,params[i][1],0]);let nodes=0;
+ while(pending.length){const [x,s,d]=pending.pop();if(++nodes>MAX_NODES||d>MAX_DEPTH)throw Error('value limit');
+  if(s==='Bool'){if(typeof x!=='boolean')throw Error('Bool');continue;}
+  if(s==='U64'){if(typeof x!=='bigint'||x<0n||x>18446744073709551615n)throw Error('U64');continue;}
+  const id=s.Data,decl=image.definitions[id]?.Datatype;
+  if(!decl||x?.datatype!==id)throw Error('datatype');const c=decl.constructors[x.constructor];
+  if(!c||x.arguments.length!==c.fields.length||c.fields.length>64)throw Error('constructor');
+  c.fields.forEach((t,i)=>pending.push([x.arguments[i],t==='SelfType'?{Data:id}:t,d+1]));
+ }
+}
+export function invoke(functionId,args){
+ if(!image.exports.includes(functionId))throw Error('unexported function');
+ const original=image.definitions[functionId].Function;validate(args,original.params);
+ let used=0,nodes=0;const values=[],stack=[];
+ const evaluate=(term,env,current)=>stack.push({kind:'eval',term,env,current});
+ const call=(id,xs)=>{const f=image.definitions[id]?.Function;if(!f||xs.length!==f.params.length)throw Error('function');evaluate(f.body,Object.fromEntries(f.params.map(([n],i)=>[n,xs[i]])),id);};
+ call(image.choices[functionId]??functionId,args);
+ while(stack.length){if(++used>MAX_WORK||stack.length>MAX_FRAMES)throw Error('execution limit');const frame=stack.pop();
+  if(frame.kind==='eval'){
+   const {term:t,env:e,current:f}=frame;
+   if('Var'in t){if(!(t.Var in e))throw Error('variable');values.push(e[t.Var]);}
+   else if('Bool'in t)values.push(t.Bool);
+   else if('U64'in t)values.push(BigInt(t.U64));
+   else if('If'in t){stack.push({kind:'if',body:t.If,env:e,current:f});evaluate(t.If.condition,e,f);}
+   else if('Match'in t){stack.push({kind:'match',branches:t.Match.branches,env:e,current:f});evaluate(t.Match.scrutinee,e,f);}
+   else {let children,done;
+    if('Construct'in t){children=t.Construct.arguments;done={kind:'construct',body:t.Construct};}
+    else if('Call'in t){children=t.Call.arguments;done={kind:'call',id:t.Call.function};}
+    else if('SelfCall'in t){children=t.SelfCall;done={kind:'call',id:f};}
+    else if('Binary'in t){children=[t.Binary.left,t.Binary.right];done={kind:'binary',op:t.Binary.op};}
+    else throw Error('term');
+    stack.push({...done,count:children.length});for(let i=children.length-1;i>=0;i--)evaluate(children[i],e,f);
+   }
+  }else if(frame.kind==='if'){const condition=values.pop();if(typeof condition!=='boolean')throw Error('condition');evaluate(frame.body[condition?'on_true':'on_false'],frame.env,frame.current);}
+  else if(frame.kind==='match'){const x=values.pop(),b=frame.branches[x.constructor];if(!b||b.bindings.length!==x.arguments.length)throw Error('match');evaluate(b.body,{...frame.env,...Object.fromEntries(b.bindings.map((n,i)=>[n,x.arguments[i]]))},frame.current);}
+  else {const xs=values.splice(values.length-frame.count,frame.count);
+   if(frame.kind==='construct'){if(++nodes>MAX_NODES)throw Error('allocation limit');values.push(data(frame.body.datatype,frame.body.constructor,xs));}
+   else if(frame.kind==='call')call(frame.id,xs);
+   else {const [a,b]=xs;let z;if(frame.op.startsWith("f32:")){values.push(__fpWord(frame.op.slice(4),a,b));continue;}switch(frame.op){case '+':z=word(a+b);break;case '-':z=word(a-b);break;case '*':z=word(a*b);break;case 'quot':z=b===0n?0n:a/b;break;case 'rem':z=b===0n?0n:a%b;break;case '&':z=a&b;break;case '==':z=a===b;break;case '!=':z=a!==b;break;case '<':z=a<b;break;case '<=':z=a<=b;break;case '>':z=a>b;break;case '>=':z=a>=b;break;case '&&':z=a&&b;break;case '||':z=a||b;break;default:throw Error('operator');}values.push(z);}
+  }
+ }
+ if(values.length!==1)throw Error('result stack');return values[0];
+}

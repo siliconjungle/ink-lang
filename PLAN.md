@@ -493,3 +493,15 @@ version rebinding and canonical empty proof-map handling are fixed; all 26
 related knowledge regressions pass. Moving stable guard work to configuration
 changes, useful learned representation search and matched native/GPU/upstream
 performance remain active requirements.
+
+Literal stateful JavaScript arithmetic now retains rounded Number intermediates
+inside adjacent F32 expressions and fresh immutable arithmetic locals, keeping
+exact bit boundaries and every source rounding point. The complete 60-test JS
+suite passes; 772 new reference/Rust/JavaScript/Wasm outcomes preserve snapshots,
+events and rollback. Six fresh-process pairs on each of two 244-weight neural
+examples show 1.13–1.24× training throughput while prediction is mostly flat.
+Tiny cases and earlier slower prototypes remain in the
+[retained report](reports/rounded-f32-carriers-2026-10-17/README.md).
+These shared-host diagnostics are not automatic planner evidence. Profitable
+graph/representation selection, device training and the complete three-project
+performance programme remain required.

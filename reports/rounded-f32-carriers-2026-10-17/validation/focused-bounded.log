@@ -1,0 +1,33 @@
+   Compiling ink-lowering-js v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/lowerings/js)
+    Finished `test` profile [unoptimized] target(s) in 0.64s
+     Running tests/float_islands.rs (lowerings/js/target/debug/deps/float_islands-b44e0a9516014944)
+
+running 1 test
+
+thread 'bit_state_arithmetic_preserves_rounding_bits_laziness_and_capture_protocols' (149977403) panicked at tests/float_islands.rs:114:5:
+file:///private/var/folders/jh/p03z0_b15js0x_4c67zgnf140000gn/T/ink-float-islands-72645/test.mjs:14
+const host={};for(const name of ['x','y','z'])Object.defineProperty(host,name,{get(){trace.push(name);if(name==='y'&&failures--)throw Error('retry');return r[name];}});
+                                                                                                                                      ^
+
+Error: retry
+    at Object.get (file:///private/var/folders/jh/p03z0_b15js0x_4c67zgnf140000gn/T/ink-float-islands-72645/test.mjs:14:135)
+    at file:///private/var/folders/jh/p03z0_b15js0x_4c67zgnf140000gn/T/ink-float-islands-72645/program.mjs:99:38
+    at Array.<anonymous> (file:///private/var/folders/jh/p03z0_b15js0x_4c67zgnf140000gn/T/ink-float-islands-72645/program.mjs:56:18)
+    at file:///private/var/folders/jh/p03z0_b15js0x_4c67zgnf140000gn/T/ink-float-islands-72645/program.mjs:1229:115
+    at Array.map (<anonymous>)
+    at Object.entry [as fields] (file:///private/var/folders/jh/p03z0_b15js0x_4c67zgnf140000gn/T/ink-float-islands-72645/program.mjs:1229:96)
+    at file:///private/var/folders/jh/p03z0_b15js0x_4c67zgnf140000gn/T/ink-float-islands-72645/test.mjs:15:26
+
+Node.js v25.3.0
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test bit_state_arithmetic_preserves_rounding_bits_laziness_and_capture_protocols ... FAILED
+
+failures:
+
+failures:
+    bit_state_arithmetic_preserves_rounding_bits_laziness_and_capture_protocols
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.38s
+
+error: test failed, to rerun pass `--test float_islands`

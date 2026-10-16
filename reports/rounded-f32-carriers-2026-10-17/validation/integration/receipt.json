@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "distribution": "e46a79a115c20612b5f0429d47657c31e8580dcd",
+  "phases": [
+    {
+      "name": "compile",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--no-run",
+        "--test",
+        "numerical_state",
+        "--test",
+        "function_specialization",
+        "--message-format",
+        "json"
+      ],
+      "exit_code": 0,
+      "seconds": 23.294623458059505,
+      "log_sha256": "6dde0a3bada443666cf5445e4b45053543643cdc863e93ff175f960cd52b0efd"
+    },
+    {
+      "name": "numerical-state",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--test",
+        "numerical_state",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 16.98601333401166,
+      "log_sha256": "cc631fe70bf1c668aca07635ab253658c36429827fbc3faf0cecf52754cd3b61"
+    },
+    {
+      "name": "function-specialization",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--test",
+        "function_specialization",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 37.32578720897436,
+      "log_sha256": "75a7b14aa8fe78adf6743a32545d9d9f30139f0245cc4d5b666a5ee9ab01c841"
+    }
+  ],
+  "sources_sha256": "eec0d7eb8f65238c05de056a470476e96c502768630c1efd443731aaafb5d888",
+  "compiler_sha256": "bbd0db5629d396868895750b9af02eff106da39871c61eabc2f5f745a1277b70"
+}
