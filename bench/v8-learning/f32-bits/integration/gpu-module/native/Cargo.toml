@@ -1,0 +1,15 @@
+[package]
+name = "ink-gpu-program"
+version = "0.1.0"
+edition = "2021"
+publish = false
+[dependencies]
+num-bigint = "=0.4.8"
+sha2 = "=0.10.9"
+ink-abi = { git = "https://github.com/siliconjungle/ink-abi", rev = "6356464654b39341d1e442d61c64be1e3a720489" }
+wgpu = "=30.0.1"
+pollster = "0.4"
+serde_json = { version = "1", features = ["float_roundtrip"] }
+[profile.release]
+lto = "thin"
+codegen-units = 1

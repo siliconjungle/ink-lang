@@ -124,6 +124,10 @@
     {
       "path": "build/loose-contract-candidates",
       "reason": "Earlier integration run has no observed completion receipt and no remaining worker. Retain successful proof outputs and inputs pending deliberate proof selection; do not claim that run passed."
+    },
+    {
+      "path": "reports/factored-literal-proofs-2026-10-16",
+      "reason": "Useful proof/required measurements and exact reproduction inputs from concurrently merged main work; materialized only this report to verify its byte-binding audit. Full report store remains sparse."
     }
   ],
   "safe_to_remove": [
@@ -237,7 +241,7 @@
     },
     {
       "path": "core/target",
-      "reason": "Owned completed generated validation/measurement output. Exact source, proof closure, selected evidence and reproduction inputs preserved in Git/bench/v8-learning; no active owned job uses this path. Shared Cargo caches are excluded."
+      "reason": "Owned core test output from completed 454-test F32 validation and terminal focused tests; exact code/proofs in committed Git and passing logs/package receipts retained under bench/v8-learning/f32-bits. No active acquisition depends on the standalone core test target."
     },
     {
       "path": "build/compiled-history-target",
@@ -402,6 +406,18 @@
     {
       "path": "build/range-conversion-parity",
       "reason": "Completed required range-conversion acquisition, corpus and merged-core validation. All selected proofs, exact requests/emitted inputs/locks, canonical observations, corpus captures/plans and terminal receipts are authenticated in bench/v8-learning. Generated targets/private mutable stores and failed adapter attempts are retired."
+    },
+    {
+      "path": "build/v8-f32",
+      "reason": "Owned completed required F32 proof, corpus, lifecycle acquisition and merged-main CPU/device validation outputs. Exact proof packets, typed input/results, emitted sources/locks, observations and terminal receipts retained and authenticated under bench/v8-learning/f32-bits and corpus-f32-bits. Git preserves source revisions; generated targets/private mutable stores are retired. All owned jobs using these paths are terminal."
+    },
+    {
+      "path": "build/f32-bits-input",
+      "reason": "Owned completed required F32 proof, corpus, lifecycle acquisition and merged-main CPU/device validation outputs. Exact proof packets, typed input/results, emitted sources/locks, observations and terminal receipts retained and authenticated under bench/v8-learning/f32-bits and corpus-f32-bits. Git preserves source revisions; generated targets/private mutable stores are retired. All owned jobs using these paths are terminal."
+    },
+    {
+      "path": "build/f32-bits-parity",
+      "reason": "Owned completed required F32 proof, corpus, lifecycle acquisition and merged-main CPU/device validation outputs. Exact proof packets, typed input/results, emitted sources/locks, observations and terminal receipts retained and authenticated under bench/v8-learning/f32-bits and corpus-f32-bits. Git preserves source revisions; generated targets/private mutable stores are retired. All owned jobs using these paths are terminal."
     }
   ]
 }

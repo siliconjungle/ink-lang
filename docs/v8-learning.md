@@ -357,3 +357,35 @@ and native: no robust speedup was observed. Normal semantic discovery finds all
 three forms with 128 checks, while the 32-check control composes only two; the
 production search budget and profitability guard remain unchanged. The frozen
 corpus evaluation is recorded separately with its exact input context.
+
+## Exact F32 source circuits
+
+The explicit `fixed-scalars-v3` source circuit mode extends `fixed-words-v2`
+with existing F32 raw bit casts, payload-preserving sign negation, classification
+and six IEEE comparisons. It uses the low 32 bits of the general word circuit.
+Source F32 equation endpoints compare stored bits; a source `binary:==` on F32
+instead uses IEEE equality, including unordered NaNs and equal signed zeroes.
+Unsupported floating arithmetic remains an unconstrained observation. No rounded
+addition, reassociation, NaN canonicalization or range assumption is introduced.
+F64 proof terms still reject, including closed nested terms in dead branches.
+Legacy modes keep their circuit identities, and all modes require ordinary RUP
+replay with existing budgets.
+
+The knowledge database supplies fifteen portable laws for bit round trips,
+double negation, classification and self comparisons. The always-false strict
+comparisons retain operand evaluation through an ordinary bound application.
+Source matching and a correct CNF hash do not replace a refutation: mode
+substitution, forged NaN reflexivity and erased payload claims reject.
+`core/tests/f32_bit_circuits.rs`, the independent binary32 gate oracle,
+`knowledge/tests/test_v8_float_laws.py` and the required F32 refinement parity
+suite cover these boundaries. Detailed acquisition scope, measurements and
+validation receipts live in `bench/v8-learning/f32-bits`.
+
+The required device validation also exposed a literal GPU typing bug: direct
+collection shaders re-inferred number-only callback branches as U64 despite a
+checked U32 result. The GPU emitter now carries the checked element carrier
+through callbacks, helpers, choices and carrier-preserving collection operations;
+map input and output carriers remain distinct. Shader validation covers U32,
+I32, U64 and F32 contexts. This is literal backend correctness support, with no
+new source rewrite or profitability authority. Actual selected F32 bit-copy and
+classification kernels preserve all tested payloads and gradual-underflow bits.
