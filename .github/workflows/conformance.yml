@@ -1225,6 +1225,8 @@ jobs:
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-128-parity build/frozen-composition-128-browser.json
         composed_artifact=$(python3 -c 'import json;print(json.load(open("build/trained-build-validation/composed-browser-artifact.json"))["artifact"])')
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-composition-128-parity build/composed-artifact-browser.json --initialized "$composed_artifact"
+        python3 bench/frozen-composition/prepare-prefix-history.py --ink target/debug/ink --artifact "$composed_artifact" --history build/frozen-composition-128-parity --prefix-operations 64 -o build/shared-model-prefix-history
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/shared-model-prefix-history build/shared-model-prefix-browser.json --initialized "$composed_artifact"
         node bench/gpu/lowering-parity-browser.mjs "$(command -v google-chrome)"
         INK_TEST_WGPU=1 cargo test --test database_planning recursive_database_plan_preserves_every_observation_and_original_checkpoints -- --exact --nocapture
         python bench/gpu/prepare-database-plan-browser.py
@@ -1243,6 +1245,8 @@ jobs:
           build/frozen-composition-32-browser.json
           build/frozen-composition-128-browser.json
           build/composed-artifact-browser.json
+          build/shared-model-prefix-browser.json
+          build/shared-model-prefix-history/scope.json
           build/trained-build-validation/composed-browser-artifact.json
           build/prepared-complex-lifecycle/*.json
           build/prepared-complex-lifecycle/source.ink

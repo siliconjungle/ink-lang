@@ -548,7 +548,7 @@ fn composed_frozen_artifacts_initialize_live_weights_and_recheck_complete_plans(
                 .unwrap();
         assert_eq!(
             selected.program().functions.len(),
-            frozen.module.program().functions.len() + 31
+            frozen.module.program().functions.len() + 5
         );
         if target == "javascript" || target == "wasm32" {
             let output = ok(Command::new("node")
