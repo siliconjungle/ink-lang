@@ -2,7 +2,7 @@
 
 Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 
-Source receipts: 184 full files, 1 partial files, 424 unread files; 609 inventoried files total.
+Source receipts: 196 full files, 1 partial files, 412 unread files; 609 inventoried files total.
 
 A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
 
@@ -60,8 +60,8 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/access-info.h` — unread; 0/353 lines recorded
 - [x] `src/compiler/add-type-assertions-reducer.cc` — read; 88/88 lines recorded
 - [x] `src/compiler/add-type-assertions-reducer.h` — read; 25/25 lines recorded
-- [ ] `src/compiler/all-nodes.cc` — unread; 0/60 lines recorded
-- [ ] `src/compiler/all-nodes.h` — unread; 0/52 lines recorded
+- [x] `src/compiler/all-nodes.cc` — read; 60/60 lines recorded
+- [x] `src/compiler/all-nodes.h` — read; 52/52 lines recorded
 - [x] `src/compiler/allocation-builder-inl.h` — read; 85/85 lines recorded
 - [x] `src/compiler/allocation-builder.h` — read; 105/105 lines recorded
 
@@ -152,24 +152,24 @@ A checked box means every source line has a recorded read receipt. It does **not
 
 ### src/compiler
 
-- [ ] `src/compiler/basic-block-call-graph-profiler.cc` — unread; 0/79 lines recorded
-- [ ] `src/compiler/basic-block-call-graph-profiler.h` — unread; 0/38 lines recorded
+- [x] `src/compiler/basic-block-call-graph-profiler.cc` — read; 79/79 lines recorded
+- [x] `src/compiler/basic-block-call-graph-profiler.h` — read; 38/38 lines recorded
 - [x] `src/compiler/branch-elimination.cc` — read; 405/405 lines recorded
 - [x] `src/compiler/branch-elimination.h` — read; 100/100 lines recorded
 - [ ] `src/compiler/bytecode-analysis.cc` — unread; 0/1175 lines recorded
 - [ ] `src/compiler/bytecode-analysis.h` — unread; 0/207 lines recorded
 - [ ] `src/compiler/bytecode-graph-builder.cc` — unread; 0/4903 lines recorded
 - [ ] `src/compiler/bytecode-graph-builder.h` — unread; 0/56 lines recorded
-- [ ] `src/compiler/bytecode-liveness-map.cc` — unread; 0/31 lines recorded
+- [x] `src/compiler/bytecode-liveness-map.cc` — read; 31/31 lines recorded
 - [ ] `src/compiler/bytecode-liveness-map.h` — unread; 0/205 lines recorded
 - [ ] `src/compiler/c-linkage.cc` — unread; 0/358 lines recorded
-- [ ] `src/compiler/checkpoint-elimination.cc` — unread; 0/75 lines recorded
-- [ ] `src/compiler/checkpoint-elimination.h` — unread; 0/34 lines recorded
+- [x] `src/compiler/checkpoint-elimination.cc` — read; 75/75 lines recorded
+- [x] `src/compiler/checkpoint-elimination.h` — read; 34/34 lines recorded
 - [ ] `src/compiler/code-assembler-compilation-job.h` — unread; 0/99 lines recorded
 - [ ] `src/compiler/code-assembler.cc` — unread; 0/2140 lines recorded
 - [ ] `src/compiler/code-assembler.h` — unread; 0/2042 lines recorded
-- [ ] `src/compiler/common-node-cache.cc` — unread; 0/40 lines recorded
-- [ ] `src/compiler/common-node-cache.h` — unread; 0/99 lines recorded
+- [x] `src/compiler/common-node-cache.cc` — read; 40/40 lines recorded
+- [x] `src/compiler/common-node-cache.h` — read; 99/99 lines recorded
 - [x] `src/compiler/common-operator-reducer.cc` — read; 580/580 lines recorded
 - [x] `src/compiler/common-operator-reducer.h` — read; 79/79 lines recorded
 - [ ] `src/compiler/common-operator.cc` — unread; 0/1763 lines recorded
@@ -267,10 +267,10 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [ ] `src/compiler/map-inference.cc` — unread; 0/149 lines recorded
 - [ ] `src/compiler/map-inference.h` — unread; 0/108 lines recorded
 - [ ] `src/compiler/node-aux-data.h` — unread; 0/139 lines recorded
-- [ ] `src/compiler/node-cache.h` — unread; 0/78 lines recorded
+- [x] `src/compiler/node-cache.h` — read; 78/78 lines recorded
 - [x] `src/compiler/node-marker.cc` — read; 21/21 lines recorded
 - [x] `src/compiler/node-marker.h` — read; 78/78 lines recorded
-- [ ] `src/compiler/node-matchers.cc` — unread; 0/60 lines recorded
+- [x] `src/compiler/node-matchers.cc` — read; 60/60 lines recorded
 - [ ] `src/compiler/node-matchers.h` — unread; 0/896 lines recorded
 - [ ] `src/compiler/node-observer.cc` — unread; 0/61 lines recorded
 - [ ] `src/compiler/node-observer.h` — unread; 0/130 lines recorded
@@ -643,7 +643,7 @@ A checked box means every source line has a recorded read receipt. It does **not
 - [x] `src/maglev/maglev-reducer-inl.h` — read; 7191/7191 lines recorded
 - [x] `src/maglev/maglev-reducer.h` — read; 2023/2023 lines recorded
 - [ ] `src/maglev/maglev-regalloc-data.h` — unread; 0/99 lines recorded
-- [ ] `src/maglev/maglev-regalloc-node-info.h` — unread; 0/387 lines recorded
+- [x] `src/maglev/maglev-regalloc-node-info.h` — read; 387/387 lines recorded
 - [ ] `src/maglev/maglev-regalloc.cc` — unread; 0/2511 lines recorded
 - [ ] `src/maglev/maglev-regalloc.h` — unread; 0/340 lines recorded
 - [ ] `src/maglev/maglev-register-frame-array.h` — unread; 0/115 lines recorded

@@ -14,7 +14,7 @@ shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_st
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
-Current receipts cover 184 full files and one partial file, with 424 unread;
+Current receipts cover 196 full files and one partial file, with 412 unread;
 all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
@@ -623,7 +623,7 @@ cold latency or a broad application speedup.
 Fourteen knowledge regressions pass, including all340 integer laws and new
 strictness/laziness/full-width/false-premise controls. Fresh authoring reproduces
 both proof identities. The final stable frozen corpus compiles all ten programs,
-observes24 old laws/six reused and selects none; all measurement gates/budgets
+observes 24 old laws/six reused and selects none; all measurement gates/budgets
 remain conservative. No new remainder-law attribution occurs. The52.6435s median
 is an unpaired shared-host observation, not a causal speedup.36 exact timing
 rows publish without changing the proof snapshot or policy.
@@ -663,3 +663,12 @@ ten retain the baseline at measurement evidence and exhaust quick budgets, with
 no near-miss reason. The 51.696-second median excludes private preparation and
 is not a causal comparison. Thirty-six exact observations publish without
 changing the proof snapshot or policy. The complete integrity audit passes.
+
+Integration preserves the concurrently published modular-action core and exact
+standalone package. Its 224-file tree matches the upstream 480-test receipt. A
+fresh merged compiler passes all 28 knowledge regressions and eight actual GPU
+calls with the original oracles; both complete generated artifact trees match
+the measured cohort byte for byte. The distinct merged frozen corpus compiles
+all 10 programs, observes 24 old laws/six reused and selects none, with final stable
+context and median 53.851 s excluding private preparation. Historical timings keep
+their original compiler/package context.
