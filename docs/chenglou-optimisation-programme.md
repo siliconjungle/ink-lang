@@ -353,3 +353,12 @@ change. Expanded aliases and emitted masks remain bounded; cached projections
 never erase discarded dynamic work, guards or failures. This is preparation
 machinery rather than proof-backed graph/representation selection. Allocation
 controls establish reuse; matched upstream performance remains a separate gate.
+
+[Optional/result callback preparation](prepared-sum-callbacks.md) now carries
+lexical field stability into selected sum arms, and complete immutable captures
+can retain their payload work. Captured-mask work conditions and direct ordinary
+fallback avoid unnecessary helper indirection. Checked sum layouts and both F32
+carriers match independent results. Source training/reverse and binary64 histories
+pass with Wasm and device controls. Matched result-handling workloads gain, while
+complex text still regresses slightly and remains far behind Pretext; broad
+upstream parity and the full delivery checklist remain open.

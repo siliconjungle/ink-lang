@@ -210,3 +210,6 @@ mod count_comparisons;
 
 #[path = "support/prepared_residual.rs"]
 mod prepared_residual;
+
+#[path = "support/prepared_sums.rs"]
+mod prepared_sums;

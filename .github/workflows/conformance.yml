@@ -38,6 +38,7 @@ jobs:
         python3 reports/prepared-text-2026-10-16/audit.py
         python3 reports/prepared-complex-text-2026-10-16/audit.py
         python3 reports/prepared-fields-2026-10-16/audit.py
+        python3 reports/prepared-sums-2026-10-16/audit.py
         python3 bench/prepared-loops/analyse.py reports/prepared-loops-2026-10-16 --check
         python3 reports/binary64-literals-2026-10-16/audit.py
         python3 reports/source-reverse-2026-10-16/audit.py
@@ -146,7 +147,7 @@ jobs:
         PYCORE
         python3 tools/check_core_package.py reports/frozen-structure-2026-10-16/core-package.json --log build/private-core-validation.log --receipt build/private-core-validation.json
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
-        cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields
+        cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields --test prepared_sums --test sum_spines
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
         # The whole suite: fuzz_logic_objects re-declares every first-order
         # knowledge object, so checker changes cannot silently strand proofs.

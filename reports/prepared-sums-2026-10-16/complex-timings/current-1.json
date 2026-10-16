@@ -1,0 +1,3503 @@
+{
+  "schema": 1,
+  "node": "v25.3.0",
+  "cpu": "Apple M4 Pro",
+  "sources": {
+    "ink": {
+      "path": "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/prepared-sums/complex.mjs",
+      "bytes": 1857392,
+      "sha256": "40a8e3d4d774aec37832a4c5ab9faf7b521d3b446901075b273a0167391ff436"
+    },
+    "upstream": {
+      "path": "/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/complex-text-draft/upstream/line-break.js",
+      "bytes": 63284,
+      "sha256": "b8d5791cfccc573191befb6bd3969f0b5df8d3f432817f8c03c22824afec265b"
+    }
+  },
+  "rotation": 1,
+  "warmupRounds": 128,
+  "samples": 15,
+  "calls": 128,
+  "setup": [
+    {
+      "engine": "gecko",
+      "size": 8,
+      "construction_ns": 434500,
+      "capture_ns": 695583,
+      "token_ns": 120625,
+      "source_core": "1fabac22e4632a067b9cd5c99f8d85805502a66fa6e29083b3e093e3f913a42d"
+    },
+    {
+      "engine": "gecko",
+      "size": 64,
+      "construction_ns": 210667,
+      "capture_ns": 79500,
+      "token_ns": 25958,
+      "source_core": "1fabac22e4632a067b9cd5c99f8d85805502a66fa6e29083b3e093e3f913a42d"
+    },
+    {
+      "engine": "gecko",
+      "size": 512,
+      "construction_ns": 346833,
+      "capture_ns": 228500,
+      "token_ns": 17708,
+      "source_core": "1fabac22e4632a067b9cd5c99f8d85805502a66fa6e29083b3e093e3f913a42d"
+    },
+    {
+      "engine": "webkit",
+      "size": 8,
+      "construction_ns": 47042,
+      "capture_ns": 45209,
+      "token_ns": 17041,
+      "source_core": "1fabac22e4632a067b9cd5c99f8d85805502a66fa6e29083b3e093e3f913a42d"
+    },
+    {
+      "engine": "webkit",
+      "size": 64,
+      "construction_ns": 80750,
+      "capture_ns": 44042,
+      "token_ns": 19833,
+      "source_core": "1fabac22e4632a067b9cd5c99f8d85805502a66fa6e29083b3e093e3f913a42d"
+    },
+    {
+      "engine": "webkit",
+      "size": 512,
+      "construction_ns": 326250,
+      "capture_ns": 119083,
+      "token_ns": 23833,
+      "source_core": "1fabac22e4632a067b9cd5c99f8d85805502a66fa6e29083b3e093e3f913a42d"
+    },
+    {
+      "engine": "blink",
+      "size": 8,
+      "construction_ns": 49834,
+      "capture_ns": 40291,
+      "token_ns": 32167,
+      "source_core": "1fabac22e4632a067b9cd5c99f8d85805502a66fa6e29083b3e093e3f913a42d"
+    },
+    {
+      "engine": "blink",
+      "size": 64,
+      "construction_ns": 81208,
+      "capture_ns": 50625,
+      "token_ns": 16333,
+      "source_core": "1fabac22e4632a067b9cd5c99f8d85805502a66fa6e29083b3e093e3f913a42d"
+    },
+    {
+      "engine": "blink",
+      "size": 512,
+      "construction_ns": 305041,
+      "capture_ns": 98166,
+      "token_ns": 12959,
+      "source_core": "1fabac22e4632a067b9cd5c99f8d85805502a66fa6e29083b3e093e3f913a42d"
+    }
+  ],
+  "cold": [
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "ns": 21917
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "ns": 2383167
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "ns": 1660208
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "ns": 10333
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "ns": 348542
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "ns": 872583
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "ns": 17250
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "ns": 317792
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "ns": 395292
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "ns": 6334
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "ns": 383875
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "ns": 240125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "ns": 2792
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "ns": 170292
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "ns": 227833
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "ns": 16000
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "ns": 263709
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "ns": 309459
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "ns": 1042
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "ns": 68875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "ns": 72292
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "ns": 2209
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "ns": 198125
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "ns": 151583
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "ns": 13375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "ns": 422834
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "ns": 317250
+    }
+  ],
+  "records": [
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 447.265625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 51142.90625
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 51112.3046875
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 47901.3671875
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 28418.9453125
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 325.1953125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 28920.8984375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 449.21875
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 29429.6875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 302.0859375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 31349.609375
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 28625.9765625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 29738.28125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 28568.6875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 183.59375
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 29740.5625
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 191.078125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 31274.0859375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 174.4765625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 27942.3828125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 25135.4140625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 26569.984375
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 22386.0703125
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 262.0390625
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 23701.4921875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 163.0859375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 24235.671875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 149.4140625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 23191.40625
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 22542.96875
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 23938.4765625
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 32181.3203125
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 160.15625
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 23947.59375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 158.53125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 25398.765625
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 180.984375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 24570.6328125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 21277.34375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 20850.90625
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 19593.421875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 186.203125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 8,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 20874.0234375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 8,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 181.96875
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 21148.1171875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 767.578125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 23337.234375
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 20815.7578125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 21835.9375
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 20623.046875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 832.359375
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 19787.109375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 784.5078125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 21339.84375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 753.5859375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 23750
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 21685.546875
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 21864.2578125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 19810.8671875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 841.46875
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 19540.0390625
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 768.875
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 21019.53125
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 773.765625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 21182.9453125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 22607.421875
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 23342.453125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 21454.75
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 833.65625
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 22674.8046875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 2069.984375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 22276.0390625
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 824.21875
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 22854.1640625
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 26739.5859375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 22189.125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 19853.8359375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 888.9921875
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 32867.1875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 806.9609375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 50759.109375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 3691.40625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 25255.53125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 47383.7890625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 42924.8046875
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 21724.9375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 854.1640625
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 64,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 36706.703125
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 64,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 875
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 22588.546875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 5663.734375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 164653
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 151508.1328125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 163033.5234375
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 209985.6796875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 6301.7578125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 204501.625
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 6054.03125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 348631.8359375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 9028
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 219925.4609375
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 188080.078125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 175767.578125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 156787.4375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 5903.96875
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 143677.734375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 6108.0703125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 158452.8046875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 5882.15625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 149867.5078125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 143164.0625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 147360.03125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 143543.9453125
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 5811.1953125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 141302.4140625
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 6114.5859375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 151373.375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 5894.203125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 150399.7421875
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 142320.9609375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 147036.78125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 139306.3125
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 6145.1796875
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 138412.109375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 5898.4375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 147301.4296875
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 6050.1328125
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 149795.578125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 141788.40625
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 148959.3125
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 142927.078125
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 5614.5859375
+    },
+    {
+      "engine": "gecko",
+      "name": "prepared",
+      "size": 512,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 138347.984375
+    },
+    {
+      "engine": "gecko",
+      "name": "pretext",
+      "size": 512,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 6024.09375
+    },
+    {
+      "engine": "gecko",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 149643.2265625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 272.140625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 20315.7578125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 14592.7734375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 14822.9140625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 17415.0390625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 316.734375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 14916.9921875
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 280.921875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 15042.96875
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 282.2265625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 15932.9453125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 14709.3046875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 18055.3359375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 15963.5390625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 296.875
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 14983.3984375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 276.6875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 16485.0234375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 150.71875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 15074.21875
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 15529.953125
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 16172.8515625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 13715.8203125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 153.6484375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 14903.9765625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 130.859375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 13574.5390625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 129.2265625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 13435.546875
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 14162.109375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 13239.2578125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 14969.7265625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 170.578125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 14537.7578125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 143.5546875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 14549.484375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 156.25
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 15686.84375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 9771.8125
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 9827.796875
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 10665.3671875
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 136.0703125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 8,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 9551.109375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 8,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 127.9296875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 11537.109375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 823.5703125
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 20943.03125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 20180.6640625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 19254.5625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 18283.53125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 738.28125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 22208.328125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 812.828125
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 20537.4375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 814.78125
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 19906.8984375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 21051.109375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 21264.6484375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 19458.65625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 853.515625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 20509.4375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 805.9921875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 21288.7421875
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 805.6640625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 20929.03125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 19354.1640625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 20361.65625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 18655.59375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 840.171875
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 21078.453125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 799.8046875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 19857.09375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 793.625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 23022.1328125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 20003.90625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 21725.265625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 21164.0625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 981.765625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 20766.921875
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 934.5703125
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 22336.5859375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 824.8671875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 21344.7265625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 18974.28125
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 20156.25
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 20615.234375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 867.8359375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 64,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 18435.546875
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 64,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 740.890625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 19862.6328125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 6000
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 152171.2265625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 149940.109375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 155623.046875
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 146344.0703125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 5986.6484375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 150811.8515625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 5745.1171875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 156281.8984375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 6065.4296875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 157281.578125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 146773.109375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 153783.203125
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 148457.3515625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 5771.484375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 146338.5390625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 5703.7734375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 154945.3125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 6032.5546875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 155347.984375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 147111.984375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 156760.7421875
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 147804.6875
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 5891.2734375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 147904.953125
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 5877.609375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 162931.640625
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 5732.75
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 153955.3984375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 146869.46875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 159281.8984375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 149544.2734375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 6021.1640625
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 147762.046875
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 5801.4375
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 160997.3984375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 6589.515625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 153375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 144456.0546875
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 154167.96875
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 146137.046875
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 5809.8984375
+    },
+    {
+      "engine": "webkit",
+      "name": "prepared",
+      "size": 512,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 144969.3984375
+    },
+    {
+      "engine": "webkit",
+      "name": "pretext",
+      "size": 512,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 5790.0390625
+    },
+    {
+      "engine": "webkit",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 154359.046875
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 149.4140625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 7440.4296875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 7819.3359375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 7236.9765625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 6313.8046875
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 130.2109375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 8502.28125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 150.390625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 7535.8125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 166.9921875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 8412.4375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 6818.0390625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 6925.78125
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 7789.390625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 125.65625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 6335.2890625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 122.71875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 6547.8515625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 123.046875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 8624.671875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 7267.578125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 7574.546875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 7872.71875
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 152.6640625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 6765.9453125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 139
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 7640.953125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 129.234375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 6500.9765625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 6296.2265625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 7212.5625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 6336.265625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 126.953125
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 6369.140625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 126.296875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 8721.03125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 178.0546875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 6825.515625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 7497.3984375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 8028.6484375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 6677.078125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 175.78125
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 8,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 6694.3359375
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 8,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 172.53125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 8,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 7756.5078125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 780.2734375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 21283.203125
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 24153.3203125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 20780.921875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 20568.0390625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 839.1953125
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 21596.6796875
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 806.96875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 22196.2890625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 799.8046875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 21808.59375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 20907.2265625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 21213.5390625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 23808.59375
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 879.5546875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 19494.796875
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 737.9609375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 20045.8984375
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 804.0390625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 21606.7734375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 19455.40625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 21796.5546875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 20429.0390625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 776.046875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 18960.28125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 797.1953125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 21136.3984375
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 741.2109375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 19143.2265625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 19002.9296875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 20272.4609375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 21703.125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 796.546875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 19063.8046875
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 826.171875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 21906.25
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 804.359375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 20211.9140625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 20572.59375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 20902.34375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 21270.5078125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 836.9140625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 64,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 19767.25
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 64,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 829.7578125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 64,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 20246.09375
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 5644.859375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 154122.3984375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 0,
+      "calls": 128,
+      "ns_per_call": 144124.0234375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 154579.75
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 149707.03125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 1,
+      "calls": 128,
+      "ns_per_call": 6338.5390625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 149895.828125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 6149.7421875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 2,
+      "calls": 128,
+      "ns_per_call": 155066.078125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 6146.1640625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 156304.6875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 3,
+      "calls": 128,
+      "ns_per_call": 144454.1015625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 153411.78125
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 149883.140625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 4,
+      "calls": 128,
+      "ns_per_call": 6223.3046875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 147125.9765625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 6027.671875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 5,
+      "calls": 128,
+      "ns_per_call": 157510.421875
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 6744.46875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 157329.75
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 6,
+      "calls": 128,
+      "ns_per_call": 146090.8203125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 154635.09375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 151638.671875
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 7,
+      "calls": 128,
+      "ns_per_call": 6379.5546875
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 151118.1640625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 6485.3515625
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 8,
+      "calls": 128,
+      "ns_per_call": 151211.9140625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 6391.2734375
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 160362.953125
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 9,
+      "calls": 128,
+      "ns_per_call": 150715.8203125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 174828.7734375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 164114.578125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 10,
+      "calls": 128,
+      "ns_per_call": 5863.9375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 146623.3671875
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 6109.703125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 11,
+      "calls": 128,
+      "ns_per_call": 154397.140625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 6056.3125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 152511.3984375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 12,
+      "calls": 128,
+      "ns_per_call": 146394.53125
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 148521.484375
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 144076.828125
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 13,
+      "calls": 128,
+      "ns_per_call": 5879.5625
+    },
+    {
+      "engine": "blink",
+      "name": "prepared",
+      "size": 512,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 144928.0625
+    },
+    {
+      "engine": "blink",
+      "name": "pretext",
+      "size": 512,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 5949.875
+    },
+    {
+      "engine": "blink",
+      "name": "ordinary",
+      "size": 512,
+      "sample": 14,
+      "calls": 128,
+      "ns_per_call": 155435.21875
+    }
+  ],
+  "sink": 7223496,
+  "scope": "Diagnostic single-process complete count calls against the pinned upstream complex walker, with explicit engine profiles. Synthetic measured inputs, input capture outside timing, Result materialization included, setup/first calls separate. No browser accuracy, whole lifecycle selection, broad performance or speed-parity claim."
+}

@@ -270,3 +270,12 @@ still execute before any cached projection. Iteration bindings stay dynamic.
 Mask sharing uses only private captured policies, never source/host object access.
 Bound expanded alias summaries as well as traversal; exhaustion retains ordinary
 execution. Do not raise source limits to accommodate verbose optional masks.
+
+Optional/result callback preparation preserves selected-arm laziness and receiver
+execution once. Only a complete immutable captured sum fixes its payload; changing
+sums keep dynamic payloads, while a None arm's Unit is constant. Loop arguments
+stay dynamic. Use checked sum views/constructors and ordinary ownership fallback;
+strict defaults and thrown failure retry keep source behavior. Bounded opportunity
+conditions and structural work estimates affect only explicit preparation, never
+proof/evidence authority. Keep direct ordinary calls for non-reusable captured
+policies, and share private policy predicates without evaluating source work.
