@@ -110,8 +110,15 @@ distribution laws cover individual operation arguments. They grant no float
 reassociation, reciprocal multiplication or approximation replacement authority.
 
 The first-order transition domain additionally admits square root, division,
-rounding, classification and raw-bit reinterpretation. Wider conversion and text
-transition projections remain fail-closed; their pure semantic bridge is admitted.
+rounding, classification, raw-bit reinterpretation and the fixed-width
+`f32_from_u32`, `f32_from_u64` and `f32_from_i32` conversions. The named mathematical
+operations preserve nearest-even rounding, U32 truncation and I32 sign
+interpretation. Conversion arguments retain their original effect order and
+transaction behavior. An integer-only rounding oracle checks boundary values and
+1,024 additional words. This extends correspondence for existing executable
+operations; it adds no float algebra or bit-circuit proof rule. Unbounded Int,
+reverse float-to-integer and text transition projections remain fail-closed;
+their pure semantic bridge is admitted.
 
 Tests cover reference/native C/Rust/JavaScript/both Wasm, raw float adversaries,
 U64 conversion midpoints, Int overflow, UTF-8 boundaries, committed events and
