@@ -1,0 +1,669 @@
+# V8 optimizer review coverage
+
+Pinned revision: `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
+
+Source receipts: 40 full files, 2 partial files, 565 unread files; 607 inventoried files total.
+
+A checked box means every source line has a recorded read receipt. It does **not** mean every optimization has been assessed or implemented. All family outcomes below remain separately recorded in `audit.json`. Directory groups are navigation only. This inventory does not establish that every optimizer-related support file outside the selected directories has been captured.
+
+## Family assessment
+
+- machine-word: **partial** — Full machine reducer read; 80 admitted word/control/conversion laws from 82 proposals. Generic versioned source circuits add fixed rotate semantics and honor shared-gate encodings. Two U64 count-combination proposals remain unadmitted. Signed arithmetic, division and backend-delegation assessment remain open.
+- branch-control: **partial** — Repeated conditions/select proposals admitted; CFG branch threading and merge behavior remain Resumed pass adds database-controlled maximum-arm pricing and scoped zero-extent hypotheses with hygienic binders. Default semantic discovery now selects three guarded callback controls; official native acquisition retains an uncertain smaller cohort and accepts a separate larger workload under unchanged guards. These are untrusted search estimates, never path facts admitted to proofs.
+- value-numbering: **partial** — Full reducer reviewed. Generic exact scalar lexical-sharing proposals admitted through existing Normalize checks, including nested binders; held-out complete-call JavaScript evidence retained. Stateful loads and global dominance reuse remain open. Invocation-local bounded successful-call normalization cache now reuses exact function/argument/depth results in untrusted authoring after a 32-call threshold. Six ordinary Convert proofs and 64 matching old/new normal forms; three-process helper DAG controls improve ~13x/~22x, small captured obligations approximately unchanged. No proof-verdict cache or whole compiler/runtime gain claimed; see bench/v8-learning/normalizer.
+- load-elimination: **partial** — Full late-load implementation/header reviewed. Existing coarse and keyed preservation plus guarded U64/Bool tuple query specialization with original fallback. All laws remain in knowledge; no new core recognizer. CPU conformance and held-out JavaScript lifecycle evidence retained. General alias and loop-load elimination remain open.
+- store-elimination: **partial** — Full reducer read. Existing replace_overwrite database laws identified; whole-action observation/error/transaction assessment and profitability remain open.
+- escape-allocation: **partial** — Late escape and full TurboFan escape analysis/reducer plus Wasm dead-allocation pass read. Existing affine owners, last-use moves and record-elision proposals cover parts of allocation avoidance. Effect-sensitive virtual fields, dominance merges, identity-preserving materialization, failure boundaries and lifecycle profitability need further Ink-specific assessment. No allocation rewrite authority follows from source review.
+- representation-types: **partial** — Typed optimization and simplified operator reducers read in full; representation-change first 306 lines read. Existing fixed carriers and checked word laws cover subsets. Stronger checks cannot be removed merely because storage representations agree. Range-guided conversion and remaining paths open.
+- floating-point: **partial** — Typed/simplified optimization reviewed alongside earlier machine reducer. IEEE equality, stored-bit identity, canonical NaNs, -0, rounding and fallible conversion restrictions differ. F64 proof terms remain unsupported; exact F32 machinery and individual floating reductions still require assessment.
+- loop-transforms: **partial** — Literal-count repeat expansions use generic source-carrier proposals and existing Normalize proofs. Full peeling/unrolling implementation reviewed; dynamic transformations and profitability remain open. Scheduler hoisting ranges and TurboFan peeling implementation reviewed; guarded scalar callback hoisting proposals added to knowledge. Broader dynamic CFG transforms remain open.
+- strings: **partial** — Full string escape reducer reviewed. UTF-16/deoptimization representations are not Ink UTF-8 semantics. String length bounds/concat failures and portable reconstruction need explicit proof; no new string transformation admitted.
+- simd-wasm: **pending** — Assess real device/backend applicability and profitability
+- feedback-tiering: **partial** — TieringManager implementation/header read in full. Request deduplication, hot/stable delay, saturating budgets, large-function/resource gates identified; compare generic offline scheduling and cost provenance. No speculative premise admitted.
+- maglev: **partial** — Optimizer header and full 4050-line implementation read. Scoped facts, representation/check strength, disabled unsafe Smi bypass, NaN/negative-zero distinctions, call specialization/inlining scores and deferred Phi/identity repair assessed. Reducer helpers, graph builder, known-node aspects, representation/inlining passes and generic Ink applicability remain open. Known-node-aspects header and implementation read in full; broader graph builder/reducer and applicability assessment remain open.
+- pipeline-infrastructure: **partial** — Turboshaft and Turbolev pipeline entry points read in full, including phase ordering and repeated cleanup/fact recomputation. Individual pending passes remain open; complete per-file backlog is generated by tools/v8_audit_status.py.
+- instruction-selection-registers: **pending** — Assess which responsibilities are already delegated to existing host compilers
+- inlining: **pending** — Turbolev pipeline identifies eager/deferred inlining and budget/call-frequency inputs; individual Maglev/TurboFan implementations and Ink checked sharing/expansion tradeoffs remain unread/unassessed.
+- range-bounds: **pending** — Typed reducer bounds/check elimination read; range inference, induction/overflow and hardening implementations need separate review. Existing Ink facts are untrusted proposals with independent proofs.
+- truncation-demand: **pending** — Backward use-demand propagation and explicit truncation identified from pipelines; implementation unread. Preserve full values and checks at every nontruncating observation.
+- javascript-builtins: **pending** — Builtin/call reductions are an explicit pending family; map/reduce/iterators/regexp/promises and runtime-specific assumptions need individual applicability assessment.
+- context-specialization: **pending** — Lexical/native context specialization, stable dependencies and mutable context loads remain unread/unassessed; do not infer lifetime/constness from a profile.
+- javascript-typed-lowering: **pending** — Language/coercion/type-directed reductions remain unread/unassessed; fixed typed Ink carriers may remove JS-specific work, but all reusable ideas require explicit mapping.
+- wasm-gc: **pending** — Wasm typed GC/reference optimization is separate from SIMD/revectorization. Individual reducers/lowering/inlining remain unread/unassessed; source ownership and host Wasm delegation need assessment.
+
+## Complete source checklist
+
+
+### docs/compiler
+
+- [ ] `docs/compiler/concurrency-and-background-compilation.md` — unread; 0/62 lines recorded
+- [ ] `docs/compiler/maglev/compiler-maglev-regalloc.md` — unread; 0/77 lines recorded
+- [ ] `docs/compiler/maglev/compiler-maglev.md` — unread; 0/115 lines recorded
+- [ ] `docs/compiler/sparkplug/compiler-sparkplug.md` — unread; 0/58 lines recorded
+- [ ] `docs/compiler/turbofan/compiler-turbofan.md` — unread; 0/97 lines recorded
+- [ ] `docs/compiler/turboshaft/compiler-turboshaft-copying-approach.md` — unread; 0/49 lines recorded
+- [ ] `docs/compiler/turboshaft/compiler-turboshaft-ir.md` — unread; 0/87 lines recorded
+- [ ] `docs/compiler/turboshaft/compiler-turboshaft-reducers.md` — unread; 0/85 lines recorded
+- [ ] `docs/compiler/turboshaft/compiler-turboshaft.md` — unread; 0/78 lines recorded
+- [ ] `docs/compiler/why-cfg.md` — unread; 0/63 lines recorded
+
+### src/compiler
+
+- [ ] `src/compiler/access-builder.cc` — unread; 0/1743 lines recorded
+- [ ] `src/compiler/access-builder.h` — unread; 0/433 lines recorded
+- [ ] `src/compiler/access-info.cc` — unread; 0/1594 lines recorded
+- [ ] `src/compiler/access-info.h` — unread; 0/353 lines recorded
+- [ ] `src/compiler/add-type-assertions-reducer.cc` — unread; 0/88 lines recorded
+- [ ] `src/compiler/add-type-assertions-reducer.h` — unread; 0/25 lines recorded
+- [ ] `src/compiler/all-nodes.cc` — unread; 0/60 lines recorded
+- [ ] `src/compiler/all-nodes.h` — unread; 0/52 lines recorded
+- [ ] `src/compiler/allocation-builder-inl.h` — unread; 0/85 lines recorded
+- [ ] `src/compiler/allocation-builder.h` — unread; 0/105 lines recorded
+
+### src/compiler/backend
+
+- [ ] `src/compiler/backend/arm/code-generator-arm.cc` — unread; 0/4657 lines recorded
+- [ ] `src/compiler/backend/arm/instruction-codes-arm.h` — unread; 0/395 lines recorded
+- [ ] `src/compiler/backend/arm/instruction-scheduler-arm.cc` — unread; 0/411 lines recorded
+- [ ] `src/compiler/backend/arm/instruction-selector-arm.cc` — unread; 0/3649 lines recorded
+- [ ] `src/compiler/backend/arm/unwinding-info-writer-arm.cc` — unread; 0/102 lines recorded
+- [ ] `src/compiler/backend/arm/unwinding-info-writer-arm.h` — unread; 0/73 lines recorded
+- [ ] `src/compiler/backend/arm64/code-generator-arm64.cc` — unread; 0/4985 lines recorded
+- [ ] `src/compiler/backend/arm64/instruction-codes-arm64.h` — unread; 0/434 lines recorded
+- [ ] `src/compiler/backend/arm64/instruction-scheduler-arm64.cc` — unread; 0/1233 lines recorded
+- [ ] `src/compiler/backend/arm64/instruction-selector-arm64.cc` — unread; 0/7451 lines recorded
+- [ ] `src/compiler/backend/arm64/unwinding-info-writer-arm64.cc` — unread; 0/108 lines recorded
+- [ ] `src/compiler/backend/arm64/unwinding-info-writer-arm64.h` — unread; 0/73 lines recorded
+- [ ] `src/compiler/backend/bitcast-elider.cc` — unread; 0/118 lines recorded
+- [ ] `src/compiler/backend/bitcast-elider.h` — unread; 0/44 lines recorded
+- [ ] `src/compiler/backend/block-position.cc` — unread; 0/97 lines recorded
+- [ ] `src/compiler/backend/block-position.h` — unread; 0/41 lines recorded
+- [ ] `src/compiler/backend/code-generator-impl.h` — unread; 0/332 lines recorded
+- [ ] `src/compiler/backend/code-generator.cc` — unread; 0/1749 lines recorded
+- [ ] `src/compiler/backend/code-generator.h` — unread; 0/516 lines recorded
+- [ ] `src/compiler/backend/frame-elider.cc` — unread; 0/207 lines recorded
+- [ ] `src/compiler/backend/frame-elider.h` — unread; 0/42 lines recorded
+- [ ] `src/compiler/backend/gap-resolver.cc` — unread; 0/233 lines recorded
+- [ ] `src/compiler/backend/gap-resolver.h` — unread; 0/78 lines recorded
+- [ ] `src/compiler/backend/ia32/code-generator-ia32.cc` — unread; 0/4781 lines recorded
+- [ ] `src/compiler/backend/ia32/instruction-codes-ia32.h` — unread; 0/416 lines recorded
+- [ ] `src/compiler/backend/ia32/instruction-scheduler-ia32.cc` — unread; 0/485 lines recorded
+- [ ] `src/compiler/backend/ia32/instruction-selector-ia32.cc` — unread; 0/3904 lines recorded
+- [ ] `src/compiler/backend/instruction-codes.h` — unread; 0/523 lines recorded
+- [ ] `src/compiler/backend/instruction-scheduler.cc` — unread; 0/649 lines recorded
+- [ ] `src/compiler/backend/instruction-scheduler.h` — unread; 0/442 lines recorded
+- [ ] `src/compiler/backend/instruction-selector-impl.h` — unread; 0/675 lines recorded
+- [ ] `src/compiler/backend/instruction-selector.cc` — unread; 0/4724 lines recorded
+- [ ] `src/compiler/backend/instruction-selector.h` — unread; 0/1658 lines recorded
+- [ ] `src/compiler/backend/instruction.cc` — unread; 0/1406 lines recorded
+- [ ] `src/compiler/backend/instruction.h` — unread; 0/2247 lines recorded
+- [ ] `src/compiler/backend/jump-threading.cc` — unread; 0/330 lines recorded
+- [ ] `src/compiler/backend/jump-threading.h` — unread; 0/34 lines recorded
+- [ ] `src/compiler/backend/loong64/code-generator-loong64.cc` — unread; 0/5839 lines recorded
+- [ ] `src/compiler/backend/loong64/instruction-codes-loong64.h` — unread; 0/432 lines recorded
+- [ ] `src/compiler/backend/loong64/instruction-scheduler-loong64.cc` — unread; 0/33 lines recorded
+- [ ] `src/compiler/backend/loong64/instruction-selector-loong64.cc` — unread; 0/4056 lines recorded
+- [ ] `src/compiler/backend/mips64/code-generator-mips64.cc` — unread; 0/4922 lines recorded
+- [ ] `src/compiler/backend/mips64/instruction-codes-mips64.h` — unread; 0/432 lines recorded
+- [ ] `src/compiler/backend/mips64/instruction-scheduler-mips64.cc` — unread; 0/1777 lines recorded
+- [ ] `src/compiler/backend/mips64/instruction-selector-mips64.cc` — unread; 0/2978 lines recorded
+- [ ] `src/compiler/backend/move-optimizer.cc` — unread; 0/639 lines recorded
+- [ ] `src/compiler/backend/move-optimizer.h` — unread; 0/67 lines recorded
+- [ ] `src/compiler/backend/ppc/code-generator-ppc.cc` — unread; 0/3826 lines recorded
+- [ ] `src/compiler/backend/ppc/instruction-codes-ppc.h` — unread; 0/422 lines recorded
+- [ ] `src/compiler/backend/ppc/instruction-scheduler-ppc.cc` — unread; 0/441 lines recorded
+- [ ] `src/compiler/backend/ppc/instruction-selector-ppc.cc` — unread; 0/2936 lines recorded
+- [ ] `src/compiler/backend/ppc/unwinding-info-writer-ppc.cc` — unread; 0/105 lines recorded
+- [ ] `src/compiler/backend/ppc/unwinding-info-writer-ppc.h` — unread; 0/73 lines recorded
+- [ ] `src/compiler/backend/register-allocation.h` — unread; 0/109 lines recorded
+- [ ] `src/compiler/backend/register-allocator-verifier.cc` — unread; 0/631 lines recorded
+- [ ] `src/compiler/backend/register-allocator-verifier.h` — unread; 0/308 lines recorded
+- [ ] `src/compiler/backend/register-allocator.cc` — unread; 0/5245 lines recorded
+- [ ] `src/compiler/backend/register-allocator.h` — unread; 0/1761 lines recorded
+- [ ] `src/compiler/backend/riscv/code-generator-riscv.cc` — unread; 0/6220 lines recorded
+- [ ] `src/compiler/backend/riscv/instruction-codes-riscv.h` — unread; 0/424 lines recorded
+- [ ] `src/compiler/backend/riscv/instruction-scheduler-riscv.cc` — unread; 0/1823 lines recorded
+- [ ] `src/compiler/backend/riscv/instruction-selector-riscv.h` — unread; 0/1860 lines recorded
+- [ ] `src/compiler/backend/riscv/instruction-selector-riscv32.cc` — unread; 0/1445 lines recorded
+- [ ] `src/compiler/backend/riscv/instruction-selector-riscv64.cc` — unread; 0/2755 lines recorded
+- [ ] `src/compiler/backend/riscv/register-constraints-riscv.h` — unread; 0/44 lines recorded
+- [ ] `src/compiler/backend/s390/code-generator-s390.cc` — unread; 0/4101 lines recorded
+- [ ] `src/compiler/backend/s390/instruction-codes-s390.h` — unread; 0/431 lines recorded
+- [ ] `src/compiler/backend/s390/instruction-scheduler-s390.cc` — unread; 0/452 lines recorded
+- [ ] `src/compiler/backend/s390/instruction-selector-s390.cc` — unread; 0/3415 lines recorded
+- [ ] `src/compiler/backend/s390/unwinding-info-writer-s390.cc` — unread; 0/103 lines recorded
+- [ ] `src/compiler/backend/s390/unwinding-info-writer-s390.h` — unread; 0/73 lines recorded
+- [ ] `src/compiler/backend/simd-shuffle.cc` — unread; 0/559 lines recorded
+- [ ] `src/compiler/backend/simd-shuffle.h` — unread; 0/500 lines recorded
+- [ ] `src/compiler/backend/spill-placer.cc` — unread; 0/481 lines recorded
+- [ ] `src/compiler/backend/spill-placer.h` — unread; 0/167 lines recorded
+- [ ] `src/compiler/backend/unwinding-info-writer.h` — unread; 0/61 lines recorded
+- [ ] `src/compiler/backend/x64/code-generator-x64.cc` — unread; 0/9255 lines recorded
+- [ ] `src/compiler/backend/x64/instruction-codes-x64.h` — unread; 0/454 lines recorded
+- [ ] `src/compiler/backend/x64/instruction-scheduler-x64.cc` — unread; 0/536 lines recorded
+- [ ] `src/compiler/backend/x64/instruction-selector-x64.cc` — unread; 0/6489 lines recorded
+- [ ] `src/compiler/backend/x64/unwinding-info-writer-x64.cc` — unread; 0/96 lines recorded
+- [ ] `src/compiler/backend/x64/unwinding-info-writer-x64.h` — unread; 0/80 lines recorded
+
+### src/compiler
+
+- [ ] `src/compiler/basic-block-call-graph-profiler.cc` — unread; 0/79 lines recorded
+- [ ] `src/compiler/basic-block-call-graph-profiler.h` — unread; 0/38 lines recorded
+- [ ] `src/compiler/branch-elimination.cc` — unread; 0/405 lines recorded
+- [ ] `src/compiler/branch-elimination.h` — unread; 0/100 lines recorded
+- [ ] `src/compiler/bytecode-analysis.cc` — unread; 0/1175 lines recorded
+- [ ] `src/compiler/bytecode-analysis.h` — unread; 0/207 lines recorded
+- [ ] `src/compiler/bytecode-graph-builder.cc` — unread; 0/4903 lines recorded
+- [ ] `src/compiler/bytecode-graph-builder.h` — unread; 0/56 lines recorded
+- [ ] `src/compiler/bytecode-liveness-map.cc` — unread; 0/31 lines recorded
+- [ ] `src/compiler/bytecode-liveness-map.h` — unread; 0/205 lines recorded
+- [ ] `src/compiler/c-linkage.cc` — unread; 0/358 lines recorded
+- [ ] `src/compiler/checkpoint-elimination.cc` — unread; 0/75 lines recorded
+- [ ] `src/compiler/checkpoint-elimination.h` — unread; 0/34 lines recorded
+- [ ] `src/compiler/code-assembler-compilation-job.h` — unread; 0/99 lines recorded
+- [ ] `src/compiler/code-assembler.cc` — unread; 0/2140 lines recorded
+- [ ] `src/compiler/code-assembler.h` — unread; 0/2042 lines recorded
+- [ ] `src/compiler/common-node-cache.cc` — unread; 0/40 lines recorded
+- [ ] `src/compiler/common-node-cache.h` — unread; 0/99 lines recorded
+- [ ] `src/compiler/common-operator-reducer.cc` — unread; 0/580 lines recorded
+- [ ] `src/compiler/common-operator-reducer.h` — unread; 0/79 lines recorded
+- [ ] `src/compiler/common-operator.cc` — unread; 0/1763 lines recorded
+- [ ] `src/compiler/common-operator.h` — unread; 0/877 lines recorded
+- [ ] `src/compiler/common-utils.cc` — unread; 0/106 lines recorded
+- [ ] `src/compiler/common-utils.h` — unread; 0/24 lines recorded
+- [ ] `src/compiler/compilation-dependencies.cc` — unread; 0/1709 lines recorded
+- [ ] `src/compiler/compilation-dependencies.h` — unread; 0/225 lines recorded
+- [ ] `src/compiler/compiler-source-position-table.cc` — unread; 0/83 lines recorded
+- [ ] `src/compiler/compiler-source-position-table.h` — unread; 0/85 lines recorded
+- [ ] `src/compiler/constant-folding-reducer.cc` — unread; 0/68 lines recorded
+- [ ] `src/compiler/constant-folding-reducer.h` — unread; 0/42 lines recorded
+- [ ] `src/compiler/control-equivalence.cc` — unread; 0/235 lines recorded
+- [ ] `src/compiler/control-equivalence.h` — unread; 0/184 lines recorded
+- [ ] `src/compiler/control-path-state.h` — unread; 0/258 lines recorded
+- [ ] `src/compiler/csa-load-elimination.cc` — unread; 0/622 lines recorded
+- [ ] `src/compiler/csa-load-elimination.h` — unread; 0/185 lines recorded
+- [ ] `src/compiler/dead-code-elimination.cc` — unread; 0/385 lines recorded
+- [ ] `src/compiler/dead-code-elimination.h` — unread; 0/85 lines recorded
+- [ ] `src/compiler/diamond.h` — unread; 0/67 lines recorded
+- [x] `src/compiler/escape-analysis-reducer.cc` — read; 455/455 lines recorded
+- [x] `src/compiler/escape-analysis-reducer.h` — read; 122/122 lines recorded
+- [x] `src/compiler/escape-analysis.cc` — read; 981/981 lines recorded
+- [x] `src/compiler/escape-analysis.h` — read; 198/198 lines recorded
+- [ ] `src/compiler/fast-api-calls.cc` — unread; 0/423 lines recorded
+- [ ] `src/compiler/fast-api-calls.h` — unread; 0/67 lines recorded
+- [ ] `src/compiler/feedback-source.cc` — unread; 0/56 lines recorded
+- [ ] `src/compiler/feedback-source.h` — unread; 0/96 lines recorded
+- [ ] `src/compiler/frame-states.cc` — unread; 0/361 lines recorded
+- [ ] `src/compiler/frame-states.h` — unread; 0/281 lines recorded
+- [ ] `src/compiler/frame.cc` — unread; 0/76 lines recorded
+- [ ] `src/compiler/frame.h` — unread; 0/291 lines recorded
+- [ ] `src/compiler/functional-list.h` — unread; 0/134 lines recorded
+- [ ] `src/compiler/globals.h` — unread; 0/165 lines recorded
+- [ ] `src/compiler/graph-assembler.cc` — unread; 0/1384 lines recorded
+- [ ] `src/compiler/graph-assembler.h` — unread; 0/1459 lines recorded
+- [ ] `src/compiler/graph-reducer.cc` — unread; 0/319 lines recorded
+- [ ] `src/compiler/graph-reducer.h` — unread; 0/219 lines recorded
+- [ ] `src/compiler/graph-trimmer.cc` — unread; 0/47 lines recorded
+- [ ] `src/compiler/graph-trimmer.h` — unread; 0/60 lines recorded
+- [ ] `src/compiler/graph-zone-traits.h` — unread; 0/27 lines recorded
+- [ ] `src/compiler/heap-refs.cc` — unread; 0/2827 lines recorded
+- [ ] `src/compiler/heap-refs.h` — unread; 0/1480 lines recorded
+- [ ] `src/compiler/int64-lowering.cc` — unread; 0/1156 lines recorded
+- [ ] `src/compiler/int64-lowering.h` — unread; 0/111 lines recorded
+- [ ] `src/compiler/js-call-reducer.cc` — unread; 0/10075 lines recorded
+- [ ] `src/compiler/js-call-reducer.h` — unread; 0/334 lines recorded
+- [ ] `src/compiler/js-context-specialization.cc` — unread; 0/564 lines recorded
+- [ ] `src/compiler/js-context-specialization.h` — unread; 0/89 lines recorded
+- [ ] `src/compiler/js-create-lowering.cc` — unread; 0/2058 lines recorded
+- [ ] `src/compiler/js-create-lowering.h` — unread; 0/149 lines recorded
+- [ ] `src/compiler/js-generic-lowering.cc` — unread; 0/1219 lines recorded
+- [ ] `src/compiler/js-generic-lowering.h` — unread; 0/70 lines recorded
+- [ ] `src/compiler/js-graph.cc` — unread; 0/322 lines recorded
+- [ ] `src/compiler/js-graph.h` — unread; 0/189 lines recorded
+- [ ] `src/compiler/js-heap-broker-inl.h` — unread; 0/59 lines recorded
+- [ ] `src/compiler/js-heap-broker.cc` — unread; 0/1180 lines recorded
+- [ ] `src/compiler/js-heap-broker.h` — unread; 0/704 lines recorded
+- [ ] `src/compiler/js-inlining-heuristic.cc` — unread; 0/991 lines recorded
+- [ ] `src/compiler/js-inlining-heuristic.h` — unread; 0/143 lines recorded
+- [ ] `src/compiler/js-inlining.cc` — unread; 0/979 lines recorded
+- [ ] `src/compiler/js-inlining.h` — unread; 0/136 lines recorded
+- [ ] `src/compiler/js-intrinsic-lowering.cc` — unread; 0/473 lines recorded
+- [ ] `src/compiler/js-intrinsic-lowering.h` — unread; 0/104 lines recorded
+- [ ] `src/compiler/js-native-context-specialization.cc` — unread; 0/4677 lines recorded
+- [ ] `src/compiler/js-native-context-specialization.h` — unread; 0/311 lines recorded
+- [ ] `src/compiler/js-operator.cc` — unread; 0/1735 lines recorded
+- [ ] `src/compiler/js-operator.h` — unread; 0/1950 lines recorded
+- [ ] `src/compiler/js-type-hint-lowering.cc` — unread; 0/807 lines recorded
+- [ ] `src/compiler/js-type-hint-lowering.h` — unread; 0/196 lines recorded
+- [ ] `src/compiler/js-typed-lowering.cc` — unread; 0/3180 lines recorded
+- [ ] `src/compiler/js-typed-lowering.h` — unread; 0/126 lines recorded
+- [ ] `src/compiler/late-escape-analysis.cc` — unread; 0/148 lines recorded
+- [ ] `src/compiler/late-escape-analysis.h` — unread; 0/46 lines recorded
+- [ ] `src/compiler/linkage.cc` — unread; 0/858 lines recorded
+- [ ] `src/compiler/linkage.h` — unread; 0/553 lines recorded
+- [ ] `src/compiler/load-elimination.cc` — unread; 0/1601 lines recorded
+- [ ] `src/compiler/load-elimination.h` — unread; 0/378 lines recorded
+- [ ] `src/compiler/loop-analysis.cc` — unread; 0/772 lines recorded
+- [ ] `src/compiler/loop-analysis.h` — unread; 0/270 lines recorded
+- [x] `src/compiler/loop-peeling.cc` — read; 299/299 lines recorded
+- [ ] `src/compiler/loop-peeling.h` — unread; 0/72 lines recorded
+- [ ] `src/compiler/loop-unrolling.cc` — unread; 0/211 lines recorded
+- [ ] `src/compiler/loop-unrolling.h` — unread; 0/44 lines recorded
+- [x] `src/compiler/loop-variable-optimizer.cc` — read; 358/358 lines recorded
+- [ ] `src/compiler/loop-variable-optimizer.h` — unread; 0/134 lines recorded
+- [ ] `src/compiler/machine-graph-verifier.cc` — unread; 0/1097 lines recorded
+- [ ] `src/compiler/machine-graph-verifier.h` — unread; 0/32 lines recorded
+- [ ] `src/compiler/machine-graph.cc` — unread; 0/138 lines recorded
+- [ ] `src/compiler/machine-graph.h` — unread; 0/119 lines recorded
+- [ ] `src/compiler/machine-operator-reducer.cc` — unread; 0/3065 lines recorded
+- [ ] `src/compiler/machine-operator-reducer.h` — unread; 0/194 lines recorded
+- [ ] `src/compiler/machine-operator.cc` — unread; 0/2868 lines recorded
+- [ ] `src/compiler/machine-operator.h` — unread; 0/1424 lines recorded
+- [ ] `src/compiler/map-inference.cc` — unread; 0/149 lines recorded
+- [ ] `src/compiler/map-inference.h` — unread; 0/108 lines recorded
+- [ ] `src/compiler/node-aux-data.h` — unread; 0/139 lines recorded
+- [ ] `src/compiler/node-cache.h` — unread; 0/78 lines recorded
+- [ ] `src/compiler/node-marker.cc` — unread; 0/21 lines recorded
+- [ ] `src/compiler/node-marker.h` — unread; 0/78 lines recorded
+- [ ] `src/compiler/node-matchers.cc` — unread; 0/60 lines recorded
+- [ ] `src/compiler/node-matchers.h` — unread; 0/896 lines recorded
+- [ ] `src/compiler/node-observer.cc` — unread; 0/61 lines recorded
+- [ ] `src/compiler/node-observer.h` — unread; 0/130 lines recorded
+- [ ] `src/compiler/node-origin-table.cc` — unread; 0/134 lines recorded
+- [ ] `src/compiler/node-origin-table.h` — unread; 0/153 lines recorded
+- [ ] `src/compiler/node-properties.cc` — unread; 0/733 lines recorded
+- [ ] `src/compiler/node-properties.h` — unread; 0/280 lines recorded
+- [ ] `src/compiler/node.cc` — unread; 0/508 lines recorded
+- [ ] `src/compiler/node.h` — unread; 0/719 lines recorded
+- [ ] `src/compiler/opcodes.cc` — unread; 0/42 lines recorded
+- [ ] `src/compiler/opcodes.h` — unread; 0/1575 lines recorded
+- [ ] `src/compiler/operation-typer.cc` — unread; 0/1399 lines recorded
+- [ ] `src/compiler/operation-typer.h` — unread; 0/147 lines recorded
+- [ ] `src/compiler/operator-properties.cc` — unread; 0/301 lines recorded
+- [ ] `src/compiler/operator-properties.h` — unread; 0/43 lines recorded
+- [ ] `src/compiler/operator.cc` — unread; 0/64 lines recorded
+- [ ] `src/compiler/operator.h` — unread; 0/267 lines recorded
+- [ ] `src/compiler/osr.cc` — unread; 0/29 lines recorded
+- [ ] `src/compiler/osr.h` — unread; 0/48 lines recorded
+- [ ] `src/compiler/per-isolate-compiler-cache.h` — unread; 0/63 lines recorded
+- [ ] `src/compiler/persistent-map.h` — unread; 0/560 lines recorded
+- [ ] `src/compiler/phase.h` — unread; 0/129 lines recorded
+- [ ] `src/compiler/pipeline-data-inl.h` — unread; 0/634 lines recorded
+- [ ] `src/compiler/pipeline-statistics.cc` — unread; 0/152 lines recorded
+- [ ] `src/compiler/pipeline-statistics.h` — unread; 0/155 lines recorded
+- [ ] `src/compiler/pipeline.cc` — unread; 0/3445 lines recorded
+- [ ] `src/compiler/pipeline.h` — unread; 0/186 lines recorded
+- [ ] `src/compiler/processed-feedback.h` — unread; 0/375 lines recorded
+- [ ] `src/compiler/property-access-builder.cc` — unread; 0/413 lines recorded
+- [ ] `src/compiler/property-access-builder.h` — unread; 0/120 lines recorded
+- [ ] `src/compiler/raw-machine-assembler.cc` — unread; 0/896 lines recorded
+- [ ] `src/compiler/raw-machine-assembler.h` — unread; 0/1267 lines recorded
+- [ ] `src/compiler/redundancy-elimination.cc` — unread; 0/553 lines recorded
+- [ ] `src/compiler/redundancy-elimination.h` — unread; 0/88 lines recorded
+- [ ] `src/compiler/refs-map.cc` — unread; 0/45 lines recorded
+- [ ] `src/compiler/refs-map.h` — unread; 0/54 lines recorded
+- [ ] `src/compiler/representation-change.cc` — partial; 306/2090 lines recorded
+- [ ] `src/compiler/representation-change.h` — unread; 0/144 lines recorded
+- [ ] `src/compiler/schedule.cc` — unread; 0/514 lines recorded
+- [ ] `src/compiler/schedule.h` — unread; 0/326 lines recorded
+- [ ] `src/compiler/scheduler.cc` — partial; 96/1982 lines recorded
+- [ ] `src/compiler/scheduler.h` — unread; 0/158 lines recorded
+- [x] `src/compiler/select-lowering.cc` — read; 59/59 lines recorded
+- [ ] `src/compiler/select-lowering.h` — unread; 0/41 lines recorded
+- [ ] `src/compiler/simplified-lowering-verifier.cc` — unread; 0/770 lines recorded
+- [ ] `src/compiler/simplified-lowering-verifier.h` — unread; 0/145 lines recorded
+- [ ] `src/compiler/simplified-lowering.cc` — unread; 0/6182 lines recorded
+- [ ] `src/compiler/simplified-lowering.h` — unread; 0/125 lines recorded
+- [x] `src/compiler/simplified-operator-reducer.cc` — read; 411/411 lines recorded
+- [ ] `src/compiler/simplified-operator-reducer.h` — unread; 0/73 lines recorded
+- [ ] `src/compiler/simplified-operator.cc` — unread; 0/2750 lines recorded
+- [ ] `src/compiler/simplified-operator.h` — unread; 0/1533 lines recorded
+- [ ] `src/compiler/state-values-utils.cc` — unread; 0/439 lines recorded
+- [ ] `src/compiler/state-values-utils.h` — unread; 0/149 lines recorded
+- [ ] `src/compiler/turbofan-disabled.cc` — unread; 0/38 lines recorded
+- [ ] `src/compiler/turbofan-enabled.cc` — unread; 0/27 lines recorded
+- [ ] `src/compiler/turbofan-graph-visualizer.cc` — unread; 0/1467 lines recorded
+- [ ] `src/compiler/turbofan-graph-visualizer.h` — unread; 0/273 lines recorded
+- [ ] `src/compiler/turbofan-graph.cc` — unread; 0/80 lines recorded
+- [ ] `src/compiler/turbofan-graph.h` — unread; 0/130 lines recorded
+- [ ] `src/compiler/turbofan-typer.cc` — unread; 0/2809 lines recorded
+- [ ] `src/compiler/turbofan-typer.h` — unread; 0/70 lines recorded
+- [ ] `src/compiler/turbofan-types.cc` — unread; 0/1319 lines recorded
+- [ ] `src/compiler/turbofan-types.h` — unread; 0/739 lines recorded
+- [ ] `src/compiler/turbofan.h` — unread; 0/39 lines recorded
+
+### src/compiler/turboshaft
+
+- [ ] `src/compiler/turboshaft/access-builder.h` — unread; 0/138 lines recorded
+- [ ] `src/compiler/turboshaft/analyzer-iterator.cc` — unread; 0/81 lines recorded
+- [ ] `src/compiler/turboshaft/analyzer-iterator.h` — unread; 0/134 lines recorded
+- [ ] `src/compiler/turboshaft/assembler.cc` — unread; 0/40 lines recorded
+- [ ] `src/compiler/turboshaft/assembler.h` — unread; 0/6451 lines recorded
+- [ ] `src/compiler/turboshaft/assert-types-reducer.h` — unread; 0/173 lines recorded
+- [ ] `src/compiler/turboshaft/block-instrumentation-phase.cc` — unread; 0/22 lines recorded
+- [ ] `src/compiler/turboshaft/block-instrumentation-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/block-instrumentation-reducer.cc` — unread; 0/21 lines recorded
+- [ ] `src/compiler/turboshaft/block-instrumentation-reducer.h` — unread; 0/174 lines recorded
+- [x] `src/compiler/turboshaft/branch-elimination-reducer.h` — read; 765/765 lines recorded
+- [ ] `src/compiler/turboshaft/build-graph-phase.cc` — unread; 0/33 lines recorded
+- [ ] `src/compiler/turboshaft/build-graph-phase.h` — unread; 0/30 lines recorded
+- [ ] `src/compiler/turboshaft/builtin-call-descriptors.h` — unread; 0/1976 lines recorded
+- [ ] `src/compiler/turboshaft/builtin-compiler.cc` — unread; 0/52 lines recorded
+- [ ] `src/compiler/turboshaft/builtin-compiler.h` — unread; 0/42 lines recorded
+- [ ] `src/compiler/turboshaft/call-descriptors-util.h` — unread; 0/135 lines recorded
+- [ ] `src/compiler/turboshaft/code-elimination-and-simplification-phase.cc` — unread; 0/51 lines recorded
+- [ ] `src/compiler/turboshaft/code-elimination-and-simplification-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/copying-phase.cc` — unread; 0/26 lines recorded
+- [ ] `src/compiler/turboshaft/copying-phase.h` — unread; 0/1129 lines recorded
+- [ ] `src/compiler/turboshaft/csa-branch-elimination-phase.cc` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/csa-branch-elimination-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/csa-early-machine-optimization-phase.cc` — unread; 0/22 lines recorded
+- [ ] `src/compiler/turboshaft/csa-early-machine-optimization-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/csa-effects-computation.cc` — unread; 0/131 lines recorded
+- [ ] `src/compiler/turboshaft/csa-effects-computation.h` — unread; 0/45 lines recorded
+- [ ] `src/compiler/turboshaft/csa-late-escape-analysis-phase.cc` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/csa-late-escape-analysis-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/csa-load-elimination-phase.cc` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/csa-load-elimination-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/csa-memory-optimization-phase.cc` — unread; 0/25 lines recorded
+- [ ] `src/compiler/turboshaft/csa-memory-optimization-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/dataview-lowering-reducer.h` — unread; 0/138 lines recorded
+- [x] `src/compiler/turboshaft/dead-code-elimination-reducer.h` — read; 483/483 lines recorded
+- [ ] `src/compiler/turboshaft/debug-feature-lowering-phase.cc` — unread; 0/22 lines recorded
+- [ ] `src/compiler/turboshaft/debug-feature-lowering-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/debug-feature-lowering-reducer.h` — unread; 0/108 lines recorded
+- [ ] `src/compiler/turboshaft/decompression-optimization-phase.cc` — unread; 0/16 lines recorded
+- [ ] `src/compiler/turboshaft/decompression-optimization-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/decompression-optimization.cc` — unread; 0/258 lines recorded
+- [ ] `src/compiler/turboshaft/decompression-optimization.h` — unread; 0/25 lines recorded
+- [ ] `src/compiler/turboshaft/deopt-data.h` — unread; 0/190 lines recorded
+- [ ] `src/compiler/turboshaft/duplication-optimization-reducer.h` — unread; 0/306 lines recorded
+- [ ] `src/compiler/turboshaft/explicit-truncation-reducer.h` — unread; 0/79 lines recorded
+- [ ] `src/compiler/turboshaft/fast-api-call-lowering-reducer.h` — unread; 0/501 lines recorded
+- [ ] `src/compiler/turboshaft/fast-hash.h` — unread; 0/121 lines recorded
+- [ ] `src/compiler/turboshaft/graph-builder.cc` — unread; 0/2956 lines recorded
+- [ ] `src/compiler/turboshaft/graph-builder.h` — unread; 0/25 lines recorded
+- [ ] `src/compiler/turboshaft/graph-visualizer.cc` — unread; 0/150 lines recorded
+- [ ] `src/compiler/turboshaft/graph-visualizer.h` — unread; 0/61 lines recorded
+- [ ] `src/compiler/turboshaft/graph.cc` — unread; 0/110 lines recorded
+- [ ] `src/compiler/turboshaft/graph.h` — unread; 0/1467 lines recorded
+- [ ] `src/compiler/turboshaft/growable-stacks-reducer.h` — unread; 0/90 lines recorded
+- [ ] `src/compiler/turboshaft/if-else-cascade-to-switch-reducer.h` — unread; 0/316 lines recorded
+- [ ] `src/compiler/turboshaft/index.h` — unread; 0/1074 lines recorded
+- [ ] `src/compiler/turboshaft/instruction-selection-normalization-reducer.h` — unread; 0/370 lines recorded
+- [ ] `src/compiler/turboshaft/instruction-selection-phase.cc` — unread; 0/410 lines recorded
+- [ ] `src/compiler/turboshaft/instruction-selection-phase.h` — unread; 0/139 lines recorded
+- [ ] `src/compiler/turboshaft/int64-lowering-phase.cc` — unread; 0/24 lines recorded
+- [ ] `src/compiler/turboshaft/int64-lowering-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/int64-lowering-reducer.h` — unread; 0/1002 lines recorded
+- [ ] `src/compiler/turboshaft/js-generic-lowering-reducer.h` — unread; 0/99 lines recorded
+- [x] `src/compiler/turboshaft/late-escape-analysis-reducer.cc` — read; 102/102 lines recorded
+- [x] `src/compiler/turboshaft/late-escape-analysis-reducer.h` — read; 63/63 lines recorded
+- [x] `src/compiler/turboshaft/late-load-elimination-reducer.cc` — read; 865/865 lines recorded
+- [x] `src/compiler/turboshaft/late-load-elimination-reducer.h` — read; 1111/1111 lines recorded
+- [ ] `src/compiler/turboshaft/layered-hash-map.h` — unread; 0/197 lines recorded
+- [ ] `src/compiler/turboshaft/load-elimination-phase.cc` — unread; 0/29 lines recorded
+- [ ] `src/compiler/turboshaft/load-elimination-phase.h` — unread; 0/20 lines recorded
+- [x] `src/compiler/turboshaft/load-store-simplification-reducer.h` — read; 214/214 lines recorded
+- [ ] `src/compiler/turboshaft/load-store-verification-reducer.h` — unread; 0/117 lines recorded
+- [ ] `src/compiler/turboshaft/loop-finder.cc` — unread; 0/113 lines recorded
+- [ ] `src/compiler/turboshaft/loop-finder.h` — unread; 0/126 lines recorded
+- [ ] `src/compiler/turboshaft/loop-optimization-phase.cc` — unread; 0/21 lines recorded
+- [ ] `src/compiler/turboshaft/loop-optimization-phase.h` — unread; 0/20 lines recorded
+- [x] `src/compiler/turboshaft/loop-optimization-reducer.h` — read; 47/47 lines recorded
+- [ ] `src/compiler/turboshaft/loop-peeling-phase.cc` — unread; 0/26 lines recorded
+- [ ] `src/compiler/turboshaft/loop-peeling-phase.h` — unread; 0/20 lines recorded
+- [x] `src/compiler/turboshaft/loop-peeling-reducer.h` — read; 195/195 lines recorded
+- [ ] `src/compiler/turboshaft/loop-unrolling-phase.cc` — unread; 0/34 lines recorded
+- [ ] `src/compiler/turboshaft/loop-unrolling-phase.h` — unread; 0/20 lines recorded
+- [x] `src/compiler/turboshaft/loop-unrolling-reducer.cc` — read; 613/613 lines recorded
+- [x] `src/compiler/turboshaft/loop-unrolling-reducer.h` — read; 711/711 lines recorded
+- [ ] `src/compiler/turboshaft/machine-lowering-phase.cc` — unread; 0/48 lines recorded
+- [ ] `src/compiler/turboshaft/machine-lowering-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/machine-lowering-reducer-inl.h` — unread; 0/4857 lines recorded
+- [x] `src/compiler/turboshaft/machine-optimization-reducer.h` — read; 3314/3314 lines recorded
+- [ ] `src/compiler/turboshaft/maglev-assert-types-reducer.h` — unread; 0/38 lines recorded
+- [ ] `src/compiler/turboshaft/memory-optimization-phase.cc` — unread; 0/35 lines recorded
+- [ ] `src/compiler/turboshaft/memory-optimization-phase.h` — unread; 0/20 lines recorded
+- [x] `src/compiler/turboshaft/memory-optimization-reducer.cc` — read; 187/187 lines recorded
+- [x] `src/compiler/turboshaft/memory-optimization-reducer.h` — read; 570/570 lines recorded
+- [ ] `src/compiler/turboshaft/operation-matcher.h` — unread; 0/660 lines recorded
+- [ ] `src/compiler/turboshaft/operations.cc` — unread; 0/2554 lines recorded
+- [ ] `src/compiler/turboshaft/operations.h` — unread; 0/11360 lines recorded
+- [ ] `src/compiler/turboshaft/opmasks.h` — unread; 0/399 lines recorded
+- [ ] `src/compiler/turboshaft/phase.cc` — unread; 0/134 lines recorded
+- [ ] `src/compiler/turboshaft/phase.h` — unread; 0/641 lines recorded
+- [x] `src/compiler/turboshaft/pipelines.cc` — read; 212/212 lines recorded
+- [x] `src/compiler/turboshaft/pipelines.h` — read; 600/600 lines recorded
+- [ ] `src/compiler/turboshaft/pretenuring-propagation-reducer.cc` — unread; 0/150 lines recorded
+- [ ] `src/compiler/turboshaft/pretenuring-propagation-reducer.h` — unread; 0/243 lines recorded
+- [ ] `src/compiler/turboshaft/random-rescheduling-phase.cc` — unread; 0/379 lines recorded
+- [ ] `src/compiler/turboshaft/random-rescheduling-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/reducer-traits.h` — unread; 0/115 lines recorded
+- [ ] `src/compiler/turboshaft/register-allocation-phase.h` — unread; 0/240 lines recorded
+- [ ] `src/compiler/turboshaft/representations.cc` — unread; 0/84 lines recorded
+- [ ] `src/compiler/turboshaft/representations.h` — unread; 0/998 lines recorded
+- [ ] `src/compiler/turboshaft/required-optimization-reducer.h` — unread; 0/93 lines recorded
+- [ ] `src/compiler/turboshaft/runtime-call-descriptors.h` — unread; 0/483 lines recorded
+- [ ] `src/compiler/turboshaft/select-lowering-reducer.h` — unread; 0/102 lines recorded
+- [ ] `src/compiler/turboshaft/sidetable.cc` — unread; 0/18 lines recorded
+- [ ] `src/compiler/turboshaft/sidetable.h` — unread; 0/272 lines recorded
+- [x] `src/compiler/turboshaft/simplified-optimization-reducer.h` — read; 294/294 lines recorded
+- [ ] `src/compiler/turboshaft/simplify-tf-loops.cc` — unread; 0/58 lines recorded
+- [ ] `src/compiler/turboshaft/simplify-tf-loops.h` — unread; 0/31 lines recorded
+- [ ] `src/compiler/turboshaft/snapshot-table-opindex.h` — unread; 0/79 lines recorded
+- [ ] `src/compiler/turboshaft/snapshot-table.h` — unread; 0/580 lines recorded
+- [ ] `src/compiler/turboshaft/stack-check-lowering-reducer.h` — unread; 0/187 lines recorded
+- [x] `src/compiler/turboshaft/store-store-elimination-reducer-inl.h` — read; 611/611 lines recorded
+- [x] `src/compiler/turboshaft/string-escape-analysis-reducer.cc` — read; 182/182 lines recorded
+- [x] `src/compiler/turboshaft/string-escape-analysis-reducer.h` — read; 428/428 lines recorded
+- [ ] `src/compiler/turboshaft/string-view.h` — unread; 0/102 lines recorded
+- [ ] `src/compiler/turboshaft/tracing.h` — unread; 0/50 lines recorded
+- [ ] `src/compiler/turboshaft/turbolev-early-lowering-reducer-inl.h` — unread; 0/531 lines recorded
+- [x] `src/compiler/turboshaft/turbolev-frontend-pipeline.cc` — read; 472/472 lines recorded
+- [ ] `src/compiler/turboshaft/turbolev-frontend-pipeline.h` — unread; 0/56 lines recorded
+- [ ] `src/compiler/turboshaft/turbolev-graph-builder.cc` — unread; 0/7416 lines recorded
+- [ ] `src/compiler/turboshaft/turbolev-graph-builder.h` — unread; 0/28 lines recorded
+- [ ] `src/compiler/turboshaft/type-assertions-phase.cc` — unread; 0/30 lines recorded
+- [ ] `src/compiler/turboshaft/type-assertions-phase.h` — unread; 0/20 lines recorded
+- [ ] `src/compiler/turboshaft/type-inference-analysis.h` — unread; 0/559 lines recorded
+- [ ] `src/compiler/turboshaft/type-inference-reducer.h` — unread; 0/572 lines recorded
+- [ ] `src/compiler/turboshaft/type-parser.cc` — unread; 0/35 lines recorded
+- [ ] `src/compiler/turboshaft/type-parser.h` — unread; 0/126 lines recorded
+- [ ] `src/compiler/turboshaft/typed-optimizations-phase.cc` — unread; 0/29 lines recorded
+- [ ] `src/compiler/turboshaft/typed-optimizations-phase.h` — unread; 0/20 lines recorded
+- [x] `src/compiler/turboshaft/typed-optimizations-reducer.h` — read; 135/135 lines recorded
+- [ ] `src/compiler/turboshaft/typer.cc` — unread; 0/120 lines recorded
+- [ ] `src/compiler/turboshaft/typer.h` — unread; 0/1646 lines recorded
+- [ ] `src/compiler/turboshaft/types.cc` — unread; 0/731 lines recorded
+- [ ] `src/compiler/turboshaft/types.h` — unread; 0/942 lines recorded
+- [ ] `src/compiler/turboshaft/typeswitch.h` — unread; 0/527 lines recorded
+- [ ] `src/compiler/turboshaft/uniform-reducer-adapter.h` — unread; 0/153 lines recorded
+- [ ] `src/compiler/turboshaft/use-map.cc` — unread; 0/103 lines recorded
+- [ ] `src/compiler/turboshaft/use-map.h` — unread; 0/90 lines recorded
+- [ ] `src/compiler/turboshaft/utils.cc` — unread; 0/26 lines recorded
+- [ ] `src/compiler/turboshaft/utils.h` — unread; 0/166 lines recorded
+- [x] `src/compiler/turboshaft/value-numbering-reducer.h` — read; 508/508 lines recorded
+- [ ] `src/compiler/turboshaft/variable-reducer.h` — unread; 0/370 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-assembler-helpers.h` — unread; 0/48 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-code-coverage-reducer.h` — unread; 0/37 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-dead-code-elimination-phase.cc` — unread; 0/37 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-dead-code-elimination-phase.h` — unread; 0/24 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-debug-memory-lowering-phase.cc` — unread; 0/21 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-debug-memory-lowering-phase.h` — unread; 0/30 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-gc-optimize-phase.cc` — unread; 0/22 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-gc-optimize-phase.h` — unread; 0/24 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-gc-typed-optimization-reducer.cc` — unread; 0/732 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-gc-typed-optimization-reducer.h` — unread; 0/621 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-in-js-inlining-phase.cc` — unread; 0/25 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-in-js-inlining-phase.h` — unread; 0/26 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-in-js-inlining-reducer-inl.h` — unread; 0/1212 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-js-lowering-reducer.h` — unread; 0/103 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-load-elimination-reducer.cc` — unread; 0/771 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-load-elimination-reducer.h` — unread; 0/676 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-lowering-phase.cc` — unread; 0/26 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-lowering-phase.h` — unread; 0/24 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-lowering-reducer.h` — unread; 0/1304 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-optimize-phase.cc` — unread; 0/31 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-optimize-phase.h` — unread; 0/24 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-revec-phase.cc` — unread; 0/33 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-revec-phase.h` — unread; 0/37 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-revec-reducer.cc` — unread; 0/1790 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-revec-reducer.h` — unread; 0/1506 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-shuffle-reducer.cc` — unread; 0/1087 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-shuffle-reducer.h` — unread; 0/862 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-simd-phase.cc` — unread; 0/23 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-simd-phase.h` — unread; 0/24 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-turboshaft-compiler.cc` — unread; 0/28 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-turboshaft-compiler.h` — unread; 0/49 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-wrappers-inl.h` — unread; 0/975 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-wrappers.cc` — unread; 0/69 lines recorded
+- [ ] `src/compiler/turboshaft/wasm-wrappers.h` — unread; 0/1105 lines recorded
+- [ ] `src/compiler/turboshaft/zone-with-name.h` — unread; 0/125 lines recorded
+
+### src/compiler
+
+- [ ] `src/compiler/type-cache.cc` — unread; 0/17 lines recorded
+- [ ] `src/compiler/type-cache.h` — unread; 0/233 lines recorded
+- [ ] `src/compiler/type-narrowing-reducer.cc` — unread; 0/86 lines recorded
+- [ ] `src/compiler/type-narrowing-reducer.h` — unread; 0/44 lines recorded
+- [x] `src/compiler/typed-optimization.cc` — read; 1007/1007 lines recorded
+- [ ] `src/compiler/typed-optimization.h` — unread; 0/104 lines recorded
+- [ ] `src/compiler/use-info.h` — unread; 0/428 lines recorded
+- [ ] `src/compiler/value-numbering-reducer.cc` — unread; 0/182 lines recorded
+- [ ] `src/compiler/value-numbering-reducer.h` — unread; 0/45 lines recorded
+- [ ] `src/compiler/verifier.cc` — unread; 0/2484 lines recorded
+- [ ] `src/compiler/verifier.h` — unread; 0/69 lines recorded
+- [ ] `src/compiler/wasm-call-descriptors.cc` — unread; 0/45 lines recorded
+- [ ] `src/compiler/wasm-call-descriptors.h` — unread; 0/60 lines recorded
+- [ ] `src/compiler/wasm-compiler-definitions.cc` — unread; 0/204 lines recorded
+- [ ] `src/compiler/wasm-compiler-definitions.h` — unread; 0/153 lines recorded
+- [ ] `src/compiler/wasm-compiler.cc` — unread; 0/651 lines recorded
+- [ ] `src/compiler/wasm-compiler.h` — unread; 0/119 lines recorded
+- [x] `src/compiler/wasm-escape-analysis.cc` — read; 82/82 lines recorded
+- [x] `src/compiler/wasm-escape-analysis.h` — read; 40/40 lines recorded
+- [ ] `src/compiler/wasm-gc-lowering.cc` — unread; 0/1059 lines recorded
+- [ ] `src/compiler/wasm-gc-lowering.h` — unread; 0/71 lines recorded
+- [ ] `src/compiler/wasm-gc-operator-reducer.cc` — unread; 0/628 lines recorded
+- [ ] `src/compiler/wasm-gc-operator-reducer.h` — unread; 0/100 lines recorded
+- [ ] `src/compiler/wasm-graph-assembler.cc` — unread; 0/655 lines recorded
+- [ ] `src/compiler/wasm-graph-assembler.h` — unread; 0/352 lines recorded
+- [ ] `src/compiler/wasm-inlining-into-js.cc` — unread; 0/396 lines recorded
+- [ ] `src/compiler/wasm-inlining-into-js.h` — unread; 0/42 lines recorded
+- [ ] `src/compiler/wasm-load-elimination.cc` — unread; 0/603 lines recorded
+- [ ] `src/compiler/wasm-load-elimination.h` — unread; 0/166 lines recorded
+- [ ] `src/compiler/wasm-typer.cc` — unread; 0/234 lines recorded
+- [ ] `src/compiler/wasm-typer.h` — unread; 0/43 lines recorded
+- [ ] `src/compiler/write-barrier-kind.h` — unread; 0/60 lines recorded
+- [ ] `src/compiler/zone-stats.cc` — unread; 0/113 lines recorded
+- [ ] `src/compiler/zone-stats.h` — unread; 0/117 lines recorded
+
+### src/execution
+
+- [x] `src/execution/tiering-manager.cc` — read; 690/690 lines recorded
+- [x] `src/execution/tiering-manager.h` — read; 73/73 lines recorded
+
+### src/maglev
+
+- [ ] `src/maglev/arm/maglev-assembler-arm-inl.h` — unread; 0/1522 lines recorded
+- [ ] `src/maglev/arm/maglev-assembler-arm.cc` — unread; 0/613 lines recorded
+- [ ] `src/maglev/arm/maglev-ir-arm.cc` — unread; 0/1169 lines recorded
+- [ ] `src/maglev/arm64/maglev-assembler-arm64-inl.h` — unread; 0/1755 lines recorded
+- [ ] `src/maglev/arm64/maglev-assembler-arm64.cc` — unread; 0/704 lines recorded
+- [ ] `src/maglev/arm64/maglev-ir-arm64.cc` — unread; 0/1240 lines recorded
+- [ ] `src/maglev/hamt.h` — unread; 0/525 lines recorded
+- [ ] `src/maglev/loong64/maglev-assembler-loong64-inl.h` — unread; 0/1965 lines recorded
+- [ ] `src/maglev/loong64/maglev-assembler-loong64.cc` — unread; 0/720 lines recorded
+- [ ] `src/maglev/loong64/maglev-ir-loong64.cc` — unread; 0/1319 lines recorded
+- [ ] `src/maglev/maglev-assembler-inl.h` — unread; 0/1255 lines recorded
+- [ ] `src/maglev/maglev-assembler.cc` — unread; 0/897 lines recorded
+- [ ] `src/maglev/maglev-assembler.h` — unread; 0/1278 lines recorded
+- [ ] `src/maglev/maglev-basic-block.cc` — unread; 0/48 lines recorded
+- [ ] `src/maglev/maglev-basic-block.h` — unread; 0/439 lines recorded
+- [ ] `src/maglev/maglev-code-gen-state-inl.h` — unread; 0/26 lines recorded
+- [ ] `src/maglev/maglev-code-gen-state.h` — unread; 0/215 lines recorded
+- [ ] `src/maglev/maglev-code-generator.cc` — unread; 0/2226 lines recorded
+- [ ] `src/maglev/maglev-code-generator.h` — unread; 0/92 lines recorded
+- [ ] `src/maglev/maglev-compilation-info.cc` — unread; 0/210 lines recorded
+- [ ] `src/maglev/maglev-compilation-info.h` — unread; 0/309 lines recorded
+- [ ] `src/maglev/maglev-compilation-unit.cc` — unread; 0/255 lines recorded
+- [ ] `src/maglev/maglev-compilation-unit.h` — unread; 0/211 lines recorded
+- [ ] `src/maglev/maglev-compiler.cc` — unread; 0/389 lines recorded
+- [ ] `src/maglev/maglev-compiler.h` — unread; 0/40 lines recorded
+- [ ] `src/maglev/maglev-concurrent-dispatcher.cc` — unread; 0/449 lines recorded
+- [ ] `src/maglev/maglev-concurrent-dispatcher.h` — unread; 0/114 lines recorded
+- [ ] `src/maglev/maglev-cse.h` — unread; 0/127 lines recorded
+- [ ] `src/maglev/maglev-deopt-frame-visitor.h` — unread; 0/141 lines recorded
+- [ ] `src/maglev/maglev-graph-builder.cc` — unread; 0/17901 lines recorded
+- [ ] `src/maglev/maglev-graph-builder.h` — unread; 0/2086 lines recorded
+- [ ] `src/maglev/maglev-graph-labeller.cc` — unread; 0/30 lines recorded
+- [ ] `src/maglev/maglev-graph-labeller.h` — unread; 0/203 lines recorded
+- [x] `src/maglev/maglev-graph-optimizer.cc` — read; 4050/4050 lines recorded
+- [x] `src/maglev/maglev-graph-optimizer.h` — read; 263/263 lines recorded
+- [ ] `src/maglev/maglev-graph-printer.cc` — unread; 0/1193 lines recorded
+- [ ] `src/maglev/maglev-graph-printer.h` — unread; 0/136 lines recorded
+- [ ] `src/maglev/maglev-graph-processor.h` — unread; 0/751 lines recorded
+- [ ] `src/maglev/maglev-graph-serializer.cc` — unread; 0/891 lines recorded
+- [ ] `src/maglev/maglev-graph-serializer.h` — unread; 0/59 lines recorded
+- [ ] `src/maglev/maglev-graph-verifier.h` — unread; 0/277 lines recorded
+- [ ] `src/maglev/maglev-graph.cc` — unread; 0/185 lines recorded
+- [ ] `src/maglev/maglev-graph.h` — unread; 0/466 lines recorded
+- [ ] `src/maglev/maglev-inlining.cc` — unread; 0/484 lines recorded
+- [ ] `src/maglev/maglev-inlining.h` — unread; 0/104 lines recorded
+- [ ] `src/maglev/maglev-interpreter-frame-state.cc` — unread; 0/1181 lines recorded
+- [ ] `src/maglev/maglev-interpreter-frame-state.h` — unread; 0/773 lines recorded
+- [ ] `src/maglev/maglev-ir-inl.h` — unread; 0/204 lines recorded
+- [ ] `src/maglev/maglev-ir.cc` — unread; 0/9654 lines recorded
+- [ ] `src/maglev/maglev-ir.h` — unread; 0/12205 lines recorded
+- [ ] `src/maglev/maglev-kna-processor.cc` — unread; 0/150 lines recorded
+- [ ] `src/maglev/maglev-kna-processor.h` — unread; 0/578 lines recorded
+- [x] `src/maglev/maglev-known-node-aspects.cc` — read; 1159/1159 lines recorded
+- [x] `src/maglev/maglev-known-node-aspects.h` — read; 1176/1176 lines recorded
+- [ ] `src/maglev/maglev-loop-peeler.cc` — unread; 0/1417 lines recorded
+- [ ] `src/maglev/maglev-loop-peeler.h` — unread; 0/120 lines recorded
+- [ ] `src/maglev/maglev-map-inference.h` — unread; 0/121 lines recorded
+- [ ] `src/maglev/maglev-node-type.cc` — unread; 0/162 lines recorded
+- [ ] `src/maglev/maglev-node-type.h` — unread; 0/197 lines recorded
+- [ ] `src/maglev/maglev-phase.h` — unread; 0/78 lines recorded
+- [ ] `src/maglev/maglev-phi-representation-selector.cc` — unread; 0/1880 lines recorded
+- [ ] `src/maglev/maglev-phi-representation-selector.h` — unread; 0/358 lines recorded
+- [ ] `src/maglev/maglev-pipeline-statistics.cc` — unread; 0/58 lines recorded
+- [ ] `src/maglev/maglev-pipeline-statistics.h` — unread; 0/45 lines recorded
+- [ ] `src/maglev/maglev-post-hoc-optimizations-processors.h` — unread; 0/999 lines recorded
+- [ ] `src/maglev/maglev-pre-regalloc-codegen-processors.h` — unread; 0/422 lines recorded
+- [ ] `src/maglev/maglev-range-analysis.h` — unread; 0/618 lines recorded
+- [ ] `src/maglev/maglev-range-verification.cc` — unread; 0/66 lines recorded
+- [ ] `src/maglev/maglev-range-verification.h` — unread; 0/38 lines recorded
+- [ ] `src/maglev/maglev-range.h` — unread; 0/473 lines recorded
+- [ ] `src/maglev/maglev-reducer-inl.h` — unread; 0/7191 lines recorded
+- [ ] `src/maglev/maglev-reducer.h` — unread; 0/2023 lines recorded
+- [ ] `src/maglev/maglev-regalloc-data.h` — unread; 0/99 lines recorded
+- [ ] `src/maglev/maglev-regalloc-node-info.h` — unread; 0/387 lines recorded
+- [ ] `src/maglev/maglev-regalloc.cc` — unread; 0/2511 lines recorded
+- [ ] `src/maglev/maglev-regalloc.h` — unread; 0/340 lines recorded
+- [ ] `src/maglev/maglev-register-frame-array.h` — unread; 0/115 lines recorded
+- [ ] `src/maglev/maglev-tracer.h` — unread; 0/223 lines recorded
+- [ ] `src/maglev/maglev-truncation.cc` — unread; 0/181 lines recorded
+- [ ] `src/maglev/maglev-truncation.h` — unread; 0/640 lines recorded
+- [ ] `src/maglev/maglev.cc` — unread; 0/33 lines recorded
+- [ ] `src/maglev/maglev.h` — unread; 0/32 lines recorded
+- [ ] `src/maglev/ppc/maglev-assembler-ppc-inl.h` — unread; 0/1652 lines recorded
+- [ ] `src/maglev/ppc/maglev-assembler-ppc.cc` — unread; 0/614 lines recorded
+- [ ] `src/maglev/ppc/maglev-ir-ppc.cc` — unread; 0/1125 lines recorded
+- [ ] `src/maglev/riscv/maglev-assembler-riscv-inl.h` — unread; 0/2244 lines recorded
+- [ ] `src/maglev/riscv/maglev-assembler-riscv.cc` — unread; 0/691 lines recorded
+- [ ] `src/maglev/riscv/maglev-ir-riscv.cc` — unread; 0/1205 lines recorded
+- [ ] `src/maglev/s390/maglev-assembler-s390-inl.h` — unread; 0/1624 lines recorded
+- [ ] `src/maglev/s390/maglev-assembler-s390.cc` — unread; 0/606 lines recorded
+- [ ] `src/maglev/s390/maglev-ir-s390.cc` — unread; 0/1091 lines recorded
+- [ ] `src/maglev/turbolev-escape-analysis.cc` — unread; 0/2077 lines recorded
+- [ ] `src/maglev/turbolev-escape-analysis.h` — unread; 0/289 lines recorded
+- [ ] `src/maglev/x64/maglev-assembler-x64-inl.h` — unread; 0/1615 lines recorded
+- [ ] `src/maglev/x64/maglev-assembler-x64.cc` — unread; 0/635 lines recorded
+- [ ] `src/maglev/x64/maglev-ir-x64.cc` — unread; 0/1276 lines recorded
+
+### src/objects
+
+- [ ] `src/objects/feedback-vector-inl.h` — unread; 0/707 lines recorded
+- [ ] `src/objects/feedback-vector.cc` — unread; 0/1584 lines recorded
+- [ ] `src/objects/feedback-vector.h` — unread; 0/1223 lines recorded

@@ -8,7 +8,10 @@ premises. Correctness, source applicability and profitability remain separate.
 The upstream source revision is `c4e049d3cbda775e2c3af9410f6e18b18388d68b`.
 `bench/v8-learning/upstream-inventory.json` records 607 compiler, Maglev and
 supporting source files (18,254,266 bytes). Inventory and search results are not
-completed review. The audit ledger records partial reads and outstanding families;
+completed review. The [complete source checklist](../bench/v8-learning/coverage.md)
+shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_status.py
+--output bench/v8-learning/coverage.md`; this verifies every cached source hash and
+recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
 
 Reproduce the source inputs without a complete V8 checkout:
