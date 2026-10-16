@@ -86,6 +86,29 @@ state using authored structure features and an authored scalar target. Its
 return an error and preserve the exact checkpoint. The optimizer state can be
 saved and restored using ordinary Ink state APIs.
 
+Training candidates can be prepared from `check-plan`'s checked `state` using
+`ink_planner.search_goal.document(state)`. Supply the state/source identity,
+target, the desired default-priority signal and frequencies in the ordinary
+candidate record. This data conversion supplies no proof or performance evidence.
+The compiled model's state API applies explicit observations and publishes context:
+
+```js
+const learner = policy.createState(); // policy is the compiled source module
+for (const observation of observations) {
+  const reply = learner.bind('feedback')(
+    observation.candidate, observation.target, optimizerConfig);
+  if (reply.result.Err !== undefined) throw Error(reply.result.Err);
+}
+const context = learner.bind('context')().result.Ok;
+// Persist context for the next compiler invocation. Also checkpoint the learner
+// when training will resume, preserving Adam moments and its step counter.
+```
+
+Observations, labels and `optimizerConfig` are application inputs. Use typed
+ingress for exact large integers; do not round JSON numbers through JavaScript
+Number. The retained integration fixture executes this workflow and checks
+failed-update rollback and restoration.
+
 Training can happen before compilation, or an application's continuing training
 controller can publish the next context/revision and trigger another compilation.
 The active compilation keeps its captured model. There is no automatic fitting

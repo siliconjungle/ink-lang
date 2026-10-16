@@ -39,10 +39,26 @@ snapshot checks. The two `*-parity-*` groups retain complete inputs, independent
 expected outcomes/snapshots and actual GPU-host receipts. Goal execution and
 binary64 values on GPU hosts use CPU fallback; the F32 controls actually dispatch.
 
-The full frozen default corpus is being evaluated separately with advice disabled.
-Its final regression/funnel report will be retained after completion. It does not
-establish learned-policy quality. Initial cases overlapped the broader hardening
-run; no comparative performance claim will be made from these timings.
+The full frozen ten-program default corpus completed with advice disabled:
+ten compiled, nine had admitted rewrite alternatives, and none selected an
+alternative without comparable lifecycle evidence. Twenty-three distinct laws
+were admitted; five were reused across multiple programs. All searches reached
+their time budget; compact-set had no admitted alternative in that budget. The
+median observed planning time was 45.8285 seconds, including setup. These are
+default regression and search-funnel observations, not learned-policy quality or
+comparative speed evidence. Initial cases overlapped the broader hardening run.
+An interrupted run retained nine completed records; resume validated the exact
+captured context and ran only the final program. `corpus/` retains the final
+report, context, records, captured source inputs, plans and complete receipts.
+
+Both distribution tests passed, including relocation and independent offline
+replay with the committed learned-search packages. `install-tests.log` retains
+the result. A remote CI run exposed an older work-model CLI mock's implicit
+`search_goal` attribute; its fixture now explicitly sets `search_goal=None`.
+The focused CLI test passes in `work-model-cli-tests.log`. This fixture-only
+planner follow-up is 6b477e3fc3387177b7e469db10019e7eb54ddb7a; the functional
+code and corpus remain those of the original planner pin in `packages.json`.
+These local checks do not claim that every remote CI job has finished green.
 
 ## Scope and trust
 
