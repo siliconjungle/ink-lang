@@ -14,7 +14,7 @@ shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_st
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
-Current receipts cover 105 full files and three partial files, with 501 unread;
+Current receipts cover 126 full files and three partial files, with 480 unread;
 all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
@@ -488,3 +488,27 @@ compiler or runtime speedup follows. Ten frozen programs compile and admit
 alternatives; 24 laws are observed, six reused, and every final selection gate
 retains the baseline pending measurement evidence. See
 [controls and validation](../bench/v8-learning/head-discovery/README.md).
+
+## Ordinary proof graph compaction
+
+The optional untrusted author now factors reusable root units, inlines sole-use
+unit lemmas only after strict hint propagation, and trims the dependency graph.
+All 98 existing word/F32 laws replay. Forty-three word certificates shrink while
+their statements and meanings stay identical: total raw law bytes fall from
+34,374,885 to 30,066,164, and gzip proof bytes from 7,705,664 to 7,454,657.
+Each replacement also reduces the independent replay-work estimate. The kernel
+still reconstructs and replays the ordinary certificate under unchanged limits.
+
+Three fresh-process paired controls over the same 43 statements give 9.3403 to
+7.7330 seconds for the median of process median complete checker-call sums.
+They include process/read/hash/admission/replay and share the host with the corpus;
+this is a checker-batch improvement, not a compiler or compiled-program speedup.
+The selected conditional U64 pilot also shrinks from 3,193,378 to 113,209 bytes,
+but all three outstanding unconditional U64 laws remain excluded. See
+[inputs, controls and exact scope](../bench/v8-learning/rup-compaction/README.md).
+
+The required post-compaction frozen corpus passes all ten programs and admits
+alternatives for each: 24 laws observed, six reused, zero alternatives selected.
+Every final gate requires measurement evidence; all quick budgets expire.
+Its 51.422-second median is unpaired shared-host diagnostic data, not a causal
+compiler/runtime comparison. The terminal source-context check passes.
