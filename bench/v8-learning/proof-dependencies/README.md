@@ -136,3 +136,12 @@ reason or new remainder-law attribution occurs. Its 53.851-second median exclude
 private preparation; it is an unpaired shared-host observation. Exact inputs,
 plans and receipts are in `../corpus-proof-dependencies-merged`.
 `audit_merged.py` checks this distinct cohort and the deduplicated device inputs.
+
+Upstream subsequently changed only the CLI's action-model JSON serialization to
+canonical output. The final CLI image is
+`ed3f7238bcaea7dbdfba59418c9b2622330fbf964d6ceecdb0943c17c6246baf`;
+core and backend implementations remain identical to the completed merged
+cohort. Eight focused tests and the exact composed plan pass on this image.
+Its complete 5,073,076-byte neural model and 16,254-byte sorted-table export
+match upstream's retained canonical bytes. This final smoke is recorded
+separately in `final-cli.json`; no extra full-suite or timing replay is claimed.

@@ -30,4 +30,13 @@ corpus=here.parent/'corpus-proof-dependencies-merged';r=json.loads((corpus/'repo
 assert t['exit_status']==0 and t['final_source_context_check_passed'] and t['report_sha256']==sha((corpus/'report.json').read_bytes())
 assert r['context']['compiler_sha256']==pins['compiler_sha256'] and r['headline']['compiled']==r['headline']['programs']==10
 for name,digest in json.loads((corpus/'sha256-index.json').read_bytes())['files'].items():assert sha((corpus/name).read_bytes())==digest,name
+final=json.loads((here/'final-cli.json').read_bytes());raw=gzip.decompress((here/'final-cli-tests.log.gz').read_bytes())
+assert final['exit_status']==0 and final['tests']==8 and final['tests_log_sha256']==sha(raw) and b'\nOK\n'in raw
+assert final['source']['core_tree']==pins['core_tree'] and final['core_unchanged_from_merged_cohort']
+with tarfile.open(here/'selected-inputs.tar.gz')as archive:
+    measured=json.load(archive.extractfile('runtime-gpu/receipt.json'))
+assert final['input_core']==measured['input_core_sha256'] and final['plan_sha256']==measured['artifacts'][1]['measurement'] and final['selected_core']==measured['artifacts'][1]['selected_core_sha256']
+upstream=root/'reports/modular-action-projection-2026-10-17'
+assert final['canonical_model_sha256']==sha(gzip.decompress((upstream/'neural-model.json.gz').read_bytes())) and final['canonical_model_bytes']==5073076
+assert final['sorted_tables_sha256']==sha((upstream/'sorted-tables.json').read_bytes()) and final['sorted_tables_bytes']==16254
 print('PASS distinct merged compiler: all28 knowledge tests, eight actual GPU calls, exact deduplicated inputs and stable ten-program corpus; no timing transfer')
