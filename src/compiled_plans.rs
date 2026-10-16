@@ -112,10 +112,11 @@ pub fn build_initialized(
         !matches!(
             step,
             ink_core::planning::Step::Extension(_) | ink_core::planning::Step::Rewrite(_)
+                | ink_core::planning::Step::Functions(_)
         )
     }) {
         return Err(
-            "initialized composed artifacts currently require extension/rewrite plans".into(),
+            "initialized composed artifacts currently require extension/rewrite/functions plans".into(),
         );
     }
     crate::stateful::Runtime::restore_portable_checked(plan.original(), seed)?;

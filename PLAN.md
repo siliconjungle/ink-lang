@@ -446,3 +446,18 @@ replacement/read-pager follow-up passes all 23 corpus/cache tests. See the
 Profitable code generation for the unrolled choice, mutable graph staging,
 general learned representation selection, device training and upstream parity
 remain required.
+
+Pure function correspondence now admits source-bound universal equalities through
+an ordinary `functions` plan step. The knowledge producer specializes closed call
+arguments inside authored pure boundaries while weights stay live. A mutable
+32-node owned graph, with an authored structural guard and generic fallback,
+matches 335 reference/native/JavaScript/Wasm outcomes and six restores; initialized
+JavaScript startup also matches. The combined standalone core preserves concurrent
+word-count proof support and passes 501 tests across 83 integration targets. Exact
+final package sources and 271 knowledge source files, including embedded
+libraries, are checked against Git, and the publication compiler reproduces the JS/Rust images and complete
+loss/update/frame projections. See the
+[retained evidence](reports/mutable-function-specialization-2026-10-17/summary.json).
+Automatic guard insertion, profitable learned representation selection, device
+training and the complete Handwired/Pretext/Freerange performance programme remain
+required; this milestone makes no new performance claim.
