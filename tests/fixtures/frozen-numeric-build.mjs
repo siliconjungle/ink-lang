@@ -16,7 +16,7 @@ for(const step of steps){
  assert.deepEqual([...await state.checkpoint()],expected[index].snapshot);index++;
 }
 const snapshot=await state.checkpoint();
-assert.throws(()=>state.invoke('configure',[0,'Kind.Affine',0.5,0]),/unknown action configure/);
+assert.throws(()=>state.invoke('configure',[]),/unknown action configure/);
 assert.deepEqual(await state.checkpoint(),snapshot);
 await assert.rejects(program.restoreState(await readFile(join(root,'model.snapshot'))));
 const restored=await program.restoreState(snapshot);assert.deepEqual(await restored.checkpoint(),snapshot);

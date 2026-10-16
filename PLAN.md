@@ -293,3 +293,13 @@ unsupported projection domains still rejecting. Independent core tests and a
 configured/frozen example cover bit payloads, live numeric updates, rollback and
 compiled checkpoints. This supplies a building block for model specialization;
 general graph unrolling, learned physical choices and matched speed remain open.
+
+Closed-list traversal proposals now bind every intermediate once and can compile
+a frozen operation sequence while coefficients remain trainable. The eight-op
+program retains learning actions, dynamic ReLU decisions and live data, with
+complete proof replay and cross-target state histories. A bounded structural
+conversion strategy compares common structure and removes known control before
+substitution duplicates a primal. This introduces no source-specific equality
+rule. Larger frozen values and long action continuations still require scalable
+sharing/factored proofs; full neural graph/tape specialization and the broader
+Handwired/Freerange/Pretext acceptance programme remain open.

@@ -387,3 +387,14 @@ compiled histories cover raw bits, live updates, rollback and typed deployment.
 This advances structural compilation; general graph/tape unrolling, learned
 physical choices, device training and the complete three-project programme remain
 open. See [the retained checks and broader audit limitation](../reports/frozen-numeric-structure-2026-10-16/README.md).
+
+Closed traversal specialization now also compiles a frozen operation sequence
+while keeping numeric weights trainable. Fresh accumulator bindings preserve
+left/right traversal order and complete action proofs cover live updates, failed
+learning actions, events and exact checkpoints. A bounded structural conversion
+strategy avoids expanding discarded control before it can duplicate a symbolic
+primal. It uses only existing checked definitions and congruence; no algorithm
+matcher or learned score grants equality. See [the runnable program and remaining
+large-graph limits](frozen-structural-specialization.md#compile-a-frozen-program-while-weights-remain-trainable).
+This remains a bounded static-program step, not full graph/tape compilation,
+physical migration, device training or broad upstream performance parity.
