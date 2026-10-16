@@ -424,6 +424,8 @@ mod tests {
         assert!(check(&c, &params, &original,
             &call("wrapper", vec![v("xs"), v("y")])).is_err());
         let mut exhausted = Budget::new(); exhausted.remaining = 1;
+        assert!(!same(&original, &wrapper, &c, &mut exhausted).unwrap());
+        exhausted.remaining = 0;
         assert!(same(&original, &wrapper, &c, &mut exhausted).is_err());
         let unknown = Term::If { condition: Box::new(v("gate")),
             on_true: Box::new(original.clone()), on_false: Box::new(Term::U64(99)) };
