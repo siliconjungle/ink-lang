@@ -14,7 +14,7 @@ shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_st
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
-Current receipts cover 147 full files and three partial files, with 459 unread;
+Current receipts cover 177 full files and four partial files, with 428 unread;
 all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
@@ -603,3 +603,27 @@ Both complete generated GPU artifact trees match the measured cohort byte for
 byte; no timing context or automatic selection authority is transferred.
 Current-core CI receipt checks now remain separate from historical package/test
 records, which keep their original source identities.
+
+
+## Established equalities and remaining U64 remainders
+
+Generic database authoring now discharges explicit scalar equality facts through
+existing Congruence/AssertEquality rules. Reusing already checked quotient
+witnesses admits both previously missing U64 remainder proposals as self-contained
+ordinary proofs. All 340 integer proposals now admit; the prior 338 proof
+identities stay unchanged. No core, circuit, source meaning, budget or selection
+policy changes. See `bench/v8-learning/remainder-facts` for exact reproduction.
+
+Complete-call CPU controls retain the baseline under the existing uncertainty
+guard. Explicit GPU holdout medians are 4.693 to 0.602 ms, paired median ratio
+7.479 over three fresh processes, with actual dispatch/readback and exact source
+oracles. This narrow two-law fold result does not establish automatic placement,
+cold latency or a broad application speedup.
+
+Fourteen knowledge regressions pass, including all340 integer laws and new
+strictness/laziness/full-width/false-premise controls. Fresh authoring reproduces
+both proof identities. The final stable frozen corpus compiles all ten programs,
+observes24 old laws/six reused and selects none; all measurement gates/budgets
+remain conservative. No new remainder-law attribution occurs. The52.6435s median
+is an unpaired shared-host observation, not a causal speedup.36 exact timing
+rows publish without changing the proof snapshot or policy.
