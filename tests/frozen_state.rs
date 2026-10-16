@@ -655,7 +655,7 @@ fn frozen_program_keeps_weights_trainable_and_compiles_ordered_operations_on_all
 #[test]
 fn frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_on_all_targets() {
     let _guard = COMPILED.lock().unwrap_or_else(|e| e.into_inner());
-    for repeat in [4, 16] {
+    for repeat in [4usize, 16] {
         let source = include_str!("../examples/frozen-program.ink");
         let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
         let mut trace: serde_json::Value = serde_json::from_str(include_str!("../examples/frozen-program-training.json")).unwrap();
@@ -675,7 +675,7 @@ fn frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_o
         let package: verified_language::planning::Package = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
         let plan = verified_language::planning::check(&frozen.module, &package).unwrap();
         assert_eq!(package.steps.len(), 2);
-        assert_eq!(plan.module().program().functions.len(), frozen.module.program().functions.len()+2*repeat-1);
+        assert_eq!(plan.module().program().functions.len(), frozen.module.program().functions.len()+repeat.ilog2() as usize+1);
         assert_eq!(plan.module().program().contracts.learning.trainable, vec!["Weights".to_string()]);
         fs::write(root.join("selected.core.json"), plan.module().bytes().unwrap()).unwrap();
         let serve = plan.module().program().actions.iter().find(|a|a.name=="serve").unwrap();
