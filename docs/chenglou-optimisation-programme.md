@@ -445,8 +445,9 @@ rollback and checkpoints. Expanded code remains an explicit proposal alternative
 Paired JavaScript measurements compare both against the unspecialized baseline
 and against the previous expanded implementation. A 64-operation pure prefix
 also passes actual GPU execution for eleven raw F32 input/weight classes; full
-128-operation device compilation still needs graph-stage fusion or other admitted
-structure, and stateful training remains CPU work. See
+128-operation device compilation still needed further staging work at that
+milestone. Scalar grouping below removes that limit; stateful training remains
+CPU work. See
 [frozen helper layouts](frozen-composition.md#shared-and-expanded-code-layouts).
 
 
@@ -462,7 +463,7 @@ required. See [the universal prefix equations](frozen-composition.md#suffix-para
 Literal scalar stage grouping now takes complete 32/128/512-operation pure model
 roots onto the actual GPU without changing arithmetic or raising bounds. The
 64-operation helper uses one stage instead of 64; paired GPU-call measurements
-improve about 1.81×. A single scalar request remains far faster on CPU/JavaScript,
+improve about 1.84×. A single scalar request remains far faster on CPU/JavaScript,
 so eligibility does not establish profitable GPU placement. Whole-query/stateful
 fusion, batched/resident acceptance, learned representation choices, device
 training and matched upstream workloads remain required work. See
