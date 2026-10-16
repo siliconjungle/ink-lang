@@ -51,6 +51,14 @@ baseline remain explicit application choices. For an initial-state discounted
 objective, apply the objective's chosen time weighting as well; a discounted
 return alone does not define every weighting convention.
 
+`total_gradient` exposes the ordered sum without division. For one return on an
+entire sampled computation, `joint_gradient(decisions,return_value,baseline)`
+weights that sum, preserving the joint log-probability estimator's scale.
+`score_action` evaluates a specified allowed choice at the current policy for
+explicit likelihood/elite fitting; it does not authorize off-policy reward reuse.
+The [learned-program example](learned-programs.md) combines these operations with
+instruction choices, runtime goal changes and checked frozen compilation.
+
 This is an on-policy score-function estimator, following the
 [policy-gradient formulation](https://proceedings.neurips.cc/paper/1999/file/464d828b85b0bed98e80ade0a5c43b0f-Paper.pdf)
 and [reward-to-go/baseline construction](https://spinningup.openai.com/en/latest/spinningup/rl_intro3.html).
@@ -105,7 +113,7 @@ The mandatory `policy_learning` suite checks score vectors against independent
 binary64 finite differences, masked/boundary choices, large masses, nonfinite and
 subnormal failures, reward-to-go and complete trajectory reduction. The contextual
 application learns both opposite preferences above 0.9 and exactly resumes its
-whole Adam state. Cross-target execution compares 22 values/outcomes and complete
+whole Adam state. Cross-target execution compares 26 values/outcomes and complete
 snapshots across reference, Rust, JavaScript, Wasm and the GPU host, including
 delayed feedback, stale versions, candidate-bound rejection and rollback. A separate pure numeric kernel
 requires one actual GPU dispatch. Policy training itself executes on CPU hosts.
