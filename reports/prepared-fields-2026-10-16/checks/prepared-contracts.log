@@ -1,0 +1,39 @@
+   Compiling ink-lowering-js v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/lowerings/js)
+    Finished `test` profile [unoptimized] target(s) in 2.72s
+     Running tests/prepared_calls.rs (lowerings/js/target/debug/deps/prepared_calls-62a158809a355f25)
+
+running 1 test
+test prepared_calls_keep_inputs_owned_and_replies_detached_across_reuse ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/prepared_fields.rs (lowerings/js/target/debug/deps/prepared_fields-3bab00d597569b71)
+
+running 1 test
+{"referenceCases":50,"calls":750,"mixedFieldIndexBuilds":1,"discardedDynamicWorkPreserved":true,"rawDoubleBits":true}
+
+test mixed_record_preparation_keeps_changing_fields_guards_and_primals_live ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/prepared_loops.rs (lowerings/js/target/debug/deps/prepared_loops-f4e09b843d1f570d)
+
+running 1 test
+native: {"referenceCases":147,"calls":1510,"loopHelperBuilds":1,"dynamicIterationAndShadowing":true,"failedWorkRetried":true}
+
+bits: {"referenceCases":147,"calls":1510,"loopHelperBuilds":1,"dynamicIterationAndShadowing":true,"failedWorkRetried":true}
+
+test prepared_callbacks_preserve_dynamic_iterations_shadowing_laziness_and_stop_order ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/prepared_residual.rs (lowerings/js/target/debug/deps/prepared_residual-f22053266b8ed7e8)
+
+running 2 tests
+test bounded_helper_preparation_falls_back_without_changing_ordinary_calls ... ok
+{"calls":276,"referenceCases":23,"readonlyIndexBuilds":1,"guardedBuilds":1,"consumedOwnersRebuilt":true,"failedConstructionRetried":true}
+
+test sealed_partial_calls_retain_only_stable_readonly_values_in_source_order ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+

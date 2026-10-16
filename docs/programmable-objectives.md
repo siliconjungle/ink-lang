@@ -118,6 +118,24 @@ own contracts.
 
 ## Learning goals and permitted behavior
 
+The goal can itself be a controlled degree of freedom. An authored controller
+can observe application state, train a preference model and publish a new goal
+context/revision. For example, a renderer can increase a memory penalty as a
+scene grows, then change its latency/energy tradeoff when its operating context
+changes. These are application policies, not built-in planner priorities. A goal
+can inspect the complete eligible portfolio and explicit state; it need not be
+one scalar field or a fixed weighted sum.
+
+Keep three decisions explicit: the outer purpose and permitted goal updates,
+the current ranking function/context, and the admitted implementation choices.
+Training can improve a strategy under a fixed purpose, or an authorized controller
+can change that purpose's current tradeoffs. A learner minimizing its own score
+by changing the scoring rule is not evidence that the application improved.
+Use objective identities when attaching feedback and comparing outcomes; the
+runtime retarget operation resets incomplete decision evidence rather than
+combining observations scored under different goals. Compiler search currently
+captures a goal for one compilation; runtime portfolio retargeting is explicit.
+
 The application may use its existing `learn` actions, training controllers or an
 external trainer to change model state and publish a new objective. A higher-level
 controller needs an authored outer goal and limits on permissible updates. Changing

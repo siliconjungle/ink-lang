@@ -5,6 +5,8 @@ import {pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 import os from 'node:os';
 const [beforePath,currentPath,out,seedText]=process.argv.slice(2);
+const warmupRounds=Number(process.env.INK_LOOP_WARMUP_ROUNDS??12);
+if(!Number.isInteger(warmupRounds)||warmupRounds<1||warmupRounds>1024)throw Error('warmup rounds must be 1..1024');
 let seed=Number(seedText)>>>0;
 function random(){seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return seed>>>0;}
 const digest=x=>createHash('sha256').update(x).digest('hex');
@@ -38,7 +40,7 @@ for(const size of [16,128,512]){
    for(const i of [0,1,2]){const start=process.hrtime.bigint(),value=lanes[name](i);cold.push({name,size,task,observations:i===0?0:i===1?1:32,sequence:i,ns:Number(process.hrtime.bigint()-start)});assert.deepEqual(value,expected[i]);}
    for(let i=0;i<12;i++)assert.deepEqual(lanes[name](i),expected[i],name+'/'+task);
   }
-  for(let warmup=0;warmup<12;warmup++)for(const name of names)for(let i=0;i<12;i++)lanes[name](i);
+  for(let warmup=0;warmup<warmupRounds;warmup++)for(const name of names)for(let i=0;i<12;i++)lanes[name](i);
   for(let sample=0;sample<11;sample++){
    const order=names.slice();for(let i=order.length-1;i>0;i--){const j=random()%(i+1);[order[i],order[j]]=[order[j],order[i]];}
    for(const name of order){
@@ -51,5 +53,5 @@ for(const size of [16,128,512]){
  }
 }
 const source=async p=>({sha256:digest(await readFile(p)),bytes:(await readFile(p)).length});
-await writeFile(out,JSON.stringify({schema:1,seed:Number(seedText),node:process.version,cpu:os.cpus()[0].model,sources:{before:await source(beforePath),current:await source(currentPath)},setup,cold,corpora,records,sink,
+await writeFile(out,JSON.stringify({schema:1,seed:Number(seedText),warmup_rounds:warmupRounds,node:process.version,cpu:os.cpus()[0].model,sources:{before:await source(beforePath),current:await source(currentPath)},setup,cold,corpora,records,sink,
  scope:'Complete detached result arrays, varying empty/singleton/32-item observations, stable captured inputs. Ingress and token setup separated; output materialization included. Strong direct prepared Map/group/numeric controls. No automatic selection, state/optimizer/GPU or universal performance claim.'},null,2)+'\n');
