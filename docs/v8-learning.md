@@ -306,3 +306,32 @@ changes since the prior run and bounded-search variability prevent attributing
 count or elapsed-time differences to authoring reuse. Exact inputs, selected
 plans, near misses and context are retained in `corpus-normalizer`; its private
 knowledge publications are retired after successful completion.
+
+The resumed V8 pass makes structural branch prices sensitive to scoped empty
+extents. The database declares the policy, and the planner prices the condition
+once plus maximum arm work, shifting local extent hypotheses through binders.
+They never become checker premises. A matched old-price control selects no
+hoists; current default semantic discovery checks and selects fold/map/filter
+hoists. The original single-fold source/target prices change from 2602/2916 to
+2602/314. These are relative search scores, not timings.
+
+Official native whole-call acquisition on the three-callback control measures
+1.22x/1.29x nonempty median gains in its first training/holdout cohort, but the
+unchanged training extrema guard retains baseline. One later exploratory
+control doubles both dimensions with fresh seeds: 1.44x/1.87x clears the same
+guard in both splits. All input sets are disjoint, and the rejected cohort is
+retained. This is a two-candidate resident-call objective (work weight 10000,
+empty weight 1); build/setup costs are separately recorded and no broad
+application gain is established. Full quick recipe search still covers two of
+three callback functions and retains baseline without evidence. An eager-wave
+prototype did not improve that real control and is excluded.
+
+All 347 planner tests and five merged knowledge tests pass. The mandatory CPU
+suite now also runs default-discovery regression checks, and all 94 reference,
+Rust, JavaScript and Rust-Wasm cases match, including exact snapshots and raw
+floating boundaries. The frozen corpus compiles ten programs, admits 24 laws,
+reuses six across programs and admits no representation; no alternative clears
+the robust measured lifecycle guard, and every quick budget exhausts. Compiler,
+catalogue and execution changes since the prior day prevent causal comparisons
+to earlier corpus counts. See `bench/v8-learning/branch-cardinality` and
+`corpus-branch-cardinality-summary.json` for exact revisions, inputs and limits.
