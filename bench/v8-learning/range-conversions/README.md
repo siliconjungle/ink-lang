@@ -93,3 +93,12 @@ range laws was used by the corpus. This is a negative generalization result;
 compiler/catalogue changes and shared-host timing preclude a causal comparison
 with earlier batches. The exact context, original source captures, plans and
 funnel are retained in `../corpus-range-conversions` and its summary JSON.
+
+## Integrated validation
+
+After merging the independent frozen-literal closure/core updates, 33 knowledge
+regressions and the required 88-case CPU matrix passed again. The locked Cargo
+fetch passed. `integration/validation.json` binds the tested source/package pins
+and new compiler image. Timing receipts retain their original acquisition
+context. Full remote CI is tracked separately and is not represented by these
+local checks.
