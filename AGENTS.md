@@ -328,3 +328,10 @@ Direct checked Buffer/Map parameters and records containing owners can expand
 without an already split argument. Preserve the same private handles, callee-local
 List sharing and ordinary recursive/oversized fallback. This adds no public owned
 ABI, retained storage, source/proof authority or higher expansion limits.
+
+Explicit mathematical `Step` witnesses perform one immediate reduction of the
+existing checked total definitions, constructor cases, literal Boolean choices
+or literal scalar operations. Check input visibility/types before reduction and
+the computed equation afterward. Keep recursive constructor gates, capture
+avoidance, copied-term accounting and ordinary proof work/depth bounds. The
+producer supplies no destination, oracle result, axiom or source-specific rule.

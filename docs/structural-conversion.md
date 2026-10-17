@@ -63,3 +63,17 @@ continuation limits. Scalable graph/tape specialization needs further checked
 sharing and factored producer proofs; a larger allowance alone establishes no
 equivalence.
 Profitability remains a separate measured obligation.
+
+An explicit `Step(term)` proof computes one immediate reduction rather than
+searching for an equality with a supplied result. It unfolds a concrete checked
+function, selects a constructor arm or literal Boolean branch, or evaluates a
+literal scalar operation. Recursive function arguments must already be written
+as constructors; aliases can be exposed by earlier checked steps. Unrelated
+fields and branches are not evaluated. The producer supplies no destination.
+
+The checker validates input visibility, arity, types and binders before reducing,
+charges copied and substituted terms, and checks the computed equation's types.
+Stuck terms, opaque recursive arguments, shadowing and exhausted work still
+reject. The same one-million-step, 128-level term and 32-level proof bounds apply.
+This is a proof form for the existing fixed definitional meaning, with no new
+source primitive, axiom, numeric identity, effect rule or rewrite authority.
