@@ -9,9 +9,11 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 // Complete graph/action proofs carry scoped case premises as well as shared
-// equations. Keep one finite whole-view allowance across selection and plan
-// transport; individual entries and kernel computation budgets stay fixed.
-pub const MAX_VIEW_ENTRIES: usize = 8192;
+// equations. Factoring larger applications into individually bounded lemmas
+// needs more entries, rather than deeper or more expensive individual proofs.
+// Keep one finite whole-view allowance across selection and plan transport;
+// aggregate bytes, individual entries and kernel computation budgets stay fixed.
+pub const MAX_VIEW_ENTRIES: usize = 16_384;
 pub const MAX_VIEW_BYTES: usize = 256_000_000;
 pub const MAX_ENTRY_BYTES: usize = 16_000_000;
 pub const SNAPSHOT_SEMANTICS: &str = "ink-knowledge-snapshot-v1";

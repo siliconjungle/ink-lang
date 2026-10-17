@@ -23,7 +23,7 @@ allowance. CLI selection input and trained-artifact proof input use that same
 bound. Scoped case premises in complete graph proofs can exceed the former
 128 MB view allowance; the earlier 16 MB selection limit also prevented using
 views that were individually within their admitted bound. Individual knowledge
-entries remain limited to 16 MB and views to 8,192 entries. Existing source,
+entries remain limited to 16 MB and views to 16,384 entries. Existing source,
 type, proof work and proof nesting checks continue to apply. The input trace,
 source module and checkpoint bounds keep their separate purposes.
 
@@ -49,3 +49,9 @@ literal serde private-token key, and bind explicitly supplied request fields in
 streaming receipts. All mathematical canonicalization and replay checks remain
 mandatory. These are parsing and source-correspondence checks, not profitability
 or compiled runtime speed measurements.
+
+The entry ceiling accommodates more individually bounded lemmas when a larger
+application proof is factored. The selected full-network authoring attempt
+exceeded the former 8,192-entry closure limit. This changes packet capacity,
+not per-theorem work, typing, termination, or replacement authority. Every
+entry must still authenticate and replay under the existing limits.
