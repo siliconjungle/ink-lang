@@ -25,6 +25,16 @@ termination, byte, definition and depth bounds remain active. All attempt work
 is charged even on failure. Exhausting this attempt retains the existing
 conversion strategies with their remaining budget. No verdict crosses contexts.
 
+A direct gated reduction may now spend up to 16,384 of those shared work steps
+on substitution and lexical alignment, rather than stopping at 4,096. A valid
+larger owned helper from the authored network needs that room before an exact
+body comparison is possible. The complete attempt remains bounded at 32,768;
+the ordinary one-million-step proof allowance and all depth bounds are unchanged.
+The exact source-independent equation replays in `core/tests/direct_delta.rs`,
+alongside rejection of an unrelated input and the prior eight-operation budget
+regression. This changes search allocation within conversion, not equality
+semantics or runtime execution.
+
 Kernel tests cover recursive ordered F32 accumulation, frozen dispatch with
 symbolic weights, capture avoidance, dynamic arms, incorrect outputs, IEEE NaN
 comparisons and resource/context boundaries. The distribution's frozen-program
@@ -37,5 +47,6 @@ spines in transparent definitions, and exhaustive case proofs retain their exact
 checked conclusion without expanding all data again. Bounded case-normalization
 hints can retain their typed call. Long straight-line action bodies can still hit
 continuation limits. Scalable graph/tape specialization needs further checked
-sharing and factored producer proofs; raising existing caps is not the solution.
+sharing and factored producer proofs; a larger allowance alone establishes no
+equivalence.
 Profitability remains a separate measured obligation.
