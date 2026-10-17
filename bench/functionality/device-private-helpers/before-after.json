@@ -1,0 +1,75 @@
+{
+  "source_identity": "39c3cd4a0339ab5122a2aa6edccfedee54d0193209894e4b067b1376f812daa3",
+  "before_compiler_sha256": "21f8a8d261905bd68d2ae73182566dcf4bff95e080244d5b5ed0dac7aa8d8b9b",
+  "final_compiler_sha256": "139d42338edfa993c3b00411d733ab41be3090de088238320ab744fe2760aff0",
+  "functions": {
+    "value": {
+      "before": {
+        "fallback_reason": "packed compute values must be flat numeric components",
+        "gpu": false,
+        "name": "value"
+      },
+      "after": {
+        "bundle": "gpu/f2/",
+        "fallback_reason": null,
+        "gpu": true,
+        "name": "value",
+        "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+      }
+    },
+    "evaluated": {
+      "before": {
+        "fallback_reason": "packed compute values must be flat numeric components",
+        "gpu": false,
+        "name": "evaluated"
+      },
+      "after": {
+        "bundle": "gpu/f3/",
+        "fallback_reason": null,
+        "gpu": true,
+        "name": "evaluated",
+        "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+      }
+    },
+    "readout": {
+      "before": {
+        "fallback_reason": "packed compute values must be flat numeric components",
+        "gpu": false,
+        "name": "readout"
+      },
+      "after": {
+        "bundle": "gpu/f5/",
+        "fallback_reason": null,
+        "gpu": true,
+        "name": "readout",
+        "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+      }
+    },
+    "lazy_total": {
+      "before": {
+        "fallback_reason": "packed compute values must be flat numeric components",
+        "gpu": false,
+        "name": "lazy_total"
+      },
+      "after": {
+        "bundle": "gpu/f4/",
+        "fallback_reason": null,
+        "gpu": true,
+        "name": "lazy_total",
+        "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+      }
+    },
+    "reverse_value": {
+      "before": {
+        "fallback_reason": "packed compute values must be flat numeric components",
+        "gpu": false,
+        "name": "reverse_value"
+      },
+      "after": {
+        "fallback_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record",
+        "gpu": false,
+        "name": "reverse_value"
+      }
+    }
+  }
+}

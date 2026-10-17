@@ -1,0 +1,2603 @@
+{
+  "actions": [
+    {
+      "fallback_reason": "transactional state, domain errors and ordered event publication execute on the host",
+      "gpu": false,
+      "name": "current"
+    },
+    {
+      "fallback_reason": "transactional state, domain errors and ordered event publication execute on the host",
+      "gpu": false,
+      "name": "observe"
+    }
+  ],
+  "core_semantics": "ink-executable-core-v11",
+  "core_sha256": "39c3cd4a0339ab5122a2aa6edccfedee54d0193209894e4b067b1376f812daa3",
+  "cpu": "cpu/compiled_state.wasm",
+  "functions": [
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: packed compute values must be flat numeric components; literal scalar: packed compute values must be flat numeric components",
+      "gpu": false,
+      "name": "allocate"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: packed compute values must be flat numeric components",
+      "gpu": false,
+      "name": "edit"
+    },
+    {
+      "bundle": "gpu/f2/",
+      "fallback_reason": null,
+      "gpu": true,
+      "name": "value",
+      "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+    },
+    {
+      "bundle": "gpu/f3/",
+      "fallback_reason": null,
+      "gpu": true,
+      "name": "evaluated",
+      "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+    },
+    {
+      "bundle": "gpu/f4/",
+      "fallback_reason": null,
+      "gpu": true,
+      "name": "lazy_total",
+      "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+    },
+    {
+      "bundle": "gpu/f5/",
+      "fallback_reason": null,
+      "gpu": true,
+      "name": "readout",
+      "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+    },
+    {
+      "bundle": "gpu/f6/",
+      "fallback_reason": null,
+      "gpu": true,
+      "name": "admissible",
+      "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+    },
+    {
+      "bundle": "gpu/f7/",
+      "fallback_reason": null,
+      "gpu": true,
+      "name": "valid",
+      "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+    },
+    {
+      "bundle": "gpu/f8/",
+      "fallback_reason": null,
+      "gpu": true,
+      "name": "square",
+      "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+    },
+    {
+      "fallback_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record",
+      "gpu": false,
+      "name": "reverse_value"
+    },
+    {
+      "bundle": "gpu/f10/",
+      "fallback_reason": null,
+      "gpu": true,
+      "name": "__ink_reverse_0_constant",
+      "strategy": "parallel graph schedules for integer scan, sum and radix sort, stable filter and concat; other stages retain literal source order; profitability must be measured"
+    },
+    {
+      "fallback_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record",
+      "gpu": false,
+      "name": "__ink_reverse_0_append"
+    },
+    {
+      "fallback_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record",
+      "gpu": false,
+      "name": "__ink_reverse_0_seed"
+    },
+    {
+      "fallback_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record",
+      "gpu": false,
+      "name": "__ink_reverse_0_binary"
+    },
+    {
+      "fallback_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record",
+      "gpu": false,
+      "name": "__ink_reverse_0_unary"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: packed compute values must be flat numeric components",
+      "gpu": false,
+      "name": "__ink_reverse_0_add"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: packed compute values must be flat numeric components",
+      "gpu": false,
+      "name": "__ink_reverse_0_back_node"
+    },
+    {
+      "fallback_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: packed compute values must be flat numeric components",
+      "gpu": false,
+      "name": "__ink_reverse_0_back_step"
+    },
+    {
+      "fallback_reason": "GPU temporary loop may grow its buffer bound; CPU fallback; literal graph: packed compute values must be flat numeric components",
+      "gpu": false,
+      "name": "__ink_reverse_0_backward"
+    },
+    {
+      "fallback_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record",
+      "gpu": false,
+      "name": "__ink_reverse_1"
+    },
+    {
+      "fallback_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record",
+      "gpu": false,
+      "name": "__ink_reverse_12"
+    }
+  ],
+  "javascript": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v11",
+    "core_sha256": "39c3cd4a0339ab5122a2aa6edccfedee54d0193209894e4b067b1376f812daa3",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "exact-u32-bits",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": true,
+        "name": "allocate",
+        "parallel": false,
+        "params": [
+          {
+            "name": "value",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "empty",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "temporary"
+        }
+      },
+      {
+        "destination": null,
+        "index": 1,
+        "internal": true,
+        "name": "edit",
+        "parallel": false,
+        "params": [
+          {
+            "name": "work",
+            "type": {
+              "kind": "temporary"
+            }
+          },
+          {
+            "name": "split",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "temporary"
+        }
+      },
+      {
+        "destination": null,
+        "index": 2,
+        "internal": false,
+        "name": "value",
+        "parallel": false,
+        "params": [
+          {
+            "name": "input",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "split",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "empty",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f32"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 3,
+        "internal": false,
+        "name": "evaluated",
+        "parallel": false,
+        "params": [
+          {
+            "name": "inputs",
+            "type": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "split",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "empty",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 4,
+        "internal": false,
+        "name": "lazy_total",
+        "parallel": false,
+        "params": [
+          {
+            "name": "inputs",
+            "type": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "enabled",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 5,
+        "internal": false,
+        "name": "readout",
+        "parallel": false,
+        "params": [
+          {
+            "name": "inputs",
+            "type": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "split",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "empty",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "total",
+              "type": {
+                "kind": "f32"
+              }
+            },
+            {
+              "name": "last",
+              "type": {
+                "kind": "f32"
+              }
+            },
+            {
+              "name": "count",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "Summary"
+        }
+      },
+      {
+        "destination": null,
+        "index": 6,
+        "internal": false,
+        "name": "admissible",
+        "parallel": false,
+        "params": [
+          {
+            "name": "inputs",
+            "type": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "bool"
+        }
+      },
+      {
+        "destination": null,
+        "index": 7,
+        "internal": false,
+        "name": "valid",
+        "parallel": false,
+        "params": [
+          {
+            "name": "summary",
+            "type": {
+              "fields": [
+                {
+                  "name": "total",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "last",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "count",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Summary"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "bool"
+        }
+      },
+      {
+        "destination": null,
+        "index": 8,
+        "internal": false,
+        "name": "square",
+        "parallel": false,
+        "params": [
+          {
+            "name": "input",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 9,
+        "internal": false,
+        "name": "reverse_value",
+        "parallel": false,
+        "params": [
+          {
+            "name": "input",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "maximum",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "f32"
+        }
+      },
+      {
+        "destination": null,
+        "index": 10,
+        "internal": false,
+        "name": "__ink_reverse_0_constant",
+        "parallel": false,
+        "params": [
+          {
+            "name": "value",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "f32"
+              }
+            },
+            {
+              "name": "id",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "__ink_reverse_0_Wire"
+        }
+      },
+      {
+        "destination": null,
+        "index": 11,
+        "internal": true,
+        "name": "__ink_reverse_0_append",
+        "parallel": false,
+        "params": [
+          {
+            "name": "tape",
+            "type": {
+              "fields": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "kind": "temporary"
+                  }
+                },
+                {
+                  "name": "maximum",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "failed",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Tape"
+            }
+          },
+          {
+            "name": "node",
+            "type": {
+              "fields": [
+                {
+                  "name": "op",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "a",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "b",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "av",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "bv",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Node"
+            }
+          },
+          {
+            "name": "active",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "value",
+              "type": {
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Wire"
+              }
+            },
+            {
+              "name": "tape",
+              "type": {
+                "fields": [
+                  {
+                    "name": "nodes",
+                    "type": {
+                      "kind": "temporary"
+                    }
+                  },
+                  {
+                    "name": "maximum",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "failed",
+                    "type": {
+                      "kind": "bool"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Tape"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "__ink_reverse_0_Flow"
+        }
+      },
+      {
+        "destination": null,
+        "index": 12,
+        "internal": true,
+        "name": "__ink_reverse_0_seed",
+        "parallel": false,
+        "params": [
+          {
+            "name": "value",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "tape",
+            "type": {
+              "fields": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "kind": "temporary"
+                  }
+                },
+                {
+                  "name": "maximum",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "failed",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Tape"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "value",
+              "type": {
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Wire"
+              }
+            },
+            {
+              "name": "tape",
+              "type": {
+                "fields": [
+                  {
+                    "name": "nodes",
+                    "type": {
+                      "kind": "temporary"
+                    }
+                  },
+                  {
+                    "name": "maximum",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "failed",
+                    "type": {
+                      "kind": "bool"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Tape"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "__ink_reverse_0_Flow"
+        }
+      },
+      {
+        "destination": null,
+        "index": 13,
+        "internal": true,
+        "name": "__ink_reverse_0_binary",
+        "parallel": false,
+        "params": [
+          {
+            "name": "op",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "tape",
+            "type": {
+              "fields": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "kind": "temporary"
+                  }
+                },
+                {
+                  "name": "maximum",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "failed",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Tape"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Wire"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Wire"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "value",
+              "type": {
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Wire"
+              }
+            },
+            {
+              "name": "tape",
+              "type": {
+                "fields": [
+                  {
+                    "name": "nodes",
+                    "type": {
+                      "kind": "temporary"
+                    }
+                  },
+                  {
+                    "name": "maximum",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "failed",
+                    "type": {
+                      "kind": "bool"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Tape"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "__ink_reverse_0_Flow"
+        }
+      },
+      {
+        "destination": null,
+        "index": 14,
+        "internal": true,
+        "name": "__ink_reverse_0_unary",
+        "parallel": false,
+        "params": [
+          {
+            "name": "op",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "tape",
+            "type": {
+              "fields": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "kind": "temporary"
+                  }
+                },
+                {
+                  "name": "maximum",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "failed",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Tape"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Wire"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "value",
+              "type": {
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Wire"
+              }
+            },
+            {
+              "name": "tape",
+              "type": {
+                "fields": [
+                  {
+                    "name": "nodes",
+                    "type": {
+                      "kind": "temporary"
+                    }
+                  },
+                  {
+                    "name": "maximum",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "failed",
+                    "type": {
+                      "kind": "bool"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Tape"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "__ink_reverse_0_Flow"
+        }
+      },
+      {
+        "destination": null,
+        "index": 15,
+        "internal": true,
+        "name": "__ink_reverse_0_add",
+        "parallel": false,
+        "params": [
+          {
+            "name": "g",
+            "type": {
+              "kind": "temporary"
+            }
+          },
+          {
+            "name": "id",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "value",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "temporary"
+        }
+      },
+      {
+        "destination": null,
+        "index": 16,
+        "internal": true,
+        "name": "__ink_reverse_0_back_node",
+        "parallel": false,
+        "params": [
+          {
+            "name": "node",
+            "type": {
+              "fields": [
+                {
+                  "name": "op",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "a",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "b",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "av",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "bv",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Node"
+            }
+          },
+          {
+            "name": "amount",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "g",
+            "type": {
+              "kind": "temporary"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "temporary"
+        }
+      },
+      {
+        "destination": null,
+        "index": 17,
+        "internal": true,
+        "name": "__ink_reverse_0_back_step",
+        "parallel": false,
+        "params": [
+          {
+            "name": "node",
+            "type": {
+              "fields": [
+                {
+                  "name": "op",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "a",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "b",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "av",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "bv",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Node"
+            }
+          },
+          {
+            "name": "work",
+            "type": {
+              "fields": [
+                {
+                  "name": "gradient",
+                  "type": {
+                    "kind": "temporary"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Reverse"
+            }
+          },
+          {
+            "name": "stopZero",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "gradient",
+              "type": {
+                "kind": "temporary"
+              }
+            },
+            {
+              "name": "index",
+              "type": {
+                "kind": "u32"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "__ink_reverse_0_Reverse"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 18,
+        "internal": false,
+        "name": "__ink_reverse_0_backward",
+        "parallel": false,
+        "params": [
+          {
+            "name": "nodes",
+            "type": {
+              "element": {
+                "fields": [
+                  {
+                    "name": "op",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "a",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "b",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "av",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "bv",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Node"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "output",
+            "type": {
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Wire"
+            }
+          },
+          {
+            "name": "stopZero",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "f32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 19,
+        "internal": true,
+        "name": "__ink_reverse_1",
+        "parallel": false,
+        "params": [
+          {
+            "name": "input",
+            "type": {
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Wire"
+            }
+          },
+          {
+            "name": "__ink_reverse_2",
+            "type": {
+              "fields": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "kind": "temporary"
+                  }
+                },
+                {
+                  "name": "maximum",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "failed",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Tape"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "fields": [
+            {
+              "name": "value",
+              "type": {
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "f32"
+                    }
+                  },
+                  {
+                    "name": "id",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Wire"
+              }
+            },
+            {
+              "name": "tape",
+              "type": {
+                "fields": [
+                  {
+                    "name": "nodes",
+                    "type": {
+                      "kind": "temporary"
+                    }
+                  },
+                  {
+                    "name": "maximum",
+                    "type": {
+                      "kind": "u32"
+                    }
+                  },
+                  {
+                    "name": "failed",
+                    "type": {
+                      "kind": "bool"
+                    }
+                  }
+                ],
+                "kind": "record",
+                "name": "__ink_reverse_0_Tape"
+              }
+            }
+          ],
+          "kind": "record",
+          "name": "__ink_reverse_0_Flow"
+        }
+      },
+      {
+        "destination": null,
+        "index": 20,
+        "internal": false,
+        "name": "__ink_reverse_12",
+        "parallel": false,
+        "params": [
+          {
+            "name": "input",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "__ink_reverse_7",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "__ink_reverse_8",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "error": {
+            "kind": "string"
+          },
+          "kind": "result",
+          "ok": {
+            "kind": "f32"
+          }
+        }
+      }
+    ],
+    "javascript_sha256": "ee7a7b141f946c3a237b780846db8fcafce6ee6247fe0a3fa4240237a82086ee",
+    "named_types": {
+      "Summary": {
+        "fields": [
+          {
+            "name": "total",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "last",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "count",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "Summary"
+      },
+      "__ink_reverse_0_Flow": {
+        "fields": [
+          {
+            "name": "value",
+            "type": {
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Wire"
+            }
+          },
+          {
+            "name": "tape",
+            "type": {
+              "fields": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "kind": "temporary"
+                  }
+                },
+                {
+                  "name": "maximum",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "failed",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Tape"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "__ink_reverse_0_Flow"
+      },
+      "__ink_reverse_0_Node": {
+        "fields": [
+          {
+            "name": "op",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "a",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "av",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "bv",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "value",
+            "type": {
+              "kind": "f32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "__ink_reverse_0_Node"
+      },
+      "__ink_reverse_0_Reverse": {
+        "fields": [
+          {
+            "name": "gradient",
+            "type": {
+              "kind": "temporary"
+            }
+          },
+          {
+            "name": "index",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "__ink_reverse_0_Reverse"
+      },
+      "__ink_reverse_0_Tape": {
+        "fields": [
+          {
+            "name": "nodes",
+            "type": {
+              "kind": "temporary"
+            }
+          },
+          {
+            "name": "maximum",
+            "type": {
+              "kind": "u32"
+            }
+          },
+          {
+            "name": "failed",
+            "type": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "__ink_reverse_0_Tape"
+      },
+      "__ink_reverse_0_Wire": {
+        "fields": [
+          {
+            "name": "value",
+            "type": {
+              "kind": "f32"
+            }
+          },
+          {
+            "name": "id",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "kind": "record",
+        "name": "__ink_reverse_0_Wire"
+      }
+    },
+    "owned_result_contract": {
+      "functions": 11,
+      "inputs": "same trusted caller contract",
+      "results": "canonical detached values with ABI byte/node/depth limits",
+      "unsupported": []
+    },
+    "prepared_compiled": {
+      "evaluation": "lazy source-order; successful bindings only",
+      "functions": [
+        {
+          "factory": false,
+          "function": "allocate",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "factory": false,
+          "function": "edit",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "factory": false,
+          "function": "value",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "evaluated",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "lazy_total",
+          "reason": "no reusable captured work"
+        },
+        {
+          "delegated_calls": 0,
+          "factory": true,
+          "function": "readout",
+          "retained_bindings": 1
+        },
+        {
+          "factory": false,
+          "function": "admissible",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "valid",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "square",
+          "reason": "no reusable captured work"
+        },
+        {
+          "delegated_calls": 1,
+          "factory": true,
+          "function": "reverse_value",
+          "retained_bindings": 0
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_0_constant",
+          "reason": "no reusable captured work"
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_0_append",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_0_seed",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_0_binary",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_0_unary",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_0_add",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_0_back_node",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_0_back_step",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_0_backward",
+          "reason": "no reusable lexical bindings"
+        },
+        {
+          "factory": false,
+          "function": "__ink_reverse_1",
+          "reason": "prepared residual requires a bounded pure value entry"
+        },
+        {
+          "delegated_calls": 1,
+          "factory": true,
+          "function": "__ink_reverse_12",
+          "retained_bindings": 1
+        }
+      ],
+      "lifetime": "prepared token",
+      "semantics": "sealed-value-residual-v1"
+    },
+    "private_record_elisions": [],
+    "private_sum_spines": [],
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "state": {
+      "actions": [
+        {
+          "change": false,
+          "directKeep": null,
+          "fallible": false,
+          "flatFailure": false,
+          "freshResult": false,
+          "index": 0,
+          "name": "current",
+          "params": [],
+          "precondition": null,
+          "result": {
+            "fields": [
+              {
+                "name": "total",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "last",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "count",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Summary"
+          },
+          "roots": [
+            0
+          ],
+          "singleCell": true
+        },
+        {
+          "change": true,
+          "directKeep": null,
+          "fallible": true,
+          "flatFailure": false,
+          "freshResult": false,
+          "index": 1,
+          "name": "observe",
+          "params": [
+            {
+              "name": "inputs",
+              "type": {
+                "element": {
+                  "kind": "f32"
+                },
+                "kind": "list"
+              }
+            },
+            {
+              "name": "split",
+              "type": {
+                "kind": "u32"
+              }
+            },
+            {
+              "name": "empty",
+              "type": {
+                "kind": "bool"
+              }
+            }
+          ],
+          "precondition": null,
+          "result": {
+            "error": {
+              "kind": "string"
+            },
+            "kind": "result",
+            "ok": {
+              "fields": [
+                {
+                  "name": "total",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "last",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "count",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Summary"
+            }
+          },
+          "roots": [
+            0
+          ],
+          "singleCell": true
+        }
+      ],
+      "compactCommits": false,
+      "eventColumns": false,
+      "eventRuns": false,
+      "events": [
+        {
+          "name": "observed",
+          "snapshotType": {
+            "fields": [
+              {
+                "name": "total",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "last",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "count",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record"
+          },
+          "type": {
+            "fields": [
+              {
+                "name": "total",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "last",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "count",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Summary"
+          }
+        }
+      ],
+      "invariantChecks": [],
+      "keepInvalidations": [
+        []
+      ],
+      "keeps": [],
+      "lazyMaintenance": true,
+      "outputPublication": false,
+      "roots": [
+        {
+          "key": {
+            "kind": "u32"
+          },
+          "name": "Last",
+          "snapshotKey": {
+            "kind": "u32"
+          },
+          "snapshotValue": {
+            "fields": [
+              {
+                "name": "total",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "last",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "count",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record"
+          },
+          "value": {
+            "fields": [
+              {
+                "name": "total",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "last",
+                "type": {
+                  "kind": "f32"
+                }
+              },
+              {
+                "name": "count",
+                "type": {
+                  "kind": "u32"
+                }
+              }
+            ],
+            "kind": "record",
+            "name": "Summary"
+          }
+        }
+      ],
+      "snapshot": {
+        "program": [
+          132,
+          47,
+          170,
+          149,
+          68,
+          192,
+          240,
+          198,
+          208,
+          139,
+          181,
+          86,
+          8,
+          236,
+          50,
+          38,
+          53,
+          182,
+          205,
+          232,
+          245,
+          51,
+          101,
+          27,
+          3,
+          47,
+          185,
+          24,
+          243,
+          188,
+          224,
+          234
+        ],
+        "schema": [
+          24,
+          191,
+          176,
+          33,
+          44,
+          123,
+          198,
+          226,
+          33,
+          217,
+          82,
+          20,
+          18,
+          69,
+          97,
+          252,
+          94,
+          177,
+          89,
+          56,
+          171,
+          86,
+          170,
+          196,
+          187,
+          168,
+          81,
+          74,
+          212,
+          184,
+          59,
+          196
+        ]
+      },
+      "snapshotRows": false
+    },
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "__ink_reverse_0_add": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "__ink_reverse_0_append": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "__ink_reverse_0_back_node": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "__ink_reverse_0_back_step": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "__ink_reverse_0_backward": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "369ca7294b9f7da184514c2d74f2fbffa34696c1fa5d3a2adaf1f053340d482d",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "nodes",
+                  "type": {
+                    "element": {
+                      "fields": [
+                        {
+                          "name": "op",
+                          "type": {
+                            "kind": "u32"
+                          }
+                        },
+                        {
+                          "name": "a",
+                          "type": {
+                            "kind": "u32"
+                          }
+                        },
+                        {
+                          "name": "b",
+                          "type": {
+                            "kind": "u32"
+                          }
+                        },
+                        {
+                          "name": "av",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        },
+                        {
+                          "name": "bv",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        },
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "f32"
+                          }
+                        }
+                      ],
+                      "kind": "record",
+                      "name": "__ink_reverse_0_Node"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "output",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "id",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "__ink_reverse_0_Wire"
+                  }
+                },
+                {
+                  "name": "stopZero",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "0cbb9d1ff6b72318080ea11a6297b384d97178624f821e3901cca51ec8ad4477",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "__ink_reverse_0_binary": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "__ink_reverse_0_constant": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "d4cb0361a7a8833933106ca6dd70006e19100c770fe048f31d961bc14fa899fc",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "fabc4e63e940c6190680726874c8654deced79200b320c057b9389a135a08557",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "__ink_reverse_0_Wire"
+            }
+          }
+        },
+        "__ink_reverse_0_seed": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "__ink_reverse_0_unary": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "__ink_reverse_1": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "__ink_reverse_12": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "a6064c1a234b5a48a4bd0d2767338d1ed0b95ee68e4794bc1b7ed7180008db8e",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "input",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "__ink_reverse_7",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "__ink_reverse_8",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "29bcdada2d2b5ecb6deae18e25401ad25c1f0dc80bcd50defebf64892403468d",
+            "named": {},
+            "root": {
+              "error": {
+                "kind": "string"
+              },
+              "kind": "result",
+              "ok": {
+                "kind": "f32"
+              }
+            }
+          }
+        },
+        "admissible": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "83b9b7354aba5e748ee768e3487afeb50ddd616def9b5be81dbc74b6305f501b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "inputs",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "list"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "32f3d3b2f14a1a5d5ed940c0f1126e8a0b1b1f76ff20ac48fac23528d7033176",
+            "named": {},
+            "root": {
+              "kind": "bool"
+            }
+          }
+        },
+        "allocate": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "edit": {
+          "unsupported": "unsupported wire descriptor"
+        },
+        "evaluated": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "7b972a35d62289ee5e7d1d1fe276bbfa2598ce9d94b10037b8c50580358f9b4b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "inputs",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "split",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "empty",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "0cbb9d1ff6b72318080ea11a6297b384d97178624f821e3901cca51ec8ad4477",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "f32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "lazy_total": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "58cd12008b9d4e96031b567471b5e6cb23d59b21e4e1d066cd585508c0341785",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "inputs",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "enabled",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "fde3b27ba939906c22dbea906c407580e89648dd4d5a55c4f4001e45157ebe45",
+            "named": {},
+            "root": {
+              "kind": "f32"
+            }
+          }
+        },
+        "readout": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "7b972a35d62289ee5e7d1d1fe276bbfa2598ce9d94b10037b8c50580358f9b4b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "inputs",
+                  "type": {
+                    "element": {
+                      "kind": "f32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "split",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "empty",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "b34578008df1181e42385a7e2884335e1e9a088967925eab644404603cd2cc3d",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "total",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "last",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "count",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "Summary"
+            }
+          }
+        },
+        "reverse_value": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "e2874055a807836f80eeb78159aaa67f211d3e924ff200417cd2101e2b4604b5",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "input",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "maximum",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "fde3b27ba939906c22dbea906c407580e89648dd4d5a55c4f4001e45157ebe45",
+            "named": {},
+            "root": {
+              "kind": "f32"
+            }
+          }
+        },
+        "square": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "37ef34798e542d819aba1b272de3d54177d396039283945d568a1749e6191bdf",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "input",
+                  "type": {
+                    "kind": "f32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "fde3b27ba939906c22dbea906c407580e89648dd4d5a55c4f4001e45157ebe45",
+            "named": {},
+            "root": {
+              "kind": "f32"
+            }
+          }
+        },
+        "valid": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "1096b6428e57136012f17071dfb9eb314047678e40be45ad640b5fa83e3ff70b",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "summary",
+                  "type": {
+                    "fields": [
+                      {
+                        "name": "total",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "last",
+                        "type": {
+                          "kind": "f32"
+                        }
+                      },
+                      {
+                        "name": "count",
+                        "type": {
+                          "kind": "u32"
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "name": "Summary"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "32f3d3b2f14a1a5d5ed940c0f1126e8a0b1b1f76ff20ac48fac23528d7033176",
+            "named": {},
+            "root": {
+              "kind": "bool"
+            }
+          }
+        },
+        "value": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "bd78103d0e2fdaba337198e1c38bda8fdd8c7b91b87912343e241e62cc748061",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "input",
+                  "type": {
+                    "kind": "f32"
+                  }
+                },
+                {
+                  "name": "split",
+                  "type": {
+                    "kind": "u32"
+                  }
+                },
+                {
+                  "name": "empty",
+                  "type": {
+                    "kind": "bool"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "fde3b27ba939906c22dbea906c407580e89648dd4d5a55c4f4001e45157ebe45",
+            "named": {},
+            "root": {
+              "kind": "f32"
+            }
+          }
+        }
+      }
+    }
+  },
+  "runtime_abi": "ink-module-v1",
+  "schema": 3,
+  "trust": "literal source closures, target emission, host adapters, runtimes and toolchains remain trusted; capability is not a proof or profitability claim"
+}
