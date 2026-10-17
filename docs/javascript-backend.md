@@ -49,6 +49,15 @@ while prediction is mostly unchanged. Small cases can regress. See the
 these observations do not authorize automatic planner selection or claim GPU
 training or Handwired performance parity.
 
+Working records with affine Buffer/Map fields can remain in local slots across
+bounded helpers, repeats and ordered folds. Owners keep their checked handles,
+moves and readonly loans; expanded List parameters remain shared. This removes
+wrapper allocations without changing public temporary-storage admission or
+snapshot formats. Arbitrary borrowed host-record fold initializers keep their
+ordinary read/failure positions. See [local record storage](local-record-helpers.md)
+and the [repeated graph/training study](../reports/affine-record-carriers-2026-10-17/README.md)
+for bounds, exact controls and adverse samples.
+
 Bool, vectors, records and nested lists retain their declared types. Functions,
 lexical bindings, map/filter, indexed map, truncating zip, ordered sums, right
 folds, scans, numeric sort, bounded repeat and lazy branches/fallbacks are
