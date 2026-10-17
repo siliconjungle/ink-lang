@@ -27,9 +27,13 @@ fn resident_source_gradients_and_adam_keep_complete_training_on_the_device() {
     let output = root.join("build/resident-source-training");
     let bundle = output.join("bundle");
     let validation = output.join("validation");
-    verified_language::runtime::emit_gpu(&p, &bundle).unwrap();
+    std::fs::create_dir_all(&output).unwrap();
     std::fs::write(output.join("storage-retention.json"),
         r#"{"schema":1,"keep":[{"path":"bundle","reason":"Selected resident-training proof inputs"},{"path":"validation","reason":"Complete histories and independent gradient check"},{"path":"storage-retention.json","reason":"Retention contract"}],"safe_to_remove":[]}"#).unwrap();
+    verified_language::runtime::emit_gpu(&p, &bundle).unwrap();
+    if std::env::var_os("INK_TEST_WASM").is_some() {
+        ink_runtime::toolchain::gpu_cpu_wasm(&bundle.join("cpu"), &bundle.join("cpu.wasm")).unwrap();
+    }
     let run = |command: &mut std::process::Command| {
         let result = command.output().unwrap();
         assert!(result.status.success(), "{}\n{}", String::from_utf8_lossy(&result.stdout), String::from_utf8_lossy(&result.stderr));
@@ -49,10 +53,17 @@ fn resident_source_gradients_and_adam_keep_complete_training_on_the_device() {
     }
     let receipt = run(std::process::Command::new("python3").arg(root.join("bench/gpu/source-training.py")).arg("verify").arg(&validation));
     println!("{}", String::from_utf8_lossy(&receipt));
-    if target == output.join("native-target") {
+    {
         let path = output.join("storage-retention.json");
         let mut manifest: Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
-        manifest["safe_to_remove"] = json!([{"path":"native-target","reason":"Completed generated validation build; inputs and complete useful execution proof are retained"}]);
+        let mut retired = Vec::new();
+        if target == output.join("native-target") {
+            retired.push(json!({"path":"native-target","reason":"Completed generated validation build; inputs and complete useful execution proof are retained"}));
+        }
+        if bundle.join("cpu/target").exists() {
+            retired.push(json!({"path":"bundle/cpu/target","reason":"Completed browser CPU build; selected cpu.wasm and exact source inputs are retained"}));
+        }
+        manifest["safe_to_remove"] = json!(retired);
         std::fs::write(path, serde_json::to_vec_pretty(&manifest).unwrap()).unwrap();
     }
 }
