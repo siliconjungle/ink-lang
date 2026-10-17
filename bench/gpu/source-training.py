@@ -92,7 +92,9 @@ def prepare(root):
         label = 'gpu' if backend == 'gpu-required' else 'cpu'
         write(root / f'native-{label}-script.json',
               [dict(label='open', open=plan, **{'as': 'training'}, backend=backend)] + operations +
-              [dict(label='close', session='training', close=True)])
+              [dict(label='close', session='training', close=True),
+               dict(label='precise-cpu', call='precise_gradient', args=[1.0000000000000002], backend='cpu'),
+               dict(label='precise-gpu-rejected', call='precise_gradient', args=[1.0000000000000002], backend='gpu-required')])
     write(root / 'storage-retention.json', {'schema': 1, 'keep': [
         {'path': 'training-plan.json', 'reason': 'Exact training inputs and resident feedback plan'},
         *[{'path': f'native-{b}-script.json', 'reason': 'Exact complete validation history'} for b in ['cpu', 'gpu']],
@@ -122,7 +124,12 @@ def histories(root, backend):
     assert len(script) == len(replies), (backend, len(script), len(replies))
     values, steps = {}, []
     for operation, reply in zip(script, replies):
+        if operation['label'] == 'precise-gpu-rejected':
+            assert 'binary64 device arithmetic' in reply.get('error', ''), reply
+            continue
         assert 'error' not in reply, (operation['label'], reply)
+        if operation['label'] == 'precise-cpu':
+            assert reply['backend'] == 'cpu' and reply['value'] == 2.0000000000000004, reply
         if 'open' in operation:
             assert reply['backend'] == ('gpu' if backend == 'gpu' else 'cpu'), reply
         if 'step' in operation:
@@ -225,6 +232,7 @@ def verify(root, browser=None):
                    maximum_gradient_absolute_error=max(errors), gradient_tolerance='1e-6 + 3e-5 * abs(expected)',
                    native_gpu_dispatches=sum(s['counters']['dispatches'] for s in steps),
                    native_step_upload_bytes=0, native_step_readback_bytes=0,
+                   binary64_companion_exact=True, binary64_gpu_required_rejected=True,
                    browser_backends=list(browser_receipt['histories']) if browser_receipt else [],
                    files={p: hashlib.sha256((root / p).read_bytes()).hexdigest() for p in paths})
     write(root / 'receipt.json', receipt)

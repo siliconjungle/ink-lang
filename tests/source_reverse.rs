@@ -22,6 +22,9 @@ fn resident_source_gradients_and_adam_keep_complete_training_on_the_device() {
                 .validate(&module).unwrap_or_else(|e| panic!("{name}: {e:?}"));
         }
     }
+    let precise=emission.manifest["functions"].as_array().unwrap().iter().find(|f|f["name"]=="precise_gradient").unwrap();
+    assert!(precise["fallback_reason"].is_string());
+    assert!(precise["shader"].is_null() && precise["graph"].is_null());
     if std::env::var_os("INK_TEST_WGPU").is_none() { return; }
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     let output = root.join("build/resident-source-training");
@@ -194,13 +197,16 @@ fn check_training(source:&str,label:&str,binary64:bool) {
 fn terminal_values_and_gradients_survive_compilation() {
     let source=r#"module terminal_reverse;
 state Marker:u32=0;
+record Alias{values:List<f64>,}
+record DevicePoint{value:f32,}
+fn device_value(Alias:DevicePoint)->f32{return Alias.value*2.0+1.0;}
 fn exclusive(x:f32)->f32{return repeat_until(10,x,fn(s)=>s>=8.0,fn(i)=>fn(s)=>s*2.0);}
 fn inclusive(x:f32)->f32{return fold_until(list(1,2,3,4),x,fn(i)=>fn(s)=>s>=4.0,fn(i)=>fn(s)=>s*2.0);}
 fn exclusive_value(x:f32)->f32{return reverse_linearize_piecewise(exclusive,x,128,true).fold(fn(r)=>r.value,fn(e)=>-1.0);}
 fn exclusive_gradient(x:f32)->f32{return reverse_linearize_piecewise(exclusive,x,128,true).fold(fn(r)=>r.gradient,fn(e)=>-1.0);}
 fn inclusive_value(x:f32)->f32{return reverse_linearize_piecewise(inclusive,x,128,true).fold(fn(r)=>r.value,fn(e)=>-1.0);}
 fn inclusive_gradient(x:f32)->f32{return reverse_linearize_piecewise(inclusive,x,128,true).fold(fn(r)=>r.gradient,fn(e)=>-1.0);}
-fn device(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>x*2.0+1.0);}
+fn device(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>device_value(DevicePoint{value:x}));}
 "#;
     let module=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
     let runtime=Runtime::from_checked(&module).unwrap();let mut steps=vec![];let mut expected=vec![];

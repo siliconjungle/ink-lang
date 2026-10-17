@@ -51,3 +51,9 @@ fn update(parameters:List<Parameter>,gradient:List<f32>,admissible:Bool,c:Config
  return choose(foldl(proposed,true,fn(p)=>fn(ok)=>ok&&valid(p)),proposed,parameters);
 }
 fn losses(parameters:List<Parameter>,features:List<f32>,targets:List<f32>,rows:List<u32>)->List<f32>{return rows.map(fn(row)=>objective(0.0,4294967295,parameters,features,targets,row));}
+
+// CPU precision companions share this module with the resident F32 learner.
+// Their generated dual records and unrelated owned carriers are not device types.
+record HostObservations{values:List<f64>,}
+fn precise_square(x:f64)->f64{return x*x;}
+fn precise_gradient(x:f64)->f64{return gradient(precise_square,x);}

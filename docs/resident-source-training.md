@@ -16,7 +16,10 @@ steps submit device work with no upload or readback; explicit reads return compl
 parameter/optimizer values, gradients, losses and validity. Ordinary code remains
 in source. The compiler contains no network, differentiation-helper or Adam matcher.
 
-Two general lowering capabilities enable this path. Strict local immutable list
+General lowering capabilities enable this path. Per-function executable type
+dependencies keep unrelated owned records and binary64 AD companions from
+blocking the F32 kernels. Reachable fields and actual binary64 computation keep
+their ordinary CPU fallback; see [function dependencies](function-dependencies.md). Strict local immutable list
 constructors materialize into private WGSL arrays, including numeric records and
 vectors. Elements evaluate in order before reuse. The cumulative local-array bound
 is 4,096 words per shader, accounting for WGSL alignment and record/vector padding;

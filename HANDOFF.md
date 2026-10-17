@@ -384,3 +384,17 @@ prepared-network milestone, without a checked replacement of that prepared graph
 Reverse tapes, F64 device work, broader graph/contract domains, automatic profitable
 placement and the full programme remain open. No speed claim follows. See
 [scope and reproduction](docs/resident-source-training.md).
+
+## Function-scoped device types
+
+Core now supplies bounded iterative lexical executable dependency analysis,
+shared by per-function GPU declarations and existing mixed-module closure
+assembly. Complete reachable fields and strict work stay required; unrelated
+owned/binary64 records no longer block supported F32 kernels. The resident
+244-parameter learner continues actual device training when the same source
+module also declares binary64 forward-AD helpers. Its binary64 companion retains
+exact CPU/JavaScript precision and explicitly rejects required GPU execution.
+A stateful reverse-AD fixture exercises a local field receiver shadowing an
+unrelated global record, with complete snapshots and actual eligible GPU work.
+This adds no reverse tapes on device, binary64 GPU arithmetic or prepared-graph
+replacement. See [scope and validation](docs/function-dependencies.md).
