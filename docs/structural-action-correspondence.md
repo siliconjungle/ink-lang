@@ -22,7 +22,7 @@ source definitions cannot replace this replay.
 Knowledge and checked-context imports now use iterative topological traversal.
 A chain of small checked equations need not fit the former 64-edge dependency
 height. Cycles, conflicting identities, missing dependencies and membership
-failures still reject. The 8,192-entry and 256 MB view limits bound the
+failures still reject. The 16,384-entry and 256 MB view limits bound the
 whole graph; individual proof work, term depth and definition checks still apply.
 Import failure leaves the previous checked context intact.
 
