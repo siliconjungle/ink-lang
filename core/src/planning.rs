@@ -43,6 +43,7 @@ pub struct Package {
     pub input_core_sha256: String,
     pub steps: Vec<Step>,
 }
+pub fn from_bytes(bytes:&[u8])->LangResult<Package>{crate::bounded_json::decode(bytes)}
 #[derive(Clone, Debug)]
 pub struct CheckedPlan {
     original: CheckedModule,
@@ -162,7 +163,7 @@ pub fn canonical(package: &Package) -> LangResult<Vec<u8>> {
     let value = serde_json::to_value(package).map_err(|e| e.to_string())?;
     let mut pending = vec![(&value, 0usize)];
     while let Some((value, depth)) = pending.pop() {
-        if depth > 128 { return Err("compiled plan transport depth limit".into()); }
+        if depth > 256 { return Err("compiled plan transport depth limit".into()); }
         match value {
             serde_json::Value::Array(values) => pending.extend(values.iter().map(|v| (v, depth+1))),
             serde_json::Value::Object(values) => pending.extend(values.values().map(|v| (v, depth+1))),
@@ -174,6 +175,13 @@ pub fn canonical(package: &Package) -> LangResult<Vec<u8>> {
 pub fn identity(package: &Package) -> LangResult<String> {
     use sha2::{Digest, Sha256};
     Ok(format!("{:x}", Sha256::digest(canonical(package)?)))
+}
+/// Bind the incoming JSON request, retaining explicitly supplied optional fields.
+/// This is source-packet transport; embedded knowledge still checks separately.
+pub fn wire_identity(bytes:&[u8])->LangResult<String>{
+    use sha2::{Digest,Sha256};
+    let value:serde_json::Value=crate::bounded_json::decode(bytes)?;
+    Ok(format!("{:x}",Sha256::digest(serde_json::to_vec(&value).map_err(|e|e.to_string())?)))
 }
 fn check_from(
     original: &CheckedModule,

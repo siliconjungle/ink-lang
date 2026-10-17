@@ -29,10 +29,13 @@ pub enum Kind {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Interface {
+    #[serde(deserialize_with = "crate::bounded_json::values")]
     pub conditions: Vec<Value>,
     pub effects: Vec<String>,
     pub operations: Vec<String>,
+    #[serde(deserialize_with = "crate::bounded_json::parameters")]
     pub parameters: BTreeMap<String, Value>,
+    #[serde(deserialize_with = "crate::bounded_json::value")]
     pub result: Value,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -41,6 +44,7 @@ pub struct Entry {
     pub dependencies: Vec<String>,
     pub interface: Interface,
     pub kind: Kind,
+    #[serde(deserialize_with = "crate::bounded_json::value")]
     pub payload: Value,
     pub schema: u32,
     pub semantics: String,
@@ -73,6 +77,7 @@ pub struct Bundle {
     pub schema: u32,
     pub snapshot: Snapshot,
 }
+pub fn from_bytes(bytes:&[u8])->LangResult<Bundle>{crate::bounded_json::decode(bytes)}
 fn identifier(id: &str) -> LangResult<()> {
     crate::content::identity(id)
 }

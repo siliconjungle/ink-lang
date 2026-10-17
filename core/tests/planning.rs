@@ -13,6 +13,62 @@ fn empty() -> registry::Bundle {
     serde_json::from_value(serde_json::json!({"schema":1,"snapshot":{"schema":1,"semantics":registry::SNAPSHOT_SEMANTICS,
         "root":registry::identity(&serde_json::json!({"schema":1,"entries":[]})).unwrap()},"roots":[],"objects":{},"membership":{}})).unwrap()
 }
+#[test]
+fn envelopes_do_not_consume_individual_json_field_depth_budgets() {
+    use ink_core::logic::{Declaration,Sort,Term};
+    use serde_json::json;
+    use std::collections::BTreeMap;
+    let m=module();let mut found=None;
+    for levels in 48..64 {
+        let mut body=Term::Var("x".into());
+        for _ in 0..levels {body=Term::Binary{op:"+".into(),left:Box::new(body),right:Box::new(Term::U64(0))};}
+        let declaration=Declaration::Function{params:vec![("x".into(),Sort::U64)],result:Sort::U64,body,recursive:None};
+        let entry=registry::Entry::from_declaration(&declaration,vec![]).unwrap();
+        let Ok(id)=registry::identity(&entry) else {continue};
+        let entries=vec![id.clone()];
+        let view=registry::Bundle{schema:1,snapshot:registry::Snapshot{schema:1,semantics:registry::SNAPSHOT_SEMANTICS.into(),
+            root:registry::identity(&json!({"schema":1,"entries":entries})).unwrap()},roots:entries.clone(),
+            membership:BTreeMap::from([(id.clone(),registry::Membership{entries,path:vec![]})]),objects:BTreeMap::from([(id,entry)])};
+        if registry::canonical_bundle(&view).is_err(){continue;}
+        let packet=planning::Package{schema:1,semantics:planning::SEMANTICS.into(),input_core_sha256:m.identity().unwrap(),steps:vec![
+            planning::Step::Rewrite(optimisation::Package{schema:1,semantics:optimisation::SEMANTICS.into(),input_core_sha256:m.identity().unwrap(),knowledge:view,
+                applications:vec![],action_replacement:Some(serde_json::from_value(json!({
+                    "selected":serde_json::from_slice::<serde_json::Value>(&m.bytes().unwrap()).unwrap(),"proofs":{}})).unwrap()),contract_refinement:None})]};
+        let wire=planning::canonical(&packet).unwrap();
+        if serde_json::from_slice::<serde_json::Value>(&wire).is_err(){found=Some((packet,wire));break;}
+    }
+    let (packet,wire)=found.expect("valid deep field inside a larger envelope");
+    let parsed=planning::from_bytes(&wire).unwrap();
+    planning::check(&m,&parsed).unwrap();
+    assert_eq!(planning::identity(&parsed).unwrap(),planning::identity(&packet).unwrap());
+    assert_eq!(planning::wire_identity(&wire).unwrap(),planning::identity(&packet).unwrap());
+    let mut explicit=serde_json::to_value(&packet).unwrap();
+    explicit["steps"][0]["package"]["contract_refinement"]=serde_json::Value::Null;
+    let explicit_wire=serde_json::to_vec(&explicit).unwrap();
+    let explicit_packet=planning::from_bytes(&explicit_wire).unwrap();
+    assert_eq!(planning::identity(&explicit_packet).unwrap(),planning::identity(&packet).unwrap());
+    assert_ne!(planning::wire_identity(&explicit_wire).unwrap(),planning::wire_identity(&wire).unwrap());
+    let mut bad=serde_json::to_value(&packet).unwrap();let mut deep=serde_json::Value::Null;
+    for _ in 0..129 {deep=json!([deep]);}
+    bad["steps"][0]["package"]["knowledge"]["objects"].as_object_mut().unwrap().values_mut().next().unwrap()["payload"]["too_deep"]=deep;
+    assert!(planning::from_bytes(&serde_json::to_vec(&bad).unwrap()).unwrap_err().contains("JSON field depth limit"));
+    let deep=format!("{}0{}","[".repeat(257),"]".repeat(257));
+    assert!(planning::from_bytes(deep.as_bytes()).unwrap_err().contains("envelope depth limit"));
+    assert!(planning::from_bytes(&[wire.clone(),b" false".to_vec()].concat()).is_err());
+}
+
+#[test]
+fn json_payloads_keep_literal_keys_and_wire_request_presence() {
+    let mut entry=registry::Entry::from_declaration(&ink_core::logic::Declaration::Function{
+        params:vec![],result:ink_core::logic::Sort::U64,body:ink_core::logic::Term::U64(7),recursive:None},vec![]).unwrap();
+    entry.payload["$serde_json::private::RawValue"]=serde_json::json!("7");
+    let wire=registry::canonical(&entry).unwrap();
+    let parsed:registry::Entry=serde_json::from_slice(&wire).unwrap();
+    assert_eq!(parsed.payload,entry.payload);
+    let packet=serde_json::json!({"schema":1,"semantics":planning::SEMANTICS,"input_core_sha256":module().identity().unwrap(),"steps":[]});
+    let wire=serde_json::to_vec(&packet).unwrap();
+    assert_eq!(planning::wire_identity(&wire).unwrap(),registry::identity(&packet).unwrap());
+}
 fn fact(m: &CheckedModule) -> property::Package {
     property::Package {
         schema: 1,
