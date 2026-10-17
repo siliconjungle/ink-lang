@@ -42,6 +42,11 @@ expression at every nested match. Inserted terms are still copied and charged;
 shadowing, simultaneous substitution, lexical capture avoidance and all existing
 work/depth limits remain in force. No summary or proof verdict survives the
 call. The large-capture and shadowing regressions exercise those contracts.
+Scoped environments also borrow their keys and replacement terms, rather than
+deep-cloning captures at every binder. Environment metadata consumes work, and
+terms are copied only when inserted into the result. This keeps the reduction
+in charged name-analysis work consistent with the temporary storage actually
+needed by the transform.
 
 Kernel tests cover recursive ordered F32 accumulation, frozen dispatch with
 symbolic weights, capture avoidance, dynamic arms, incorrect outputs, IEEE NaN

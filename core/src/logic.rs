@@ -1193,11 +1193,16 @@ struct Substitution<'a> {
 }
 fn substitute(t: &Term, bindings: &BTreeMap<String, Term>, budget: &mut Budget, depth: usize) -> LangResult<Term> {
     let mut state = Substitution { root:t, inputs:bindings, used:None, next:0, root_depth:depth };
-    substitute_scoped(t,bindings,budget,depth,&mut state)
+    let mut borrowed = BTreeMap::new();
+    for (name,value) in bindings {
+        budget.step(depth)?;
+        borrowed.insert(name.as_str(),value);
+    }
+    substitute_scoped(t,&borrowed,budget,depth,&mut state)
 }
 fn substitute_scoped(
     t: &Term,
-    bindings: &BTreeMap<String, Term>,
+    bindings: &BTreeMap<&str, &Term>,
     budget: &mut Budget,
     depth: usize,
     state: &mut Substitution<'_>,
@@ -1205,16 +1210,16 @@ fn substitute_scoped(
     budget.step(depth)?;
     if bindings
         .iter()
-        .all(|(name, value)| matches!(value,Term::Var(n)if n==name))
+        .all(|(name, value)| matches!(value,Term::Var(n)if n.as_str()==*name))
     {
         budget.copy(t)?;
         return Ok(t.clone());
     }
     Ok(match t {
-        Term::Var(n) => match bindings.get(n) {
+        Term::Var(n) => match bindings.get(n.as_str()) {
             Some(value) => {
                 budget.copy(value)?;
-                value.clone()
+                (**value).clone()
             }
             None => t.clone(),
         },
@@ -1268,9 +1273,8 @@ fn substitute_scoped(
             }
             let mut branches_out = Vec::new();
             for branch in branches {
-                let mut local = bindings.clone();
                 let mut renamed = Vec::new();
-                for binder in &branch.bindings {
+                for _ in &branch.bindings {
                     let fresh = loop {
                         budget.step(depth)?;
                         let candidate = format!("$b{}", state.next);
@@ -1279,8 +1283,19 @@ fn substitute_scoped(
                             break candidate;
                         }
                     };
-                    local.insert(binder.clone(), Term::Var(fresh.clone()));
                     renamed.push(fresh);
+                }
+                // Environments borrow captured terms; copying an environment
+                // must not duplicate a large capture at every nested binder.
+                // Only values actually inserted into the result are cloned.
+                let replacements = renamed.iter().cloned().map(Term::Var).collect::<Vec<_>>();
+                let mut local = BTreeMap::new();
+                for (name,value) in bindings {
+                    budget.step(depth)?;
+                    local.insert(*name,*value);
+                }
+                for (binder,value) in branch.bindings.iter().zip(&replacements) {
+                    local.insert(binder.as_str(),value);
                 }
                 branches_out.push(Branch {
                     bindings: renamed,
