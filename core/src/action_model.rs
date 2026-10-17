@@ -253,6 +253,7 @@ pub struct Projection {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Replacement {
+    #[serde(deserialize_with = "crate::bounded_json::value")]
     pub selected: serde_json::Value,
     pub proofs: BTreeMap<String, Proof>,
     #[serde(default, skip_serializing_if = "ProjectionMode::is_legacy")]
