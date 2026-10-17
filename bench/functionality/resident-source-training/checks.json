@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "compiler_source": "8ed0999bef59fba1b6eee99543d9e20fe6bd1d57",
+  "validation_source": "1d8189303a316aed36e44348878b47421636c358",
+  "checks": [
+    {
+      "command": "cargo test --manifest-path lowerings/gpu/Cargo.toml",
+      "exit_code": 0,
+      "tests": 20,
+      "output": "package-tests.stdout"
+    },
+    {
+      "command": "cargo test --test gpu --test literal_collections_package --test source_reverse",
+      "exit_code": 0,
+      "groups": [
+        10,
+        6,
+        4
+      ],
+      "output": "final-regressions.stdout"
+    },
+    {
+      "command": "INK_TEST_WASM=1 cargo test --test gpu",
+      "exit_code": 0,
+      "tests": 10,
+      "output": "wasm-fallback-regressions.stdout"
+    },
+    {
+      "command": "INK_TEST_WGPU=1 INK_TEST_WASM=1 cargo test --test source_reverse resident_source_gradients_and_adam_keep_complete_training_on_the_device -- --exact --nocapture",
+      "exit_code": 0,
+      "tests": 1,
+      "output": "required-browser-preparation.stdout"
+    },
+    {
+      "command": "INK_TEST_WGPU=1 INK_TEST_WASM=1 cargo test --test source_reverse reverse_source_training_preserves_every_result_event_and_checkpoint -- --exact --nocapture",
+      "exit_code": 0,
+      "tests": 1,
+      "output": "existing-source-history.stdout"
+    },
+    {
+      "command": "node bench/gpu/replay-source-history-browser.mjs CHROME",
+      "exit_code": 0,
+      "receipt": "histories-and-images.tar.gz:required-browser-receipt.json"
+    },
+    {
+      "command": "cargo check --all-targets --manifest-path runtime/Cargo.toml",
+      "exit_code": 0,
+      "output": "runtime-check.stderr"
+    },
+    {
+      "command": "cargo fetch --locked --manifest-path runtime/Cargo.toml",
+      "exit_code": 0,
+      "output": "runtime-fetch.stderr"
+    },
+    {
+      "command": "cargo fetch --locked --manifest-path lowerings/gpu/Cargo.toml",
+      "exit_code": 0,
+      "output": "gpu-fetch.stderr"
+    },
+    {
+      "command": "python3 bench/gpu/source-training.py verify OUTPUT --browser OUTPUT/browser-history.json",
+      "exit_code": 0,
+      "output": "complete-validation.stdout"
+    }
+  ]
+}
