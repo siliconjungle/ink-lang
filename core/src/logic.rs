@@ -504,35 +504,31 @@ impl Context {
         if self.visible.contains_key(&entry.id) {
             return Err("duplicate logic identity".into());
         }
-        fn collect(
-            entry: &Arc<Entry>,
-            existing: &BTreeMap<String, Arc<Entry>>,
-            pending: &mut BTreeMap<String, Arc<Entry>>,
-            depth: usize,
-        ) -> LangResult<()> {
-            if let Some(old) = existing.get(&entry.id).or_else(|| pending.get(&entry.id)) {
-                if Arc::ptr_eq(old, entry) {
-                    return Ok(());
-                }
+        // Stage only new checked entries. The explicit stack permits long
+        // proof DAGs without consuming the host stack or weakening cycle,
+        // identity, atomicity or total-entry checks.
+        let mut pending: BTreeMap<String, Arc<Entry>> = BTreeMap::new();
+        let mut active = BTreeSet::new();
+        let mut work = vec![(entry.clone(), false)];
+        while let Some((current, leaving)) = work.pop() {
+            if leaving {
+                active.remove(&current.id);
+                pending.insert(current.id.clone(), current);
+                continue;
+            }
+            if let Some(old) = self.all.get(&current.id).or_else(|| pending.get(&current.id)) {
+                if Arc::ptr_eq(old, &current) { continue; }
                 return Err("conflicting checked logic identity".into());
             }
-            if depth > 64 || existing.len() + pending.len() >= crate::registry::MAX_VIEW_ENTRIES {
+            if self.all.len() + pending.len() + active.len() >= crate::registry::MAX_VIEW_ENTRIES {
                 return Err("logic context closure limit".into());
             }
-            for dep in &entry.dependencies {
-                collect(dep, existing, pending, depth + 1)?
+            if !active.insert(current.id.clone()) {
+                return Err("cyclic checked logic dependencies".into());
             }
-            // Dependencies may have filled the remaining capacity.
-            if existing.len() + pending.len() >= crate::registry::MAX_VIEW_ENTRIES {
-                return Err("logic context closure limit".into());
-            }
-            pending.insert(entry.id.clone(), entry.clone());
-            Ok(())
+            work.push((current.clone(), true));
+            work.extend(current.dependencies.iter().rev().cloned().map(|dep| (dep, false)));
         }
-        // Stage only new entries. A failed import leaves both contexts unchanged,
-        // without copying the already checked dependency closure on each import.
-        let mut pending = BTreeMap::new();
-        collect(&entry, &self.all, &mut pending, 0)?;
         self.all.extend(pending);
         self.visible.insert(entry.id.clone(), entry);
         Ok(())

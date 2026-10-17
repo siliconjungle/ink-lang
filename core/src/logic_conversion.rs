@@ -189,12 +189,13 @@ fn compare(
     // Charge the existing speculative budget rather than expanding its limits.
     for (source, target) in [(a, b), (b, a)] {
         if let Term::Call { function, .. } = target {
-            if !matches!(source, Term::Call {function: name, ..} if name == function) {
-                if let Some(exposed) = seek_call(source, function, c, budget, remaining, depth + 1)?
-                {
-                    if compare(&exposed, target, c, budget, remaining, depth + 1)? {
-                        return Ok(true);
-                    }
+            // Matching names with unequal arguments may denote adjacent
+            // recursive steps. Let one side reach that continuation before
+            // advancing both; argument congruence above still checks it.
+            if let Some(exposed) = seek_call(source, function, c, budget, remaining, depth + 1)?
+            {
+                if compare(&exposed, target, c, budget, remaining, depth + 1)? {
+                    return Ok(true);
                 }
             }
         }
@@ -541,6 +542,27 @@ mod tests {
         };
         check(&c, &[], &nan_eq, &Term::Bool(false)).unwrap();
         assert!(check(&c, &[], &nan_eq, &Term::Bool(true)).is_err());
+    }
+
+    #[test]
+    fn adjacent_recursive_calls_align_before_computing_the_remainder() {
+        let mut c = context();
+        let mut rows = cons(0, vec![]);
+        let mut previous = rows.clone();
+        for i in 0..72 {
+            previous = rows;
+            let name = format!("rows_{i}");
+            c.declare(name.clone(), &Declaration::Function {
+                params: vec![], result: Sort::Data("rows".into()), recursive: None,
+                body: cons(1, vec![Term::U64(0x3f800000), previous.clone()]),
+            }).unwrap();
+            rows = call(&name, vec![]);
+        }
+        let start = call("fold", vec![rows, Term::U64(0x3f800000)]);
+        let next = call("fold", vec![previous.clone(), Term::U64(0x40000000)]);
+        check(&c, &[], &start, &next).unwrap();
+        let wrong = call("fold", vec![previous, Term::U64(0x40800000)]);
+        assert!(check(&c, &[], &start, &wrong).is_err());
     }
 
     #[test]
