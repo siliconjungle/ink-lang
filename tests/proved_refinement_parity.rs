@@ -209,6 +209,13 @@ fn v8_database_laws_preserve_modular_counts_and_branch_values_on_cpu_targets() {
         fn shared_nested(xs:List<u32>,outer:u32)->List<u32>{return xs.map(fn(x)=>(x+outer)*(x+outer));}
         fn shared_float(x:f32)->f32{return (x*2.0)+(x*2.0);}
         fn shared_guarded(c:Bool,x:u64)->u64{return choose(c,(x*7)+(x*7),0);}
+        fn shared_lists(xs:List<u32>,outer:u32)->List<u32>{return xs.map(fn(x)=>x+outer).concat(xs.map(fn(x)=>x+outer));}
+        fn shared_matrix(xs:List<List<u32>>,outer:u32)->List<List<u32>>{return xs.map(fn(row)=>row.concat([outer])).concat(xs.map(fn(row)=>row.concat([outer])));}
+        fn shared_float_lists(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>x).concat(xs.map(fn(x)=>x));}
+        fn shared_list_guarded(c:Bool,xs:List<u32>)->List<u32>{return choose(c,xs.map(fn(x)=>x*3).concat(xs.map(fn(x)=>x*3)),[]);}
+        fn shared_wide_lists(xs:List<u64>)->List<u64>{return xs.map(fn(x)=>x+1).concat(xs.map(fn(x)=>x+1));}
+        fn shared_signed_lists(xs:List<i32>)->List<i32>{return xs.map(fn(x)=>x+1).concat(xs.map(fn(x)=>x+1));}
+        fn shared_bool_lists(xs:List<Bool>,flag:Bool)->List<Bool>{return xs.map(fn(x)=>x&&flag).concat(xs.map(fn(x)=>x&&flag));}
         fn rotate32(a:u32,k:u32)->u32{return word_or(wrapping_shl(a,k),wrapping_shr(a,32-k));}
         fn rotate64(a:u64,k:u32)->u64{return word_or(wrapping_shr(a,k),wrapping_shl(a,64-k));}
         fn xor32(a:u32,k:u32)->u32{return choose(word_and(k,31)!=0,word_xor(wrapping_shl(a,k),wrapping_shr(a,32-k)),0);}
@@ -265,7 +272,7 @@ for label,raw in sharing(shared_subject,model):
     shared_functions.add(function)
     law=bind(raw,model,subject);obj=semantic_entry(law);objects.append(obj)
     applications.append(dict(function=function,path=[],law=identity(obj),arguments={n:dict(sort=s,node={'Free':n})for n,s in law['params'].items()},premises=[]))
-assert shared_functions=={'shared_scalar','shared_scan','shared_nested','shared_float','shared_guarded'}
+assert shared_functions=={'shared_scalar','shared_scan','shared_nested','shared_float','shared_guarded','shared_lists','shared_matrix','shared_float_lists','shared_list_guarded','shared_wide_lists','shared_signed_lists','shared_bool_lists'}
 store=Store.publish(d/'knowledge',objects)
 packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['input_core_sha256'],knowledge=store.bundle([identity(o) for o in objects]),applications=applications)
 (d/'selection.json').write_bytes(canonical(packet))
@@ -286,7 +293,7 @@ packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['inpu
         steps.push(json!({"pure":function,"args":args.iter().map(|v|v.json()).collect::<Vec<_>>(),"cpu_only":true}));
         expected.push(json!({"reply":{"value":value.json()},"snapshot":snapshot}));
     };
-    use verified_language::eval::Value::{U32,U64,F32,Bool,List,Record};
+    use verified_language::eval::Value::{U32,U64,I32,F32,Bool,List,Record};
     for k in [0,1,7,31,32,33,63,64,65,127,u32::MAX] {
         for (a,b) in [(0,0),(1,32),(u32::MAX,u32::MAX-1)] {
             push("distribute",vec![U32(a),U32(b),U32(k)]);
@@ -324,12 +331,44 @@ packet=dict(schema=1,semantics='ink-evidence-v1',input_core_sha256=subject['inpu
     }
     for xs in [vec![],vec![U32(0),U32(1),U32(u32::MAX)]] {
         push("shared_scan",vec![List(xs.clone())]);
-        push("shared_nested",vec![List(xs),U32(u32::MAX)]);
+        push("shared_nested",vec![List(xs.clone()),U32(u32::MAX)]);
+        for bias in [0,u32::MAX] {
+            push("shared_lists",vec![List(xs.clone()),U32(bias)]);
+            push("shared_matrix",vec![List(vec![List(xs.clone()),List(vec![])]),U32(bias)]);
+        }
+        for c in [false,true] {push("shared_list_guarded",vec![Bool(c),List(xs.clone())]);}
+    }
+    push("shared_matrix",vec![List(vec![]),U32(u32::MAX)]);
+    push("shared_float_lists",vec![List(vec![])]);
+    push("shared_float_lists",vec![List([0,0x8000_0000,1,0x7f80_0000,0xff80_0000,0x7fa0_1234,0x7fc0_5678]
+        .into_iter().map(F32).collect())]);
+    for values in [vec![],vec![U64(0),U64(1<<32),U64(1<<63),U64(u64::MAX)]] {
+        push("shared_wide_lists",vec![List(values)]);
+    }
+    for values in [vec![],vec![I32(0),I32(-1),I32(i32::MIN),I32(i32::MAX)]] {
+        push("shared_signed_lists",vec![List(values)]);
+    }
+    for flag in [false,true] {
+        push("shared_bool_lists",vec![List(vec![Bool(false),Bool(true)]),Bool(flag)]);
     }
     for bits in [0,0x8000_0000,0x3fa0_0000,0x7f80_0000,0xff80_0000,0x7fc0_1234] {
         push("shared_float",vec![F32(bits)]);
     }
     parity::conformance_selected("v8-word-parity", &selected, source, steps, expected);
+    let detached = Command::new("node").args(["--input-type=module", "-e", r#"
+import assert from 'node:assert/strict';
+import {pathToFileURL} from 'node:url';
+const {callOwned}=await import(pathToFileURL(process.argv[1]));
+const input=[[1,2],[]],expected=[[1,2,7],[7],[1,2,7],[7]];
+const result=callOwned('shared_matrix',[input,7]);
+assert.deepEqual(result,expected);
+result[0][0]=99;result[1].push(100);result.push([200]);
+assert.deepEqual(result[2],[1,2,7]);assert.deepEqual(result[3],[7]);
+assert.deepEqual(input,[[1,2],[]]);
+assert.deepEqual(callOwned('shared_matrix',[input,7]),expected);
+console.log('Shared nested-list owned outputs retain independent containers');
+"#]).arg(root.join("build/v8-word-parity/program.mjs")).output().unwrap();
+    assert!(detached.status.success(), "{}", String::from_utf8_lossy(&detached.stderr));
 }
 
 #[path = "support/parameter_cache.rs"]

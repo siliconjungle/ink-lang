@@ -1,0 +1,2340 @@
+{
+  "applied_rule_ids": [
+    "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8",
+    "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+    "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290"
+  ],
+  "backend": {
+    "abi": "ink-javascript-trusted-values-v2",
+    "backend": "javascript",
+    "caller_contract": "trusted, well-typed target-native values; no input validation, snapshot capture or host resource budgets",
+    "core_semantics": "ink-executable-core-v8",
+    "core_sha256": "81fcc54661c655d21de8ee73e1dc5c192a9adec70f9fa4939060ac5a1dd6696d",
+    "destination_abi": {
+      "aliasing": "destination-disjoint-from-all-reachable-inputs",
+      "capacity": "trusted",
+      "count_unit": "elements",
+      "name": "ink-javascript-into-v1",
+      "ownership": "caller-owned",
+      "tail": "unwritten"
+    },
+    "f32_storage": "native-number-with-exact-nonfinite-tags",
+    "functions": [
+      {
+        "destination": null,
+        "index": 0,
+        "internal": false,
+        "name": "combined",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "bias",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      },
+      {
+        "destination": {
+          "abi": "ink-javascript-into-v1",
+          "count_unit": "elements",
+          "ownership": "caller-owned"
+        },
+        "index": 1,
+        "internal": false,
+        "name": "doubled",
+        "parallel": false,
+        "params": [
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "bias",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "element": {
+            "kind": "u32"
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "destination": null,
+        "index": 2,
+        "internal": false,
+        "name": "guarded",
+        "parallel": false,
+        "params": [
+          {
+            "name": "active",
+            "type": {
+              "kind": "bool"
+            }
+          },
+          {
+            "name": "xs",
+            "type": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          },
+          {
+            "name": "bias",
+            "type": {
+              "kind": "u32"
+            }
+          }
+        ],
+        "precondition": null,
+        "result": {
+          "kind": "u32"
+        }
+      }
+    ],
+    "javascript_sha256": "b1ae7efe010a91d8c69e1e787f65d5d8f64116ee0fa8e21fdc67f455e0400209",
+    "named_types": {},
+    "owned_result_contract": {
+      "functions": 3,
+      "inputs": "same trusted caller contract",
+      "results": "canonical detached values with ABI byte/node/depth limits",
+      "unsupported": []
+    },
+    "prepared_compiled": {
+      "evaluation": "lazy source-order; successful bindings only",
+      "functions": [
+        {
+          "delegated_calls": 0,
+          "factory": true,
+          "function": "combined",
+          "retained_bindings": 1
+        },
+        {
+          "delegated_calls": 0,
+          "factory": true,
+          "function": "doubled",
+          "retained_bindings": 1
+        },
+        {
+          "delegated_calls": 0,
+          "factory": true,
+          "function": "guarded",
+          "retained_bindings": 1
+        }
+      ],
+      "lifetime": "prepared token",
+      "semantics": "sealed-value-residual-v1"
+    },
+    "private_record_elisions": [],
+    "private_sum_spines": [],
+    "schema": 1,
+    "scope": "trusted pure functions and temporary collections; state/actions with portable snapshots and ordered transaction events",
+    "selection": {
+      "applied_laws": [
+        "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8",
+        "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+        "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290"
+      ],
+      "closure": [
+        "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+        "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290",
+        "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8"
+      ],
+      "input_core_sha256": "fb0ddc36e4e46b1d4cd0ae6439e021946ecd8187088b046a85a505622645f84b",
+      "selected_core_sha256": "81fcc54661c655d21de8ee73e1dc5c192a9adec70f9fa4939060ac5a1dd6696d",
+      "semantics": "ink-evidence-v1",
+      "snapshot_sha256": "c0f2c1a24e570ba7a22027d4ba21e186f974b6b811f833b19792a8db6122863b"
+    },
+    "state": null,
+    "trusted": [
+      "Ink checker and source correspondence",
+      "JavaScript emitter and representation conversion",
+      "JavaScript engine and host"
+    ],
+    "wire": {
+      "format": "ink-value-wire-v1",
+      "functions": {
+        "combined": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "dc7bf8ffc4517a319dadf3d6ea27a6efbe1ef176ced23f67036359272b0b125c",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "bias",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        },
+        "doubled": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "dc7bf8ffc4517a319dadf3d6ea27a6efbe1ef176ced23f67036359272b0b125c",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "bias",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "69ebf947aa59a2546656d1976b0baa6e56e7182d989425379b31e3bff74168ca",
+            "named": {},
+            "root": {
+              "element": {
+                "kind": "u32"
+              },
+              "kind": "list"
+            }
+          }
+        },
+        "guarded": {
+          "arguments": {
+            "format": "ink-value-wire-v1",
+            "identity": "e0de290176404189ec20fbf46a49add70e9e1b478f3269375e831288a0903b10",
+            "named": {},
+            "root": {
+              "fields": [
+                {
+                  "name": "active",
+                  "type": {
+                    "kind": "bool"
+                  }
+                },
+                {
+                  "name": "xs",
+                  "type": {
+                    "element": {
+                      "kind": "u32"
+                    },
+                    "kind": "list"
+                  }
+                },
+                {
+                  "name": "bias",
+                  "type": {
+                    "kind": "u32"
+                  }
+                }
+              ],
+              "kind": "record",
+              "name": "arguments"
+            }
+          },
+          "result": {
+            "format": "ink-value-wire-v1",
+            "identity": "51f75af7953a9d922f9ada927ffd8d0c8c476597ed69294f0a0425f75b052cff",
+            "named": {},
+            "root": {
+              "kind": "u32"
+            }
+          }
+        }
+      }
+    }
+  },
+  "checked_implementation": null,
+  "checked_replacement": null,
+  "initial_state": null,
+  "input_core_sha256": "fb0ddc36e4e46b1d4cd0ae6439e021946ecd8187088b046a85a505622645f84b",
+  "selected_core_sha256": "81fcc54661c655d21de8ee73e1dc5c192a9adec70f9fa4939060ac5a1dd6696d",
+  "semantic_package": {
+    "applications": [
+      {
+        "arguments": {
+          "bias": {
+            "node": {
+              "Free": "bias"
+            },
+            "sort": {
+              "Value": "U32"
+            }
+          },
+          "xs": {
+            "node": {
+              "Free": "xs"
+            },
+            "sort": {
+              "Value": {
+                "List": "U32"
+              }
+            }
+          }
+        },
+        "function": "combined",
+        "law": "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8",
+        "path": [],
+        "premises": []
+      },
+      {
+        "arguments": {
+          "bias": {
+            "node": {
+              "Free": "bias"
+            },
+            "sort": {
+              "Value": "U32"
+            }
+          },
+          "xs": {
+            "node": {
+              "Free": "xs"
+            },
+            "sort": {
+              "Value": {
+                "List": "U32"
+              }
+            }
+          }
+        },
+        "function": "doubled",
+        "law": "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+        "path": [],
+        "premises": []
+      },
+      {
+        "arguments": {
+          "active": {
+            "node": {
+              "Free": "active"
+            },
+            "sort": {
+              "Value": "Bool"
+            }
+          },
+          "bias": {
+            "node": {
+              "Free": "bias"
+            },
+            "sort": {
+              "Value": "U32"
+            }
+          },
+          "xs": {
+            "node": {
+              "Free": "xs"
+            },
+            "sort": {
+              "Value": {
+                "List": "U32"
+              }
+            }
+          }
+        },
+        "function": "guarded",
+        "law": "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290",
+        "path": [],
+        "premises": []
+      }
+    ],
+    "input_core_sha256": "fb0ddc36e4e46b1d4cd0ae6439e021946ecd8187088b046a85a505622645f84b",
+    "knowledge": {
+      "membership": {
+        "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530": {
+          "entries": [
+            "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+            "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290",
+            "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8"
+          ],
+          "path": []
+        },
+        "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290": {
+          "entries": [
+            "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+            "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290",
+            "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8"
+          ],
+          "path": []
+        },
+        "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8": {
+          "entries": [
+            "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+            "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290",
+            "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8"
+          ],
+          "path": []
+        }
+      },
+      "objects": {
+        "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530": {
+          "dependencies": [],
+          "interface": {
+            "conditions": [],
+            "effects": [],
+            "operations": [
+              "apply",
+              "binary:*",
+              "binary:+",
+              "method:concat",
+              "method:map"
+            ],
+            "parameters": {
+              "bias": {
+                "Value": "U32"
+              },
+              "xs": {
+                "Value": {
+                  "List": "U32"
+                }
+              }
+            },
+            "result": {
+              "Value": {
+                "List": "U32"
+              }
+            }
+          },
+          "kind": "rewrite",
+          "payload": {
+            "conditions": [],
+            "definition_context": {
+              "definitions": {},
+              "enums": {},
+              "records": {},
+              "schema": 1
+            },
+            "from": {
+              "node": {
+                "Op": [
+                  "method:concat",
+                  [
+                    {
+                      "node": {
+                        "Op": [
+                          "method:map",
+                          [
+                            {
+                              "node": {
+                                "Free": "xs"
+                              },
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              }
+                            },
+                            {
+                              "node": {
+                                "Lambda": {
+                                  "node": {
+                                    "Op": [
+                                      "binary:+",
+                                      [
+                                        {
+                                          "node": {
+                                            "Op": [
+                                              "binary:*",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Bound": 0
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Word": 1664525
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Free": "bias"
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  "sort": {
+                                    "Value": "U32"
+                                  }
+                                }
+                              },
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U32"
+                                  },
+                                  {
+                                    "Value": "U32"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      },
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      }
+                    },
+                    {
+                      "node": {
+                        "Op": [
+                          "method:map",
+                          [
+                            {
+                              "node": {
+                                "Free": "xs"
+                              },
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              }
+                            },
+                            {
+                              "node": {
+                                "Lambda": {
+                                  "node": {
+                                    "Op": [
+                                      "binary:+",
+                                      [
+                                        {
+                                          "node": {
+                                            "Op": [
+                                              "binary:*",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Bound": 0
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Word": 1664525
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Free": "bias"
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  "sort": {
+                                    "Value": "U32"
+                                  }
+                                }
+                              },
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U32"
+                                  },
+                                  {
+                                    "Value": "U32"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      },
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": {
+                  "List": "U32"
+                }
+              }
+            },
+            "params": {
+              "bias": {
+                "Value": "U32"
+              },
+              "xs": {
+                "Value": {
+                  "List": "U32"
+                }
+              }
+            },
+            "proof": "Normalize",
+            "to": {
+              "node": {
+                "Op": [
+                  "apply",
+                  [
+                    {
+                      "node": {
+                        "Lambda": {
+                          "node": {
+                            "Op": [
+                              "method:concat",
+                              [
+                                {
+                                  "node": {
+                                    "Bound": 0
+                                  },
+                                  "sort": {
+                                    "Value": {
+                                      "List": "U32"
+                                    }
+                                  }
+                                },
+                                {
+                                  "node": {
+                                    "Bound": 0
+                                  },
+                                  "sort": {
+                                    "Value": {
+                                      "List": "U32"
+                                    }
+                                  }
+                                }
+                              ]
+                            ]
+                          },
+                          "sort": {
+                            "Value": {
+                              "List": "U32"
+                            }
+                          }
+                        }
+                      },
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": {
+                              "List": "U32"
+                            }
+                          },
+                          {
+                            "Value": {
+                              "List": "U32"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "node": {
+                        "Op": [
+                          "method:map",
+                          [
+                            {
+                              "node": {
+                                "Free": "xs"
+                              },
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              }
+                            },
+                            {
+                              "node": {
+                                "Lambda": {
+                                  "node": {
+                                    "Op": [
+                                      "binary:+",
+                                      [
+                                        {
+                                          "node": {
+                                            "Op": [
+                                              "binary:*",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Bound": 0
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Word": 1664525
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Free": "bias"
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  "sort": {
+                                    "Value": "U32"
+                                  }
+                                }
+                              },
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U32"
+                                  },
+                                  {
+                                    "Value": "U32"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      },
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": {
+                  "List": "U32"
+                }
+              }
+            }
+          },
+          "schema": 1,
+          "semantics": "ink-conditional-laws-v1"
+        },
+        "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290": {
+          "dependencies": [],
+          "interface": {
+            "conditions": [],
+            "effects": [],
+            "operations": [
+              "apply",
+              "binary:*",
+              "binary:+",
+              "call:choose",
+              "call:foldl",
+              "call:word_xor",
+              "method:map"
+            ],
+            "parameters": {
+              "active": {
+                "Value": "Bool"
+              },
+              "bias": {
+                "Value": "U32"
+              },
+              "xs": {
+                "Value": {
+                  "List": "U32"
+                }
+              }
+            },
+            "result": {
+              "Value": "U32"
+            }
+          },
+          "kind": "rewrite",
+          "payload": {
+            "conditions": [],
+            "definition_context": {
+              "definitions": {},
+              "enums": {},
+              "records": {},
+              "schema": 1
+            },
+            "from": {
+              "node": {
+                "Op": [
+                  "call:choose",
+                  [
+                    {
+                      "node": {
+                        "Free": "active"
+                      },
+                      "sort": {
+                        "Value": "Bool"
+                      }
+                    },
+                    {
+                      "node": {
+                        "Op": [
+                          "binary:+",
+                          [
+                            {
+                              "node": {
+                                "Op": [
+                                  "call:foldl",
+                                  [
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "method:map",
+                                          [
+                                            {
+                                              "node": {
+                                                "Free": "xs"
+                                              },
+                                              "sort": {
+                                                "Value": {
+                                                  "List": "U32"
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Lambda": {
+                                                  "node": {
+                                                    "Op": [
+                                                      "binary:+",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Op": [
+                                                              "binary:*",
+                                                              [
+                                                                {
+                                                                  "node": {
+                                                                    "Bound": 0
+                                                                  },
+                                                                  "sort": {
+                                                                    "Value": "U32"
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "node": {
+                                                                    "Word": 1664525
+                                                                  },
+                                                                  "sort": {
+                                                                    "Value": "U32"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            ]
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        },
+                                                        {
+                                                          "node": {
+                                                            "Free": "bias"
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": "U32"
+                                                  },
+                                                  {
+                                                    "Value": "U32"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U32"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Word": 0
+                                      },
+                                      "sort": {
+                                        "Value": "U32"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Lambda": {
+                                          "node": {
+                                            "Lambda": {
+                                              "node": {
+                                                "Op": [
+                                                  "binary:+",
+                                                  [
+                                                    {
+                                                      "node": {
+                                                        "Bound": 0
+                                                      },
+                                                      "sort": {
+                                                        "Value": "U32"
+                                                      }
+                                                    },
+                                                    {
+                                                      "node": {
+                                                        "Bound": 1
+                                                      },
+                                                      "sort": {
+                                                        "Value": "U32"
+                                                      }
+                                                    }
+                                                  ]
+                                                ]
+                                              },
+                                              "sort": {
+                                                "Value": "U32"
+                                              }
+                                            }
+                                          },
+                                          "sort": {
+                                            "Arrow": [
+                                              {
+                                                "Value": "U32"
+                                              },
+                                              {
+                                                "Value": "U32"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": "U32"
+                                          },
+                                          {
+                                            "Arrow": [
+                                              {
+                                                "Value": "U32"
+                                              },
+                                              {
+                                                "Value": "U32"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": "U32"
+                              }
+                            },
+                            {
+                              "node": {
+                                "Op": [
+                                  "call:foldl",
+                                  [
+                                    {
+                                      "node": {
+                                        "Op": [
+                                          "method:map",
+                                          [
+                                            {
+                                              "node": {
+                                                "Free": "xs"
+                                              },
+                                              "sort": {
+                                                "Value": {
+                                                  "List": "U32"
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Lambda": {
+                                                  "node": {
+                                                    "Op": [
+                                                      "binary:+",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Op": [
+                                                              "binary:*",
+                                                              [
+                                                                {
+                                                                  "node": {
+                                                                    "Bound": 0
+                                                                  },
+                                                                  "sort": {
+                                                                    "Value": "U32"
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "node": {
+                                                                    "Word": 1664525
+                                                                  },
+                                                                  "sort": {
+                                                                    "Value": "U32"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            ]
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        },
+                                                        {
+                                                          "node": {
+                                                            "Free": "bias"
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": "U32"
+                                                  },
+                                                  {
+                                                    "Value": "U32"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U32"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Word": 0
+                                      },
+                                      "sort": {
+                                        "Value": "U32"
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Lambda": {
+                                          "node": {
+                                            "Lambda": {
+                                              "node": {
+                                                "Op": [
+                                                  "call:word_xor",
+                                                  [
+                                                    {
+                                                      "node": {
+                                                        "Bound": 0
+                                                      },
+                                                      "sort": {
+                                                        "Value": "U32"
+                                                      }
+                                                    },
+                                                    {
+                                                      "node": {
+                                                        "Bound": 1
+                                                      },
+                                                      "sort": {
+                                                        "Value": "U32"
+                                                      }
+                                                    }
+                                                  ]
+                                                ]
+                                              },
+                                              "sort": {
+                                                "Value": "U32"
+                                              }
+                                            }
+                                          },
+                                          "sort": {
+                                            "Arrow": [
+                                              {
+                                                "Value": "U32"
+                                              },
+                                              {
+                                                "Value": "U32"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": "U32"
+                                          },
+                                          {
+                                            "Arrow": [
+                                              {
+                                                "Value": "U32"
+                                              },
+                                              {
+                                                "Value": "U32"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": "U32"
+                              }
+                            }
+                          ]
+                        ]
+                      },
+                      "sort": {
+                        "Value": "U32"
+                      }
+                    },
+                    {
+                      "node": {
+                        "Word": 0
+                      },
+                      "sort": {
+                        "Value": "U32"
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": "U32"
+              }
+            },
+            "params": {
+              "active": {
+                "Value": "Bool"
+              },
+              "bias": {
+                "Value": "U32"
+              },
+              "xs": {
+                "Value": {
+                  "List": "U32"
+                }
+              }
+            },
+            "proof": "Normalize",
+            "to": {
+              "node": {
+                "Op": [
+                  "call:choose",
+                  [
+                    {
+                      "node": {
+                        "Free": "active"
+                      },
+                      "sort": {
+                        "Value": "Bool"
+                      }
+                    },
+                    {
+                      "node": {
+                        "Op": [
+                          "apply",
+                          [
+                            {
+                              "node": {
+                                "Lambda": {
+                                  "node": {
+                                    "Op": [
+                                      "binary:+",
+                                      [
+                                        {
+                                          "node": {
+                                            "Op": [
+                                              "call:foldl",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Bound": 0
+                                                  },
+                                                  "sort": {
+                                                    "Value": {
+                                                      "List": "U32"
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Word": 0
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Lambda": {
+                                                      "node": {
+                                                        "Lambda": {
+                                                          "node": {
+                                                            "Op": [
+                                                              "binary:+",
+                                                              [
+                                                                {
+                                                                  "node": {
+                                                                    "Bound": 0
+                                                                  },
+                                                                  "sort": {
+                                                                    "Value": "U32"
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "node": {
+                                                                    "Bound": 1
+                                                                  },
+                                                                  "sort": {
+                                                                    "Value": "U32"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            ]
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      },
+                                                      "sort": {
+                                                        "Arrow": [
+                                                          {
+                                                            "Value": "U32"
+                                                          },
+                                                          {
+                                                            "Value": "U32"
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  },
+                                                  "sort": {
+                                                    "Arrow": [
+                                                      {
+                                                        "Value": "U32"
+                                                      },
+                                                      {
+                                                        "Arrow": [
+                                                          {
+                                                            "Value": "U32"
+                                                          },
+                                                          {
+                                                            "Value": "U32"
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Op": [
+                                              "call:foldl",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Bound": 0
+                                                  },
+                                                  "sort": {
+                                                    "Value": {
+                                                      "List": "U32"
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Word": 0
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Lambda": {
+                                                      "node": {
+                                                        "Lambda": {
+                                                          "node": {
+                                                            "Op": [
+                                                              "call:word_xor",
+                                                              [
+                                                                {
+                                                                  "node": {
+                                                                    "Bound": 0
+                                                                  },
+                                                                  "sort": {
+                                                                    "Value": "U32"
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "node": {
+                                                                    "Bound": 1
+                                                                  },
+                                                                  "sort": {
+                                                                    "Value": "U32"
+                                                                  }
+                                                                }
+                                                              ]
+                                                            ]
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      },
+                                                      "sort": {
+                                                        "Arrow": [
+                                                          {
+                                                            "Value": "U32"
+                                                          },
+                                                          {
+                                                            "Value": "U32"
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  },
+                                                  "sort": {
+                                                    "Arrow": [
+                                                      {
+                                                        "Value": "U32"
+                                                      },
+                                                      {
+                                                        "Arrow": [
+                                                          {
+                                                            "Value": "U32"
+                                                          },
+                                                          {
+                                                            "Value": "U32"
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  "sort": {
+                                    "Value": "U32"
+                                  }
+                                }
+                              },
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": {
+                                      "List": "U32"
+                                    }
+                                  },
+                                  {
+                                    "Value": "U32"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "node": {
+                                "Op": [
+                                  "method:map",
+                                  [
+                                    {
+                                      "node": {
+                                        "Free": "xs"
+                                      },
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U32"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Lambda": {
+                                          "node": {
+                                            "Op": [
+                                              "binary:+",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Op": [
+                                                      "binary:*",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Bound": 0
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        },
+                                                        {
+                                                          "node": {
+                                                            "Word": 1664525
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Free": "bias"
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        }
+                                      },
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": "U32"
+                                          },
+                                          {
+                                            "Value": "U32"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      },
+                      "sort": {
+                        "Value": "U32"
+                      }
+                    },
+                    {
+                      "node": {
+                        "Word": 0
+                      },
+                      "sort": {
+                        "Value": "U32"
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": "U32"
+              }
+            }
+          },
+          "schema": 1,
+          "semantics": "ink-conditional-laws-v1"
+        },
+        "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8": {
+          "dependencies": [],
+          "interface": {
+            "conditions": [],
+            "effects": [],
+            "operations": [
+              "apply",
+              "binary:*",
+              "binary:+",
+              "call:foldl",
+              "call:word_xor",
+              "method:map"
+            ],
+            "parameters": {
+              "bias": {
+                "Value": "U32"
+              },
+              "xs": {
+                "Value": {
+                  "List": "U32"
+                }
+              }
+            },
+            "result": {
+              "Value": "U32"
+            }
+          },
+          "kind": "rewrite",
+          "payload": {
+            "conditions": [],
+            "definition_context": {
+              "definitions": {},
+              "enums": {},
+              "records": {},
+              "schema": 1
+            },
+            "from": {
+              "node": {
+                "Op": [
+                  "binary:+",
+                  [
+                    {
+                      "node": {
+                        "Op": [
+                          "call:foldl",
+                          [
+                            {
+                              "node": {
+                                "Op": [
+                                  "method:map",
+                                  [
+                                    {
+                                      "node": {
+                                        "Free": "xs"
+                                      },
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U32"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Lambda": {
+                                          "node": {
+                                            "Op": [
+                                              "binary:+",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Op": [
+                                                      "binary:*",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Bound": 0
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        },
+                                                        {
+                                                          "node": {
+                                                            "Word": 1664525
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Free": "bias"
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        }
+                                      },
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": "U32"
+                                          },
+                                          {
+                                            "Value": "U32"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              }
+                            },
+                            {
+                              "node": {
+                                "Word": 0
+                              },
+                              "sort": {
+                                "Value": "U32"
+                              }
+                            },
+                            {
+                              "node": {
+                                "Lambda": {
+                                  "node": {
+                                    "Lambda": {
+                                      "node": {
+                                        "Op": [
+                                          "binary:+",
+                                          [
+                                            {
+                                              "node": {
+                                                "Bound": 0
+                                              },
+                                              "sort": {
+                                                "Value": "U32"
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Bound": 1
+                                              },
+                                              "sort": {
+                                                "Value": "U32"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "U32"
+                                      }
+                                    }
+                                  },
+                                  "sort": {
+                                    "Arrow": [
+                                      {
+                                        "Value": "U32"
+                                      },
+                                      {
+                                        "Value": "U32"
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U32"
+                                  },
+                                  {
+                                    "Arrow": [
+                                      {
+                                        "Value": "U32"
+                                      },
+                                      {
+                                        "Value": "U32"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      },
+                      "sort": {
+                        "Value": "U32"
+                      }
+                    },
+                    {
+                      "node": {
+                        "Op": [
+                          "call:foldl",
+                          [
+                            {
+                              "node": {
+                                "Op": [
+                                  "method:map",
+                                  [
+                                    {
+                                      "node": {
+                                        "Free": "xs"
+                                      },
+                                      "sort": {
+                                        "Value": {
+                                          "List": "U32"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "node": {
+                                        "Lambda": {
+                                          "node": {
+                                            "Op": [
+                                              "binary:+",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Op": [
+                                                      "binary:*",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Bound": 0
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        },
+                                                        {
+                                                          "node": {
+                                                            "Word": 1664525
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Free": "bias"
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        }
+                                      },
+                                      "sort": {
+                                        "Arrow": [
+                                          {
+                                            "Value": "U32"
+                                          },
+                                          {
+                                            "Value": "U32"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                ]
+                              },
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              }
+                            },
+                            {
+                              "node": {
+                                "Word": 0
+                              },
+                              "sort": {
+                                "Value": "U32"
+                              }
+                            },
+                            {
+                              "node": {
+                                "Lambda": {
+                                  "node": {
+                                    "Lambda": {
+                                      "node": {
+                                        "Op": [
+                                          "call:word_xor",
+                                          [
+                                            {
+                                              "node": {
+                                                "Bound": 0
+                                              },
+                                              "sort": {
+                                                "Value": "U32"
+                                              }
+                                            },
+                                            {
+                                              "node": {
+                                                "Bound": 1
+                                              },
+                                              "sort": {
+                                                "Value": "U32"
+                                              }
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      "sort": {
+                                        "Value": "U32"
+                                      }
+                                    }
+                                  },
+                                  "sort": {
+                                    "Arrow": [
+                                      {
+                                        "Value": "U32"
+                                      },
+                                      {
+                                        "Value": "U32"
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U32"
+                                  },
+                                  {
+                                    "Arrow": [
+                                      {
+                                        "Value": "U32"
+                                      },
+                                      {
+                                        "Value": "U32"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      },
+                      "sort": {
+                        "Value": "U32"
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": "U32"
+              }
+            },
+            "params": {
+              "bias": {
+                "Value": "U32"
+              },
+              "xs": {
+                "Value": {
+                  "List": "U32"
+                }
+              }
+            },
+            "proof": "Normalize",
+            "to": {
+              "node": {
+                "Op": [
+                  "apply",
+                  [
+                    {
+                      "node": {
+                        "Lambda": {
+                          "node": {
+                            "Op": [
+                              "binary:+",
+                              [
+                                {
+                                  "node": {
+                                    "Op": [
+                                      "call:foldl",
+                                      [
+                                        {
+                                          "node": {
+                                            "Bound": 0
+                                          },
+                                          "sort": {
+                                            "Value": {
+                                              "List": "U32"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Word": 0
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Lambda": {
+                                              "node": {
+                                                "Lambda": {
+                                                  "node": {
+                                                    "Op": [
+                                                      "binary:+",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Bound": 0
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        },
+                                                        {
+                                                          "node": {
+                                                            "Bound": 1
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": "U32"
+                                                  },
+                                                  {
+                                                    "Value": "U32"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          },
+                                          "sort": {
+                                            "Arrow": [
+                                              {
+                                                "Value": "U32"
+                                              },
+                                              {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": "U32"
+                                                  },
+                                                  {
+                                                    "Value": "U32"
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  "sort": {
+                                    "Value": "U32"
+                                  }
+                                },
+                                {
+                                  "node": {
+                                    "Op": [
+                                      "call:foldl",
+                                      [
+                                        {
+                                          "node": {
+                                            "Bound": 0
+                                          },
+                                          "sort": {
+                                            "Value": {
+                                              "List": "U32"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Word": 0
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Lambda": {
+                                              "node": {
+                                                "Lambda": {
+                                                  "node": {
+                                                    "Op": [
+                                                      "call:word_xor",
+                                                      [
+                                                        {
+                                                          "node": {
+                                                            "Bound": 0
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        },
+                                                        {
+                                                          "node": {
+                                                            "Bound": 1
+                                                          },
+                                                          "sort": {
+                                                            "Value": "U32"
+                                                          }
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              },
+                                              "sort": {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": "U32"
+                                                  },
+                                                  {
+                                                    "Value": "U32"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          },
+                                          "sort": {
+                                            "Arrow": [
+                                              {
+                                                "Value": "U32"
+                                              },
+                                              {
+                                                "Arrow": [
+                                                  {
+                                                    "Value": "U32"
+                                                  },
+                                                  {
+                                                    "Value": "U32"
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  "sort": {
+                                    "Value": "U32"
+                                  }
+                                }
+                              ]
+                            ]
+                          },
+                          "sort": {
+                            "Value": "U32"
+                          }
+                        }
+                      },
+                      "sort": {
+                        "Arrow": [
+                          {
+                            "Value": {
+                              "List": "U32"
+                            }
+                          },
+                          {
+                            "Value": "U32"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "node": {
+                        "Op": [
+                          "method:map",
+                          [
+                            {
+                              "node": {
+                                "Free": "xs"
+                              },
+                              "sort": {
+                                "Value": {
+                                  "List": "U32"
+                                }
+                              }
+                            },
+                            {
+                              "node": {
+                                "Lambda": {
+                                  "node": {
+                                    "Op": [
+                                      "binary:+",
+                                      [
+                                        {
+                                          "node": {
+                                            "Op": [
+                                              "binary:*",
+                                              [
+                                                {
+                                                  "node": {
+                                                    "Bound": 0
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                },
+                                                {
+                                                  "node": {
+                                                    "Word": 1664525
+                                                  },
+                                                  "sort": {
+                                                    "Value": "U32"
+                                                  }
+                                                }
+                                              ]
+                                            ]
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        },
+                                        {
+                                          "node": {
+                                            "Free": "bias"
+                                          },
+                                          "sort": {
+                                            "Value": "U32"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  },
+                                  "sort": {
+                                    "Value": "U32"
+                                  }
+                                }
+                              },
+                              "sort": {
+                                "Arrow": [
+                                  {
+                                    "Value": "U32"
+                                  },
+                                  {
+                                    "Value": "U32"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        ]
+                      },
+                      "sort": {
+                        "Value": {
+                          "List": "U32"
+                        }
+                      }
+                    }
+                  ]
+                ]
+              },
+              "sort": {
+                "Value": "U32"
+              }
+            }
+          },
+          "schema": 1,
+          "semantics": "ink-conditional-laws-v1"
+        }
+      },
+      "roots": [
+        "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+        "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290",
+        "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8"
+      ],
+      "schema": 1,
+      "snapshot": {
+        "root": "54e40384e44a8c6166ec0aa293d974d2fba60d30754bae5499d95349e2d51725",
+        "schema": 1,
+        "semantics": "ink-knowledge-snapshot-v1"
+      }
+    },
+    "schema": 1,
+    "semantics": "ink-evidence-v1"
+  },
+  "semantic_selection": {
+    "applied_laws": [
+      "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8",
+      "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+      "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290"
+    ],
+    "closure": [
+      "20b2b58e58a84f0aa1eb1436cab20f65d30984178e917fec058c4078341e1530",
+      "4b8815d5c103b64495c46ff835a8ce26f0b1dcc38f308e06d1ebac903ae84290",
+      "bdfe2386199f37d06561cf361172bceddc380252721011f70b0af9a792ae79c8"
+    ],
+    "input_core_sha256": "fb0ddc36e4e46b1d4cd0ae6439e021946ecd8187088b046a85a505622645f84b",
+    "selected_core_sha256": "81fcc54661c655d21de8ee73e1dc5c192a9adec70f9fa4939060ac5a1dd6696d",
+    "semantics": "ink-evidence-v1",
+    "snapshot_sha256": "c0f2c1a24e570ba7a22027d4ba21e186f974b6b811f833b19792a8db6122863b"
+  },
+  "source": "/Users/james/Documents/ChatGPT/3d-modelling/research/ink-v8-2026-10-15/bench/v8-learning/list-sharing/evidence/core.json",
+  "target": "javascript",
+  "trust": "checked transformations; JavaScript emission and engine remain trusted"
+}
