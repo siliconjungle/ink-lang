@@ -137,7 +137,7 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedSel
         || serde_json::to_vec(package)
             .map_err(|e| e.to_string())?
             .len()
-            > 16_000_000
+            > crate::registry::MAX_VIEW_BYTES
     {
         return Err("selection package limit".into());
     }
