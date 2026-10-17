@@ -230,8 +230,8 @@ fn device(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>device_value(DevicePoint
 
 #[test]
 fn internal_owned_helpers_preserve_full_host_state_and_literal_gpu_execution() {
-    let source=include_str!("../examples/device-private-helpers.ink");
-    let module=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let source=format!("{}\n{}",include_str!("../examples/device-private-helpers.ink"),include_str!("../examples/device-record-tape.ink").lines().skip(1).collect::<Vec<_>>().join("\n"));
+    let module=CheckedModule::from_source(syntax::parse(&source).unwrap()).unwrap();
     let mut runtime=Runtime::from_checked(&module).unwrap();
     let mut steps=vec![];let mut expected=vec![];
     let controls=[json!([]),json!([0.0,-0.0,1.0,-1.0]),json!([{ "F32Bits":2143289345u32 },-0.0]),json!([{"F32Bits":1u32},{"F32Bits":0x7f800000u32}])];
@@ -258,6 +258,36 @@ fn internal_owned_helpers_preserve_full_host_state_and_literal_gpu_execution() {
         steps.push(json!({"pure":"lazy_total","args":args,"expect_gpu":true}));
         expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
     }
+    for input in [json!(-0.0),json!(1.0),json!(-2.0),json!({"F32Bits":1u32}),json!({"F32Bits":0x7f800000u32}),json!({"F32Bits":2143289345u32})] {
+        for negative in [false,true] {
+            for (name,args) in [("tape_observation",json!([input,negative])),("mapped",json!([[input],negative]))] {
+                let value=pure(&module,name,args.clone());
+                steps.push(json!({"pure":name,"args":args,"expect_gpu":true}));expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+            }
+        }
+        let args=json!([input]);let value=pure(&module,"scanned",args.clone());
+        steps.push(json!({"pure":"scanned","args":args,"expect_gpu":true}));expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    for at in [0u32,1,32,63,64,u32::MAX] {
+        for remove in [false,true] {
+            let args=json!([{"F32Bits":2143289345u32},at,remove]);let value=pure(&module,"partitioned",args.clone());
+            steps.push(json!({"pure":"partitioned","args":args,"expect_gpu":true}));expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+        }
+    }
+    for input in [0u64,1,u64::MAX,(1u64<<32)+1] {
+        let args=json!([input]);let value=pure(&module,"scanned_wide",args.clone());
+        steps.push(json!({"pure":"scanned_wide","args":args,"expect_gpu":true}));expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    for inputs in [json!([]),json!([u64::MAX,1u64]),json!([0,1,2,3,4,5])] {
+        for left in [false,true] {
+            let args=json!([inputs,u64::MAX,left]);let value=pure(&module,"selected_wide",args.clone());
+            steps.push(json!({"pure":"selected_wide","args":args,"expect_gpu":true}));expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+        }
+    }
+    for empty in [false,true] {
+        let args=json!([u64::MAX,empty]);let value=pure(&module,"empty_owned",args.clone());
+        steps.push(json!({"pure":"empty_owned","args":args,"expect_gpu":true}));expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
     for (input,maximum) in [(2.0,32),(-0.0,32),(-4.0,32),(2.0,1),(2.0,1000001)] {
         let args=json!([input,maximum]);let value=pure(&module,"reverse_value",args.clone());
         steps.push(json!({"pure":"reverse_value","args":args,"cpu_only":true}));
@@ -273,7 +303,10 @@ fn internal_owned_helpers_preserve_full_host_state_and_literal_gpu_execution() {
     steps.push(json!({"restore":initial}));runtime=Runtime::restore_portable_checked(&module,&initial).unwrap();
     let outcome=runtime.invoke_json("current",&json!([])).unwrap();
     steps.push(json!({"call":"current","args":[]}));expected.push(json!({"reply":{"outcome":outcome.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
-    parity::conformance_checked("device-private-helpers",&module,source,steps,expected);
+    let proof_root=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("build/device-private-helpers");
+    std::fs::create_dir_all(&proof_root).unwrap();
+    std::fs::write(proof_root.join("storage-retention.json"),r#"{"schema":1,"keep":[{"path":".","reason":"Active required complete entry/record/helper CPU and device validation"}],"safe_to_remove":[]}"#).unwrap();
+    parity::conformance_checked("device-private-helpers",&module,&source,steps,expected);
     if std::env::var_os("INK_TEST_WGPU").is_some() && std::env::var_os("INK_TEST_WASM").is_some() {
         let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
         let fixture=root.join("build/device-private-helpers");

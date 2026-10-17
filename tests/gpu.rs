@@ -6,6 +6,8 @@ mod local_lists;
 mod function_types;
 #[path = "../lowerings/gpu/tests/entry_points.rs"]
 mod entry_points;
+#[path = "../lowerings/gpu/tests/record_buffers.rs"]
+mod record_buffers;
 #[test]
 fn packed_wasm_parallel_fallback_preserves_captures_indices_and_nesting() {
     if std::env::var_os("INK_TEST_WASM").is_none() { return; }
