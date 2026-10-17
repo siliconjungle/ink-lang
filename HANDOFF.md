@@ -104,7 +104,7 @@ claims about all application graphs or backends:
   explicit state; offline/build/runtime learning and coordination between learners.
 - Cooperative continuous sessions with observation queues, cadence/work budgets,
   serving/candidate versions, publication checks, cancellation and durable recovery.
-- Forward differentiation/JVP, bounded F32 source reverse differentiation,
+- F32/F64 forward differentiation/JVP and bounded source reverse differentiation,
   authored reverse graphs, optimizer continuation, Adam/backtracking and categorical
   score-function policy gradients.
 - Complete state/optimizer snapshots, events, rollback and frozen trained builds.
@@ -281,13 +281,14 @@ table statuses predate subsequent deliveries; read the later sections too.
 
 Outstanding groups include:
 
-1. **Whole-computation/model graph and tape compilation:** finish the real network
-   above, wider function shapes and reusable graph execution with dynamic data.
+1. **Whole-computation/model graph and tape compilation:** extend the admitted
+   real-network milestone to wider function shapes and reusable graph execution
+   with dynamic data.
 2. **Learned implementation and goal choices:** complete the path from authored
    learned context to actual eligible representation/algorithm/placement variants,
    checked migration/fallback and programmable objective changes. Existing source
    advice and frozen examples are foundations, not general autonomous selection.
-3. **Learning execution:** F64 AD, broader source/control-flow domains, batched
+3. **Learning execution:** broader AD source/control-flow/contract domains, batched
    GPU-resident gradients/optimizer/training, and explicit concurrency semantics.
    A pure GPU dispatch beside CPU learning does not demonstrate device training.
 4. **Freerange transfer:** reusable forward numeric/branch facts, backward missing
@@ -336,3 +337,24 @@ has explicitly reprioritized functionality over hyper optimization.
 > patch, rebuild from committed sources, inspect current CI/deployment state, and
 > get the actual end-to-end capabilities working. Do not resume microbenchmark or
 > buffer-layout tuning. Keep the broader adaptive/three-project scope intact.
+
+
+## F64 source differentiation
+
+The forward/JVP/linearize and bounded reverse source transforms now share an
+explicit F32/F64 scalar domain. Objective and trainable shape agree on precision;
+carriers, helper constants, division, tape fields and cotangents use that domain.
+Mixed-precision context stays untracked; tracked hard conversions still need an
+explicit piecewise policy. The same bounded owned tape serves each precision,
+with fresh hygienic names, exact primal bits, lazy control flow and explicit
+zero-cotangent behavior. Both AD modes reject unsupported helper proof
+preconditions rather than dropping them.
+
+`examples/source-reverse-learning-f64.ink` exercises a real 64-parameter source
+learner and a multi-coordinate forward trajectory. `core/tests/f64_differentiation.rs`
+checks analytic derivatives, binary64 resolution, shapes, raw bits, capacity,
+control flow, precision policies and hygiene. The existing required
+`source_reverse` suite runs the F64 learner alongside F32 and terminal controls;
+its native GPU host uses CPU tape training and a separate actual F32 dispatch.
+This does not supply F64 GPU arithmetic, device training, a binary64 proof domain
+or F64 neural/Adam library interfaces. The broader programme remains open.

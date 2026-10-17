@@ -233,13 +233,17 @@ Validate bounded decimal bit strings before BigInt conversion, including changin
 host getters. GPU binary64 work retains compiled CPU fallback. No F32/word law,
 NaN reflexivity, precision narrowing or physical layout gains authority from the
 new type. Semantic F64 proof terms currently fail closed, including closed nested
-subterms; source AD and neural/Adam libraries remain F32 until explicitly extended.
+subterms. Source forward/reverse AD supports F32/F64 in the objective's precision;
+neural/Adam library interfaces retain their separate F32 domain.
 Keep that scope distinct from general whole-application differentiation and the
 remaining Pretext/Handwired performance requirements. See docs/binary64.md.
 
 
-Source reverse differentiation uses fresh bounded owned tapes and fixed F32
-operation/adjoint order. Preserve primal evaluation, lazy branches/defaults,
+Source forward/reverse differentiation uses the objective's F32/F64 precision,
+homogeneous trainable shapes, fresh bounded owned tapes and fixed operation/
+adjoint order. Preserve independent hygienic precision domains and legacy F32
+source images. Neither AD mode may drop an objective/helper proof precondition;
+unsupported transport rejects with a diagnostic. Preserve primal evaluation, lazy branches/defaults,
 repeat_until's exclusive stop and fold_until's inclusive terminal step. Capacity
 and zero-cotangent policy are explicit; never substitute reverse for forward AD
 by equality or silently drop proof preconditions. Variant fold arms returning owned carriers run once; plain-valued contract

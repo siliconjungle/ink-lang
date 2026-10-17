@@ -579,3 +579,17 @@ The real full-network plan now passes ordinary complete admission; its producer
 reproduction matches the retained plan byte for byte. Cross-target network
 execution now passes; broader graph/tape compilation, useful learned choices,
 device training and the full functionality programme remain required.
+
+
+## Binary64 source differentiation
+
+The shared source-AD transforms now support F32/F64 forward gradients, JVPs,
+linearization and bounded reverse tapes. Scalar precision binds homogeneous
+trainable shapes, generated helpers/constants and tape/adjoint fields, while
+contexts remain untracked. Both modes reject unsupported proof-precondition
+transport. The runnable F64 learner uses 64 coordinates, authored updates,
+transaction constraints and portable restore; a forward trajectory uses finite
+record coordinates. See [source AD](docs/differentiable-computation.md#binary64-precision)
+and [reverse learning](docs/source-reverse-differentiation.md#binary64-source-learning).
+F64 proofs/library generalization, broader source/contract support, device
+training and the complete programme remain required. No speed claim follows.

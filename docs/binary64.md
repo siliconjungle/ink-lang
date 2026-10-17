@@ -86,10 +86,14 @@ including closed nested subterms. It does not inherit F32 normalization, word
 arithmetic or NaN-reflexivity claims. Existing external F32 division laws retain
 their canonical meaning. General binary64 numerical proofs remain required work.
 
-Source `gradient`/JVP and the neural/Adam libraries retain their existing F32
-domain. Authored F64 learning updates are possible, but this implementation does
-not supply F64 AD, certified numerical error bounds, automatic frozen arithmetic
-specialization or a complete Pretext port. The checker, translation, codecs,
+Source `gradient`/JVP/linearize and bounded source reverse differentiation now
+support F64 through shared precision-aware transforms. The objective's precision
+also binds its trainable shape, carriers, tape and derivative arithmetic. See
+[forward source AD](differentiable-computation.md#binary64-precision) and
+[reverse source learning](source-reverse-differentiation.md#binary64-source-learning).
+Neural/Adam library interfaces retain their separate F32 domain. This supplies
+no certified numerical error bounds, F64 proof normalization, automatic frozen
+arithmetic specialization or complete Pretext port. The checker, translation, codecs,
 backends and toolchain remain trusted implementation code.
 
 ## Evidence
