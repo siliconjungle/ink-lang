@@ -19,10 +19,11 @@ enum FrozenSpecialization {
 }
 impl FrozenSpecialization {
     fn check(module: &CheckedModule, bytes: &[u8]) -> LangResult<Self> {
-        let value: Value = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
-        if value["semantics"] == crate::planning::SEMANTICS {
-            let packet: crate::planning::Package =
-                serde_json::from_value(value).map_err(|e| e.to_string())?;
+        #[derive(serde::Deserialize)]
+        struct Header{semantics:String}
+        let header:Header=serde_json::from_slice(bytes).map_err(|e|e.to_string())?;
+        if header.semantics == crate::planning::SEMANTICS {
+            let packet = crate::planning::from_bytes(bytes)?;
             let mut rewrites = 0;
             for step in &packet.steps {
                 match step {
@@ -37,8 +38,7 @@ impl FrozenSpecialization {
             }
             Ok(Self::Composed(crate::planning::check(module, &packet)?))
         } else {
-            let packet: crate::optimisation::Package =
-                serde_json::from_value(value).map_err(|e| e.to_string())?;
+            let packet = crate::optimisation::from_bytes(bytes)?;
             if packet.action_replacement.is_none() {
                 return Err(
                     "frozen specialization requires complete action equality proofs".into(),

@@ -78,6 +78,7 @@ pub struct FunctionReplacement {
     pub schema: u32,
     pub semantics: String,
     pub input_core_sha256: String,
+    #[serde(deserialize_with = "crate::bounded_json::value")]
     pub selected: serde_json::Value,
     pub knowledge: registry::Bundle,
     pub proofs: BTreeMap<String, Proof>,
@@ -88,7 +89,7 @@ pub struct FunctionReplacement {
 pub fn check_functions(module: &CheckedModule, request: &FunctionReplacement) -> LangResult<CheckedModule> {
     if request.schema != 1 || request.semantics != FUNCTION_SEMANTICS
         || request.input_core_sha256 != module.identity()?
-        || registry::canonical(request)?.len() > registry::MAX_VIEW_BYTES {
+        || serde_json::to_vec(request).map_err(|e|e.to_string())?.len() > registry::MAX_VIEW_BYTES {
         return Err("pure replacement input/semantics/byte limit".into());
     }
     let selected = CheckedModule::from_bytes(&serde_json::to_vec(&request.selected).map_err(|e| e.to_string())?)?;
@@ -103,7 +104,7 @@ pub fn check_functions(module: &CheckedModule, request: &FunctionReplacement) ->
         if registry::canonical(&old.body)? != registry::canonical(&new.body)? { changed.insert(old.name.clone()); }
     }
     let mut same = a.clone(); same.functions = b.functions.clone();
-    if registry::canonical(&same)? != registry::canonical(b)? {
+    if serde_json::to_vec(&same).map_err(|e|e.to_string())? != serde_json::to_vec(b).map_err(|e|e.to_string())? {
         return Err("pure replacement changes non-function source".into());
     }
     if changed.is_empty() || changed.len() > 128 || request.proofs.keys().ne(changed.iter()) {

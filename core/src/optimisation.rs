@@ -31,6 +31,7 @@ pub struct Package {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub contract_refinement: Option<crate::contracts::Refinement>,
 }
+pub fn from_bytes(bytes:&[u8])->LangResult<Package>{crate::bounded_json::decode(bytes)}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Evidence {
