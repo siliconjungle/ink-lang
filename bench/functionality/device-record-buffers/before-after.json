@@ -1,0 +1,48 @@
+{
+  "source_identity": "d4f06cb6d5353a6eeb2183bec26816b39c9f4501de9e1965ae5a38c5c07ace28",
+  "source_sha256": "907b4ce95e1052137a8ab1b1a34f3b7b2ec68137c1e66ec81858dfe7e402aa9c",
+  "functions": [
+    {
+      "function": "tape_observation",
+      "before": false,
+      "after": true,
+      "old_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record"
+    },
+    {
+      "function": "mapped",
+      "before": false,
+      "after": true,
+      "old_reason": "GPU scalar requires a 32-bit numeric, Bool, vector or flat record; literal graph: GPU scalar requires a 32-bit numeric, Bool, vector or flat record"
+    },
+    {
+      "function": "partitioned",
+      "before": false,
+      "after": true,
+      "old_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: packed compute values must be flat numeric components; literal scalar: GPU temporary buffer has no static bound"
+    },
+    {
+      "function": "scanned",
+      "before": false,
+      "after": true,
+      "old_reason": "GPU v2 currently requires an array result; ordered scalar reductions use CPU; literal graph: packed compute values must be flat numeric components"
+    },
+    {
+      "function": "scanned_wide",
+      "before": false,
+      "after": true,
+      "old_reason": "input slot; literal graph: packed compute values must be flat numeric components"
+    },
+    {
+      "function": "selected_wide",
+      "before": false,
+      "after": true,
+      "old_reason": "input slot; literal graph: literal graph collection control retains bounded direct-shader work; CPU fallback"
+    },
+    {
+      "function": "empty_owned",
+      "before": false,
+      "after": true,
+      "old_reason": "empty list needs an expected List<T> type; literal graph: packed compute values must be flat numeric components"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "gpu_package_tests": 33,
+  "runtime_tests": 9,
+  "runtime_all_targets": "passed",
+  "locked_fetch": [
+    "root",
+    "runtime",
+    "lowerings/gpu"
+  ],
+  "native_helper_outcomes": 138,
+  "native_helper_gpu_calls": 128,
+  "native_helper_dispatches": 152,
+  "zero_dispatch_calls": 8,
+  "browser_private_helpers": {
+    "status": "passed",
+    "comparisons": 414,
+    "restores": 3,
+    "gpuCalls": 128,
+    "requiredErrors": 5,
+    "results": [
+      {
+        "backend": "javascript",
+        "observations": 138
+      },
+      {
+        "backend": "cpu",
+        "observations": 138
+      },
+      {
+        "backend": "gpu",
+        "observations": 138
+      }
+    ],
+    "scope": "complete values, outcomes, ordered events and exact portable snapshots; CPU-host computation, separate actual device computation"
+  },
+  "existing_browser": {
+    "status": "passed",
+    "comparisons": 105,
+    "restores": 9,
+    "gpuCalls": 1,
+    "requiredErrors": 6,
+    "results": [
+      {
+        "backend": "javascript",
+        "observations": 35
+      },
+      {
+        "backend": "cpu",
+        "observations": 35
+      },
+      {
+        "backend": "gpu",
+        "observations": 35
+      }
+    ],
+    "scope": "complete values, outcomes, ordered events and exact portable snapshots; CPU-host computation, separate actual device computation"
+  },
+  "resident_complete_reads": {
+    "cpu": 10,
+    "gpu-required": 10
+  },
+  "source_reverse_device_execution": false,
+  "performance_claim": false,
+  "scope": "Complete private record-buffer and bounded list literal execution, exact outcomes, events and snapshots; core unchanged; no compiler correctness or profitability claim.",
+  "distribution_tests": {
+    "compute": 5,
+    "gpu": 23,
+    "literal_collections_package": 6,
+    "source_reverse": 5
+  },
+  "clean_cli_tested_assets": 524,
+  "clean_cli_total_files": 525,
+  "reproduction": {
+    "source_commit": "18af42eda5c7fa44d34f5d87b36f1fcdc0f828dc",
+    "required_env": {
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "INK_TEST_WGPU": "1",
+      "INK_TEST_WASM": "1"
+    },
+    "suite": [
+      "cargo",
+      "test",
+      "--locked",
+      "--test",
+      "gpu",
+      "--test",
+      "compute",
+      "--test",
+      "literal_collections_package",
+      "--test",
+      "source_reverse"
+    ],
+    "browser": [
+      "node",
+      "bench/gpu/replay-source-history-browser.mjs",
+      "CHROME_EXECUTABLE"
+    ],
+    "retained_bytes": [
+      "python3",
+      "bench/functionality/device-record-buffers/verify.py"
+    ],
+    "baseline_source_commit": "ef94307f53ca564dcea42cf3c95bda884315405f",
+    "compiler_build": [
+      "cargo",
+      "build",
+      "--locked",
+      "--bin",
+      "ink"
+    ],
+    "bundle": [
+      "target/debug/ink",
+      "build",
+      "build/device-private-helpers/source.ink",
+      "--target",
+      "webgpu",
+      "-o",
+      "build/ink-device-records-20261017/final-bundle"
+    ],
+    "bundle_env": {
+      "INK_COMPILED_TARGET_DIR": "build/ink-device-records-20261017/final-target"
+    },
+    "scope": "Use the exact Git packages at each source commit. Preserve the new consumer source when building the older baseline. Untimed generated builds disable debug/incremental output; retained hashes bind the observed compiler and complete emitted images."
+  }
+}
