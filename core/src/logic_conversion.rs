@@ -241,7 +241,11 @@ fn direct_reduction(
             }
         }
     }
-    let allowance = budget.remaining.min(4096);
+    // Valid constructor-gated bodies can need more than 4,096 charged nodes
+    // for substitution and lexical alignment alone. Spend up to half of the
+    // unchanged 32,768-step structural conversion allowance on this direct
+    // candidate, before falling back to evaluation of its descendants.
+    let allowance = budget.remaining.min(16_384);
     if allowance == 0 {
         return Ok(false);
     }

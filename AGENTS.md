@@ -275,6 +275,11 @@ use iterative traversal under the whole-view entry/byte bounds; do not confuse
 dependency height with proof nesting or bypass individual replay. See
 docs/structural-action-correspondence.md.
 
+Direct gated conversion may allocate 16,384 work steps within the shared
+32,768-step structural attempt to substitute and align a valid larger body.
+Keep the whole-attempt and ordinary proof work/depth bounds; a larger direct
+candidate still requires exact checked conversion. See docs/structural-conversion.md.
+
 Complete source-bearing plans use planning::canonical/identity, preserving
 valid frozen JSON floats and legacy integer packet bytes. Knowledge object
 canonicalization remains integer-only; every embedded object and proof must
