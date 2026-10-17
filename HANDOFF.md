@@ -3,6 +3,13 @@
 Read this file first, then `AGENTS.md`, `PLAN.md` and the linked domain docs.
 This is a continuation of existing work, not a new optimization research task.
 
+Continuation policy update, 2026-10-17: James explicitly authorized changing or
+raising limits when justified by the system. The historical prohibitions on
+budget increases below are superseded by that instruction. Keep each allowance's
+purpose explicit, preserve finite checking and storage bounds, and require actual
+proof replay and applicable execution validation. A larger limit is not evidence
+that a proposal is correct, admitted or profitable.
+
 ## User's current priority and intended result
 
 > Focus on functionality first. Don't worry about hyper optimisation yet.
