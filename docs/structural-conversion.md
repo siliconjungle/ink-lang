@@ -35,6 +35,14 @@ alongside rejection of an unrelated input and the prior eight-operation budget
 regression. This changes search allocation within conversion, not equality
 semantics or runtime execution.
 
+Capture-avoiding substitution now collects source and replacement names once
+per borrowed transform, when its first binder needs them. Fresh names remain
+reserved for the rest of that walk. It no longer rescans a large captured
+expression at every nested match. Inserted terms are still copied and charged;
+shadowing, simultaneous substitution, lexical capture avoidance and all existing
+work/depth limits remain in force. No summary or proof verdict survives the
+call. The large-capture and shadowing regressions exercise those contracts.
+
 Kernel tests cover recursive ordered F32 accumulation, frozen dispatch with
 symbolic weights, capture avoidance, dynamic arms, incorrect outputs, IEEE NaN
 comparisons and resource/context boundaries. The distribution's frozen-program
