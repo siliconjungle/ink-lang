@@ -119,6 +119,52 @@ fn versioned_replacement_replays_definitions_and_rejects_mode_or_source_substitu
 }
 
 #[test]
+fn source_plan_transport_preserves_frozen_float_rows_without_relaxing_knowledge() {
+    use ink_core::planning;
+    let freeze = |source: &str| {
+        let mut value: serde_json::Value=serde_json::from_slice(&module(source).bytes().unwrap()).unwrap();
+        value["semantics"]=json!("ink-executable-core-v14");
+        value["program"]["frozen"]=json!({"Fixed":[[0,0.1],[1,-0.0],[2,{"F32Bits":2141196852u32}]]});
+        CheckedModule::from_bytes(&serde_json::to_vec(&value).unwrap()).unwrap()
+    };
+    let a=freeze("module transport;state Fixed:Table<u64,f32>=Table.empty();query read(x:f32)->f32{let y=x;return y;}");
+    let b=freeze("module transport;state Fixed:Table<u64,f32>=Table.empty();query read(x:f32)->f32{return x;}");
+    let before=Projection::derive_mode(&a,ProjectionMode::StructuralV2).unwrap();
+    let after=Projection::derive_mode(&b,ProjectionMode::StructuralV2).unwrap();
+    let mut objects=before.objects.clone();objects.extend(after.objects.clone());
+    let args=before.actions["read"].params.iter().map(|(name,_)|Term::Var(name.clone())).collect::<Vec<_>>();
+    let request=json!({"schema":1,"semantics":"ink-evidence-v1","input_core_sha256":a.identity().unwrap(),
+        "knowledge":bundle(objects),"applications":[],"action_replacement":{
+            "selected":serde_json::from_slice::<serde_json::Value>(&b.bytes().unwrap()).unwrap(),
+            "projection":"structural-v2","proofs":{"read":{"Convert":{
+                "from":Term::Call{function:before.actions["read"].function.clone(),arguments:args.clone()},
+                "to":Term::Call{function:after.actions["read"].function.clone(),arguments:args}}}}}});
+    let packet:planning::Package=serde_json::from_value(json!({"schema":1,"semantics":planning::SEMANTICS,
+        "input_core_sha256":a.identity().unwrap(),"steps":[{"kind":"rewrite","package":request}]})).unwrap();
+    assert!(registry::canonical(&packet).is_err());
+    let wire=planning::canonical(&packet).unwrap();
+    let decoded:planning::Package=serde_json::from_slice(&wire).unwrap();
+    assert_eq!(planning::identity(&packet).unwrap(),planning::identity(&decoded).unwrap());
+    let mut checker=planning::Checker::new(a.clone());
+    let checked=checker.check(&decoded).unwrap();checker.check(&decoded).unwrap();
+    assert_eq!(checker.reused_steps(),1);
+    assert_eq!(checked.original().identity().unwrap(),a.identity().unwrap());
+    assert_eq!(checked.module().identity().unwrap(),b.identity().unwrap());
+    assert_eq!(serde_json::to_vec(&checked.module().program().frozen).unwrap(),serde_json::to_vec(&a.program().frozen).unwrap());
+    // A complete plan may transport source floats; mathematical objects still
+    // reject them before hashing, typing or equality can grant authority.
+    let mut bad=serde_json::to_value(&packet).unwrap();
+    let objects=bad["steps"][0]["package"]["knowledge"]["objects"].as_object_mut().unwrap();
+    objects.values_mut().next().unwrap()["payload"]["untrusted_float"]=json!(0.5);
+    let bad:planning::Package=serde_json::from_value(bad).unwrap();
+    assert!(planning::canonical(&bad).is_ok());
+    assert!(planning::check(&a,&bad).unwrap_err().contains("canonical knowledge forbids floating"));
+    let legacy=planning::Package{schema:1,semantics:planning::SEMANTICS.into(),input_core_sha256:a.identity().unwrap(),steps:vec![]};
+    assert_eq!(planning::canonical(&legacy).unwrap(),registry::canonical(&legacy).unwrap());
+    assert_eq!(planning::identity(&legacy).unwrap(),registry::identity(&legacy).unwrap());
+}
+
+#[test]
 fn structural_large_helpers_keep_lexical_captures_and_raw_float_results() {
     let mut source=String::from("module captures;fn deep(x:f32,y:f32,flag:Bool)->f32{let v0=x;");
     for i in 0..24 {source+=&format!("let v{}=choose(flag,v{i}+y,v{i}*y);",i+1);}
