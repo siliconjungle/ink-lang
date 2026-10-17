@@ -115,13 +115,14 @@ failed or exhausted evaluations retain ordinary source execution.
 Helper limits count distinct definitions, allowing an existing helper to be
 reused at the limit. Optional expansion is transactional per action: an
 oversized training action retains its original implementation without discarding
-already constructed serving helpers. The work, helper and checker limits are
-unchanged; failed final admission leaves the previous output untouched.
+already constructed serving helpers. Failed final admission leaves the previous
+output untouched. The later scoped structural authoring section records the
+current authoring limits.
 
 The prepared Result/list example has complete plan replay and execution checks
 with changing weights. The larger 232-node, 244-parameter network now produces
-a source-checked 117-helper proposal, but complete proof construction still
-exhausts its existing work budget. That network is **not yet an admitted
+a source-checked 117-helper proposal at transfer, when complete proof construction
+exhausted its work budget. The later section records current progress. That network is **not yet an admitted
 specialized executable**. No performance claim follows from this functionality.
 
 When every argument is known, scalar operations and balanced helper invocations
@@ -271,3 +272,55 @@ retains both acquisitions (including the initial GPU-contended set), complete
 artifacts/histories, exact source-image receipts and every raw timing sample.
 The independent rebuild reproduces all 30 WGSL files and 140 host/descriptor
 images; it is finite implementation assurance, not a backend correctness proof.
+
+## Scoped structural authoring
+
+Complete frozen-action authoring now defaults to structural-v2 correspondence.
+Its canonical lexical binders and minimal source imports keep unchanged pure
+helper identities stable across unrelated source extensions. The checker
+re-derives the requested projection, all reachable definitions, frozen facts and
+complete transitions. Legacy projection remains an explicit producer option;
+the core projection command retains its legacy default.
+
+Non-plain owned-carrier leaves now default to one operation; plain leaves retain
+eight. Explicit owned widths 1/2/4/8 remain available. A proposal may contain up
+to 512 distinct helpers and spend four million charged authoring steps. Helpers
+enter through source extensions of at most 256 declarations each, with every
+batch bound to its checked predecessor. Exhausted optional expansion keeps the
+original action; it does not authorize a partial replacement. Source and final
+proof checks still decide whether the complete plan can be used.
+
+Closed validation uses ordinary per-call equations, universal traversal-step
+lemmas and congruence before evaluating an unchanged continuation. Open cases
+retain their actual premises when an equation is factored into a separate
+lemma. Unused-premise removal reindexes local hypotheses, and only proof-reachable
+objects enter the final view. Constructor aliases and borrowed syntax summaries
+keep authoring bounded without assigning truth to a cached result.
+
+The focused producer/storage suite passes 93 checks, including scoped premises,
+false results, changed sources, extension predecessors, dynamic updates, events,
+rollback and exact checkpoints. The complete learned-program integration also
+passes its training/resume, runtime adaptation, freezing, ordinary plan replay
+and local native/JavaScript/Wasm histories. The latest focused rerun passes all
+89 selected producer/storage tests. Wasm compares 9 adaptive and 24 frozen
+complete outcomes with exact checkpoints. These checks do not establish a runtime
+speedup.
+
+The [selected proof and histories](../bench/functionality/scoped-composition/README.md)
+also retain the frozen ten-program corpus, its source controls and full search
+receipts. The fresh quick-effort run compiles all ten programs, reaches one
+alternative and one law, selects no alternative and observes no cross-program
+law reuse. All ten searches stop at their deadline. The historical corpus reached
+more alternatives; paired old/new producer-source controls both miss alternatives
+under the same earlier compiler. Those controls do not isolate compiler cost
+from host scheduling. The functional result does not establish improved planning
+coverage or runtime speed; the search-coverage decline remains unresolved.
+
+The larger authored 232-node network now reaches a 463-helper source proposal
+and a complete 6,807-object mathematical proposal. It is still **not an admitted
+specialized executable**: the different-scrutinee-type authoring error is fixed,
+but complete replay reaches a resource limit while expanding a larger open
+conversion. Shared substitution admits a selected 67-object prefix equation
+under the ordinary proof allowance; that prefix is not complete plan admission. The original trained snapshot remains in its original source namespace;
+it must never be rehashed into the separately authored frozen namespace. Complete
+network admission and applicable cross-target execution remain unfinished.

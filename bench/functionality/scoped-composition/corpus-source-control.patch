@@ -1,0 +1,991 @@
+--- a/ink_knowledge/store.py
++++ b/ink_knowledge/store.py
+@@ -7,7 +7,7 @@
+ from pathlib import Path
+ 
+ MAX_VIEW_ENTRIES = 8192
+-MAX_VIEW_BYTES = 256_000_000
++MAX_VIEW_BYTES = 128_000_000
+ MAX_ENTRY_BYTES = 16_000_000
+ SNAPSHOT = 'ink-knowledge-snapshot-v1'
+ KINDS = {'definition', 'theorem', 'rewrite', 'implementation', 'representation', 'maintenance', 'bridge'}
+@@ -335,28 +335,21 @@
+             if db is not None and not db.execute('SELECT 1 FROM snapshots WHERE id=?',(self.snapshot_id,)).fetchone():
+                 self.members();proof_db=None
+             object_bytes=0
+-            for root in roots:
+-                pending=[(root,False)]
+-                staged={}
+-                while pending:
+-                    i,leaving=pending.pop()
+-                    if leaving:
+-                        active.remove(i);objects[i]=staged.pop(i)
+-                        continue
+-                    if i in objects:continue
+-                    if i in active or len(objects)+len(active)>=MAX_VIEW_ENTRIES:
+-                        raise ValueError('active dependency closure limit')
+-                    hash_id(i);active.add(i)
+-                    membership[i]=self._indexed_witness(i,proof_db,verified) if proof_db is not None else self.witness(i)
+-                    obj=self._read_object(i,pack_db) if pack_db is not None else self._read_object(i)
+-                    object_bytes+=len(canonical(obj))
+-                    if object_bytes>MAX_VIEW_BYTES:raise ValueError('active dependency byte limit')
+-                    staged[i]=obj;pending.append((i,True))
+-                    pending.extend((d,False)for d in reversed(obj['dependencies']))
++            def visit(i,depth):
++                nonlocal object_bytes
++                if i in objects:return
++                if depth>64 or i in active or len(objects)+len(active)>=MAX_VIEW_ENTRIES:raise ValueError('active dependency closure limit')
++                hash_id(i);active.add(i)
++                membership[i]=self._indexed_witness(i,proof_db,verified) if proof_db is not None else self.witness(i)
++                obj=self._read_object(i,pack_db) if pack_db is not None else self._read_object(i)
++                object_bytes+=len(canonical(obj))
++                if object_bytes>MAX_VIEW_BYTES:raise ValueError('active dependency byte limit')
++                for d in obj['dependencies']:visit(d,depth+1)
++                active.remove(i);objects[i]=obj
++            for i in roots:visit(i,0)
+         result=dict(schema=1,snapshot=self.snapshot,roots=roots,objects=dict(sorted(objects.items())),
+                     membership={i:membership[i] for i in sorted(objects)})
+-        encoded=canonical(result)
+-        if len(encoded)>MAX_VIEW_BYTES:raise ValueError('active dependency byte limit: '+str(len(encoded)))
++        if len(canonical(result))>MAX_VIEW_BYTES:raise ValueError('active dependency byte limit')
+         return result
+     def rebuild(self):
+         target=self.root/'index.sqlite'; fd,tmp=tempfile.mkstemp(prefix='.ink-index-',dir=self.root);os.close(fd)
+--- a/producers/closed_equations.py
++++ b/producers/closed_equations.py
+@@ -1,208 +0,0 @@
+-"""Untrusted closed computation with ordinary per-call equality witnesses.
+-
+-An explicit stack keeps data traversal separate from proof nesting. Computed
+-constructor fields are evaluated once; existing literal aliases stay shared.
+-Named call equations bound proof nesting. The kernel replays every proposed step.
+-"""
+-import json
+-
+-from producers.action_replacement import call, cons, convert, var
+-from producers.fold_chunks import compose
+-from producers.point_delta import binding_names, free_variables, lift, normal, sub, variables
+-
+-
+-class ClosedEquations:
+-    def __init__(self, chunks):
+-        self.chunks = chunks
+-        self.calls = {}
+-        self.active = set()
+-        self.serial = 0
+-
+-    def hole(self, term):
+-        occupied = variables(term) | binding_names(term)
+-        while True:
+-            name = 'closed_equation_hole_'+str(self.serial)
+-            self.serial += 1
+-            if name not in occupied: return name
+-
+-    def conversion(self, left, right):
+-        """Author congruence before asking conversion to compute a whole call."""
+-        self.chunks.tick()
+-        if left == right:
+-            return {'Refl': left}
+-        for kind in ('Call', 'Construct'):
+-            if kind not in left or kind not in right:
+-                continue
+-            a, b = left[kind], right[kind]
+-            if ({key: value for key, value in a.items() if key != 'arguments'} ==
+-                    {key: value for key, value in b.items() if key != 'arguments'}
+-                    and len(a['arguments']) == len(b['arguments'])):
+-                return {kind: dict(a, arguments=[self.conversion(x, y)
+-                    for x, y in zip(a['arguments'], b['arguments'])])}
+-        if 'Binary' in left and 'Binary' in right and left['Binary']['op'] == right['Binary']['op']:
+-            a, b = left['Binary'], right['Binary']
+-            return {'Binary': dict(op=a['op'], left=self.conversion(a['left'], b['left']),
+-                                   right=self.conversion(a['right'], b['right']))}
+-        return convert(left, right)
+-
+-    def factored(self, original, value, proof):
+-        if original == value: return value, {'Refl': original}
+-        pending = [(proof, 1)]
+-        while pending:
+-            self.chunks.tick()
+-            current, depth = pending.pop()
+-            if depth > 6:
+-                theorem = self.chunks.theorem([], original, value, proof)
+-                return value, {'Use':dict(theorem=theorem,arguments=[],premises=[])}
+-            if 'Trans' in current: children = current['Trans']
+-            elif 'Sym' in current: children = [current['Sym']]
+-            elif 'Substitute' in current: children = [current['Substitute']['equality']]
+-            elif 'Call' in current: children = current['Call']['arguments']
+-            elif 'Construct' in current: children = current['Construct']['arguments']
+-            elif 'Binary' in current: children = [current['Binary']['left'],current['Binary']['right']]
+-            else: children = []
+-            pending.extend((child,depth+1)for child in children)
+-        return value, proof
+-
+-    def evaluate(self, term):
+-        if free_variables(term):
+-            raise ValueError('closed computation has live inputs')
+-        tasks = [('eval', term)]
+-        values = []
+-        while tasks:
+-            self.chunks.tick()
+-            operation, node = tasks.pop()
+-            if operation == 'eval':
+-                if 'U64' in node or 'Bool' in node:
+-                    values.append((node, {'Refl': node}))
+-                elif 'Construct' in node:
+-                    tasks.append(('construct', node))
+-                    tasks.extend(('eval', argument) for argument in reversed(node['Construct']['arguments']))
+-                elif 'Call' in node:
+-                    invocation = node['Call']
+-                    function = self.chunks.objects[invocation['function']]['payload']['declaration'].get('Function')
+-                    if not function or len(function['params']) != len(invocation['arguments']):
+-                        raise ValueError('closed computation function/arity')
+-                    if not invocation['arguments'] and invocation['function'] in self.chunks.closed:
+-                        try:
+-                            self.chunks.expose(node)
+-                        except ValueError:
+-                            pass
+-                        else:
+-                            values.append((node, {'Refl': node})); continue
+-                    tasks.append(('apply', (node, function)))
+-                    tasks.extend(('eval', argument) for argument in reversed(invocation['arguments']))
+-                elif 'Binary' in node:
+-                    tasks.append(('binary', node))
+-                    tasks.extend([('eval', node['Binary']['right']), ('eval', node['Binary']['left'])])
+-                elif 'If' in node:
+-                    tasks.extend([('condition', node), ('eval', node['If']['condition'])])
+-                elif 'Match' in node:
+-                    tasks.extend([('scrutinee', node), ('eval', node['Match']['scrutinee'])])
+-                else:
+-                    raise ValueError('unsupported closed computation term')
+-            elif operation == 'apply':
+-                original, function = node
+-                count = len(function['params'])
+-                results = values[-count:] if count else []
+-                if count: del values[-count:]
+-                arguments = [value for value, _ in results]
+-                invocation = call(original['Call']['function'], arguments)
+-                congruence = {'Call': dict(function=original['Call']['function'], arguments=[p for _, p in results])}
+-                key = json.dumps(invocation, sort_keys=True, separators=(',', ':'))
+-                if key in self.calls:
+-                    value, theorem = self.calls[key]
+-                    values.append(self.factored(original, value, compose([congruence,
+-                        {'Use': dict(theorem=theorem, arguments=[], premises=[])}])))
+-                    continue
+-                if key in self.active: raise ValueError('closed computation call cycle')
+-                self.active.add(key)
+-                def self_calls(value):
+-                    if isinstance(value, dict):
+-                        if 'SelfCall' in value:
+-                            return call(original['Call']['function'], [self_calls(t) for t in value['SelfCall']])
+-                        return {k:self_calls(v) for k,v in value.items()}
+-                    if isinstance(value, list): return [self_calls(v) for v in value]
+-                    return value
+-                body = sub(self_calls(function['body']), dict(zip([n for n,_ in function['params']], arguments)))
+-                # Expose constructor/control redexes before writing a witness.
+-                # Named computations stay opaque. One checked conversion can
+-                # discard unused source arms instead of copying them into
+-                # every closed-call equation.
+-                body = normal(body, self.chunks.objects, opaque=set(self.chunks.objects),
+-                              heads=self.chunks.closed, tick=self.chunks.tick)
+-                opening = self.conversion(invocation, body)
+-                function_key = original['Call']['function']
+-                if function_key in self.chunks.folds:
+-                    rows = self.chunks.expose(arguments[0])['Construct']
+-                    if rows['constructor'] == 1:
+-                        # Instantiate one universal traversal step before
+-                        # simplifying the accumulator. A closed conversion of
+-                        # the whole call can otherwise evaluate its continuation
+-                        # repeatedly just to expose this single step.
+-                        head, tail = rows['arguments']
+-                        _, head_name, tail_name, step = self.chunks.folds[function_key]
+-                        bindings = dict(zip([name for name, _ in function['params'][1:]], arguments[1:]))
+-                        bindings.update({head_name: head, tail_name: tail})
+-                        raw = call(function_key, [tail, *arguments[1:-1], sub(step, bindings)])
+-                        exposed = call(function_key, [cons(rows['datatype'], 1, [head, tail]), *arguments[1:]])
+-                        opening = compose([self.conversion(invocation, exposed),
+-                            {'Use': dict(theorem=self.chunks.cons_equation(function_key),
+-                                         arguments=[head, tail, *arguments[1:]], premises=[])},
+-                            self.conversion(raw, body)])
+-                tasks.extend([('call-result', (key, original, invocation, body, congruence, opening)), ('eval', body)])
+-            elif operation == 'construct':
+-                constructor = node['Construct']; count = len(constructor['arguments'])
+-                results = values[-count:] if count else []
+-                if count: del values[-count:]
+-                computed = cons(constructor['datatype'], constructor['constructor'], [v for v,_ in results])
+-                value = self.chunks.share_data(computed)
+-                proof = {'Construct':dict(datatype=constructor['datatype'],constructor=constructor['constructor'],
+-                    arguments=[p for _,p in results])}
+-                values.append(self.factored(node, value, compose([proof, convert(computed,value)])))
+-            elif operation == 'call-result':
+-                key, original, invocation, body, congruence, opening = node
+-                value, proof = values.pop()
+-                theorem = self.chunks.theorem([], invocation, value, compose([opening, proof]))
+-                self.calls[key] = value, theorem
+-                self.active.remove(key)
+-                values.append(self.factored(original, value, compose([congruence,
+-                    {'Use': dict(theorem=theorem, arguments=[], premises=[])}])))
+-            elif operation == 'binary':
+-                right, right_proof = values.pop(); left, left_proof = values.pop()
+-                expression = {'Binary': dict(op=node['Binary']['op'], left=left, right=right)}
+-                value = normal(expression, self.chunks.objects, opaque=set(self.chunks.objects))
+-                if 'Binary' in value:
+-                    op = node['Binary']['op']
+-                    if op in ('quot','rem') and 'U64' in left and 'U64' in right:
+-                        value = {'U64': (left['U64']//right['U64'] if op=='quot' else left['U64']%right['U64']) if right['U64'] else 0}
+-                    else: raise ValueError('unsupported closed computation primitive')
+-                values.append(self.factored(node, value, compose([
+-                    {'Binary': dict(op=node['Binary']['op'], left=left_proof, right=right_proof)},
+-                    convert(expression, value)])))
+-            elif operation == 'condition':
+-                value, equality = values.pop()
+-                if 'Bool' not in value: raise ValueError('closed condition is not Boolean')
+-                source = node['If']; hole = self.hole(node)
+-                chosen = source['on_true' if value['Bool'] else 'on_false']
+-                context = {'If':dict(source, condition=var(hole))}
+-                reduced = {'If':dict(source, condition=value)}
+-                tasks.extend([('finish', (node,[lift(equality, context, hole), convert(reduced, chosen)])), ('eval', chosen)])
+-            elif operation == 'scrutinee':
+-                value, equality = values.pop()
+-                exposed = self.chunks.expose(value)
+-                constructor = exposed['Construct']; source = node['Match']
+-                branch = source['branches'][constructor['constructor']]
+-                if len(branch['bindings']) != len(constructor['arguments']):
+-                    raise ValueError('closed match arity')
+-                chosen = sub(branch['body'], dict(zip(branch['bindings'], constructor['arguments'])))
+-                hole = self.hole(node)
+-                context = {'Match':dict(source, scrutinee=var(hole))}
+-                reduced = {'Match':dict(source, scrutinee=value)}
+-                tasks.extend([('finish', (node,[lift(equality, context, hole), convert(reduced, chosen)])), ('eval', chosen)])
+-            elif operation == 'finish':
+-                value, proof = values.pop()
+-                original, prefix = node
+-                values.append(self.factored(original, value, compose([*prefix, proof])))
+-        if len(values) != 1: raise ValueError('closed computation result stack')
+-        return values[0]
+--- a/producers/computation_equality.py
++++ b/producers/computation_equality.py
+@@ -8,7 +8,7 @@
+ from producers.action_replacement import call, cons, convert, var
+ from producers.equational import fresh_alpha
+ from producers.fold_chunks import compose
+-from producers.point_delta import binding_names, free_variables, lift, normal, replace, sub, variables
++from producers.point_delta import free_variables, lift, normal, replace, sub, variables
+ 
+ 
+ class ComputationEquality:
+@@ -17,11 +17,6 @@
+         self.serial = 0
+         self.fold_lemmas = {}
+         self.active = set()
+-        self.equations = {}
+-        self.active_equations = set()
+-        self.conditions = []
+-        from producers.closed_equations import ClosedEquations
+-        self.closed_computation = ClosedEquations(chunks)
+ 
+     def fresh(self, occupied, prefix):
+         while True:
+@@ -35,9 +30,8 @@
+         if depth > 64:
+             raise ValueError('computation equality normalization depth')
+         term = normal(term, self.chunks.objects,
+-                      opaque=self.chunks.helpers|self.chunks.closed|self.chunks.gates,
+-                      blocked=self.chunks.folds,heads=self.chunks.closed,
+-                      preserve_closed_calls=True,tick=self.chunks.tick)
++                      opaque=self.chunks.helpers | self.chunks.closed | self.chunks.gates,
++                      blocked=self.chunks.folds,heads=self.chunks.closed)
+         # The small normalizer deliberately leaves unknown Match branches
+         # untouched. Enter their syntax here, retaining every local binder.
+         def visit(value, nesting):
+@@ -46,8 +40,6 @@
+                 raise ValueError('computation equality term depth')
+             if not isinstance(value, dict):
+                 raise ValueError('computation equality needs a complete term')
+-            if 'Construct' in value and not free_variables(value):
+-                return self.chunks.share_data(value)
+             if 'Match' in value:
+                 node=value['Match']
+                 return {'Match':dict(scrutinee=visit(node['scrutinee'],nesting+1),
+@@ -86,28 +78,6 @@
+             op = term['Binary']['op'].removeprefix('f32:')
+             return 'Bool' if op in ('==','!=','<','<=','>','>=','&&','||','is_nan','is_finite') else 'U64'
+         raise ValueError('unsupported computation equality sort')
+-
+-    def reduce(self, term, env):
+-        value=self.normalize(term,env);steps=[convert(term,value)]
+-        # A case premise can remain hidden behind a subsequently opened pure
+-        # wrapper. Reapply it to exposed syntax, writing every substitution.
+-        # These are proof assumptions in their actual scope, never norm-cache
+-        # facts or unconditional equations.
+-        for _ in range(16):
+-            changed=False
+-            for equation,index in self.conditions:
+-                left=self.normalize(equation['from'],env);right=self.normalize(equation['to'],env)
+-                if left==right:continue
+-                occupied=set(env)|variables([value,left,right])|binding_names([value,left,right])
+-                hole=self.fresh(occupied,'computation_fact_')
+-                context=replace(value,left,var(hole))
+-                if context==value:continue
+-                equality=compose([{'Sym':convert(equation['from'],left)},
+-                    {'Hypothesis':index},convert(equation['to'],right)])
+-                steps.append(lift(equality,context,hole));value=replace(value,left,right)
+-                reduced=self.normalize(value,env);steps.append(convert(value,reduced));value=reduced;changed=True
+-            if not changed:return value,compose(steps)
+-        raise ValueError('computation equality conditional reduction budget')
+ 
+     def fold_pair(self, left, right):
+         first, second = left['function'], right['function']
+@@ -147,9 +117,7 @@
+             env = dict(params)
+             env[head_name] = constructors[1]['fields'][0]
+             env[tail_name] = {'Data':datatype}
+-            saved=self.conditions;self.conditions=[]
+-            try:equality = self.prove(changed,other_changed,env,0)
+-            finally:self.conditions=saved
++            equality = self.prove(changed,other_changed,env,0)
+             begin = call(first,[rest,*values[:-1],changed])
+             end = call(second,[rest,*other_values[:-1],other_changed])
+             step = compose([
+@@ -173,85 +141,26 @@
+             return {'Refl': a}
+         if depth % 4:
+             return self.prove_local(a, z, env, hypotheses, depth)
+-        # Check each local equation in its own universally quantified scope,
+-        # retaining its explicit case premises at every use site. This
++        # These local equations are unconditional. Check each in its own
++        # universally quantified scope, then import it at the use site. This
+         # keeps nested traversal/case congruences below the kernel depth limit
+         # without borrowing any ambient action premise or raising that limit.
+-        conditions=[equation for equation,_ in self.conditions]
+-        names = sorted(free_variables([a,z,conditions]))
++        proof = self.prove_local(a, z, env, 0, depth)
++        names = sorted(free_variables(a) | free_variables(z))
+         params = [[name, env[name]] for name in names]
+         if any(ty is None for _, ty in params):
+             raise ValueError('computation equality needs typed free variables')
+-        key = json.dumps([params,conditions,a,z], sort_keys=True, separators=(',', ':'))
+-        if key in self.active_equations:
+-            raise ValueError('computation equality equation cycle')
+-        lemma = self.equations.get(key)
+-        if lemma is None:
+-            self.active_equations.add(key)
+-            try:
+-                # This is a fresh universal theorem, with its own proof scope.
+-                # The global work bound and equation-cycle guard still span
+-                # every lemma; lexical proof depth starts at this new root.
+-                saved=self.conditions
+-                self.conditions=[(equation,index) for index,equation in enumerate(conditions)]
+-                try:proof = self.prove_local(a, z, env, len(conditions), 0)
+-                finally:self.conditions=saved
+-                lemma = self.chunks.theorem(params, a, z, proof,conditions=conditions)
+-                self.equations[key] = lemma
+-            finally:
+-                self.active_equations.remove(key)
+-        needed=self.chunks.objects[lemma]['payload']['declaration']['Theorem']['conditions']
+-        return {'Use': dict(theorem=lemma, arguments=[var(name) for name in names],
+-            premises=[{'Hypothesis':next(index for actual,index in self.conditions if actual==equation)} for equation in needed])}
++        lemma = self.chunks.theorem(params, a, z, proof)
++        return {'Use': dict(theorem=lemma, arguments=[var(name) for name in names], premises=[])}
+ 
+     def prove_local(self, a, z, env, hypotheses=0, depth=0):
+         self.chunks.tick()
+         if depth > 24:
+             raise ValueError('computation equality proof depth')
+-        # Compare matching context before opening its computations. In
+-        # particular a closed guard belongs in one unconditional equation,
+-        # rather than being re-evaluated inside every transition branch.
+-        if (not free_variables(a) and not free_variables(z)
+-                and ('U64' in z or 'Bool' in z)):
+-            lemma = self.chunks.theorem([], a, z, convert(a, z))
+-            return {'Use': dict(theorem=lemma, arguments=[], premises=[])}
+-        if 'Call' in a and 'Call' in z and a['Call']['function'] == z['Call']['function']:
+-            x, y = a['Call'], z['Call']
+-            if len(x['arguments']) == len(y['arguments']):
+-                return {'Call': dict(function=x['function'], arguments=[
+-                    self.prove(v, w, env, hypotheses, depth+1)
+-                    for v, w in zip(x['arguments'], y['arguments'])])}
+-        if 'Binary' in a and 'Binary' in z and a['Binary']['op'] == z['Binary']['op']:
+-            x, y = a['Binary'], z['Binary']
+-            return {'Binary': dict(op=x['op'],
+-                left=self.prove(x['left'], y['left'], env, hypotheses, depth+1),
+-                right=self.prove(x['right'], y['right'], env, hypotheses, depth+1))}
+-        if 'If' in a and 'If' in z:
+-            x, y = a['If'], z['If']
+-            hole = self.fresh(set(env)|variables(a)|variables(z), 'computation_hole_')
+-            for first, second, reverse in [(a,z,False),(z,a,True)]:
+-                condition = first['If']['condition']
+-                if not free_variables(condition):
+-                    value, equality = self.closed_computation.evaluate(condition)
+-                    if 'Bool' not in value:
+-                        raise ValueError('closed conditional computation type')
+-                    chosen = first['If']['on_true' if value['Bool'] else 'on_false']
+-                    context = {'If':dict(first['If'], condition=var(hole))}
+-                    reduced = {'If':dict(first['If'], condition=value)}
+-                    proof = compose([lift(equality, context, hole), convert(reduced, chosen),
+-                                     self.prove(chosen,second,env,hypotheses,depth+1)])
+-                    return {'Sym':proof} if reverse else proof
+-            return compose([
+-                lift(self.prove(x['condition'], y['condition'], env, hypotheses, depth+1),
+-                     {'If':dict(condition=var(hole),on_true=x['on_true'],on_false=x['on_false'])}, hole),
+-                lift(self.prove(x['on_true'], y['on_true'], env, hypotheses, depth+1),
+-                     {'If':dict(condition=y['condition'],on_true=var(hole),on_false=x['on_false'])}, hole),
+-                lift(self.prove(x['on_false'], y['on_false'], env, hypotheses, depth+1),
+-                     {'If':dict(condition=y['condition'],on_true=y['on_true'],on_false=var(hole))}, hole),
+-            ])
+-        left,forward=self.reduce(a,env);right,backward=self.reduce(z,env)
++        left,right = self.normalize(a,env),self.normalize(z,env)
+         def finish(proof):
+-            return compose([forward,proof,{'Sym':backward}])
++            return compose([*([convert(a,left)] if a != left else []), proof,
++                            *([convert(right,z)] if right != z else [])])
+         if left == right:
+             return finish(convert(left,right))
+         if ('Call' in left and left['Call']['function'] in self.chunks.folds
+@@ -272,29 +181,6 @@
+             if x['function'] in self.chunks.folds and y['function'] in self.chunks.folds:
+                 lemma,args = self.fold_pair(x,y)
+                 return finish({'Use':dict(theorem=lemma,arguments=args,premises=[])})
+-        for first, second, reverse in [(left,right,False),(right,left,True)]:
+-            invocation=first.get('Call')
+-            if invocation and invocation['function'] in self.chunks.folds:
+-                rows=invocation['arguments'][0]
+-                if not free_variables(rows):
+-                    node=self.chunks.expose(rows)['Construct']
+-                    f,head,tail,step=self.chunks.folds[invocation['function']]
+-                    if node['constructor']==0 and not node['arguments']:
+-                        reduced=invocation['arguments'][-1]
+-                        opening=convert(first,reduced)
+-                    elif node['constructor']==1 and len(node['arguments'])==2:
+-                        item,rest=node['arguments']
+-                        bindings=dict(zip([n for n,_ in f['params'][1:]],invocation['arguments'][1:]))
+-                        bindings.update({head:item,tail:rest})
+-                        reduced=call(invocation['function'],[rest,*invocation['arguments'][1:-1],sub(step,bindings)])
+-                        lemma=self.chunks.cons_equation(invocation['function'])
+-                        opening=compose([convert(first,call(invocation['function'],[
+-                            cons(node['datatype'],1,[item,rest]),*invocation['arguments'][1:]])),
+-                            {'Use':dict(theorem=lemma,arguments=[item,rest,*invocation['arguments'][1:]],premises=[])}])
+-                    else:
+-                        raise ValueError('closed fold correspondence list shape')
+-                    proof=compose([opening,self.prove(reduced,second,env,hypotheses,depth+1)])
+-                    return finish({'Sym':proof} if reverse else proof)
+         if 'Construct' in left and 'Construct' in right:
+             x,y = left['Construct'],right['Construct']
+             if (x['datatype'],x['constructor']) == (y['datatype'],y['constructor']):
+@@ -338,11 +224,8 @@
+         sides.sort(key=lambda item: item[1].get('Call', {}).get('function') in self.chunks.helpers)
+         for side, term in sides:
+             invocation = term.get('Call')
+-            definition = (self.chunks.objects[invocation['function']]['payload'].get('declaration',{}).get('Function')
+-                          if invocation else None)
+-            if definition and (invocation['function'] in self.chunks.helpers
+-                    or definition['recursive'] is None
+-                    or (definition['recursive'] is not None
++            if invocation and (invocation['function'] in self.chunks.helpers
++                    or (self.chunks.objects[invocation['function']]['payload'].get('declaration',{}).get('Function',{}).get('recursive') is not None
+                         and self.chunks.acyclic(invocation['function']))):
+                 helper = self.chunks.objects[invocation['function']]['payload']['declaration']['Function']
+                 body = sub(helper['body'], dict(zip([n for n, _ in helper['params']], invocation['arguments'])))
+@@ -355,31 +238,6 @@
+             scrutinee=node['scrutinee'];sort=self.sort(scrutinee,env)
+             if not isinstance(sort,dict) or 'Data' not in sort:
+                 raise ValueError('computation equality case type')
+-            invocation=scrutinee.get('Call')
+-            if invocation and invocation['function'] in self.chunks.gates:
+-                function=self.chunks.objects[invocation['function']]['payload']['declaration']['Function']
+-                body=sub(function['body'],dict(zip([n for n,_ in function['params']],invocation['arguments'])))
+-                equality=self.chunks.unfold(invocation['function'],invocation['arguments'])
+-                occupied=set(env)|variables([left,right,body])|binding_names([left,right,body])
+-                hole=self.fresh(occupied,'computation_gate_result_')
+-                def transport(term):
+-                    context=replace(term,scrutinee,var(hole))
+-                    return {'Refl':term} if context==term else lift(equality,context,hole)
+-                return finish(compose([transport(left),
+-                    self.prove(replace(left,scrutinee,body),replace(right,scrutinee,body),env,hypotheses,depth+1),
+-                    {'Sym':transport(right)}]))
+-            if not free_variables(scrutinee):
+-                value,equality=self.closed_computation.evaluate(scrutinee)
+-                exposed=self.chunks.expose(value)
+-                equality=compose([equality,convert(value,exposed)])
+-                occupied=set(env)|variables([left,right,exposed])|binding_names([left,right,exposed])
+-                hole=self.fresh(occupied,'computation_closed_case_')
+-                def transport(term):
+-                    context=replace(term,scrutinee,var(hole))
+-                    return {'Refl':term} if context==term else lift(equality,context,hole)
+-                return finish(compose([transport(left),
+-                    self.prove(replace(left,scrutinee,exposed),replace(right,scrutinee,exposed),env,hypotheses,depth+1),
+-                    {'Sym':transport(right)}]))
+             datatype=sort['Data'];cases=[]
+             for index,constructor in enumerate(self.chunks.objects[datatype]['payload']['declaration']['Datatype']['constructors']):
+                 occupied=set(env)|variables(left)|variables(right);bindings=[]
+@@ -390,12 +248,9 @@
+                     for name,ty in zip(bindings,constructor['fields'])}}
+                 aa,zz=replace(left,scrutinee,value),replace(right,scrutinee,value)
+                 hole=self.fresh(set(local)|variables(left)|variables(right),'computation_hole_')
+-                self.conditions.append((dict(**{'from':scrutinee,'to':value}),hypotheses))
+-                try:middle=self.prove(aa,zz,local,hypotheses+1,depth+1)
+-                finally:self.conditions.pop()
+                 proof=compose([
+                     lift({'Hypothesis':hypotheses},replace(left,scrutinee,var(hole)),hole),
+-                    middle,
++                    self.prove(aa,zz,local,hypotheses+1,depth+1),
+                     {'Sym':lift({'Hypothesis':hypotheses},replace(right,scrutinee,var(hole)),hole)},
+                 ])
+                 cases.append(dict(bindings=bindings,proof=proof))
+--- a/producers/fold_chunks.py
++++ b/producers/fold_chunks.py
+@@ -22,20 +22,12 @@
+ 
+ 
+ class FoldChunks:
+-    # Complete modules include closed validation and many shared call equations,
+-    # beyond the original small-fold authoring scope. This bounds proposal work
+-    # only; every object and complete selection retains ordinary kernel limits.
+-    MAX_WORK = 4_000_000
++    MAX_WORK = 100_000
+     MAX_CHUNK = 8
+-    # Smaller owned leaves trade declaration count for bounded individual
+-    # equations. A 232-step graph can use 463 balanced one-step helpers; the
+-    # complete source, plan bytes and 8,192-entry proof view remain bounded.
+-    MAX_HELPERS = 512
++    MAX_HELPERS = 128
+     MAX_DEPTH = 16
+ 
+-    # One owned operation per leaf bounds individual continuation equations.
+-    # Plain scalar carriers still use MAX_CHUNK operations per leaf.
+-    def __init__(self, objects, helpers, *, owned_chunk_width=1):
++    def __init__(self, objects, helpers, *, owned_chunk_width=4):
+         if owned_chunk_width not in (1, 2, 4, 8):
+             raise ValueError('owned chunk width must be 1, 2, 4 or 8')
+         self.owned_chunk_width = owned_chunk_width
+@@ -100,52 +92,8 @@
+                 pending.extend(value)
+         return found
+ 
+-    def live_conditions(self, proof, conditions):
+-        """Drop unused outer premises; preserve and reindex every local scope.
+-
+-        This only authors a smaller ordinary theorem. Its proof, including all
+-        premise indices and case binders, is independently checked as before.
+-        """
+-        count=len(conditions);used=set()
+-        def walk(node,rewrite=None):
+-            self.tick()
+-            if 'Hypothesis' in node:
+-                index=node['Hypothesis']
+-                if rewrite is None:
+-                    if index<count:used.add(index)
+-                    return node
+-                return {'Hypothesis':rewrite(index)}
+-            if 'Trans' in node:return {'Trans':[walk(child,rewrite) for child in node['Trans']]}
+-            if 'Sym' in node:return {'Sym':walk(node['Sym'],rewrite)}
+-            if 'Substitute' in node:
+-                value=node['Substitute'];return {'Substitute':dict(value,equality=walk(value['equality'],rewrite))}
+-            if 'Use' in node:
+-                value=node['Use'];return {'Use':dict(value,premises=[walk(child,rewrite) for child in value['premises']])}
+-            for kind in ['Call','Construct']:
+-                if kind in node:
+-                    value=node[kind];return {kind:dict(value,arguments=[walk(child,rewrite) for child in value['arguments']])}
+-            if 'Binary' in node:
+-                value=node['Binary'];return {'Binary':dict(value,left=walk(value['left'],rewrite),right=walk(value['right'],rewrite))}
+-            for kind in ['Cases','Induction','GeneralizedInduction']:
+-                if kind in node:
+-                    value=node[kind];return {kind:dict(value,cases=[dict(case,proof=walk(case['proof'],rewrite)) for case in value['cases']])}
+-            if 'BoolCases' in node:
+-                value=node['BoolCases'];return {'BoolCases':dict(value,on_false=walk(value['on_false'],rewrite),on_true=walk(value['on_true'],rewrite))}
+-            if any(kind in node for kind in ['Refl','Convert','GeneralizedHypothesis','BitVector','WordExtensionality']):return node
+-            raise ValueError('unsupported condition liveness proof')
+-        if not count:return proof,list(conditions)
+-        try:walk(proof)
+-        except ValueError as error:
+-            if str(error)!='unsupported condition liveness proof':raise
+-            return proof,list(conditions)
+-        selected=sorted(used)
+-        if len(selected)==count:return proof,list(conditions)
+-        mapping={old:new for new,old in enumerate(selected)}
+-        return walk(proof,lambda index:mapping[index] if index<count else index-count+len(selected)),[conditions[i] for i in selected]
+-
+-    def theorem(self, params, left, right, proof, *, conditions=()):
+-        proof,conditions=self.live_conditions(proof,list(conditions))
+-        declaration = {'Theorem': dict(params=params, conditions=list(conditions),
++    def theorem(self, params, left, right, proof):
++        declaration = {'Theorem': dict(params=params, conditions=[],
+             **{'from': left, 'to': right}, proof=proof)}
+         dependencies = self.references(declaration)
+         # Cases and induction introduce fields whose types need not occur in
+@@ -160,8 +108,6 @@
+                     signature = declared['Datatype']
+                 elif 'Function' in declared:
+                     signature = {name: declared['Function'][name] for name in ('params', 'result')}
+-                elif 'AbstractFunction' in declared:
+-                    signature = {name: declared['AbstractFunction'][name] for name in ('params','result')}
+                 elif 'Theorem' in declared:
+                     signature = declared['Theorem']['params']
+                 else:
+@@ -171,29 +117,21 @@
+             pending.extend(fields - dependencies)
+             dependencies.update(fields)
+         obj = entry('theorem', MATH, {'declaration': declaration}, dependencies,
+-                    parameters=dict(params),conditions=list(conditions))
++                    parameters=dict(params))
+         key = identity(obj); self.objects[key] = obj; self.lemmas.add(key)
+         return key
+ 
+     def expose(self, rows):
+         seen = set()
+-        while True:
+-            self.tick()
+-            if 'Construct' in rows:return rows
+-            if 'Call' in rows:
+-                invocation=rows['Call'];key=invocation['function']
+-                if not invocation['arguments'] and key in self.closed:
+-                    if key in seen:raise ValueError('fold chunk requires closed constructor rows')
+-                    seen.add(key)
+-                    rows=self.objects[key]['payload']['declaration']['Function']['body'];continue
+-            if free_variables(rows):raise ValueError('fold chunk requires constructor rows')
+-            # A frozen value may still sit behind a closed table lookup or
+-            # control expression. Expose that spine, leaving named data shared.
+-            # Prefix witnesses below must replay this reduction independently.
+-            reduced=normal(rows,self.objects,opaque=self.helpers|self.closed,
+-                blocked=self.folds,heads=self.closed,tick=self.tick)
+-            if reduced==rows:raise ValueError('fold chunk requires constructor rows')
+-            rows=reduced
++        while 'Call' in rows:
++            self.tick(); invocation = rows['Call']; key = invocation['function']
++            if invocation['arguments'] or key not in self.closed or key in seen:
++                raise ValueError('fold chunk requires closed constructor rows')
++            seen.add(key)
++            rows = self.objects[key]['payload']['declaration']['Function']['body']
++        if 'Construct' not in rows:
++            raise ValueError('fold chunk requires constructor rows')
++        return rows
+ 
+     def share_data(self, term):
+         """Factor closed constructor depth into transparent ordinary definitions."""
+@@ -476,14 +414,7 @@
+                     accumulator = normal(sub(step,bindings),self.objects,
+                         opaque=self.helpers|self.closed,blocked=self.folds,heads=self.closed)
+                 if matched is None:
+-                    if not heads:
+-                        raise ValueError('fold chunk has no matching bounded computation')
+-                    # A nested traversal or an acyclic owner gate can make
+-                    # equal leaf computations have different normal forms.
+-                    # Propose the bounded prefix just visited; the complete
+-                    # universal equation below must prove its computation.
+-                    # Neither the leaf width nor this choice grants equality.
+-                    matched = current, list(heads)
++                    raise ValueError('fold chunk has no matching bounded computation')
+                 remaining, heads = matched
+                 template_key = ('prefix-leaf',fold,helper,json.dumps(heads,sort_keys=True,separators=(',',':')),layout_key)
+                 if template_key not in self.cache:
+@@ -513,17 +444,7 @@
+                             proofs.append(convert(call(fold,[tail,*values[:-1],raw]),call(fold,[tail,*values[:-1],simplified])))
+                         current, accumulator = tail, simplified
+                     right = call(fold,[suffix,*values[:-1],invocation])
+-                    if alpha_normal(accumulator) == alpha_normal(normalized):
+-                        proofs.append(self.close_helper(fold,suffix,values[:-1],helper,helper_values,accumulator))
+-                    else:
+-                        from producers.computation_equality import ComputationEquality
+-                        if not hasattr(self,'leaf_equalities'):
+-                            self.leaf_equalities=ComputationEquality(self)
+-                        equality=self.leaf_equalities.prove(accumulator,invocation,dict(params))
+-                        hole='chunk_leaf_equation_hole'
+-                        occupied=variables([accumulator,invocation,*values,suffix])|binding_names([accumulator,invocation])
+-                        while hole in occupied:hole+='_'
+-                        proofs.append(lift(equality,call(fold,[suffix,*values[:-1],var(hole)]),hole))
++                    proofs.append(self.close_helper(fold,suffix,values[:-1],helper,helper_values,accumulator))
+                     law = self.theorem(prefix_params,left,right,compose(proofs))
+                     self.cache[template_key] = builder, law
+                 builder, law = self.cache[template_key]
+--- a/producers/frozen_composition.py
++++ b/producers/frozen_composition.py
+@@ -16,17 +16,15 @@
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ from ink_knowledge import Store, identity
+-from ink_knowledge.store import entry, MAX_VIEW_BYTES
++from ink_knowledge.store import entry
+ from producers.action_replacement import alpha_normal, call, cons, convert, var
+ from producers.fold_chunks import FoldChunks, compose
+ from producers.frozen_specialization import Partial, substitute, source_free
+ from producers.point_delta import free_variables, lift, normal, replace, sub
+ 
+-EXTENSION_BATCH_SIZE = 256
+-
+ 
+ class ChunkPartial(Partial):
+-    def __init__(self, program, *, share_helpers=True, owned_chunk_width=1, closed_call=None):
++    def __init__(self, program, *, share_helpers=True, owned_chunk_width=4, closed_call=None):
+         super().__init__(program, closed_call=closed_call)
+         if owned_chunk_width not in (1, 2, 4, 8):
+             raise ValueError('owned chunk width must be 1, 2, 4 or 8')
+@@ -257,7 +255,7 @@
+         return self.expr(invocation,{},active,depth+1) if all(self.value(a) for a in arguments) else invocation
+ 
+ 
+-def propose_source(source, *, share_helpers=True, owned_chunk_width=1, closed_call=None):
++def propose_source(source, *, share_helpers=True, owned_chunk_width=4, closed_call=None):
+     selected = copy.deepcopy(source); partial = ChunkPartial(selected['program'], share_helpers=share_helpers,
+                                                            owned_chunk_width=owned_chunk_width, closed_call=closed_call)
+     for action in selected['program']['actions']:
+@@ -313,14 +311,14 @@
+             and all(partial.plain(t) for _, t in f['params'])]
+ 
+ 
+-def comparison_chunks(before_objects, after_objects, witness_objects=None, *, owned_chunk_width=1, pure_helpers=None):
++def comparison_chunks(before_objects, after_objects, witness_objects=None, *, owned_chunk_width=4):
+     """Prepare untrusted universal fold bridges for source correspondence."""
+     objects = {**(witness_objects or {}), **before_objects, **after_objects}
+     helpers = set()
+     for key, obj in objects.items():
+         function = obj['payload'].get('declaration', {}).get('Function')
+         if (key not in before_objects and function and function['params']
+-                and (key in pure_helpers if pure_helpers is not None else function['params'][0][0] == 'pure_arg_0')):
++                and function['params'][0][0] == 'pure_arg_0'):
+             helpers.add(key)
+     chunks = FoldChunks(objects, helpers, owned_chunk_width=owned_chunk_width)
+     recursive = {key for key,obj in objects.items() if obj['payload'].get('declaration',{}).get('Function',{}).get('recursive') is not None}
+@@ -364,23 +362,18 @@
+     return chunks
+ 
+ 
+-def produce(before, after, selected, directory, witnesses=None, *, owned_chunk_width=1):
+-    if (before['semantics'] not in ('ink-action-transition-v1', 'ink-action-transition-v2') or after['semantics'] != before['semantics']
++def produce(before, after, selected, directory, witnesses=None, *, owned_chunk_width=4):
++    if (before['semantics'] != 'ink-action-transition-v1' or after['semantics'] != before['semantics']
+             or not before.get('frozen_domain') or before['frozen_domain'] != after.get('frozen_domain')
+             or before['state'] != after['state'] or before['events'] != after['events']):
+         raise ValueError('frozen composition projection/domain mismatch')
+-    pure_helpers = None
+-    if before['semantics'] == 'ink-action-transition-v2':
+-        pure_helpers = {f['function'] for model in [after, witnesses or {}]
+-                        for f in model.get('pure_functions', {}).values()}
+     chunks = comparison_chunks(before['objects'], after['objects'],
+-        (witnesses or {}).get('objects'), owned_chunk_width=owned_chunk_width, pure_helpers=pure_helpers)
++        (witnesses or {}).get('objects'), owned_chunk_width=owned_chunk_width)
+     helpers = chunks.helpers
+     objects = {**(witnesses or {}).get('objects', {}), **before['objects'], **after['objects']}
+     fixed = [chunks.share(e['to']) for e in before['frozen_domain']]
+     opaque = helpers | chunks.closed | chunks.gates
+     proofs = {}
+-    equality = None
+     for name, old in before['actions'].items():
+         new = after['actions'][name]; args = [var(n) for n, _ in old['params']]
+         old_call, new_call = call(old['function'], args), call(new['function'], args)
+@@ -439,12 +432,10 @@
+             if str(error) != 'frozen composition has unmatched source structure':
+                 raise
+             from producers.computation_equality import ComputationEquality
+-            if equality is None:
+-                equality = ComputationEquality(chunks)
+             fields = chunks.objects[before['state']]['payload']['declaration']['Datatype']['constructors'][0]['fields']
+             env = {n:t for n,t in old['params'] if n!='initial'}
+             env.update(zip(old['case']['bindings'],fields))
+-            steps += [equality.prove(left,right,env,len(before['frozen_domain'])), {'Sym': backward}]
++            steps += [ComputationEquality(chunks).prove(left,right,env,len(before['frozen_domain'])), {'Sym': backward}]
+         else:
+             for a, z in opportunities:
+                 _, proofs_at_site = align(a, z)
+@@ -460,31 +451,24 @@
+             proof = chunks.factor_conversions(proof,env)
+         proofs[name] = {'Cases': dict(variable='initial', **{'from': old_call, 'to': new_call},
+             cases=[dict(bindings=old['case']['bindings'], proof=proof)])}
+-    # Import the equations actually used by these complete proofs. Search may
+-    # have built unused intermediate proposals; their presence in an authoring
+-    # cache is neither admission nor a reason to inflate the checked view.
+-    roots = {a['function'] for m in [before, after] for a in m['actions'].values()} | chunks.references(proofs)
++    roots = {a['function'] for m in [before, after] for a in m['actions'].values()} | chunks.lemmas
+     # Preserve exact immutable-source definitions even when selected actions
+     # stop reading them. Membership is checked independently of theorem truth.
+     for equation in before['frozen_domain']:
+         roots.update(chunks.references(equation))
+     store = Store.publish(directory, list(chunks.objects.values()))
+-    replacement = dict(selected=selected, proofs=proofs)
+-    if before['semantics'] == 'ink-action-transition-v2':
+-        replacement['projection'] = 'structural-v2'
+     return dict(schema=1, semantics='ink-evidence-v1', input_core_sha256=before['source'],
+-        knowledge=store.bundle(sorted(roots)), applications=[], action_replacement=replacement)
++        knowledge=store.bundle(sorted(roots)), applications=[],
++        action_replacement=dict(selected=selected, proofs=proofs))
+ 
+ 
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument('source', type=Path); parser.add_argument('--ink', required=True, type=Path)
+     parser.add_argument('-o', '--output', required=True, type=Path)
+-    parser.add_argument('--projection', choices=['legacy', 'structural-v2'], default='structural-v2',
+-                        help='explicit source correspondence version, independently re-derived by checking')
+     parser.add_argument('--helper-layout', choices=['shared', 'expanded'], default='shared',
+                         help='explicit code layout proposal; both layouts require complete proofs')
+-    parser.add_argument('--owned-chunk-width', type=int, choices=[1, 2, 4, 8], default=1,
++    parser.add_argument('--owned-chunk-width', type=int, choices=[1, 2, 4, 8], default=4,
+                         help='explicit owned-helper leaf size; proof and profitability remain separate')
+     args = parser.parse_args()
+     if args.source.stat().st_size > 16_000_000:
+@@ -502,25 +486,18 @@
+             result = subprocess.run([str(args.ink.resolve()), *map(str, command)], capture_output=True)
+             result.check_returncode()
+         def model(core, name):
+-            path = folder/(name+'.json'); run('emit-action-model', core, '--core', '--projection', args.projection, '-o', path)
++            path = folder/(name+'.json'); run('emit-action-model', core, '--core', '-o', path)
+             return json.loads(path.read_bytes())
+         original = model(args.source, 'original')
++        obj = entry('definition', 'ink-source-extension-v1', dict(functions=helpers)); key = identity(obj)
++        store = Store.publish(folder/'extensions', [obj])
++        request = dict(schema=1, semantics='ink-source-extension-v1', input_core_sha256=original['source'],
++            knowledge=store.bundle([key]), extension=key)
+         plan = dict(schema=1, semantics='ink-compiled-plan-v1', input_core_sha256=original['source'],
+-                    steps=[])
+-        packet = folder/'plan.json'; state = folder/'state.json'; current=original['source']
+-        # Compose the existing bounded extension contract. Each batch binds
+-        # its exact checked predecessor; no larger trusted admission is needed
+-        # merely because smaller leaves require more helper declarations.
+-        for start in range(0,len(helpers),EXTENSION_BATCH_SIZE):
+-            obj=entry('definition','ink-source-extension-v1',dict(functions=helpers[start:start+EXTENSION_BATCH_SIZE]))
+-            key=identity(obj);store=Store.publish(folder/('extensions-'+str(start)),[obj])
+-            request=dict(schema=1,semantics='ink-source-extension-v1',input_core_sha256=current,
+-                         knowledge=store.bundle([key]),extension=key)
+-            plan['steps'].append(dict(kind='extension',package=request))
+-            packet.write_text(json.dumps(plan,separators=(',',':')))
+-            run('check-plan',args.source,packet,'--core','--state-out',state)
+-            checked=json.loads(state.read_bytes());current=checked['source']
+-        extended = folder/'extended.json'; extended.write_text(json.dumps(checked['core']))
++                    steps=[dict(kind='extension', package=request)])
++        packet = folder/'plan.json'; packet.write_text(json.dumps(plan, separators=(',', ':')))
++        state = folder/'state.json'; run('check-plan', args.source, packet, '--core', '--state-out', state)
++        extended = folder/'extended.json'; extended.write_text(json.dumps(json.loads(state.read_bytes())['core']))
+         candidate = folder/'selected.json'; candidate.write_text(json.dumps(selected))
+         # A completely evaluated helper is absent from the selected actions'
+         # reachable projection. Project it through an auxiliary pure query so
+@@ -541,7 +518,7 @@
+                           model(witness_path,'witness-model'), owned_chunk_width=args.owned_chunk_width)
+         plan['steps'].append(dict(kind='rewrite', package=rewrite))
+         encoded = json.dumps(plan, separators=(',', ':'))+'\n'
+-        if len(encoded.encode()) > MAX_VIEW_BYTES:
++        if len(encoded.encode()) > 16_000_000:
+             raise ValueError('frozen composition plan byte budget')
+         packet.write_text(encoded); run('check-plan', args.source, packet, '--core')
+         args.output.parent.mkdir(parents=True, exist_ok=True)
+@@ -555,7 +532,7 @@
+         finally:
+             if pending is not None:
+                 pending.unlink(missing_ok=True)
+-    print(json.dumps(dict(status='checked-proposal', helpers=len(helpers), steps=len(plan['steps']),
++    print(json.dumps(dict(status='checked-proposal', helpers=len(helpers), steps=2,
+         profitability='unmeasured; explicit selection only')))
+ 
+ 
+--- a/producers/point_delta.py
++++ b/producers/point_delta.py
+@@ -23,41 +23,18 @@
+     MAX_ENTRIES = 4096
+     MAX_BYTES = 2_000_000
+     MAX_ENTRY_BYTES = 8192
+-    # Borrowed summaries keep no extra syntax alive. Whole-module arguments
+-    # can exceed the small retained cache; cache their DAG during this walk
+-    # rather than re-expanding shared descendants after 2 MB of metadata.
+-    MAX_LOCAL_ENTRIES = 65536
+-    MAX_LOCAL_BYTES = 32_000_000
+-    MAX_WORK = 1_000_000
+-
+-    def __init__(self, borrowed=()):
++
++    def __init__(self):
+         self.entries = {}
+         self.bytes = 0
+-        self.work = [self.MAX_WORK]
+-        # sub() already holds these exact inputs for the entire walk. Retain
+-        # only their summaries here, even when their unshared size would make
+-        # them ineligible for the ordinary object-retaining cache.
+-        self.borrowed = {id(value):(value,None) for value in borrowed}
+-        self.borrowed_bytes = 0
+ 
+     def of(self, value):
+         # During this walk the root keeps every borrowed descendant alive.
+         # Large shared subtrees therefore need only bounded summary metadata;
+         # no input object is retained after this walk merely for its identity.
+-        saved = self.borrowed.get(id(value))
+-        if saved is not None and saved[0] is value and saved[1] is not None:
+-            return saved[1]
+-        result = self._of(value, {}, [0], self.work, 0)
+-        metadata = 1024 + sum(128 + 4*len(name) for name in result[0]|result[1])
+-        if saved is not None and self.borrowed_bytes+metadata <= self.MAX_LOCAL_BYTES:
+-            self.borrowed[id(value)] = value,result
+-            self.borrowed_bytes += metadata
+-        return result
+-
+-    def _of(self, value, local, local_bytes, work, depth):
+-        work[0] -= 1
+-        if work[0] < 0 or depth > 256:
+-            raise ValueError('binding facts resource limit')
++        return self._of(value, {}, [0])
++
++    def _of(self, value, local, local_bytes):
+         if not isinstance(value, (dict, list)):
+             size = 64 + (4 * len(value) if isinstance(value, str) else 64)
+             return frozenset(), frozenset(), min(size, self.MAX_ENTRY_BYTES + 1)
+@@ -71,7 +48,7 @@
+         size = 128 + 96 * len(value)
+         def add(child, subtract=()):
+             nonlocal size
+-            names, bindings, weight = self._of(child, local, local_bytes, work, depth+1)
++            names, bindings, weight = self._of(child, local, local_bytes)
+             free.update(names - set(subtract)); bound.update(bindings)
+             size = min(self.MAX_ENTRY_BYTES + 1, size + weight)
+         if isinstance(value, dict) and set(value) == {'Var'}:
+@@ -98,7 +75,7 @@
+                 and self.bytes + weight <= self.MAX_BYTES):
+             self.entries[id(value)] = value, result
+             self.bytes += weight
+-        if len(local) < self.MAX_LOCAL_ENTRIES and local_bytes[0] + metadata <= self.MAX_LOCAL_BYTES:
++        if len(local) < self.MAX_ENTRIES and local_bytes[0] + metadata <= self.MAX_BYTES:
+             local[id(value)] = result
+             local_bytes[0] += metadata
+         return result
+@@ -106,10 +83,8 @@
+ def free_variables(t,bound=frozenset()):
+     return set(_BindingFacts().of(t)[0]) - set(bound)
+ def sub(t,m):
+-    return _sub(t,m,_BindingFacts([t,*m.values()]))
++    return _sub(t,m,_BindingFacts())
+ def _sub(t,m,facts):
+-    facts.work[0] -= 1
+-    if facts.work[0] < 0:raise ValueError('binding substitution resource limit')
+     if isinstance(t,list):return [_sub(x,m,facts) for x in t]
+     if not isinstance(t,dict):return t
+     if set(t)=={'Var'}:return m.get(t['Var'],t)
+@@ -156,7 +131,7 @@
+     WARMUP_CALLS=32
+ 
+     def __init__(self):
+-        self.entries={};self.bytes=0;self.calls=0;self.structural={};self.tick=None;self.preserve_closed_calls=False
++        self.entries={};self.bytes=0;self.calls=0;self.structural={}
+ 
+     @classmethod
+     def encode(cls,value):
+@@ -191,10 +166,9 @@
+         self.entries[key]=encoded;self.bytes+=len(key)+len(encoded)
+ 
+ 
+-def normal(t,objects,depth=0,opaque=(),*,blocked=(),eager=(),heads=(),tick=None,preserve_closed_calls=False):
++def normal(t,objects,depth=0,opaque=(),*,blocked=(),eager=(),heads=()):
+     """Authoring computation only. Every proposed reduction is checked by Convert."""
+-    cache=_CallCache();cache.tick=tick;cache.preserve_closed_calls=preserve_closed_calls
+-    return _normal(t,objects,depth,opaque,blocked,eager,heads,cache)
++    return _normal(t,objects,depth,opaque,blocked,eager,heads,_CallCache())
+ 
+ 
+ def _constructor_head(term,objects,heads,depth):
+@@ -210,13 +184,11 @@
+ 
+ 
+ def _normal(t,objects,depth,opaque,blocked,eager,heads,cache):
+-    if cache.tick is not None:cache.tick()
+     if depth>96:raise ValueError('point delta producer depth budget')
+     recur=lambda t:_normal(t,objects,depth+1,opaque,blocked,eager,heads,cache)
+     if not isinstance(t,dict):return t
+     if 'Call' in t:
+         x=t['Call'];args=[recur(a) for a in x['arguments']];decl=objects[x['function']]['payload']['declaration']
+-        if cache.preserve_closed_calls and not free_variables(args):return call(x['function'],args)
+         if x['function'] in opaque or 'AbstractFunction' in decl:return call(x['function'],args)
+         if x['function'] in blocked and not (x['function']in eager and any('Construct'in a for a in args)):return call(x['function'],args)
+         f=decl['Function']

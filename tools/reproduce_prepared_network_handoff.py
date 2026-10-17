@@ -21,7 +21,10 @@ def main():
     parser.add_argument('--output', type=Path, default=ROOT/'build/prepared-network-handoff')
     parser.add_argument('--verify-only', action='store_true', help='verify transferred bytes only')
     parser.add_argument('--source-only', action='store_true', help='regenerate/check source; skip plan attempt')
+    parser.add_argument('--timeout', type=int, default=1800, help='complete plan authoring and replay timeout in seconds')
     args = parser.parse_args()
+    if args.timeout <= 0:
+        parser.error('--timeout must be positive')
     inventory = json.loads((HANDOFF/'manifest.json').read_bytes())
     for name, expected in inventory['files'].items():
         path = (HANDOFF/name).resolve()
@@ -59,15 +62,15 @@ def main():
         return 0
     command = [sys.executable, str(ROOT/'knowledge/producers/frozen_composition.py'), str(source),
                '--ink', str(compiler), '-o', str(output/'plan.json')]
-    print('Attempting complete plan construction; current recorded result is a work-budget rejection.', flush=True)
+    print('Attempting ordinary complete plan admission; source checking alone is insufficient.', flush=True)
     try:
-        plan = subprocess.run(command, capture_output=True, text=True, timeout=180)
+        plan = subprocess.run(command, capture_output=True, text=True, timeout=args.timeout)
         log = plan.stdout+plan.stderr
         code = plan.returncode
     except subprocess.TimeoutExpired as error:
         def decode(value):
             return value.decode(errors='replace') if isinstance(value, bytes) else (value or '')
-        log = decode(error.stdout)+decode(error.stderr)+'\nHandoff reproduction timed out after 180 seconds.\n'
+        log = decode(error.stdout)+decode(error.stderr)+f'\nHandoff reproduction timed out after {args.timeout} seconds.\n'
         code = 124
     (output/'plan.log').write_text(log)
     summary.update(plan_exit_code=code, plan_command=command,

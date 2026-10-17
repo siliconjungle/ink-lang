@@ -1,0 +1,1 @@
+module factored_capacity;fn f(x:u32)->u32{return x;}
