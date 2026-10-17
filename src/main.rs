@@ -77,7 +77,7 @@ fn prepare_selection(
     let module = core::CheckedModule::from_source(p.clone())?;
     let package = if let Some(path) = selection {
         serde_json::from_slice::<verified_language::optimisation::Package>(&read_bounded(
-            &path, 16_000_000,
+            &path, verified_language::registry::MAX_VIEW_BYTES,
         )?)
         .map_err(|e| e.to_string())?
     } else {
@@ -435,7 +435,7 @@ fn run() -> LangResult<()> {
                             Err(reason) => serde_json::json!({"emittable":false,"reason":reason}),
                         });
                 Ok::<_, String>(
-                    serde_json::json!({"status":"checked","request_sha256":verified_language::registry::identity(&request)?,"plan_sha256":verified_language::registry::identity(&packet)?,"state":planning_state(&checked)?,"reused_steps":checker.reused_steps(),"capability":capability}),
+                    serde_json::json!({"status":"checked","request_sha256":verified_language::registry::identity(&request)?,"plan_sha256":verified_language::planning::identity(&packet)?,"state":planning_state(&checked)?,"reused_steps":checker.reused_steps(),"capability":capability}),
                 )
             })();
             println!(
@@ -590,7 +590,7 @@ fn run() -> LangResult<()> {
         }
         let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
         let package: verified_language::optimisation::Package =
-            serde_json::from_slice(&read_bounded(&args[2], 16_000_000)?)
+            serde_json::from_slice(&read_bounded(&args[2], verified_language::registry::MAX_VIEW_BYTES)?)
                 .map_err(|e| e.to_string())?;
         let selected = verified_language::optimisation::check(&module, &package)?;
         println!(
@@ -1085,7 +1085,7 @@ fn run() -> LangResult<()> {
             println!(
                 "{}",
                 serde_json::json!({"status":"checked","semantics":"ink-reference-work-v1","input":module.identity()?,
-                "selected":checked.module().identity()?,"plan_sha256":verified_language::registry::identity(checked.package())?,
+                "selected":checked.module().identity()?,"plan_sha256":verified_language::planning::identity(checked.package())?,
                 "fuel":fuels,"values":values,
                 "scope":"Reference interpreter fuel of the checked selected module per call; not a target timing"})
             );
@@ -1111,7 +1111,7 @@ fn run() -> LangResult<()> {
         println!(
             "{}",
             serde_json::json!({"status":"checked","input":module.identity()?,"selected":checked.module().identity()?,
-            "steps":checked.package().steps.len(),"plan_sha256":verified_language::registry::identity(checked.package())?,"state":state})
+            "steps":checked.package().steps.len(),"plan_sha256":verified_language::planning::identity(checked.package())?,"state":state})
         );
         return Ok(());
     }
