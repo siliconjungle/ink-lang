@@ -7,9 +7,10 @@ fn direct_owned_helpers_preserve_values_shared_lists_events_and_portable_state()
  let mut source=include_str!("fixtures/owned-parameters.ink").to_owned();
  source+=&format!("fn wide(b:Buffer<f32>)->Buffer<f32>{{let xs:List<f32>=[{}];return b.push(xs.at_or(9,0.0));}}fn fallback(xs:List<f32>,x:f32,n:u32)->Out{{return Out{{values:wide(buffer(xs)).freeze(),shared:xs,indexed:[]}};}}",vec!["0.0";530].join(","));
  source+=r#"
+fn first(xs:List<f32>)->f32{return xs.at_or(0,0.0);}
 trainable state Rows:Table<u32,List<f32>>=Table.empty();event computed:Out;
 learn change seed(xs:List<f32>)->Unit writes(Rows){Rows.put(0,xs);return ();}
-adaptive query read(xs:List<f32>,x:f32,n:u32)->Out reads(Rows){let stored=Rows.get(0).unwrap_or([]);return run(xs,x+stored.at_or(0,0.0),n);}
+adaptive query read(xs:List<f32>,x:f32,n:u32)->Out reads(Rows){let stored=Rows.get(0).unwrap_or([]);return run(xs,x+first(stored),n);}
 learn change fit(xs:List<f32>,x:f32,n:u32,fail:Bool)->Result<Out,String> reads(Rows) writes(Rows) emits(computed){let out=run(xs,x,n);Rows.put(0,out.values);emit computed(out);if fail{return Err("rollback");}return Ok(out);}
 fn word_kernel(xs:List<u32>,x:u32)->List<u32>{return xs.map(fn(v)=>v+x);}
 "#;
