@@ -25,6 +25,24 @@ Conditional record results inside an expanded helper can also merge their fields
 directly. Only the selected branch executes; whole-value uses still reconstruct
 the ordinary record after the merge.
 
+Small helpers with checked owned parameters can also expand when no record
+wrapper is present. For example, a reverse-mode graph can update a private
+adjoint buffer through an ordinary function:
+
+```ink
+module adjoints;
+fn add_to(work:Buffer<f32>,wire:u32,amount:f32)->Buffer<f32>{
+ let prior=work.at_or(wire,0.0);
+ return work.set(wire,prior+amount);
+}
+```
+
+The compiler can place this body at an eligible call site. The buffer retains its
+same checked owner handle, and List parameters in other helpers remain shared
+under the callee's own analysis. This removes a call boundary without changing
+the arithmetic, adding a public owner capability or retaining scratch storage
+between invocations. The same expansion limits and ordinary fallback apply.
+
 ## Evaluation and ownership
 
 Every field and argument executes once in source order, including unobserved
