@@ -96,5 +96,6 @@ pub mod protocol;
 
 pub mod learning;
 
+mod ad_scalar;
 mod differentiation;
 mod reverse_differentiation;
