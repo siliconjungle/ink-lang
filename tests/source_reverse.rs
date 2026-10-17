@@ -4,6 +4,58 @@ use verified_language::{core::CheckedModule, eval, stateful::Runtime, syntax};
 mod parity;
 const SOURCE: &str = include_str!("../examples/source-reverse-learning.ink");
 const SOURCE_F64: &str = include_str!("../examples/source-reverse-learning-f64.ink");
+#[test]
+fn resident_source_gradients_and_adam_keep_complete_training_on_the_device() {
+    let source = include_str!("../examples/resident-source-training.ink");
+    let p = syntax::parse(source).unwrap();
+    let checked = CheckedModule::from_source(p.clone()).unwrap();
+    let emission = ink_lowering_gpu::compute::lower(&checked).unwrap();
+    for name in ["shape", "gradients", "update", "losses"] {
+        let f = emission.manifest["functions"].as_array().unwrap().iter()
+            .find(|f| f["name"] == name).unwrap();
+        assert!(f["fallback_reason"].is_null(), "{name}: {}", f["fallback_reason"]);
+        for node in f["graph"]["nodes"].as_array().expect("composable device graph") {
+            let code = &emission.shaders[node["shader"].as_str().unwrap()];
+            let module = naga::front::wgsl::parse_str(code)
+                .unwrap_or_else(|e| panic!("{name}: {}", e.emit_to_string(code)));
+            naga::valid::Validator::new(naga::valid::ValidationFlags::all(), naga::valid::Capabilities::empty())
+                .validate(&module).unwrap_or_else(|e| panic!("{name}: {e:?}"));
+        }
+    }
+    if std::env::var_os("INK_TEST_WGPU").is_none() { return; }
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let output = root.join("build/resident-source-training");
+    let bundle = output.join("bundle");
+    let validation = output.join("validation");
+    verified_language::runtime::emit_gpu(&p, &bundle).unwrap();
+    std::fs::write(output.join("storage-retention.json"),
+        r#"{"schema":1,"keep":[{"path":"bundle","reason":"Selected resident-training proof inputs"},{"path":"validation","reason":"Complete histories and independent gradient check"},{"path":"storage-retention.json","reason":"Retention contract"}],"safe_to_remove":[]}"#).unwrap();
+    let run = |command: &mut std::process::Command| {
+        let result = command.output().unwrap();
+        assert!(result.status.success(), "{}\n{}", String::from_utf8_lossy(&result.stdout), String::from_utf8_lossy(&result.stderr));
+        result.stdout
+    };
+    run(std::process::Command::new("python3").arg(root.join("bench/gpu/source-training.py")).arg("prepare").arg(&validation));
+    let target = std::env::var_os("INK_RESIDENT_TRAINING_TARGET").map(std::path::PathBuf::from)
+        .unwrap_or_else(|| output.join("native-target"));
+    run(std::process::Command::new("cargo").args(["build", "--offline", "--quiet", "--manifest-path"])
+        .arg(bundle.join("native/Cargo.toml")).arg("--target-dir").arg(&target)
+        .env("CARGO_PROFILE_DEV_DEBUG", "0").env("CARGO_INCREMENTAL", "0"));
+    let program = target.join(if cfg!(windows) { "debug/ink-gpu-program.exe" } else { "debug/ink-gpu-program" });
+    for backend in ["cpu", "gpu"] {
+        let replies = run(std::process::Command::new(&program).arg("--script")
+            .arg(validation.join(format!("native-{backend}-script.json"))));
+        std::fs::write(validation.join(format!("native-{backend}-history.jsonl")), replies).unwrap();
+    }
+    let receipt = run(std::process::Command::new("python3").arg(root.join("bench/gpu/source-training.py")).arg("verify").arg(&validation));
+    println!("{}", String::from_utf8_lossy(&receipt));
+    if target == output.join("native-target") {
+        let path = output.join("storage-retention.json");
+        let mut manifest: Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+        manifest["safe_to_remove"] = json!([{"path":"native-target","reason":"Completed generated validation build; inputs and complete useful execution proof are retained"}]);
+        std::fs::write(path, serde_json::to_vec_pretty(&manifest).unwrap()).unwrap();
+    }
+}
 fn pure(module: &CheckedModule, name: &str, args: Value) -> Value {
     let p = module.program();
     let f = p.functions.iter().find(|f| f.name == name).unwrap();

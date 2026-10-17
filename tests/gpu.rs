@@ -1,5 +1,7 @@
 use std::fs;
 use verified_language::{check, syntax::parse};
+#[path = "../lowerings/gpu/tests/local_lists.rs"]
+mod local_lists;
 #[test]
 fn packed_wasm_parallel_fallback_preserves_captures_indices_and_nesting() {
     if std::env::var_os("INK_TEST_WASM").is_none() { return; }
