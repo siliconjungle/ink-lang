@@ -1181,32 +1181,52 @@ pub fn substitute_term(term: &Term, bindings: &BTreeMap<String, Term>) -> LangRe
 }
 // Capture-avoiding simultaneous substitution. Internal fresh names use '$',
 // which untrusted binders cannot use. Inserted terms are never substituted again.
-fn substitute(
+// One substitution borrows fixed inputs. Scan their names once, lazily at the
+// first binder, and reserve fresh names across this walk. No term identities,
+// summaries or proof verdicts survive the call.
+struct Substitution<'a> {
+    root: &'a Term,
+    inputs: &'a BTreeMap<String, Term>,
+    used: Option<BTreeSet<String>>,
+    next: usize,
+    root_depth: usize,
+}
+fn substitute(t: &Term, bindings: &BTreeMap<String, Term>, budget: &mut Budget, depth: usize) -> LangResult<Term> {
+    let mut state = Substitution { root:t, inputs:bindings, used:None, next:0, root_depth:depth };
+    let mut borrowed = BTreeMap::new();
+    for (name,value) in bindings {
+        budget.step(depth)?;
+        borrowed.insert(name.as_str(),value);
+    }
+    substitute_scoped(t,&borrowed,budget,depth,&mut state)
+}
+fn substitute_scoped(
     t: &Term,
-    bindings: &BTreeMap<String, Term>,
+    bindings: &BTreeMap<&str, &Term>,
     budget: &mut Budget,
     depth: usize,
+    state: &mut Substitution<'_>,
 ) -> LangResult<Term> {
     budget.step(depth)?;
     if bindings
         .iter()
-        .all(|(name, value)| matches!(value,Term::Var(n)if n==name))
+        .all(|(name, value)| matches!(value,Term::Var(n)if n.as_str()==*name))
     {
         budget.copy(t)?;
         return Ok(t.clone());
     }
     Ok(match t {
-        Term::Var(n) => match bindings.get(n) {
+        Term::Var(n) => match bindings.get(n.as_str()) {
             Some(value) => {
                 budget.copy(value)?;
-                value.clone()
+                (**value).clone()
             }
             None => t.clone(),
         },
         Term::Binary { op, left, right } => Term::Binary {
             op: op.clone(),
-            left: Box::new(substitute(left, bindings, budget, depth + 1)?),
-            right: Box::new(substitute(right, bindings, budget, depth + 1)?),
+            left: Box::new(substitute_scoped(left, bindings, budget, depth + 1, state)?),
+            right: Box::new(substitute_scoped(right, bindings, budget, depth + 1, state)?),
         },
         Term::Call {
             function,
@@ -1215,7 +1235,7 @@ fn substitute(
             function: function.clone(),
             arguments: arguments
                 .iter()
-                .map(|a| substitute(a, bindings, budget, depth + 1))
+                .map(|a| substitute_scoped(a, bindings, budget, depth + 1, state))
                 .collect::<LangResult<_>>()?,
         },
         Term::Construct {
@@ -1227,7 +1247,7 @@ fn substitute(
             constructor: *constructor,
             arguments: arguments
                 .iter()
-                .map(|a| substitute(a, bindings, budget, depth + 1))
+                .map(|a| substitute_scoped(a, bindings, budget, depth + 1, state))
                 .collect::<LangResult<_>>()?,
         },
         Term::If {
@@ -1235,42 +1255,55 @@ fn substitute(
             on_true,
             on_false,
         } => Term::If {
-            condition: Box::new(substitute(condition, bindings, budget, depth + 1)?),
-            on_true: Box::new(substitute(on_true, bindings, budget, depth + 1)?),
-            on_false: Box::new(substitute(on_false, bindings, budget, depth + 1)?),
+            condition: Box::new(substitute_scoped(condition, bindings, budget, depth + 1, state)?),
+            on_true: Box::new(substitute_scoped(on_true, bindings, budget, depth + 1, state)?),
+            on_false: Box::new(substitute_scoped(on_false, bindings, budget, depth + 1, state)?),
         },
         Term::Match {
             scrutinee,
             branches,
         } => {
-            let mut used = BTreeSet::new();
-            names(t, &mut used, budget, depth + 1)?;
-            for value in bindings.values() {
-                names(value, &mut used, budget, depth + 1)?
+            if state.used.is_none() {
+                let mut used = BTreeSet::new();
+                names(state.root, &mut used, budget, state.root_depth + 1)?;
+                for value in state.inputs.values() {
+                    names(value, &mut used, budget, state.root_depth + 1)?;
+                }
+                state.used = Some(used);
             }
             let mut branches_out = Vec::new();
             for branch in branches {
-                let mut local = bindings.clone();
                 let mut renamed = Vec::new();
-                for binder in &branch.bindings {
-                    let mut index = 0;
+                for _ in &branch.bindings {
                     let fresh = loop {
-                        let candidate = format!("$b{index}");
-                        index += 1;
-                        if used.insert(candidate.clone()) {
+                        budget.step(depth)?;
+                        let candidate = format!("$b{}", state.next);
+                        state.next += 1;
+                        if state.used.as_mut().unwrap().insert(candidate.clone()) {
                             break candidate;
                         }
                     };
-                    local.insert(binder.clone(), Term::Var(fresh.clone()));
                     renamed.push(fresh);
+                }
+                // Environments borrow captured terms; copying an environment
+                // must not duplicate a large capture at every nested binder.
+                // Only values actually inserted into the result are cloned.
+                let replacements = renamed.iter().cloned().map(Term::Var).collect::<Vec<_>>();
+                let mut local = BTreeMap::new();
+                for (name,value) in bindings {
+                    budget.step(depth)?;
+                    local.insert(*name,*value);
+                }
+                for (binder,value) in branch.bindings.iter().zip(&replacements) {
+                    local.insert(binder.as_str(),value);
                 }
                 branches_out.push(Branch {
                     bindings: renamed,
-                    body: substitute(&branch.body, &local, budget, depth + 1)?,
+                    body: substitute_scoped(&branch.body, &local, budget, depth + 1, state)?,
                 });
             }
             Term::Match {
-                scrutinee: Box::new(substitute(scrutinee, bindings, budget, depth + 1)?),
+                scrutinee: Box::new(substitute_scoped(scrutinee, bindings, budget, depth + 1, state)?),
                 branches: branches_out,
             }
         }
@@ -1278,6 +1311,55 @@ fn substitute(
         _ => t.clone(),
     })
 }
+#[cfg(test)]
+mod substitution_scope_tests {
+    use super::*;
+
+    #[test]
+    fn a_large_capture_is_not_rescanned_at_every_lexical_binder() {
+        let mut capture = Term::Binary { op: "+".into(),
+            left: Box::new(Term::Var("free".into())), right: Box::new(Term::Var("$b0".into())) };
+        for _ in 0..11 {
+            capture = Term::Binary { op: "+".into(), left: Box::new(capture.clone()), right: Box::new(capture) };
+        }
+        let mut source = Term::Var("capture".into());
+        for value in 0..32 {
+            source = Term::Match { scrutinee: Box::new(Term::Construct { datatype: "box".into(),
+                constructor: 0, arguments: vec![Term::U64(value)] }),
+                branches: vec![Branch { bindings: vec!["free".into()], body: source }] };
+        }
+        let mut budget = Budget::new(); budget.remaining = 100_000;
+        let result = substitute(&source, &BTreeMap::from([("capture".into(), capture.clone())]), &mut budget, 0).unwrap();
+        let mut body = &result;
+        for _ in 0..32 {
+            let Term::Match { branches, .. } = body else { panic!() };
+            assert_ne!(branches[0].bindings[0], "free");
+            assert_ne!(branches[0].bindings[0], "$b0");
+            body = &branches[0].body;
+        }
+        assert_eq!(body, &capture);
+        assert!(budget.remaining > 0);
+    }
+
+    #[test]
+    fn substitution_keeps_shadowing_and_simultaneous_insertions() {
+        let source = Term::Match { scrutinee: Box::new(Term::Var("tag".into())),
+            branches: vec![Branch { bindings: vec!["x".into()], body: Term::Construct {
+                datatype: "pair".into(), constructor: 0,
+                arguments: vec![Term::Var("x".into()), Term::Var("y".into()), Term::Var("z".into())] } }] };
+        let bindings = BTreeMap::from([("x".into(), Term::Var("external".into())),
+            ("y".into(), Term::Var("x".into())), ("z".into(), Term::Var("y".into()))]);
+        let result = substitute_term(&source, &bindings).unwrap();
+        let Term::Match { scrutinee, branches } = result else { panic!() };
+        assert_eq!(*scrutinee, Term::Var("tag".into()));
+        let Term::Construct { arguments, .. } = &branches[0].body else { panic!() };
+        assert_eq!(arguments, &vec![Term::Var(branches[0].bindings[0].clone()),
+            Term::Var("x".into()), Term::Var("y".into())]);
+        let mut budget = Budget::new(); budget.remaining = 0;
+        assert!(substitute(&source, &bindings, &mut budget, 0).is_err());
+    }
+}
+
 /// Expose an elimination discriminator without normalising constructor fields.
 /// All terms are checked before conversion. This only changes evaluation order
 /// for the existing total definitions; it introduces no equations or axioms.
