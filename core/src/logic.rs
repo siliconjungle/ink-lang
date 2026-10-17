@@ -128,6 +128,9 @@ pub enum Proof {
         cases: Vec<Case>,
     },
     Refl(Term),
+    /// One immediate checked delta, constructor, Boolean or scalar reduction.
+    /// The conclusion is computed here, never supplied by the producer.
+    Step(Term),
     Convert {
         from: Term,
         to: Term,
@@ -1357,6 +1360,125 @@ mod substitution_scope_tests {
             Term::Var("x".into()), Term::Var("y".into())]);
         let mut budget = Budget::new(); budget.remaining = 0;
         assert!(substitute(&source, &bindings, &mut budget, 0).is_err());
+    }
+}
+
+/// One fixed reduction, with no search or evaluation of unrelated descendants.
+/// The caller has checked the input. The result is checked again by derivation.
+fn immediate_step(t: &Term, c: &Context, budget: &mut Budget) -> LangResult<Term> {
+    budget.step(0)?;
+    match t {
+        Term::Call { function, arguments } => {
+            let Kind::Function(f) = &c.entry(function, true)?.kind else {
+                return Err("logic step needs a concrete total function".into());
+            };
+            if f.recursive.is_some_and(|i| !matches!(arguments[i], Term::Construct { .. })) {
+                return Err("logic recursive step needs a constructor argument".into());
+            }
+            for argument in arguments { budget.copy(argument)?; }
+            let bindings = f.params.iter().map(|p| p.0.clone()).zip(arguments.iter().cloned()).collect();
+            substitute(&f.body, &bindings, budget, 0)
+        }
+        Term::Match { scrutinee, branches } => {
+            let Term::Construct { constructor, arguments, .. } = scrutinee.as_ref() else {
+                return Err("logic match step needs a constructor scrutinee".into());
+            };
+            let branch = branches.get(*constructor).ok_or("unknown match constructor")?;
+            for argument in arguments { budget.copy(argument)?; }
+            let bindings = branch.bindings.iter().cloned().zip(arguments.iter().cloned()).collect();
+            substitute(&branch.body, &bindings, budget, 0)
+        }
+        Term::If { condition, on_true, on_false } => {
+            let Term::Bool(value) = condition.as_ref() else {
+                return Err("logic conditional step needs a literal Boolean".into());
+            };
+            let selected = if *value { on_true } else { on_false };
+            budget.copy(selected)?;
+            Ok((**selected).clone())
+        }
+        Term::Binary { left, right, .. }
+            if matches!(left.as_ref(), Term::Bool(_) | Term::U64(_))
+                && matches!(right.as_ref(), Term::Bool(_) | Term::U64(_)) => normal(t, c, budget, 0),
+        _ => Err("logic step has no immediate reduction".into()),
+    }
+}
+
+#[cfg(test)]
+mod immediate_step_tests {
+    use super::*;
+
+    fn binary(left: Term, right: Term) -> Term {
+        Term::Binary { op: "+".into(), left: Box::new(left), right: Box::new(right) }
+    }
+
+    #[test]
+    fn constructor_step_retains_large_captures_and_order_without_evaluating_fields() {
+        let mut context = Context::default();
+        context.declare("box".into(), &Declaration::Datatype { constructors: vec![
+            Constructor { name: "Box".into(), fields: vec![Sort::U64] }
+        ] }).unwrap();
+        context.declare("work".into(), &Declaration::Function {
+            params: vec![("x".into(), Sort::U64)], result: Sort::U64,
+            recursive: None, body: binary(Term::Var("x".into()), Term::U64(1)),
+        }).unwrap();
+        let mut capture = Term::Var("input".into());
+        for _ in 0..12 { capture = binary(capture.clone(), capture); }
+        let capture = Term::Call { function: "work".into(), arguments: vec![capture] };
+        let from = Term::Match { scrutinee: Box::new(Term::Construct {
+            datatype: "box".into(), constructor: 0, arguments: vec![capture.clone()],
+        }), branches: vec![Branch { bindings: vec!["payload".into()],
+            body: binary(Term::Var("payload".into()), Term::Var("payload".into())) }] };
+        let to = binary(capture.clone(), capture);
+        assert_eq!(immediate_step(&from, &context, &mut Budget::new()).unwrap(), to);
+        context.check(&[("input".into(), Sort::U64)], &[], &from, &to, &Proof::Step(from.clone())).unwrap();
+    }
+
+    #[test]
+    fn step_rejects_wrong_results_stuck_terms_shadowing_and_exhaustion() {
+        let context = Context::default();
+        let term = binary(Term::U64(2), Term::U64(3));
+        context.check(&[], &[], &term, &Term::U64(5), &Proof::Step(term.clone())).unwrap();
+        assert!(context.check(&[], &[], &term, &Term::U64(6), &Proof::Step(term.clone())).is_err());
+        let stuck = Term::Var("input".into());
+        assert!(context.check(&[("input".into(), Sort::U64)], &[], &stuck, &stuck, &Proof::Step(stuck.clone())).is_err());
+        let mut budget = Budget::new(); budget.remaining = 4;
+        assert!(derive(&Proof::Step(term.clone()), &Env::new(), &context, &[], &[], &mut budget, 0).is_err());
+        let encoded = serde_json::to_vec(&Proof::Step(term)).unwrap();
+        assert!(matches!(serde_json::from_slice::<Proof>(&encoded).unwrap(), Proof::Step(_)));
+
+        let mut context = Context::default();
+        context.declare("box".into(), &Declaration::Datatype { constructors: vec![
+            Constructor { name: "Box".into(), fields: vec![Sort::U64] }
+        ] }).unwrap();
+        let source = Term::Match { scrutinee: Box::new(Term::Construct {
+            datatype: "box".into(), constructor: 0, arguments: vec![Term::U64(1)],
+        }), branches: vec![Branch { bindings: vec!["payload".into()], body: Term::Var("payload".into()) }] };
+        let env = Env::from([("payload".into(), Sort::U64)]);
+        assert!(derive(&Proof::Step(source), &env, &context, &[], &[], &mut Budget::new(), 0).unwrap_err().contains("shadows"));
+    }
+
+    #[test]
+    fn function_steps_preserve_recursive_gates_and_import_visibility() {
+        let mut context = Context::default();
+        context.declare("rows".into(), &Declaration::Datatype { constructors: vec![
+            Constructor { name: "Nil".into(), fields: vec![] },
+            Constructor { name: "Cons".into(), fields: vec![Sort::U64, Sort::SelfType] },
+        ] }).unwrap();
+        context.declare("length".into(), &Declaration::Function {
+            params: vec![("xs".into(), Sort::Data("rows".into()))], result: Sort::U64, recursive: Some(0),
+            body: Term::Match { scrutinee: Box::new(Term::Var("xs".into())), branches: vec![
+                Branch { bindings: vec![], body: Term::U64(0) },
+                Branch { bindings: vec!["head".into(), "tail".into()], body: binary(Term::U64(1), Term::SelfCall(vec![Term::Var("tail".into())])) },
+            ] },
+        }).unwrap();
+        let call = |argument| Term::Call { function: "length".into(), arguments: vec![argument] };
+        let unknown = call(Term::Var("xs".into()));
+        assert!(context.check(&[("xs".into(), Sort::Data("rows".into()))], &[], &unknown, &unknown, &Proof::Step(unknown.clone())).is_err());
+        let known = call(Term::Construct { datatype: "rows".into(), constructor: 0, arguments: vec![] });
+        assert!(matches!(immediate_step(&known, &context, &mut Budget::new()).unwrap(), Term::Match { .. }));
+        context.check(&[], &[], &known, &Term::U64(0), &Proof::Step(known.clone())).unwrap();
+        let hidden = context.subset(&["rows".into()]).unwrap();
+        assert!(derive(&Proof::Step(known), &Env::new(), &hidden, &[], &[], &mut Budget::new(), 0).is_err());
     }
 }
 
@@ -2718,7 +2840,7 @@ fn proof_references(p: &Proof, out: &mut BTreeSet<String>) {
             proof_references(on_false, out);
             proof_references(on_true, out);
         }
-        Proof::Refl(t) => term_references(t, out),
+        Proof::Refl(t) | Proof::Step(t) => term_references(t, out),
         Proof::Hypothesis(_) => {}
         Proof::Sym(p) => proof_references(p, out),
         Proof::Trans(p, q) => {
@@ -3084,6 +3206,14 @@ fn derive(
             false,
             budget,
         )?,
+        Proof::Step(t) => {
+            // Check visibility, arity, branch binders and operand types before
+            // inspecting a function's recursive argument or selecting an arm.
+            infer(t, env, c, None, false, budget, 0)?;
+            let to = immediate_step(t, c, budget)?;
+            budget.copy(t)?;
+            Equation { from: t.clone(), to }
+        }
         Proof::Convert { from, to } => {
             let e = raw_pair(
                 Equation {
