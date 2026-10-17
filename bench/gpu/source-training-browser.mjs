@@ -46,8 +46,17 @@ export async function checkSourceTraining(page,base,root){
   const p=script[0].open.inputs;
   const javascript=await engine.call('gradients',[p.parameters,p.features,p.targets,p.rows],{backend:'javascript'});
   if(javascript.backend!=='javascript'||!same(javascript.value,expected.first.gradient))throw Error('JavaScript source gradient mismatch');
+  const precision={};
+  for(const backend of ['cpu','javascript']){
+   const result=await engine.call('precise_gradient',[1.0000000000000002],{backend});
+   if(result.backend!==backend||result.value!==2.0000000000000004)throw Error(`${backend}: binary64 companion precision lost`);
+   precision[backend]=result.value;
+  }
+  let rejected=false;
+  try{await engine.call('precise_gradient',[1.0000000000000002],{backend:'gpu-required'});}catch(error){if(!String(error).includes('binary64 device arithmetic'))throw error;rejected=true;}
+  if(!rejected)throw Error('binary64 companion unexpectedly dispatched');
   const adapter=await navigator.gpu.requestAdapter();
-  return {host:'browser',adapter:adapter.info,userAgent:navigator.userAgent,histories,receipts,javascript_initial_gradient_exact:true};
+  return {host:'browser',adapter:adapter.info,userAgent:navigator.userAgent,histories,receipts,javascript_initial_gradient_exact:true,binary64_companion:precision,binary64_gpu_required_rejected:rejected};
  },{base,script,expected});
  return result;
 }
