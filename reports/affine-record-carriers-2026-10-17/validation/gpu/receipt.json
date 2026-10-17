@@ -1,0 +1,52 @@
+{
+  "status": "passed-real-eligible-dispatch",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--test",
+    "numerical_state",
+    "numerical_storage_rollback_events_and_pure_calls_match_all_cpu_paths",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "environment": {
+    "INK_TEST_WASM": "1",
+    "INK_PARITY_REQUIRE_ALL": "1",
+    "INK_TEST_WGPU": "1"
+  },
+  "distribution": "8deac45b5bb577d58407944ad271996e05f0c688",
+  "exit_code": 0,
+  "seconds": 26.093192541971803,
+  "log_sha256": "0095a7acb605ab1e37990aeac59c7974c3ba90d2f66ea1aadc8e541e2d94d01b",
+  "gpu_calls": 1,
+  "outcomes": 101,
+  "scope": "Native WGPU host, complete numerical source history and exact final checkpoint; actual eligible word dispatch. This does not establish F32 arithmetic carriers or training on a GPU, nor browser WebGPU execution.",
+  "files": {
+    "gpu-receipts.json": {
+      "bytes": 25487,
+      "sha256": "31ba0c9df75786cd75814708e8dee3d100b5bee0553b4d4f11733719deda1117"
+    },
+    "gpu-final.snapshot": {
+      "bytes": 3366,
+      "sha256": "64882562521d8d1bbbcd74b279b1d92a12562e24265036a2e7835eab146f7d8c"
+    },
+    "expected.json": {
+      "bytes": 290115,
+      "sha256": "f852cf9c7efca88abf860559ff25a3653af1653bb9f1f70787d7ddb802f5479a"
+    },
+    "test.log": {
+      "bytes": 553,
+      "sha256": "0095a7acb605ab1e37990aeac59c7974c3ba90d2f66ea1aadc8e541e2d94d01b"
+    },
+    "gpu-script.json": {
+      "bytes": 283172,
+      "sha256": "249a5ca1325595167ea5a822c32baf451b8cbdbb5a823f135584cc49f83f584d"
+    },
+    "source.ink": {
+      "bytes": 3191,
+      "sha256": "c5c52abd3964a945242f43ecafe9a666567d0771a8bd2877cea46063fb43e35c"
+    }
+  }
+}

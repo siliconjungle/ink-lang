@@ -505,3 +505,16 @@ Tiny cases and earlier slower prototypes remain in the
 These shared-host diagnostics are not automatic planner evidence. Profitable
 graph/representation selection, device training and the complete three-project
 performance programme remain required.
+
+Affine JavaScript record carriers now stay local through bounded helpers and
+repeat/left/right/inclusive folds, preserving private owner handles, readonly
+List sharing and simultaneous updates. Fresh literal initializers avoid a wrapper;
+borrowed host-record initializers keep ordinary fold behavior. The standalone
+package passes 61 tests and the new required CPU suite matches 1,251 complete
+reference/Rust/JavaScript/Wasm outcomes with exact snapshots. Repeated neural
+studies show roughly 1.20–1.32× prediction and 1.27–1.36× training throughput;
+one earlier process regresses substantially and remains recorded. These are
+shared-host diagnostics, not universal guarantees or automatic planner evidence.
+See [scope, all cohorts and remaining work](reports/affine-record-carriers-2026-10-17/README.md).
+Full upstream parity, trained profitable representation choice and device training
+remain required.

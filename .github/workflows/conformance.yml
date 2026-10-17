@@ -173,6 +173,7 @@ jobs:
         # Retained float-carrier images remain replayable as the current emitter
         # evolves. Current emission is covered by numerical_state below.
         python3 reports/rounded-f32-carriers-2026-10-17/audit.py --run
+        python3 reports/affine-record-carriers-2026-10-17/audit.py --run
         cargo test --manifest-path lowerings/rust/Cargo.toml --lib
         # The whole suite: fuzz_logic_objects re-declares every first-order
         # knowledge object, so checker changes cannot silently strand proofs.

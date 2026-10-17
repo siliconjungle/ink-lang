@@ -1,6 +1,6 @@
 # Local record storage through pure helpers
 
-JavaScript emission can keep immutable record fields in local variables through
+JavaScript emission can keep record fields in local variables through
 bounded pure helper expansion and value loops. This extends ordinary literal
 execution; there is no new syntax or change to source arithmetic.
 
@@ -18,8 +18,9 @@ The loop can keep `x` and `y` as separate locals and expand `advance` where its
 record input already has local fields. Whole-value uses reconstruct the ordinary
 record. Nested immutable records, lists, strings and exact binary64 carriers may
 be field values; this does not flatten their contents, change public schemas or
-grant a physical codec. User records with owned descendants retain ordinary
-affine storage. Existing internal loop carriers preserve their prior handling.
+grant a physical codec. Checked Buffer/Map fields can also remain in local slots:
+each field retains its private owner handle and the source's affine moves and
+readonly loans. Splitting a wrapper does not grant additional uniqueness.
 Conditional record results inside an expanded helper can also merge their fields
 directly. Only the selected branch executes; whole-value uses still reconstruct
 the ordinary record after the merge.
@@ -36,14 +37,36 @@ reassociation or precision change.
 Loop fields update simultaneously: the emitter evaluates every next component
 before assigning any carried local. Whole values and worker captures materialize
 their ordinary snapshots. A helper's parameters remain shared under the core's
-loan analysis; expansion does not make captured or caller-owned storage unique.
+List analysis; expansion does not make captured or caller-owned Lists unique.
 Changing weights, features, targets and loop inputs still execute fresh work.
+
+The same mechanism handles `foldl`, `foldr` and `fold_until`. Right folds retain
+reverse traversal. An inclusive fold tests its stop condition before executing
+the triggering step, executes that step, then stops. Every next field is computed
+before updating a carried slot. Mutable slots gain no immutable Number facts.
+Fresh literal initializers can use their already evaluated fields directly.
+Arbitrary borrowed host record initializers retain the ordinary fold path so an
+empty fold does not read unused getters or move failures earlier.
+
+For example, an owned working record can carry a buffer without allocating a
+record wrapper for every input element:
+
+```ink
+module accumulation;
+record Work{values:Buffer<f32>,total:f32,}
+fn collect(xs:List<f32>)->List<f32>{
+ let work=foldl(xs,Work{values:Buffer.empty(),total:0.0},
+  fn(x)=>fn(work)=>Work{values:work.values.push(x+work.total),total:work.total+x});
+ return work.values.freeze();
+}
+```
 
 ## Bounds and ordinary fallback
 
-New immutable field storage admits at most 64 fields. Expansion requires an
-already decomposed record argument, readonly parameter/result types and a
-nonrecursive body. It admits up to 512 source nodes per body, four nested helper
+Local user-record storage admits at most 64 fields. Expansion requires an
+already decomposed record argument and a nonrecursive body. Owned parameters and
+results retain the same checked owner operations; owned temporaries remain
+internal capabilities. It admits up to 512 source nodes per body, four nested helper
 expansions, 16,384 charged expansion nodes per emission and 262,144 charged source
 bytes. One expansion is limited to 65,536 bytes, including its returned expression.
 Nested reservations may conservatively charge work again. These bounds restrict
@@ -63,7 +86,7 @@ automatic implementation-selection evidence.
 
 ## Evidence and remaining work
 
-The new standalone fixture compares 1,080 independent-reference cases through
+The earlier standalone fixture compares 1,080 independent-reference cases through
 7,560 compiled/prepared calls, including nested records, immutable list aliases,
 owned buffers, fallible boundaries, raw binary64 values and bounded helper/body
 fallback. The distribution fixture compares 252 source observations plus one
@@ -71,6 +94,15 @@ numeric device control across native Rust, JavaScript, Rust-Wasm and the native
 GPU host, with exact CPU snapshots. A separate complete text lifecycle covers
 edits, resizes, rollback and restore. Numeric GPU controls do not make record
 expansion a device feature.
+
+The [affine-record extension](../reports/affine-record-carriers-2026-10-17/README.md)
+adds 1,731 cases in each native/stateful float mode, 96 state outcomes, seventeen
+restores, actual workers, map/buffer/nested-owner checks, shared List aliases,
+borrowed getter order and bounded fallback. Its new distribution history matches
+1,251 reference/Rust/JavaScript/Wasm outcomes and exact snapshots. The complete
+standalone package passes 61 tests. Repeated graph and neural measurements retain
+all setup costs, adverse samples and the preliminary implementation that missed
+folds; these observations do not admit automatic planner choices.
 
 The [matched study](../reports/record-helpers-2026-10-16/README.md) retains complete
 text and neural controls, cold/setup costs, code size and small-case losses. This

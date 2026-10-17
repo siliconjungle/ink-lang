@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "distribution": "8deac45b5bb577d58407944ad271996e05f0c688",
+  "phases": [
+    {
+      "name": "compile",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--no-run",
+        "--test",
+        "owned_record_carriers",
+        "--test",
+        "numerical_state",
+        "--test",
+        "function_specialization",
+        "--message-format",
+        "json"
+      ],
+      "exit_code": 0,
+      "seconds": 26.124503416009247,
+      "log_sha256": "673e0ca7f0740d9bfe658dd8327b588ed579b7fb379b92ca8a8f900068e9992b"
+    },
+    {
+      "name": "owned-records",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--test",
+        "owned_record_carriers",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 9.997157749952748,
+      "log_sha256": "feadfb5abe1d1bdb07f40ebb7d4ba1e9bed83b0d946a53cbbe9c91817960d8b1"
+    },
+    {
+      "name": "numerical-state",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--test",
+        "numerical_state",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 16.879708959022537,
+      "log_sha256": "28c930a668bca05789cbe88e1f889f04fa949670438f4ed5b3fca2fdd308ae8f"
+    },
+    {
+      "name": "function-specialization",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--test",
+        "function_specialization",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 38.43269033380784,
+      "log_sha256": "f0f0286b38b4ae0cbf181ad09d8c981ca5e8bb6d81cd5349906541be6ebec1cb"
+    }
+  ],
+  "sources_sha256": "f030a6eeafa86d34dabe96dc78f984afe2d3ce7d6896b326b9d90300e79f4d5d",
+  "compiler_sha256": "59d88a16f940bc9c445a72ddcff54a02478a6930f586c2c55c60f48eac572c29"
+}
