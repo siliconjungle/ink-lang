@@ -293,3 +293,7 @@ callee analysis. Recursive helpers, checked elisions and exhausted budgets retai
 their ordinary handling. Account for returned expressions in
 source limits and leave stack headroom for type/loan visitors; optional emission
 must not reject an otherwise supported source. See docs/local-record-helpers.md.
+Direct checked Buffer/Map parameters and records containing owners can expand
+without an already split argument. Preserve the same private handles, callee-local
+List sharing and ordinary recursive/oversized fallback. This adds no public owned
+ABI, retained storage, source/proof authority or higher expansion limits.

@@ -33,7 +33,7 @@ def audit(catalog, scope):
         "frozen_state",
         "lowering_parity", "generated_parity", "durability", "modules",
         "selected_checkpoint", "action_optimisation", "action_transitions",
-        "numerical_state", "owned_record_carriers", "mixed_durability", "bend_features", "feature_parity",
+        "numerical_state", "owned_record_carriers", "owned_parameter_helpers", "mixed_durability", "bend_features", "feature_parity",
         "rust_cpu_adapters", "composed_storage_parity", "storage_destination_parity",
         "checked_physical_selection_parity", "representation_parity", "database_planning",
         "bulk_collection_optimisation", "packed_tables", "incremental_selection",
