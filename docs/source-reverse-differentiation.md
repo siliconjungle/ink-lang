@@ -1,8 +1,8 @@
 # Reverse differentiation of authored computation
 
 `reverse_gradient` follows an ordinary pure source objective through named helpers,
-structured context and loops. It returns partial derivatives for an F32 parameter
-or nested plain records and dynamic lists of F32. Unlike the forward full-gradient
+structured context and loops. It returns partial derivatives for an F32/F64 parameter
+or nested plain records and dynamic lists of the same scalar precision. Unlike the forward full-gradient
 interface, it does not impose a 32-coordinate shape limit.
 
 ```ink
@@ -41,8 +41,8 @@ across invocations as a hidden cache.
 
 One forward execution records operations. One descending reverse traversal adds
 cotangents to their inputs in fixed order, including repeated input edges. A
-final projection reconstructs the parameter shape. All derivative arithmetic is
-F32. This is a real-arithmetic lift evaluated in F32, not a derivative of IEEE
+final projection reconstructs the parameter shape. All derivative arithmetic uses
+the objective's F32/F64 precision. This is a real-arithmetic lift in that precision, not a derivative of IEEE
 rounding, and reverse results need not be bit-equal to forward-mode derivatives.
 
 `stopZero=true` skips a node with a zero cotangent. `false` evaluates its chain
@@ -57,12 +57,12 @@ sum, left/right folds, fixed repeat and both early-stop forms. Optional/result
 context supports constructors, map/map_err, fold and strict `ok_or`. Branches and
 lookup defaults stay lazy. `repeat_until` tests before its step; `fold_until`
 performs its terminal item's step after testing its old state. Parameter shapes
-remain F32/plain records/lists; optional context is not optional trainable shape.
+remain homogeneous F32/F64 plain records/lists; optional context is not optional trainable shape.
 
 Pure proof preconditions cannot silently disappear: reverse translation currently
 rejects an objective/helper with such requirements. Checked fallible source
 interfaces keep their explicit branch behavior. Abstract/refined parameters need
-a plain numeric view. Recursive shapes/call graphs, F64 differentiation, owned
+a plain numeric view. Recursive shapes/call graphs, mixed-precision trainable shapes, owned
 source values (including temporary buffers/maps) and unsupported operations reject explicitly. Effectful
 application state must enter the pure objective through declared reads and
 explicit immutable arguments.
@@ -95,3 +95,19 @@ This removes a source-gradient size bottleneck. It does not establish Handwired
 performance parity. Device training, broader source/contract transport, frozen
 arithmetic/graph specialization, measured staging and complete Pretext/Freerange
 acceptance remain work toward the full programme.
+
+
+## Binary64 source learning
+
+An F64 objective uses binary64 parameters, primals, tape fields, cotangents and
+optimizer updates. The bundled tape implementation is instantiated structurally
+in the selected precision; source F32 literals and contexts are not reinterpreted.
+Each precision has independent hygienic helper/carrier names and the existing
+finite expansion budget. Tape capacity, fixed accumulation order, stopZero,
+terminal-step conventions and per-call ownership keep their existing meanings.
+
+The [F64 learner](../examples/source-reverse-learning-f64.ink) uses 64 coordinates
+and the same offline/runtime learning and checkpoint APIs as the F32 example.
+The required `source_reverse` suite includes both examples, exact raw binary64
+primal bits and forward/JVP controls. CPU learning and a separate eligible F32
+dispatch remain distinct; this adds no device training or F64 shader arithmetic.

@@ -47,7 +47,7 @@ Training samples alone never authorize an approximate replacement of exact code.
 
 ## Source interfaces
 
-* `gradient(objective, parameters, context...)` returns the same plain record/F32
+* `gradient(objective, parameters, context...)` returns the same plain record/F32/F64
   shape as `parameters`, containing its partial derivatives.
 * `jvp(objective, parameters, direction, context...)` returns one directional
   derivative. `direction` has the parameter's shape.
@@ -57,15 +57,16 @@ Training samples alone never authorize an approximate replacement of exact code.
   active-branch routing, rounding and hard scalar conversions. Smooth forms reject
   these operations with a diagnostic rather than silently introducing a convention.
 
-The objective is a literal named pure function returning F32. Its first parameter
-is F32 or a finite nested plain record of F32. Up to 32 scalar coordinates are
+The objective is a literal named pure function returning F32 or F64. Its first
+parameter is a scalar or finite nested plain record of that same precision;
+mixed trainable precisions reject explicitly. Up to 32 scalar coordinates are
 supported for a complete gradient. Context can contain supported plain records,
 scalar controls and numeric lists. Aliases/imports resolve before differentiation;
 generated names avoid lexical/global collisions. Source AD requests disappear into
 ordinary checked helpers and records; raw executable IR cannot introduce an
 unlowered AD call. User-defined functions with the same names retain normal meaning.
 
-Current propagation supports F32 addition/subtraction/multiplication/division,
+Current propagation supports F32/F64 addition/subtraction/multiplication/division,
 negation and square root; named nonrecursive helpers; lexical bindings/records;
 lists, map/filter/lookup/concatenation; sum/folds; and bounded `repeat`. Callbacks
 keep their ordinary iteration order, captures and lazy branch semantics. Immutable
@@ -78,6 +79,9 @@ Abstract/refined records require an explicit plain numeric view for this first A
 domain. Direct effects, recursive calls/record shapes, owned buffers/maps, vectors,
 optional context seeding and unsupported operations fail explicitly. Stateful
 application data enters through declared reads and explicit objective arguments.
+Both AD modes currently reject pure objectives/helpers with proof preconditions
+that the transform cannot transport; those requirements must not disappear.
+Use a checked fallible source interface for explicit validation.
 This does not differentiate through arbitrary I/O, database transactions or device
 drivers. Fixed scalar input types do not become trainable by appearing in context.
 
@@ -85,9 +89,9 @@ drivers. Fixed scalar input types do not become trainable by appearing in contex
 
 The generated computation applies chain rules to a **real arithmetic lift** of
 supported arithmetic along the executed path and evaluates those derivative
-formulas in F32. It is not the mathematical derivative of discrete IEEE rounding,
-and it does not certify a numerical error bound. Constants denote their stored
-binary32 values. Overflow, nonfinite values and singular points can make generated
+formulas in the objective's F32/F64 precision. It is not the mathematical derivative
+of discrete IEEE rounding, and it does not certify a numerical error bound.
+Constants denote their authored stored binary32/binary64 values. Overflow, nonfinite values and singular points can make generated
 derivatives nonfinite; training must validate resulting updates. Square root at
 zero and division by zero do not acquire a useful gradient from this interface.
 
@@ -102,7 +106,7 @@ basis directions through a single primal pass; tangent work and storage still
 scale with parameter count. JVP/linearize retain a single explicit direction.
 Generated wide arithmetic uses lexical bindings, and ordinary JavaScript local
 storage/carrier bookkeeping avoids unnecessary temporary records and repeated
-Number/tag conversions without changing any F32 arithmetic operation.
+Number/tag conversions without changing any source arithmetic operation.
 
 The [retained comparison](../bench/batched-differentiation/README.md) improves the
 large polynomial gradient from 18.779 to 8.985 ms in fresh held-out JavaScript
@@ -138,3 +142,22 @@ It supports the 244-parameter ReGLU example without the source full-gradient's
 functions do not automatically acquire reverse-mode differentiation.
 
 For source objectives beyond 32 coordinates, use [reverse source differentiation](source-reverse-differentiation.md). It follows authored helpers and loops with an explicit node budget and zero-cotangent policy; the graph-library interface remains separately available.
+
+
+## Binary64 precision
+
+The same forward transform implements `gradient`, `jvp` and `linearize` for F64;
+`reverse_gradient` and `reverse_linearize` use the same precision through a fresh
+bounded owned tape. The objective's return type chooses the precision, and its
+trainable coordinates must match. Generated helpers, carriers, scalar constants
+and division operations stay in that precision. User literals are never widened
+implicitly. Mixed-precision context remains ordinary untracked data; conversions
+on a tracked path still require the explicit piecewise convention.
+
+The [binary64 source learner](../examples/source-reverse-learning-f64.ink) runs
+64-parameter source reverse differentiation, authored gradient descent and
+existing transaction/constraint/checkpoint APIs. Its separate F32 device kernel
+is a GPU control, not device tape training. Neural/Adam library algorithms still
+have their separately documented F32 interfaces. Binary64 semantic proof terms
+remain unsupported; AD supplies neither a numerical error certificate nor
+rewrite authority.

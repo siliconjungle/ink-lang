@@ -168,7 +168,7 @@ GitHub conformance run was still queued when this checklist was recorded.
 | Incremental work and placement | Maintain item/paragraph/batch changes, share derived state, upload changed regions and keep intermediate values resident. Compose query/ordinary code/device plans and price I/O. | Partial maintained-state and GPU foundations; broader composition, transfer planning and external storage remain open |
 | Ownership and execution overhead | Remove measured helper/capture clones, reuse searchers/prepared inputs, compare layouts and allocation behavior across target engines. | UTF-8 and primitive borrowing improvements delivered; native whole-workload ownership gap remains open |
 | Behavioral contracts | Explicit permitted staleness, capacity, first/any/tie selection and fallback; preserve transaction and observation meaning. | Partial specification foundations; relevant source contracts and consumers remain open |
-| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | Source gradient/JVP, bounded F32 source reverse AD, authored reverse graphs, complete optimizer state and cooperative queued sessions delivered; compiled source frontier advice now sees complete checked structures with captured learned context. F64 AD, broader source domains, device training, broader search integration and performance parity remain open |
+| Differentiation and learning | Separate exact circuits, forward-preserving gradient interfaces, learned proposal ranking and intentionally approximate replacements. Demonstrate a useful kernel and validate each claimed contract independently. | F32/F64 source gradient/JVP and bounded source reverse AD, authored reverse graphs, complete optimizer state and cooperative queued sessions delivered; compiled source frontier advice now sees complete checked structures with captured learned context. Broader source/contract domains, F64 proofs/library interfaces, device training, broader search integration and performance parity remain open |
 | Cross-domain and lifecycle acceptance | Real layout/prepared computation, JSON/structured data, relational/bitset and sparse numeric workloads; matched first-call, steady-state, edits, memory and adverse cases against strong controls. | Complete-count search evidence delivered; broader parity/performance and comparable first-call evidence remain open |
 
 The next implementation priorities are reusable checked facts and their consumers,
@@ -256,7 +256,7 @@ JVP results on polynomial/nonlinear kernels. Normalization, exact definition
 attachment, stale-context rejection and actual selected GPU execution are checked.
 These equations strengthen concrete implementation checks; the whole AD transform,
 checker and generated backends remain trusted. [Bounded F32 source reverse
-AD](source-reverse-differentiation.md) is now implemented. F64 AD, complete Pretext
+AD](source-reverse-differentiation.md) is now implemented, including F64 in the supported source domain. Complete Pretext
 fidelity, broad call inference and the remaining work packages are still open.
 
 [Prepared reverse graphs and models](reverse-learning.md) now add an authored VJP
@@ -509,6 +509,23 @@ and all 63 standalone JavaScript tests pass. The final corpus compiles 10/10
 programs, exposes alternatives in two and admits four laws, with zero default
 selections or cross-program law reuse. See the [execution evidence](../bench/functionality/prepared-network/README.md). This closes the
 specific admission frontier; broader reusable graphs/tapes, learned implementation
-and goal selection, F64 differentiation, device training, Freerange facts,
+and goal selection, broader AD source/contract transport, device training, Freerange facts,
 Pretext behavior and cross-stack execution remain active requirements. No new
 speedup, automatic profitable selection or whole-programme completion follows.
+
+
+## Binary64 differentiation of authored computation
+
+Forward gradients/JVPs and bounded reverse source tapes now run in the objective's
+F32/F64 precision. The same machinery handles plain record coordinates and
+supported source helpers/control flow; reverse also handles dynamic parameter
+lists. Generated carriers, scalar constants, division and tape/adjoint fields
+stay in that precision. Hard conversions retain explicit piecewise policy,
+unsupported proof preconditions reject, and AD grants no rewrite authority.
+The [64-parameter F64 learner](../examples/source-reverse-learning-f64.ink) uses
+ordinary authored updates and checked state/constraint/checkpoint interfaces.
+
+This closes F64 AD within the existing supported source domain. F64 mathematical
+proofs, broader contracts/owned source values, F64 neural/Adam library interfaces,
+GPU-resident gradients/optimizer/training and concurrency remain separate work.
+Eligible F32 dispatch alongside CPU tape learning is a device-host control.

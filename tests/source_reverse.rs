@@ -3,6 +3,7 @@ use verified_language::{core::CheckedModule, eval, stateful::Runtime, syntax};
 #[path = "support/parity.rs"]
 mod parity;
 const SOURCE: &str = include_str!("../examples/source-reverse-learning.ink");
+const SOURCE_F64: &str = include_str!("../examples/source-reverse-learning-f64.ink");
 fn pure(module: &CheckedModule, name: &str, args: Value) -> Value {
     let p = module.program();
     let f = p.functions.iter().find(|f| f.name == name).unwrap();
@@ -17,7 +18,14 @@ fn pure(module: &CheckedModule, name: &str, args: Value) -> Value {
 }
 #[test]
 fn reverse_source_training_preserves_every_result_event_and_checkpoint() {
-    let module = CheckedModule::from_source(syntax::parse(SOURCE).unwrap()).unwrap();
+    check_training(SOURCE,"source-reverse-parity",false);
+}
+#[test]
+fn binary64_source_training_preserves_precision_failures_bits_and_complete_histories() {
+    check_training(SOURCE_F64,"source-reverse64-parity",true);
+}
+fn check_training(source:&str,label:&str,binary64:bool) {
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
     let mut runtime = Runtime::from_checked(&module).unwrap();
     let mut steps = vec![];
     let mut expected = vec![];
@@ -86,13 +94,37 @@ fn reverse_source_training_preserves_every_result_event_and_checkpoint() {
         schema:1,epochs:24,observations:vec![verified_language::training::Observation{call:"observe".into(),args:json!([context,0.05,512])}]
     }).unwrap();
     assert_eq!(trained.snapshot,runtime.checkpoint_portable().unwrap(),"offline training matches continued runtime state");
+    if binary64 {
+        let precise=1.0+2.0f64.powi(-40);
+        assert_eq!(pure(&module,"forward64",json!([precise])),json!(2.0*precise));
+        assert_ne!(2.0*precise,2.0*((precise as f32) as f64));
+        for weights in [json!({"a":precise,"b":0.5}),json!({"a":-0.25,"b":-0.5})] {
+            for (name,args) in [("trajectory_gradient64",json!([weights,0.75])),
+                               ("trajectory_direction64",json!([weights,{"a":0.25,"b":-0.5},0.75]))] {
+                let value=pure(&module,name,args.clone());
+                steps.push(json!({"pure":name,"args":args,"cpu_only":true}));
+                expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+            }
+        }
+        for bits in [0u64,1,1<<63,0x7ff0000000000000,0xfff0000000000000,
+                     0x7ff0000000001234,0xfff8000000005678,0x0010000000000000,
+                     0x7fefffffffffffff,precise.to_bits()] {
+            let input=json!({"F64Bits":bits.to_string()});
+            for (name,args) in [("forward64",json!([input])),("directional64",json!([input,0.25])),("primal64",json!([input]))] {
+                let value=pure(&module,name,args.clone());
+                if name=="primal64" {assert_eq!(value,json!({"Ok":verified_language::float64::json_bits(bits)}));}
+                steps.push(json!({"pure":name,"args":args,"cpu_only":true}));
+                expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+            }
+        }
+    }
     let inputs = (0..8192).map(|i| (i as f32) / 8.0).collect::<Vec<_>>();
     let args = json!([inputs]);
     let value = pure(&module, "device", args.clone());
     steps.push(json!({"pure":"device","args":args,"expect_gpu":true}));
     expected
         .push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
-    parity::conformance_checked("source-reverse-parity", &module, SOURCE, steps, expected);
+    parity::conformance_checked(label, &module, source, steps, expected);
 }
 
 #[test]
