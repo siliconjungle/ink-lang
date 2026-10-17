@@ -18,9 +18,13 @@ and types, and replays each proof. A float inserted into a mathematical object
 still rejects even though the surrounding source-bearing packet can transport
 floats. Plan transport itself grants no equality or applicability authority.
 
-Whole views, selections and complete plans now share a 256 MB aggregate byte
+Whole views, selections and complete plans now share a 512 MB aggregate byte
 allowance. CLI selection input and trained-artifact proof input use that same
-bound. Scoped case premises in complete graph proofs can exceed the former
+bound. The actual authored network's factored view exceeds 256 MB even with
+explicit immediate selector steps. The finite aggregate allowance accommodates
+those individually checked equations and their source-bearing plan; it does
+not increase any individual theorem's work or nesting budget. Scoped case
+premises in complete graph proofs can exceed the former
 128 MB view allowance; the earlier 16 MB selection limit also prevented using
 views that were individually within their admitted bound. Individual knowledge
 entries remain limited to 16 MB and views to 16,384 entries. Existing source,
