@@ -404,37 +404,26 @@ impl CheckedBundle {
                 return Err("entry is not in pinned snapshot".into());
             }
         }
-        fn visit(
-            id: &str,
-            b: &Bundle,
-            active: &mut BTreeSet<String>,
-            done: &mut BTreeSet<String>,
-            out: &mut Vec<String>,
-            depth: usize,
-        ) -> LangResult<()> {
-            if depth > 64 {
-                return Err("knowledge dependency depth limit".into());
-            }
-            if done.contains(id) {
-                return Ok(());
-            }
-            if !active.insert(id.into()) {
-                return Err("cyclic knowledge dependencies".into());
-            }
-            let e = b.objects.get(id).ok_or("missing knowledge dependency")?;
-            for d in &e.dependencies {
-                visit(d, b, active, done, out, depth + 1)?
-            }
-            active.remove(id);
-            done.insert(id.into());
-            out.push(id.into());
-            Ok(())
-        }
         let mut order = vec![];
         let mut active = BTreeSet::new();
         let mut done = BTreeSet::new();
-        for id in &b.roots {
-            visit(id, b, &mut active, &mut done, &mut order, 0)?
+        for root in &b.roots {
+            let mut pending = vec![(root.as_str(), false)];
+            while let Some((id, leaving)) = pending.pop() {
+                if leaving {
+                    active.remove(id);
+                    done.insert(id.to_string());
+                    order.push(id.to_string());
+                    continue;
+                }
+                if done.contains(id) { continue; }
+                if !active.insert(id.to_string()) {
+                    return Err("cyclic knowledge dependencies".into());
+                }
+                let entry = b.objects.get(id).ok_or("missing knowledge dependency")?;
+                pending.push((id, true));
+                pending.extend(entry.dependencies.iter().rev().map(|d| (d.as_str(), false)));
+            }
         }
         if done.len() != b.objects.len() {
             return Err("unreferenced knowledge objects".into());

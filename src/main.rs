@@ -227,6 +227,7 @@ fn run() -> LangResult<()> {
         "--implementation",
         "--entry",
         "--functions",
+        "--projection",
         "--lean",
         "--library",
         "--circuit",
@@ -278,6 +279,9 @@ fn run() -> LangResult<()> {
         }
     }
     let input_receipt = args.iter().any(|arg| arg == "--input-receipt");
+    if arg_value(&args, "--projection")?.is_some() && cmd != "emit-action-model" {
+        return Err("--projection requires emit-action-model".into());
+    }
     if cmd!="build-model" && (args.iter().any(|arg|arg=="--freeze"||arg=="--specialize-frozen")||arg_value(&args,"--freeze-roots")?.is_some()) {
         return Err("--freeze, --freeze-roots and --specialize-frozen require build-model".into());
     }
@@ -851,7 +855,7 @@ fn run() -> LangResult<()> {
         println!("ink semantic-bitvector-obligation SOURCE GOAL.json [--core] [--semantics opaque-v1|fixed-words-v2|fixed-scalars-v3|fixed-scalars-v4|fixed-counts-v5] [--encoding literal-v1|shared-v2|shared-select-v3] -o CNF.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
         println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|javascript|wasm32|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
-        println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json (restricted whole-action transition projection)\nink emit-function-model SOURCE --functions NAME[,NAME...] -o MODEL.json [--core]");
+        println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json [--projection legacy|structural-v2] (restricted whole-action transition projection)\nink emit-function-model SOURCE --functions NAME[,NAME...] -o MODEL.json [--core]");
         println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
         println!("ink check-action-values SOURCE --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json\nink emit-action-values SOURCE ACTION ARGS.json --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json -o IMAGE.json (typed value data only)");
         println!("ink emit-machine LOCK.json PACKAGE.json -o SOURCE.rs");
@@ -1347,7 +1351,12 @@ fn run() -> LangResult<()> {
         }
         "emit-action-model" => {
             let module = core::CheckedModule::from_source(p)?;
-            let model = verified_language::action_model::Projection::derive(&module)?;
+            let mode = match arg_value(&args, "--projection")?.as_deref() {
+                None | Some("legacy") => verified_language::action_model::ProjectionMode::Legacy,
+                Some("structural-v2") => verified_language::action_model::ProjectionMode::StructuralV2,
+                _ => return Err("unknown action projection mode".into()),
+            };
+            let model = verified_language::action_model::Projection::derive_mode(&module, mode)?;
             let out = arg_value(&args, "-o")?.ok_or("emit-action-model requires -o MODEL.json")?;
             // Match the checked transport: deeply nested pretty indentation can
             // exceed its byte bound even when the complete canonical model fits.
@@ -1361,7 +1370,7 @@ fn run() -> LangResult<()> {
             }
             println!(
                 "{}",
-                serde_json::json!({"status":"projected", "semantics":verified_language::action_model::SEMANTICS,
+                serde_json::json!({"status":"projected", "semantics":model.semantics,
                 "source":module.identity()?, "trust":"Checked source-to-transition projection; native lowering and host execution remain trusted."})
             );
         }

@@ -33,6 +33,17 @@ pub use sorted::{SortedProofs, SortedTables, SORTED_SEMANTICS};
 pub(crate) mod recursive_values;
 pub use recursive_values::{RecursiveField,RecursiveRecord};
 pub const SEMANTICS: &str = "ink-action-transition-v1";
+pub const STRUCTURAL_SEMANTICS: &str = "ink-action-transition-v2";
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ProjectionMode {
+    #[default]
+    Legacy,
+    StructuralV2,
+}
+impl ProjectionMode {
+    fn is_legacy(&self) -> bool { *self == Self::Legacy }
+}
 const LEGACY_MAX_DEFINITIONS: usize = 256;
 const MAX_WORK: usize = 20_000;
 // Source specialisation produces names longer than the kernel's descriptive
@@ -223,6 +234,8 @@ pub struct Projection {
     pub recursive_records: BTreeMap<String,RecursiveRecord>,
     pub tables: Vec<Table>,
     pub actions: BTreeMap<String, Action>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub pure_functions: BTreeMap<String, FunctionModel>,
     pub objects: BTreeMap<String, Entry>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub source_invariants: Vec<String>,
@@ -242,6 +255,8 @@ pub struct Projection {
 pub struct Replacement {
     pub selected: serde_json::Value,
     pub proofs: BTreeMap<String, Proof>,
+    #[serde(default, skip_serializing_if = "ProjectionMode::is_legacy")]
+    pub projection: ProjectionMode,
     /// Optional: first establish strictly sorted tables as an inductive
     /// invariant of the original module, then check every action equality
     /// under it. Without it, equalities quantify over all row lists.
@@ -275,6 +290,7 @@ struct Lower<'a> {
     loop_fuel: Option<(String,String,String)>,
     helper_active: BTreeSet<usize>,
     intern_declarations: bool,
+    stable_declarations: bool,
     structural_imports: bool,
     shared_declarations: BTreeMap<Vec<u8>, String>,
     shared_declaration_bytes: usize,
@@ -336,6 +352,7 @@ impl<'a> Lower<'a> {
             loop_fuel: None,
             helper_active: BTreeSet::new(),
             intern_declarations: false,
+            stable_declarations: false,
             structural_imports: false,
             shared_declarations: BTreeMap::new(),
             shared_declaration_bytes: 0,
@@ -414,6 +431,13 @@ impl Lower<'_> {
                 if !i.is_empty() { dependencies.insert(i.clone()); }
             }
         }
+        if self.stable_declarations {
+            // Each declaration already has a bounded syntax and complete
+            // module byte accounting. Canonical binders must not depend on an
+            // optional cache's remaining work or on unrelated earlier bodies.
+            self.shared_declaration_work = MAX_WORK;
+            d = self.alpha_declaration(&d)?;
+        }
         let e = Entry::from_declaration(&d, dependencies.into_iter().collect())?;
         let bytes = match registry::canonical(&e) {
             Ok(bytes) => bytes,
@@ -425,7 +449,7 @@ impl Lower<'_> {
             Err(error) => return Err(error),
         };
         let i=format!("{:x}",Sha256::digest(&bytes));
-        let key=if self.intern_declarations && self.shared_declaration_work>0 {
+        let key=if self.intern_declarations && !self.stable_declarations && self.shared_declaration_work>0 {
             match self.declaration_key(&d) {
                 Ok(key)=>Some(key),
                 Err(error) if error=="action model declaration sharing work limit"=>None,
@@ -1093,6 +1117,14 @@ impl Projection {
     pub fn derive(module: &CheckedModule) -> LangResult<Self> {
         Ok(Self::derive_observations(module, &[])?.0)
     }
+    /// Explicit versioned projection. Every replacement re-derives this mode
+    /// from checked source; the choice supplies no equation or source premise.
+    pub fn derive_mode(module: &CheckedModule, mode: ProjectionMode) -> LangResult<Self> {
+        match mode {
+            ProjectionMode::Legacy => Self::derive(module),
+            ProjectionMode::StructuralV2 => Ok(Self::derive_bounded(module, &[], true, true)?.0),
+        }
+    }
     /// Project source-site predicates through the same ordered execution used
     /// for transitions. Requests select checked source nodes, never meanings.
     pub fn derive_observations(
@@ -1105,12 +1137,12 @@ impl Projection {
         module: &CheckedModule,
         observations: &[SiteObservation],
     ) -> LangResult<(Self, Vec<ObservationFunction>)> {
-        match Self::derive_bounded(module,observations,false) {
-            Err(error) if error=="action model definition limit" || error.starts_with("action model work limit")=>Self::derive_bounded(module,observations,true),
+        match Self::derive_bounded(module,observations,false,false) {
+            Err(error) if error=="action model definition limit" || error.starts_with("action model work limit")=>Self::derive_bounded(module,observations,true,false),
             result=>result,
         }
     }
-    fn derive_bounded(module:&CheckedModule,observations:&[SiteObservation],intern:bool)->LangResult<(Self,Vec<ObservationFunction>)> {
+    fn derive_bounded(module:&CheckedModule,observations:&[SiteObservation],intern:bool,stable:bool)->LangResult<(Self,Vec<ObservationFunction>)> {
         let actions = CheckedActions::elaborate_with_frozen_roots(module)?;
         let mut nodes = 0usize;
         for i in 0..module.program().actions.len() {
@@ -1124,6 +1156,8 @@ impl Projection {
         let p = module.program();
         let mut l = Lower::new(p, &actions);
         l.intern_declarations=intern;
+        l.stable_declarations=stable;
+        l.structural_imports=stable;
         l.prepare_pure_sources();
         l.prepare_recursive_records()?;
         // Domain validation includes unused signatures; an unsupported value may
@@ -1260,9 +1294,22 @@ impl Projection {
         }
         if intern {l.work=MAX_WORK;}
         let initial_state=l.fixed_initial_state()?;
+        let mut pure_functions = BTreeMap::new();
+        if stable {
+            for (index, function) in &l.helpers {
+                let declaration: Declaration = serde_json::from_value(l.objects[function].payload["declaration"].clone())
+                    .map_err(|e| e.to_string())?;
+                let Declaration::Function { params, result, .. } = declaration else {
+                    return Err("projected source helper role".into());
+                };
+                pure_functions.insert(p.functions[*index].name.clone(), FunctionModel {
+                    function: function.clone(), params, result,
+                });
+            }
+        }
         let mut out = Self {
             schema: 1,
-            semantics: SEMANTICS.into(),
+            semantics: if stable { STRUCTURAL_SEMANTICS } else { SEMANTICS }.into(),
             source: module.identity()?,
             state: l.state,
             events: l.events,
@@ -1270,6 +1317,7 @@ impl Projection {
             recursive_records: l.recursive_records,
             tables: l.tables,
             actions: descriptions,
+            pure_functions,
             objects: l.objects,
             source_invariants: p.contracts.invariant_checks.clone(),
             source_preconditions: p.contracts.precondition_checks.iter()
@@ -1427,8 +1475,8 @@ pub(crate) fn check(
     {
         return Err("action replacement changes non-action source".into());
     }
-    let before = Projection::derive(module)?;
-    let after = Projection::derive(&selected)?;
+    let before = Projection::derive_mode(module, r.projection)?;
+    let after = Projection::derive_mode(&selected, r.projection)?;
     let checked = registry::CheckedBundle::check(bundle)?;
     let context = checked.first_order_context()?;
     for projection in [&before, &after] {

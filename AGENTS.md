@@ -267,6 +267,14 @@ Programmable objective versions and feedback policies remain authored state;
 the example does not change the general planner's evidence/admission contract.
 See docs/frozen-structural-specialization.md.
 
+Explicit structural-v2 action projection uses canonical lexical binders and
+minimal term/type imports. Preserve default legacy projection bytes; every
+replacement re-derives its selected mode and reachable definitions from checked
+source. Projected helper metadata grants no equality authority. Dependency DAGs
+use iterative traversal under the whole-view entry/byte bounds; do not confuse
+dependency height with proof nesting or bypass individual replay. See
+docs/structural-action-correspondence.md.
+
 Mixed immutable records carry bounded field provenance through literal constructors,
 projections and helper returns. Keep returned-value provenance separate from the
 work needed to produce it: unused dynamic arguments/fields, guards and failures
