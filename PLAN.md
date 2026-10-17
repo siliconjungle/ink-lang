@@ -527,3 +527,15 @@ work. Full graph/tape compilation, learned physical selection, device training a
 the complete three-project programme remain open.
 Full upstream parity, trained profitable representation choice and device training
 remain required.
+
+Bounded JavaScript helper expansion now also accepts direct checked owned
+parameters without an already split argument, retaining callee-local List sharing
+and ordinary recursive/oversized fallback. All 62 standalone tests pass. The new
+mandatory history matches 388 reference/Rust/JavaScript/Wasm values/outcomes and
+exact snapshots, while the native GPU host matches its results/final checkpoint
+and one actual word dispatch. Two six-pair complete neural studies improve
+prediction about 1.13–1.19×; training is mixed, including an adverse cadence in
+study 1. [Source, all cohorts and replay evidence](reports/direct-owned-helpers-2026-10-17/README.md)
+retain the setup/code-size costs and scope. General graph/tape compilation,
+learned representation/goal selection, device training and the whole three-project
+programme remain active requirements.

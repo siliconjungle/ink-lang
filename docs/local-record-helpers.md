@@ -43,6 +43,14 @@ under the callee's own analysis. This removes a call boundary without changing
 the arithmetic, adding a public owner capability or retaining scratch storage
 between invocations. The same expansion limits and ordinary fallback apply.
 
+The [direct-owner study](../reports/direct-owned-helpers-2026-10-17/README.md)
+retains two six-pair complete neural comparisons: prediction improves about
+1.13–1.19×, while training remains mixed, including a cadence that regresses in
+the first study. All 62 standalone tests pass, and the added required history
+matches 388 reference/Rust/JavaScript/Wasm outcomes with exact snapshots. A
+native GPU-host control also checks these results and one actual eligible word
+dispatch. This is not device training or broad upstream performance parity.
+
 ## Evaluation and ownership
 
 Every field and argument executes once in source order, including unobserved

@@ -410,6 +410,16 @@ large-graph limits](frozen-structural-specialization.md#compile-a-frozen-program
 This remains a bounded static-program step, not full graph/tape compilation,
 physical migration, device training or broad upstream performance parity.
 
+[Direct owned helper expansion](local-record-helpers.md) now also crosses small
+Buffer/Map helper boundaries without an already split record argument. Checked
+moves, readonly loans and the callee's shared List parameters stay intact under
+unchanged expansion limits. Two complete neural studies improve prediction
+about 1.13–1.19×, with mixed training results and adverse cases retained. The
+standalone 62-test suite and required 388-outcome CPU/Wasm history pass, plus a
+native GPU-host control with one eligible word dispatch. This literal execution
+step does not grant new physical selection, device training or source/proof
+authority; full graph/tape compilation and the complete programme remain open.
+
 The [retained release study](../reports/frozen-program-2026-10-16/README.md)
 measures the final eight-operation serving path in six paired fresh processes,
 including frequent weight changes. It keeps the earlier slowdown, setup and
