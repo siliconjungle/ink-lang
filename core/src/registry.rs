@@ -12,9 +12,11 @@ use std::collections::{BTreeMap, BTreeSet};
 // equations. Factoring larger applications into individually bounded lemmas
 // needs more entries, rather than deeper or more expensive individual proofs.
 // Keep one finite whole-view allowance across selection and plan transport;
-// aggregate bytes, individual entries and kernel computation budgets stay fixed.
+// individual entries and kernel computation budgets remain independent. The
+// actual authored network needs over 256 MB of individually bounded equations.
+// A finite 512 MB aggregate leaves room for its source-bearing plan as well.
 pub const MAX_VIEW_ENTRIES: usize = 16_384;
-pub const MAX_VIEW_BYTES: usize = 256_000_000;
+pub const MAX_VIEW_BYTES: usize = 512_000_000;
 pub const MAX_ENTRY_BYTES: usize = 16_000_000;
 pub const SNAPSHOT_SEMANTICS: &str = "ink-knowledge-snapshot-v1";
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
