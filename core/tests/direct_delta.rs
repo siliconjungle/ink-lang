@@ -9,13 +9,25 @@ fn fixture() -> (Context, Declaration) {
 }
 
 fn fixture_from(bytes: &[u8]) -> (Context, Declaration) {
-    let bundle: registry::Bundle = serde_json::from_slice(bytes).unwrap();
+    let bundle = registry::from_bytes(bytes).unwrap();
     let checked = registry::CheckedBundle::check(&bundle).unwrap();
     let context = checked.first_order_context().unwrap();
     let declaration =
         serde_json::from_value(bundle.objects[&bundle.roots[0]].payload["declaration"].clone())
             .unwrap();
     (context, declaration)
+}
+
+#[test]
+fn a_larger_owned_helper_unfolds_within_the_shared_conversion_budget() {
+    let (context, declaration) = fixture_from(include_bytes!("fixtures/network-owned-helper-unfold.json"));
+    let Declaration::Theorem { mut params, conditions, from, to, proof } = declaration else { panic!() };
+    context.check(&params, &conditions, &from, &to, &proof).unwrap();
+    let input = params[0].0.clone();
+    params.push(("unrelated_input".into(), params[0].1.clone()));
+    let changed = ink_core::logic::substitute_term(&to,
+        &BTreeMap::from([(input, Term::Var("unrelated_input".into()))])).unwrap();
+    assert!(context.check(&params, &conditions, &from, &changed, &proof).is_err());
 }
 
 #[test]
