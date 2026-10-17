@@ -11,6 +11,10 @@ impl Lower<'_> {
     /// This is used only on a bounded retry after the old projection failed its
     /// definition cap. Previously admitted projection identities stay intact.
     pub(super) fn declaration_key(&mut self, definition: &Declaration) -> LangResult<Vec<u8>> {
+        registry::canonical(&self.alpha_declaration(definition)?)
+    }
+
+    pub(super) fn alpha_declaration(&mut self, definition: &Declaration) -> LangResult<Declaration> {
         let Declaration::Function {
             params,
             result,
@@ -18,7 +22,7 @@ impl Lower<'_> {
             recursive,
         } = definition
         else {
-            return registry::canonical(definition);
+            return Ok(definition.clone());
         };
         fn closed(term: &Term, bound: &BTreeSet<String>, work: &mut usize) -> LangResult<()> {
             *work = work
@@ -76,7 +80,7 @@ impl Lower<'_> {
             .enumerate()
             .map(|(i, (_, sort))| (format!("shared_parameter_{i}"), sort.clone()))
             .collect();
-        registry::canonical(&Declaration::Function {
+        Ok(Declaration::Function {
             params,
             result: result.clone(),
             body,
@@ -277,7 +281,11 @@ impl Lower<'_> {
         // All definitions still pass ordinary typing/termination checking.
         // A content identity or this structural walk never grants an equation.
         if installed.insert(function.clone()) {
-            context.declare(function.clone(), &helper)?;
+            let declaration = if self.stable_declarations {
+                serde_json::from_value(self.objects[&function].payload["declaration"].clone())
+                    .map_err(|e| e.to_string())?
+            } else { helper };
+            context.declare(function.clone(), &declaration)?;
         }
         Ok((
             call(&function, free.iter().map(|n| v(n)).collect()),
@@ -377,7 +385,7 @@ mod tests {
           change seed(x:u32)->Unit writes(Rows){Rows.put(0,x);return ();}
           change step(x:u32)->u32 reads(Current) writes(Rows){let before=Current;Rows.put(0,x);return before*3+Current;}";
         let checked = CheckedModule::from_source(crate::syntax::parse(source).unwrap()).unwrap();
-        let (model, _) = Projection::derive_bounded(&checked, &[], true).unwrap();
+        let (model, _) = Projection::derive_bounded(&checked, &[], true, false).unwrap();
         let context = model.context().unwrap();
         let rows = &model.tables[0].datatype;
         let empty = c(rows, 0, vec![]);
@@ -460,7 +468,7 @@ mod tests {
           }
           query get()->u32 reads(Current){return Current;}";
         let checked = CheckedModule::from_source(crate::syntax::parse(source).unwrap()).unwrap();
-        let (model, _) = Projection::derive_bounded(&checked, &[], true).unwrap();
+        let (model, _) = Projection::derive_bounded(&checked, &[], true, false).unwrap();
         let context = model.context().unwrap();
         let rows = &model.tables[0].datatype;
         let empty = c(rows, 0, vec![]);
@@ -607,7 +615,7 @@ mod tests {
                 slots: vec![],
             }),
         ];
-        let (model, functions) = Projection::derive_bounded(&checked, &requests, true).unwrap();
+        let (model, functions) = Projection::derive_bounded(&checked, &requests, true, false).unwrap();
         let context = model.context().unwrap();
         let state = c(
             &model.state,
