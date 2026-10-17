@@ -98,6 +98,32 @@ as proposals. This is not a general whole-application compiler yet.
 
 ## Exact closed calculations
 
+Prepared `keep` values can now expose immutable structure to the producer.
+Known `Option`/`Result` callbacks select their source arm, retain dynamic
+captures, and unwrap a known successful `?`. Changing state reads and strict
+defaults remain ordinary work. Literal collection receivers retain their
+original element types when a residual callback needs them; graph output
+indices do not silently become a different integer width.
+
+The explicit build producer can ask the independent reference evaluator for
+closed pure-function results. These are untrusted literal proposals. Every
+replacement still needs its complete action proof; a false evaluator answer
+cannot authorize compilation. Evaluation uses the ordinary default evaluation
+budget, at most 16 distinct calls and a 30-second timeout per call. Unsupported,
+failed or exhausted evaluations retain ordinary source execution.
+
+Helper limits count distinct definitions, allowing an existing helper to be
+reused at the limit. Optional expansion is transactional per action: an
+oversized training action retains its original implementation without discarding
+already constructed serving helpers. The work, helper and checker limits are
+unchanged; failed final admission leaves the previous output untouched.
+
+The prepared Result/list example has complete plan replay and execution checks
+with changing weights. The larger 232-node, 244-parameter network now produces
+a source-checked 117-helper proposal, but complete proof construction still
+exhausts its existing work budget. That network is **not yet an admitted
+specialized executable**. No performance claim follows from this functionality.
+
 When every argument is known, scalar operations and balanced helper invocations
 can become constants. Binary32 proposals use integer arithmetic with explicit
 rounding, signed-zero and NaN rules; ordinary kernel conversion checks the

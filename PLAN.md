@@ -539,3 +539,23 @@ study 1. [Source, all cohorts and replay evidence](reports/direct-owned-helpers-
 retain the setup/code-size costs and scope. General graph/tape compilation,
 learned representation/goal selection, device training and the whole three-project
 programme remain active requirements.
+
+## Functionality first: prepared computation structure
+
+The current priority is working capabilities, rather than further throughput
+tuning or competitive benchmark cohorts. Frozen specialization now follows
+closed `keep` values, selected Option/Result callbacks and successful `?`, with
+bounded reference-call literal proposals and complete proof admission. Residual
+collection receivers preserve their original numeric element types. Distinct
+helper accounting permits reuse at the cap, and action-level construction rolls
+back on exhausted optional expansion while retaining successful serving work.
+
+The prepared Result/list regression checks the complete plan, changing weights,
+JavaScript outcomes and exact snapshots. False evaluated defaults and altered
+selected returns reject; a failed publication retains its prior artifact.
+The real 232-node/244-parameter network progresses from no helpers to a
+source-checked 117-helper proposal. Complete proof construction still exhausts
+the unchanged fold-composition work budget, so full-network specialization is
+not delivered. Next work must close that proof/composition path, then connect
+working learned implementation/goal choices and device training. No new speed
+claim is made by this milestone.
