@@ -9,6 +9,26 @@ use std::collections::{BTreeMap, BTreeSet};
 fn module(source: &str) -> CheckedModule {
     CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap()
 }
+#[test]
+fn source_function_plans_keep_frozen_json_float_inputs_exact() {
+    let freeze=|source:&str| {
+        let mut value:serde_json::Value=serde_json::from_slice(&module(source).bytes().unwrap()).unwrap();
+        value["semantics"]=serde_json::json!("ink-executable-core-v14");
+        value["program"]["frozen"]=serde_json::json!({"Fixed":[[0,0.1],[1,-0.0]]});
+        CheckedModule::from_bytes(&serde_json::to_vec(&value).unwrap()).unwrap()
+    };
+    let a=freeze("module functions;state Fixed:Table<u64,f32>=Table.empty();fn value(x:f32)->f32{let y=x;return y;}");
+    let b=freeze("module functions;state Fixed:Table<u64,f32>=Table.empty();fn value(x:f32)->f32{return x;}");
+    let replacement=request(&a,&b,&["value"]);
+    let packet=planning::Package{schema:1,semantics:planning::SEMANTICS.into(),input_core_sha256:a.identity().unwrap(),
+        steps:vec![planning::Step::Functions(replacement.clone())]};
+    let parsed=planning::from_bytes(&planning::canonical(&packet).unwrap()).unwrap();
+    let checked=planning::check(&a,&parsed).unwrap();
+    assert_eq!(checked.module().identity().unwrap(),b.identity().unwrap());
+    assert_eq!(serde_json::to_vec(&checked.module().program().frozen).unwrap(),serde_json::to_vec(&a.program().frozen).unwrap());
+    let mut bad=replacement;bad.selected["program"]["frozen"]["Fixed"][0][1]=serde_json::json!(0.2);
+    assert!(check_functions(&a,&bad).unwrap_err().contains("non-function source"));
+}
 fn bundle(objects: BTreeMap<String, registry::Entry>) -> registry::Bundle {
     let entries = objects.keys().cloned().collect::<Vec<_>>();
     assert!(entries.len() <= 64);

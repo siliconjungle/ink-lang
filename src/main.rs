@@ -76,10 +76,9 @@ fn prepare_selection(
     }
     let module = core::CheckedModule::from_source(p.clone())?;
     let package = if let Some(path) = selection {
-        serde_json::from_slice::<verified_language::optimisation::Package>(&read_bounded(
+        verified_language::optimisation::from_bytes(&read_bounded(
             &path, verified_language::registry::MAX_VIEW_BYTES,
-        )?)
-        .map_err(|e| e.to_string())?
+        )?)?
     } else {
         // The producer is external and untrusted. Only its bounded data output
         // enters the checker; a catalogue cannot nominate executable scripts.
@@ -135,11 +134,10 @@ fn prepare_selection(
                 ));
             }
             eprintln!("{}", String::from_utf8_lossy(&result.stdout).trim());
-            serde_json::from_slice::<verified_language::optimisation::Package>(&read_bounded(
+            verified_language::optimisation::from_bytes(&read_bounded(
                 output.to_str().ok_or("invalid output path")?,
-                16_000_000,
+                verified_language::registry::MAX_VIEW_BYTES,
             )?)
-            .map_err(|e| e.to_string())
         })();
         let _ = fs::remove_dir_all(&temp);
         result?
@@ -321,11 +319,8 @@ fn run() -> LangResult<()> {
             } else {
                 core::CheckedModule::from_source(source_with_evidence(input,&args)?)?
             };
-            let package = serde_json::from_slice(&read_bounded(
-                &packet,
-                verified_language::registry::MAX_VIEW_BYTES,
-            )?)
-            .map_err(|e| e.to_string())?;
+            let package = verified_language::planning::from_bytes(&read_bounded(
+                &packet, verified_language::registry::MAX_VIEW_BYTES)?)?;
             let plan = verified_language::planning::check(&module, &package)?;
             return verified_language::compiled_plans::emit(&plan, &target, Path::new(&output));
         }
@@ -423,9 +418,7 @@ fn run() -> LangResult<()> {
                 return Err("plan session request byte limit".into());
             }
             let result = (|| {
-                let packet: verified_language::planning::Package =
-                    serde_json::from_slice(&line).map_err(|e| e.to_string())?;
-                let request: serde_json::Value = serde_json::from_slice(&line).map_err(|e|e.to_string())?;
+                let packet=verified_language::planning::from_bytes(&line)?;
                 let checked = checker.check(&packet)?;
                 let capability =
                     target
@@ -435,7 +428,7 @@ fn run() -> LangResult<()> {
                             Err(reason) => serde_json::json!({"emittable":false,"reason":reason}),
                         });
                 Ok::<_, String>(
-                    serde_json::json!({"status":"checked","request_sha256":verified_language::registry::identity(&request)?,"plan_sha256":verified_language::planning::identity(&packet)?,"state":planning_state(&checked)?,"reused_steps":checker.reused_steps(),"capability":capability}),
+                    serde_json::json!({"status":"checked","request_sha256":verified_language::planning::wire_identity(&line)?,"plan_sha256":verified_language::planning::identity(&packet)?,"state":planning_state(&checked)?,"reused_steps":checker.reused_steps(),"capability":capability}),
                 )
             })();
             println!(
@@ -510,11 +503,8 @@ fn run() -> LangResult<()> {
             return Err("knowledge-check requires CORE.json VIEW.json".into());
         }
         let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
-        let bundle: verified_language::registry::Bundle = serde_json::from_slice(&read_bounded(
-            &args[2],
-            verified_language::registry::MAX_VIEW_BYTES,
-        )?)
-        .map_err(|e| e.to_string())?;
+        let bundle=verified_language::registry::from_bytes(&read_bounded(
+            &args[2], verified_language::registry::MAX_VIEW_BYTES)?)?;
         let checked = verified_language::registry::CheckedBundle::check(&bundle)?;
         let entries = checked.verify(module.program())?;
         println!(
@@ -589,9 +579,8 @@ fn run() -> LangResult<()> {
             return Err("check-selection requires CORE.json PACKAGE.json".into());
         }
         let module = core::CheckedModule::from_bytes(&read_bounded(&args[1], core::MAX_BYTES)?)?;
-        let package: verified_language::optimisation::Package =
-            serde_json::from_slice(&read_bounded(&args[2], verified_language::registry::MAX_VIEW_BYTES)?)
-                .map_err(|e| e.to_string())?;
+        let package=verified_language::optimisation::from_bytes(&read_bounded(
+            &args[2], verified_language::registry::MAX_VIEW_BYTES)?)?;
         let selected = verified_language::optimisation::check(&module, &package)?;
         println!(
             "{}",
@@ -1043,7 +1032,7 @@ fn run() -> LangResult<()> {
             );
             return Ok(());
         }
-        let package = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
+        let package = verified_language::planning::from_bytes(&bytes)?;
         let checked = verified_language::planning::check(&module, &package)?;
         if cmd == "plan-work" {
             // Reference-interpreter work of the plan's checked selected module
@@ -1156,11 +1145,8 @@ fn run() -> LangResult<()> {
             }
             let seed = arg_value(&args,"--initial-state")?.ok_or("build --plan requires --initial-state; use compile --plan for uninitialized emission")?;
             let module = core::CheckedModule::from_source(p)?;
-            let package = serde_json::from_slice(&read_bounded(
-                &file,
-                verified_language::registry::MAX_VIEW_BYTES,
-            )?)
-            .map_err(|e| e.to_string())?;
+            let package = verified_language::planning::from_bytes(&read_bounded(
+                &file, verified_language::registry::MAX_VIEW_BYTES)?)?;
             let plan = verified_language::planning::check(&module, &package)?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT")?;

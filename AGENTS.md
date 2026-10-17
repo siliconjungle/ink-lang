@@ -280,6 +280,9 @@ valid frozen JSON floats and legacy integer packet bytes. Knowledge object
 canonicalization remains integer-only; every embedded object and proof must
 still replay. Keep selection, view, plan and trained-proof I/O at the common
 aggregate byte bound, distinct from source/trace/checkpoint and per-entry limits.
+Use bounded packet decoding: whole envelopes have a 256-container allowance,
+while embedded JSON fields retain their independent 128-level budget and ordinary
+literal keys. Preserve exact incoming request presence in stream receipts.
 Do not re-encode frozen rows or rehash snapshots to fit transport. See
 docs/source-plan-transport.md.
 

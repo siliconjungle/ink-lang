@@ -33,6 +33,7 @@ pub mod parallel;
 pub mod recursion;
 pub mod termination;
 pub mod registry;
+mod bounded_json;
 pub mod representation;
 pub mod routing;
 pub mod semantic;
