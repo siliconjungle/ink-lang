@@ -398,3 +398,17 @@ A stateful reverse-AD fixture exercises a local field receiver shadowing an
 unrelated global record, with complete snapshots and actual eligible GPU work.
 This adds no reverse tapes on device, binary64 GPU arithmetic or prepared-graph
 replacement. See [scope and validation](docs/function-dependencies.md).
+
+## Internal helper interfaces and device entry points
+
+Mixed-module device parts now transport only their selected flat entry while
+retaining ordinary typed internal helpers, original indices and checked ingress.
+Owned scratch-buffer helpers can feed flat list/scalar/record callers on the
+actual GPU. A bounded whole-scalar shader retains lazy control when graph
+intermediates cannot be transported; direct traversal restrictions remain.
+All ordered buffer-carrying folds now check their bound, closing a missing growth
+check. The required native/browser source-history gates include a complete
+stateful consumer with rollback/events/snapshots and separate CPU reverse-AD
+controls. This is literal machinery, without a model matcher or speed claim.
+Device reverse tapes and the prepared graph remain open. See
+[scope and reproduction](docs/device-private-helpers.md).

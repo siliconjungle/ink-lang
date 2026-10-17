@@ -45,4 +45,5 @@ fn branch_owned(input:Option<u32>)->List<u32> {
     return input.fold(fn(value)=>buffer.push(value),fn(unit)=>buffer.push(9)).freeze();
 }
 // Eligible device work remains separate from host-side tape execution.
-fn device(inputs:List<f32>)->List<f32> {return inputs.map(fn(input)=>input*2.0+1.0);}
+fn device_work(input:f32)->Buffer<f32>{return buffer_fill(4,input*2.0+1.0);}
+fn device(inputs:List<f32>)->List<f32> {return inputs.map(fn(input)=>device_work(input).at_or(0,-0.0));}
