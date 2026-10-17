@@ -516,5 +516,14 @@ studies show roughly 1.20–1.32× prediction and 1.27–1.36× training through
 one earlier process regresses substantially and remains recorded. These are
 shared-host diagnostics, not universal guarantees or automatic planner evidence.
 See [scope, all cohorts and remaining work](reports/affine-record-carriers-2026-10-17/README.md).
+
+Further private F32 storage experiments retain 36 fresh-process complete neural
+comparisons and new exact-bit partition/bulk/worker controls. Numeric/tagged
+buffers, typed integer/float views and shared scalar decodings all lose to the
+published emitter on this workload, so none changes the default compiler or
+physical capability set. The [negative study and replay auditor](reports/f32-storage-experiments-2026-10-17/README.md)
+keep these results available for subsequent structure/staging and measured layout
+work. Full graph/tape compilation, learned physical selection, device training and
+the complete three-project programme remain open.
 Full upstream parity, trained profitable representation choice and device training
 remain required.
