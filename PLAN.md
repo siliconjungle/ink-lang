@@ -553,12 +553,18 @@ back on exhausted optional expansion while retaining successful serving work.
 The prepared Result/list regression checks the complete plan, changing weights,
 JavaScript outcomes and exact snapshots. False evaluated defaults and altered
 selected returns reject; a failed publication retains its prior artifact.
-The real 232-node/244-parameter network progresses from no helpers to a
-source-checked 117-helper proposal. Complete proof construction still exhausts
-the unchanged fold-composition work budget, so full-network specialization is
-not delivered. Next work must close that proof/composition path, then connect
-working learned implementation/goal choices and device training. No new speed
-claim is made by this milestone.
+The real 232-node/244-parameter network now has a complete admitted 464-helper,
+10,120-object plan. Generic immediate-step equations, explicit closed computation
+lemmas and a finite aggregate capacity increase close the earlier proof-admission
+failure. The exact standalone core passes 519 tests, the final producer suite
+passes 91 tests, and native execution matches 24 complete outcomes with exact
+checkpoints across native, JavaScript and Wasm. Both guarded/mutable-code
+specialization histories pass 335 complete outcomes each, and all 63 standalone
+JavaScript tests pass. The final corpus compiles all ten programs, exposes two
+with alternatives and admits four laws, with zero default selections or
+cross-program law reuse. See the [execution evidence](bench/functionality/prepared-network/README.md).
+Working learned implementation/goal choices and device training remain required.
+No new speed claim is made by this milestone.
 
 
 V8-inspired exact expression sharing now also covers immutable numeric lists and
@@ -569,6 +575,7 @@ snapshots. A retained complete-call JavaScript study shows a modest held-out
 output is mostly flat and small controls include regressions. Automatic selection
 still requires its existing evidence gates. Compact alpha-equivalent helper
 proofs and syntactic signature reuse reduce redundant proof-authoring work.
-The real full-network plan still fails construction, including with larger
-exploratory bounds; completing modular graph proofs, useful learned choices,
+The real full-network plan now passes ordinary complete admission; its producer
+reproduction matches the retained plan byte for byte. Cross-target network
+execution now passes; broader graph/tape compilation, useful learned choices,
 device training and the full functionality programme remain required.

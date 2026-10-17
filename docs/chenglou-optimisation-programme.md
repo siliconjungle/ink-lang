@@ -489,3 +489,26 @@ so eligibility does not establish profitable GPU placement. Whole-query/stateful
 fusion, batched/resident acceptance, learned representation choices, device
 training and matched upstream workloads remain required work. See
 [GPU scalar staging](frozen-composition.md#literal-scalar-stages-on-the-gpu).
+
+
+## Complete authored-network admission
+
+The real 232-node, 244-weight handoff network now has a complete admitted plan
+with 464 helpers and 10,120 proof objects. The ordinary producer reproduces the
+retained packet byte for byte. Knowledge factors open and closed computations
+into reusable immediate equations; the core checks each existing definition step
+and the complete whole-action equality. A finite aggregate allowance accommodates
+the 259,869,282-byte packet without changing individual proof work/depth bounds.
+The exact standalone core passes 519 tests and the final focused producer suite
+passes 91 tests. See the [admission evidence](../bench/functionality/full-network-admission/README.md).
+
+Reference/native/JavaScript/Wasm execution matches 24 complete application
+outcomes with dynamic learning, events, failures, cancellation, restore and exact
+checkpoints. Both guarded/mutable-code histories pass 335 complete outcomes each,
+and all 63 standalone JavaScript tests pass. The final corpus compiles 10/10
+programs, exposes alternatives in two and admits four laws, with zero default
+selections or cross-program law reuse. See the [execution evidence](../bench/functionality/prepared-network/README.md). This closes the
+specific admission frontier; broader reusable graphs/tapes, learned implementation
+and goal selection, F64 differentiation, device training, Freerange facts,
+Pretext behavior and cross-stack execution remain active requirements. No new
+speedup, automatic profitable selection or whole-programme completion follows.

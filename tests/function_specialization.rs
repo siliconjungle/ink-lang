@@ -61,7 +61,7 @@ fn check_mutable_graph_specialization(generated_guard: bool) {
         .output().unwrap();
     assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
     eprintln!("{label}: load checked proposal");
-    let package:planning::Package=serde_json::from_slice(&fs::read(root.join("plan.json")).unwrap()).unwrap();
+    let package=planning::from_bytes(&fs::read(root.join("plan.json")).unwrap()).unwrap();
     eprintln!("{label}: replay plan");
     let selected=planning::check(&module,&package).unwrap();
     assert_eq!(package.steps.len(),if generated_guard {4} else {2});

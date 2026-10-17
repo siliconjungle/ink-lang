@@ -31,6 +31,7 @@ def audit(catalog, scope):
         "trained_build",
         "policy_learning",
         "frozen_state",
+        "prepared_network",
         "lowering_parity", "generated_parity", "durability", "modules",
         "selected_checkpoint", "action_optimisation", "action_transitions",
         "numerical_state", "owned_record_carriers", "owned_parameter_helpers", "mixed_durability", "bend_features", "feature_parity",

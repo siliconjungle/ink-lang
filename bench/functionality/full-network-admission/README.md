@@ -28,3 +28,13 @@ into the normal producer separately. No producer verdict grants authority:
 ordinary complete check-plan replay is the acceptance criterion. The full
 runtime history and cross-target validation remain separate. No runtime speed,
 automatic profitability or complete programme claim follows from this capsule.
+
+
+The ordinary production producer at knowledge revision
+`509b190cda149f658abdad4abf6d1a47535bd986` independently reproduces this plan
+byte for byte, with progress instrumentation and proposal saving only. Its
+receipt binds the exact compiler, plan and output. All 91 final focused producer
+tests pass on that source. The original diagnostic receipt remains unchanged;
+`final-production-network-receipt.json` records the normal production result.
+
+The complete reference/native/JavaScript/Wasm history now passes all 24 outcomes; see the [execution and final corpus evidence](../prepared-network/README.md).

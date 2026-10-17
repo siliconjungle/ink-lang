@@ -284,7 +284,7 @@ the core projection command retains its legacy default.
 
 Non-plain owned-carrier leaves now default to one operation; plain leaves retain
 eight. Explicit owned widths 1/2/4/8 remain available. A proposal may contain up
-to 512 distinct helpers and spend four million charged authoring steps. Helpers
+to 512 distinct helpers and spend sixteen million charged authoring steps. Helpers
 enter through source extensions of at most 256 declarations each, with every
 batch bound to its checked predecessor. Exhausted optional expansion keeps the
 original action; it does not authorize a partial replacement. Source and final
@@ -316,11 +316,21 @@ under the same earlier compiler. Those controls do not isolate compiler cost
 from host scheduling. The functional result does not establish improved planning
 coverage or runtime speed; the search-coverage decline remains unresolved.
 
-The larger authored 232-node network now reaches a 463-helper source proposal
-and a complete 6,807-object mathematical proposal. It is still **not an admitted
-specialized executable**: the different-scrutinee-type authoring error is fixed,
-but complete replay reaches a resource limit while expanding a larger open
-conversion. Shared substitution admits a selected 67-object prefix equation
-under the ordinary proof allowance; that prefix is not complete plan admission. The original trained snapshot remains in its original source namespace;
-it must never be rehashed into the separately authored frozen namespace. Complete
-network admission and applicable cross-target execution remain unfinished.
+The larger authored 232-node/244-parameter network now has a complete admitted
+464-helper plan with 10,120 proof objects. Generic immediate-step equations and
+explicit closed computation lemmas avoid oversized monolithic conversions;
+ordinary complete check-plan replay supplies admission. The complete plan is
+259,869,282 bytes under a finite 512,000,000-byte aggregate allowance; individual
+entry and proof checks retain their bounds. The exact standalone core passes
+519 tests, and the final focused producer suite passes 91 tests. See the
+[complete admission capsule](../bench/functionality/full-network-admission/README.md).
+
+The complete 24-outcome application history matches reference/native/JavaScript/
+Wasm values, events, errors, cancellation, restoration and exact checkpoints.
+The ordinary production author reproduces the admitted packet byte for byte.
+Both guarded and mutable-code histories also pass 335 complete outcomes each;
+all 63 standalone JavaScript tests pass. The final corpus compiles 10/10 programs,
+exposes alternatives in two, admits four laws and observes no cross-program
+law reuse; defaults select none. See the [execution and corpus evidence](../bench/functionality/prepared-network/README.md). The original trained snapshot remains in its
+original source namespace and must never be rehashed into the separately authored
+frozen namespace. No runtime speedup or automatic profitability is established.
