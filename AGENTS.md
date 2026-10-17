@@ -283,6 +283,9 @@ Capture-avoiding mathematical substitution may share one borrowed name analysis
 across its lexical walk. Keep every inserted term's copy work, simultaneous
 insertion and shadowing semantics; reserve fresh names against all source and
 replacement names. No cached term identity or verdict grants equality authority.
+Scoped substitution environments borrow their keys and replacement terms; only
+materialized results clone terms. Charge environment metadata as well as result
+copies so nested binders cannot hide repeated large temporary allocations.
 
 Complete source-bearing plans use planning::canonical/identity, preserving
 valid frozen JSON floats and legacy integer packet bytes. Knowledge object
