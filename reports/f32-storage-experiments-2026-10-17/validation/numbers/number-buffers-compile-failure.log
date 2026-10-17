@@ -1,0 +1,12 @@
+   Compiling ink-lowering-js v0.1.0 (/Users/jamesaddison/Documents/Codex/2026-10-15/lo/work/ink-review/ink-lang/build/number-buffer-probe/package)
+error: literal out of range for `i32`
+  --> tests/number_buffers.rs:29:34
+   |
+29 |    for(s,n)in[(0,0),(1,3),(3,1),(4294967295,4)]{for xs in [json!([]),json!([x,y]),json!([y,x,0.5,-0.0,3.0])]{
+   |                                  ^^^^^^^^^^
+   |
+   = note: the literal `4294967295` does not fit into the type `i32` whose range is `-2147483648..=2147483647`
+   = help: consider using the type `u32` instead
+   = note: `#[deny(overflowing_literals)]` on by default
+
+error: could not compile `ink-lowering-js` (test "number_buffers") due to 1 previous error

@@ -179,6 +179,17 @@ must not disappear behind the search milestone or be renamed complete because
 their foundations exist. Introduce syntax when a concrete general mechanism needs
 it, rather than assigning a source keyword to every upstream implementation trick.
 
+The [private F32 storage study](../reports/f32-storage-experiments-2026-10-17/README.md)
+rejects three further default changes after complete neural lifecycle comparisons:
+numeric/tagged temporary buffers, aliased integer/float typed views and shared
+scalar decodings. Each has six paired processes against the published affine-record
+emitter; both buffer designs substantially regress prediction, while scalar
+decoding is slightly slower. Exact outputs and targeted ownership/numeric controls
+pass, including new partition/bulk/worker cases. These are retained experiments,
+not shipped capabilities or automatic planner evidence. Correct storage and fewer
+conversions alone do not establish a faster workload; full graph/tape compilation,
+learned representation selection and upstream parity remain required.
+
 Next acceptance work should include repeated prepared queries/layout, cold and
 single-use controls, changed-input histories, dense/sparse numeric cases and
 different requested output sizes. Preserve strong handwritten and upstream
