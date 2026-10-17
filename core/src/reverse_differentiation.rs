@@ -1,6 +1,7 @@
 //! Source reverse AD with a fresh, owned, bounded tape. This is a derivative of
-//! a real lift, evaluated in fixed F32 order, not a rewrite of forward-mode AD.
+//! a real lift, evaluated in fixed F32/F64 order, not a rewrite of forward-mode AD.
 use crate::{
+    ad_scalar::Scalar,
     check::{self, Env},
     core::*,
     LangResult,
@@ -36,9 +37,6 @@ fn lambda(ns: &[String], mut e: Expr) -> Expr {
     }
     e
 }
-fn number(x: f32) -> Expr {
-    Expr::Float(x.to_bits())
-}
 
 pub(crate) fn hint(e: &Expr, p: &Program) -> Option<Type> {
     let Expr::Call(n, args) = e else { return None };
@@ -63,11 +61,21 @@ pub(crate) fn hint(e: &Expr, p: &Program) -> Option<Type> {
 }
 
 pub(crate) fn expand(p: &mut Program, abstracts: &BTreeMap<String, String>) -> LangResult<()> {
-    let occupied = crate::analysis::program_names(p);
+    expand_scalar(p, abstracts, Scalar::F32)?;
+    if p.functions.iter().any(|f| f.result == Type::F64) {
+        expand_scalar(p, abstracts, Scalar::F64)?;
+    }
+    Ok(())
+}
+fn expand_scalar(
+    p: &mut Program,
+    abstracts: &BTreeMap<String, String>,
+    scalar: Scalar,
+) -> LangResult<()> {
     let mut used = false;
     let mut scan = |e: &Expr| {
         crate::analysis::walk(e, |e| {
-            if matches!(e,Expr::Call(n,_)if INTRINSICS.contains(&n.as_str())&&!p.functions.iter().any(|f|f.name==*n))
+            if matches!(e,Expr::Call(n,args)if INTRINSICS.contains(&n.as_str())&&scalar.handles(args,p)&&!p.functions.iter().any(|f|f.name==*n))
             {
                 used = true;
             }
@@ -104,7 +112,9 @@ pub(crate) fn expand(p: &mut Program, abstracts: &BTreeMap<String, String>) -> L
     if !used {
         return Ok(());
     }
+    let occupied = crate::analysis::program_names(p);
     let mut b = Builder {
+        scalar,
         source: p.clone(),
         out: Program::default(),
         occupied,
@@ -125,7 +135,7 @@ pub(crate) fn expand(p: &mut Program, abstracts: &BTreeMap<String, String>) -> L
             break;
         }
     }
-    b.out = crate::syntax::parse(&include_str!("reverse_runtime.ink").replace("R_", &b.prefix))?;
+    b.out = scalar.reverse_runtime(&b.prefix)?;
     for n in b
         .out
         .records
@@ -156,6 +166,7 @@ pub(crate) fn expand(p: &mut Program, abstracts: &BTreeMap<String, String>) -> L
     Ok(())
 }
 struct Builder {
+    scalar: Scalar,
     source: Program,
     out: Program,
     occupied: BTreeSet<String>,
@@ -172,7 +183,7 @@ struct Builder {
 impl Builder {
     fn fresh(&mut self) -> String {
         loop {
-            let n = format!("__ink_reverse_{}", self.next);
+            let n = format!("__ink_reverse{}_{}", self.scalar.suffix(), self.next);
             self.next += 1;
             if self.occupied.insert(n.clone()) {
                 return n;
@@ -198,7 +209,7 @@ impl Builder {
     fn dtype(&mut self, t: &Type, depth: usize) -> LangResult<Type> {
         self.step(depth)?;
         Ok(match t {
-            Type::F32 => self.wire(),
+            t if *t == self.scalar.ty() => self.wire(),
             Type::Named(n) if self.source.records.contains_key(n) => {
                 if self.blocked.contains(n)
                     || self.source.contracts.value_invariants.contains_key(n)
@@ -236,7 +247,6 @@ impl Builder {
             | Type::Map(..)
             | Type::Table(..)
             | Type::Vector(..)
-            | Type::F64
             | Type::Unknown => {
                 return Err(format!(
                     "unsupported reverse differentiation value domain: {t:?}"
@@ -295,22 +305,7 @@ impl Builder {
             .find(|f| f.name == name)
             .ok_or("reverse differentiation helper not found")?
             .clone();
-        if crate::contracts::specifications(&self.source)
-            .iter()
-            .any(|s| {
-                s.kind.is_none()
-                    && !s.requires.is_empty()
-                    && (s.name == name
-                        || self
-                            .source
-                            .contracts
-                            .implementations
-                            .iter()
-                            .any(|i| i.name == name && i.specification == s.name))
-            })
-        {
-            return Err(format!("reverse differentiation cannot transport proof preconditions for {name}; use a checked fallible source interface"));
-        }
+        Scalar::check_requirements(&self.source, name, "reverse differentiation")?;
         let env = check::params_env(&fun.params)?;
         check::infer_as(&fun.body, &env, &self.source, &fun.result)?;
         self.active.insert(name.into());
@@ -373,7 +368,7 @@ impl Builder {
     fn primal(&mut self, t: &Type, e: Expr, depth: usize) -> LangResult<Expr> {
         self.step(depth)?;
         Ok(match t {
-            Type::F32 => f(e, "value"),
+            t if *t == self.scalar.ty() => f(e, "value"),
             Type::Named(n) if self.source.records.contains_key(n) => {
                 let mut fields = vec![];
                 for (name, t) in self.source.records[n].clone() {
@@ -417,7 +412,9 @@ impl Builder {
     fn zero(&mut self, t: &Type, depth: usize) -> LangResult<Expr> {
         self.step(depth)?;
         Ok(match t {
-            Type::F32 => self.constant(number(0.0)),
+            t if *t == self.scalar.ty() => self.constant(self.scalar.number(0.0)),
+            Type::F32 => Expr::Float(0),
+            Type::F64 => Expr::Double(0),
             Type::Bool => Expr::Bool(false),
             Type::Unit => Expr::Unit,
             Type::String => Expr::String(String::new()),
@@ -539,7 +536,7 @@ impl Builder {
             return Ok(self.flow(&dt, value, tape));
         }
         Ok(match t {
-            Type::F32 => call(&self.name("seed"), vec![e, tape]),
+            t if *t == self.scalar.ty() => call(&self.name("seed"), vec![e, tape]),
             Type::Named(n) if self.source.records.contains_key(n) => {
                 let Type::Named(target) = dt.clone() else {
                     unreachable!()
@@ -566,7 +563,7 @@ impl Builder {
             }
             _ => {
                 return Err(
-                    "reverse gradient parameters must contain only f32, lists and plain records"
+                    "reverse gradient parameters must contain only the objective scalar precision, lists and plain records"
                         .into(),
                 )
             }
@@ -575,7 +572,7 @@ impl Builder {
     fn context(&mut self, t: &Type, e: Expr, depth: usize) -> LangResult<Expr> {
         self.step(depth)?;
         Ok(match t {
-            Type::F32 => self.constant(e),
+            t if *t == self.scalar.ty() => self.constant(e),
             Type::Named(n) if self.source.records.contains_key(n) => {
                 let Type::Named(target) = self.dtype(t, depth + 1)? else {
                     unreachable!()
@@ -622,7 +619,9 @@ impl Builder {
     fn gather(&mut self, t: &Type, e: Expr, gradient: Expr, depth: usize) -> LangResult<Expr> {
         self.step(depth)?;
         Ok(match t {
-            Type::F32 => method(gradient, "at_or", vec![f(e, "id"), number(0.0)]),
+            t if *t == self.scalar.ty() => {
+                method(gradient, "at_or", vec![f(e, "id"), self.scalar.number(0.0)])
+            }
             Type::Named(n) if self.source.records.contains_key(n) => {
                 let mut fs = vec![];
                 for (name, t) in self.source.records[n].clone() {
@@ -898,8 +897,8 @@ impl Builder {
             .find(|f| f.name == target)
             .ok_or("reverse differentiation needs a named pure objective")?
             .clone();
-        if fun.result != Type::F32 || fun.params.is_empty() {
-            return Err("reverse objective needs a first parameter and f32 result".into());
+        if fun.result != self.scalar.ty() || fun.params.is_empty() {
+            return Err("reverse objective needs a first parameter and f32 or f64 result".into());
         }
         let piecewise = kind.ends_with("piecewise");
         let objective = self.function(target, piecewise, 0)?;
@@ -946,7 +945,7 @@ impl Builder {
             self.out.records.insert(
                 result.clone(),
                 vec![
-                    ("value".into(), Type::F32),
+                    ("value".into(), self.scalar.ty()),
                     ("gradient".into(), weight.clone()),
                 ],
             );
@@ -964,7 +963,7 @@ impl Builder {
             (weight.clone(), gradient)
         };
         let ok = call("Ok", vec![value]);
-        let ok = let_(gradients, Type::List(Box::new(Type::F32)), back, ok);
+        let ok = let_(gradients, Type::List(Box::new(self.scalar.ty())), back, ok);
         let failure = call(
             "Err",
             vec![Expr::String(
@@ -1007,6 +1006,7 @@ impl Builder {
         match e {
             Expr::Call(n, args)
                 if INTRINSICS.contains(&n.as_str())
+                    && self.scalar.handles(args, &self.source)
                     && !scope.contains(n)
                     && !self.source.functions.iter().any(|f| f.name == *n) =>
             {
@@ -1096,17 +1096,21 @@ impl Builder {
         let ty = check::infer_context(e, env, &self.source, want)?;
         let dt = self.dtype(&ty, depth + 1)?;
         Ok(match e {
-            Expr::Float(_) => {
+            Expr::Float(_) | Expr::Double(_) if ty == self.scalar.ty() => {
                 let value = self.constant(e.clone());
                 self.flow(&dt, value, tape)
             }
-            Expr::Num(_) if ty == Type::F32 => {
+            Expr::Num(_) if ty == self.scalar.ty() => {
                 let value = self.constant(e.clone());
                 self.flow(&dt, value, tape)
             }
-            Expr::Var(_) | Expr::Num(_) | Expr::Bool(_) | Expr::String(_) | Expr::Unit => {
-                self.flow(&dt, e.clone(), tape)
-            }
+            Expr::Var(_)
+            | Expr::Num(_)
+            | Expr::Float(_)
+            | Expr::Double(_)
+            | Expr::Bool(_)
+            | Expr::String(_)
+            | Expr::Unit => self.flow(&dt, e.clone(), tape),
             Expr::Field(x, _) if matches!(x.as_ref(),Expr::Var(n)if self.source.enums.contains_key(n)&&!env.contains_key(n)) => {
                 self.flow(&dt, e.clone(), tape)
             }
@@ -1167,7 +1171,7 @@ impl Builder {
             Expr::Neg(x) => {
                 let (bs, values, trace) =
                     self.operands(&[(x, ty.clone())], env, tape, piecewise, depth + 1)?;
-                let out = if ty == Type::F32 {
+                let out = if ty == self.scalar.ty() {
                     call(
                         &self.name("unary"),
                         vec![Expr::Num(5), trace, values[0].clone()],
@@ -1213,7 +1217,7 @@ impl Builder {
                     piecewise,
                     depth + 1,
                 )?;
-                let out = if arithmetic && ty == Type::F32 {
+                let out = if arithmetic && ty == self.scalar.ty() {
                     let tag = match op.as_str() {
                         "+" => 1,
                         "-" => 2,
@@ -1347,8 +1351,8 @@ impl Builder {
                     ),
                 )
             }
-            Expr::Call(n, args) if n == "sum" && ty == Type::F32 => {
-                let input = Type::List(Box::new(Type::F32));
+            Expr::Call(n, args) if n == "sum" && ty == self.scalar.ty() => {
+                let input = Type::List(Box::new(self.scalar.ty()));
                 let (bs, values, trace) =
                     self.operands(&[(&args[0], input)], env, tape, piecewise, depth + 1)?;
                 let state = self.fresh();
@@ -1362,7 +1366,7 @@ impl Builder {
                         v(&element),
                     ],
                 );
-                let initial = self.flow(&dt, self.constant(number(0.0)), trace);
+                let initial = self.flow(&dt, self.constant(self.scalar.number(0.0)), trace);
                 Self::lets(
                     bs,
                     call(
@@ -1371,11 +1375,20 @@ impl Builder {
                     ),
                 )
             }
-            Expr::Call(n, args) if n == "sqrt" || n == "f32_div" => {
-                let inputs = args.iter().map(|x| (x, Type::F32)).collect::<Vec<_>>();
+            Expr::Call(n, args) if n == "sum" => {
+                let input = Type::List(Box::new(ty.clone()));
+                let (bs, values, trace) =
+                    self.operands(&[(&args[0], input)], env, tape, piecewise, depth + 1)?;
+                let out = self.flow(&dt, call(n, values), trace);
+                Self::lets(bs, out)
+            }
+            Expr::Call(n, args) if n == "sqrt" || n == "f32_div" || n == "f64_div" => {
+                let inputs = args.iter().map(|x| (x, ty.clone())).collect::<Vec<_>>();
                 let (bs, values, trace) =
                     self.operands(&inputs, env, tape, piecewise, depth + 1)?;
-                let out = if n == "sqrt" {
+                let out = if ty != self.scalar.ty() {
+                    self.flow(&dt, call(n, values), trace)
+                } else if n == "sqrt" {
                     call(
                         &self.name("unary"),
                         vec![Expr::Num(6), trace, values[0].clone()],
@@ -1413,7 +1426,7 @@ impl Builder {
                     .map(|x| check::infer(x, env, &self.source))
                     .transpose()?;
                 let (inputs, _) = crate::primitives::signature(n, first.as_ref())?;
-                let hard = inputs.contains(&Type::F32) || n == "f32_from_bits";
+                let hard = inputs.contains(&self.scalar.ty()) || n == self.scalar.from_bits();
                 if hard && !piecewise {
                     return Err(format!(
                         "primitive {n} needs an explicit reverse piecewise policy"
@@ -1432,7 +1445,7 @@ impl Builder {
                     .map(|(x, t)| self.primal(&t, x, depth + 1))
                     .collect::<LangResult<Vec<_>>>()?;
                 let value = call(n, xs);
-                let value = if ty == Type::F32 {
+                let value = if ty == self.scalar.ty() {
                     self.constant(value)
                 } else {
                     value
