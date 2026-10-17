@@ -165,14 +165,40 @@ Files to study:
   changing weights, JavaScript outputs/exact snapshots, false evaluated defaults,
   forged selected returns, shadowing, laziness, failures and budget tests.
 
-## Immediate unfinished milestone: real full-network proof admission
+## Current milestone: real full-network admission and execution
 
 The real application has **232 nodes, 244 trainable parameters, 10 inputs,
-hidden widths [6,6], and 4 outputs**. Initially it produced zero specialized
-helpers. The new mechanism produces **117 helpers**, and that complete source
-passes `check-core`. It is **not yet a proof-admitted specialized executable**.
-The full compiled-plan producer exhausts `fold chunk proposal work budget`.
-Do not increase that budget or pretend source checking proves equivalence.
+hidden widths [6,6], and 4 outputs**. Its complete plan is now admitted through
+ordinary `check-plan`: two source-extension batches, **464 helpers**, a complete
+whole-action rewrite and **10,120 authenticated proof objects**. See the retained
+[admission proof and standalone-core receipt](bench/functionality/full-network-admission/README.md).
+The separate [closed validation proof](bench/functionality/closed-network-validation/README.md)
+checks its complete 5,651-object view.
+
+Generic immediate-step equations replace oversized monolithic conversions.
+Knowledge authors reusable equations; core checks existing definition reductions,
+with no model-specific rule or oracle authority. The aggregate plan allowance is
+512,000,000 bytes: this real complete packet is 259,869,282 bytes. Individual
+entry, proof work/depth, type and termination checks remain bounded. The exact
+standalone core passes 519 tests; the final focused producer run passes 91 tests.
+The final knowledge revision is `509b190cda149f658abdad4abf6d1a47535bd986`;
+its required frozen-corpus report is retained with the execution capsule.
+
+Native, JavaScript and Wasm execution now match all 24 complete learning/serving
+outcomes against the unchanged source, including events, rejected updates,
+cancellation, restoration and exact portable snapshots. The JavaScript manifest
+now uses source-plan identity rather than integer-only knowledge canonicalization.
+All 63 standalone JavaScript tests pass. Both guarded and mutable-code source
+specialization histories also pass 335 complete outcomes each across CPU targets;
+their reader uses the ordinary bounded plan decoder.
+
+The ordinary production author reproduces the admitted packet byte for byte.
+The final corpus compiles 10/10 programs, exposes alternatives in two, admits
+four laws and observes zero cross-program law reuse; defaults select none and
+all searches stop at their time budget. Complete evidence and reproduction
+inputs are retained in the [execution capsule](bench/functionality/prepared-network/README.md).
+These local checks do not imply all CI jobs are green. No runtime speedup or
+automatic profitability follows from this milestone.
 
 Portable files are in [`handoff/functionality-2026-10-17`](handoff/functionality-2026-10-17):
 
@@ -182,44 +208,29 @@ Portable files are in [`handoff/functionality-2026-10-17`](handoff/functionality
 - `network/authored-frozen.core.json`: explicit frozen Architecture initialization.
 - `network/constructor-args.json`, `reference-receipt.json`: bounded default
   constructor evaluation and historical provenance.
-- `network/source-checked-proposal.core.json`, `prepared-summary.json`: current
+- `network/source-checked-proposal.core.json`, `prepared-summary.json`: historical
   proposal and source-check result.
 - `network/proof-frontier.json`: first `ComputationEquality.prove` frontier
   (left/right/environment/hypotheses); helper objects can be regenerated.
-- `validation/full-network-proof-failure.log`: current complete failure trace.
+- `validation/full-network-proof-failure.log`: historical complete failure trace.
 - `manifest.json`: byte hashes for transfer integrity, **not** proof authority.
 
 The authored frozen source changes initial logical rows and source identity.
 **Never rehash the original checkpoint into that namespace or claim an original
 snapshot migration.** This is an explicit authored restriction/initialization.
 
-Reproduce from the branch root:
+Reproduce authoring from the branch root with the matching committed packages:
 
 ```sh
 python3 tools/reproduce_prepared_network_handoff.py --ink target/debug/ink
 ```
 
-This verifies the handoff inventory, regenerates and checks the source proposal,
-then attempts complete plan construction in `build/prepared-network-handoff`.
-The recorded expected state is source success followed by a nonzero proof-authoring
-exit. A future fix must turn that into genuine checked plan success, then test
-baseline/selected full outputs, dynamic weights, failures, events, restoration and
-exact snapshots across the applicable targets. Do not suppress the failure.
-
-Suggested next investigation:
-
-1. Retain the complete model/definition objects and locate the unmatched structure
-   that sends `frozen_composition.produce` into `ComputationEquality` fallback.
-2. Inspect `knowledge/producers/computation_equality.py`, `fold_chunks.py`,
-   `closed_data_bridges.py`, `function_equality.py` and `function_specialization.py`.
-   Reuse modular checked equations and shared definitions instead of repeatedly
-   expanding whole transition contexts or closed constructors.
-3. The recorded frontier enters `ComputationEquality` at work count 79,458; it
-   contains repeated nested matches with differing pure-call IDs. Determine their
-   definitions before choosing a fix. The remaining work is not diagnosed as
-   simply needing a larger helper count or larger numeric buffer.
-4. Preserve the working generic mechanisms and add regressions for the actual
-   structural gap. Then admit the real plan and exercise the full application.
+The retained original handoff files describe the earlier 117-helper source-only
+frontier and proof-authoring failure. They remain historical reproduction inputs,
+not the current admission result. The actual admitted network now passes the
+complete reference/native/JavaScript/Wasm history. The next functional work is
+broader graph/tape execution and learned implementation/goal choices, keeping
+the broader functional backlog below intact.
 
 ## Validation and external jobs at transfer
 

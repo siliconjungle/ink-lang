@@ -1,0 +1,21 @@
+import json,pathlib,sys,time
+root=pathlib.Path(__file__).resolve().parents[2];sys.path.insert(0,str(root/'knowledge'))
+from producers import frozen_composition as f
+from producers.fold_chunks import FoldChunks
+p=pathlib.Path(__file__).resolve().parent
+started=time.monotonic();real_tick=FoldChunks.tick
+def progress(self):
+ real_tick(self)
+ if self.work%100000==0:print('authoring work',self.work,'objects',len(self.objects),'elapsed',round(time.monotonic()-started,2),flush=True)
+FoldChunks.tick=progress
+produce=f.produce
+def save_proposal(*args,**kwargs):
+ packet=produce(*args,**kwargs)
+ (p/'v2-final-production-rewrite.json').write_text(json.dumps(packet,separators=(',',':')))
+ print('proposal entries',len(packet['knowledge']['objects']),flush=True)
+ return packet
+f.produce=save_proposal
+sys.argv=['frozen_composition',str(root/'handoff/functionality-2026-10-17/network/authored-frozen.core.json'),'--ink',str(p/'ink-aggregate512-frozen'),'--owned-chunk-width','1','-o',str(p/'full-network-final-production-plan.json')]
+try:f.main()
+except f.subprocess.CalledProcessError as e:
+ print(e.stderr.decode(errors='replace'),file=sys.stderr,flush=True);raise
