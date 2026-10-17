@@ -8,11 +8,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
-// Six independent ordered table domains with all nine checked edit pairs use
-// 4,730 entries and 107 MB before authentication paths. Keep a finite package
-// allowance; individual entries and every kernel computation budget stay fixed.
+// Complete graph/action proofs carry scoped case premises as well as shared
+// equations. Keep one finite whole-view allowance across selection and plan
+// transport; individual entries and kernel computation budgets stay fixed.
 pub const MAX_VIEW_ENTRIES: usize = 8192;
-pub const MAX_VIEW_BYTES: usize = 128_000_000;
+pub const MAX_VIEW_BYTES: usize = 256_000_000;
 pub const MAX_ENTRY_BYTES: usize = 16_000_000;
 pub const SNAPSHOT_SEMANTICS: &str = "ink-knowledge-snapshot-v1";
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

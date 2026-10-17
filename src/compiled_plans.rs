@@ -80,11 +80,11 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
     }
     write(
         &output.with_extension("plan.json"),
-        ink_core::registry::canonical(plan.package())?,
+        ink_core::planning::canonical(plan.package())?,
     )?;
     write(&output.with_extension("plan-receipt.json"),serde_json::to_vec_pretty(&serde_json::json!({
         "schema":1,"status":"checked","input":plan.original().identity()?,"selected":plan.module().identity()?,
-        "plan":ink_core::registry::identity(plan.package())?,"target":target,
+        "plan":ink_core::planning::identity(plan.package())?,"target":target,
         "representation":plan.representation().map(|r|r.request().representation.as_str()),
         "physical":physical,"steps":plan.package().steps.len(),
         "trust":"General proof admission; literal lowerers, ownership primitives, codecs and target toolchains remain trusted"
@@ -95,7 +95,7 @@ pub(crate) fn specialization_evidence(plan: &CheckedPlan) -> LangResult<serde_js
     Ok(
         serde_json::json!({"semantics":ink_core::planning::SEMANTICS,
         "input_core_sha256":plan.original().identity()?,"selected_core_sha256":plan.module().identity()?,
-        "plan_sha256":ink_core::registry::identity(plan.package())?,"steps":plan.package().steps.len()}),
+        "plan_sha256":ink_core::planning::identity(plan.package())?,"steps":plan.package().steps.len()}),
     )
 }
 
@@ -287,11 +287,11 @@ impl State{{
         ),
     )?;
     write(&output.join("manifest.json"),serde_json::to_vec_pretty(&serde_json::json!({"schema":1,"runtime_abi":"ink-composed-plan-v1",
-        "source":plan.original().identity()?,"selected":plan.module().identity()?,"plan":ink_core::registry::identity(plan.package())?,
+        "source":plan.original().identity()?,"selected":plan.module().identity()?,"plan":ink_core::planning::identity(plan.package())?,
         "representation":representation.request().representation,"route_entry":entry,"target":target,
         "native":"Cargo.toml","browser":"ink-plan.mjs","scope":"Maintained transactional state and checked public pure-entry routing; transaction-internal pure calls execute on the host"})).map_err(|e|e.to_string())?)?;
     write(
         &output.join("plan.json"),
-        ink_core::registry::canonical(plan.package())?,
+        ink_core::planning::canonical(plan.package())?,
     )
 }

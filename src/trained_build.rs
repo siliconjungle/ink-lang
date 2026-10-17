@@ -328,10 +328,10 @@ pub fn build_model_specialized(
         let mut bytes = Vec::new();
         fs::File::open(staging.0.join("selection.json"))
             .map_err(|e| e.to_string())?
-            .take(16_000_001)
+            .take(ink_core::registry::MAX_VIEW_BYTES as u64 + 1)
             .read_to_end(&mut bytes)
             .map_err(|e| e.to_string())?;
-        if bytes.len() > 16_000_000 {
+        if bytes.len() > ink_core::registry::MAX_VIEW_BYTES {
             return Err("specialization package byte limit".into());
         }
         let checked = FrozenSpecialization::check(compiled_module, &bytes)?;
@@ -543,7 +543,7 @@ pub fn verify_model(directory: &Path, replay: bool) -> LangResult<Value> {
     };
     let compiled_module = restricted.as_ref().map(|r| &r.module).unwrap_or(&module);
     let selection_bytes = if !manifest["specialization"].is_null() {
-        Some(read("selection.json", 16_000_000)?)
+        Some(read("selection.json", ink_core::registry::MAX_VIEW_BYTES as u64)?)
     } else { None };
     let selection = if let Some(bytes) = &selection_bytes {
         if restricted.is_none() {

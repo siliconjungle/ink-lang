@@ -153,6 +153,28 @@ fn interface(original: &CheckedModule, selected: &CheckedModule) -> LangResult<(
 pub fn check(original: &CheckedModule, package: &Package) -> LangResult<CheckedPlan> {
     check_from(original, package, None)
 }
+/// Stable JSON transport for complete source-bearing plans. Frozen executable
+/// rows may contain ordinary finite JSON float inputs. This is distinct from
+/// integer-only canonical knowledge: each embedded bundle still authenticates
+/// its objects and replays their independent domain checks.
+/// Integer-only historical packets retain exactly their existing bytes.
+pub fn canonical(package: &Package) -> LangResult<Vec<u8>> {
+    let value = serde_json::to_value(package).map_err(|e| e.to_string())?;
+    let mut pending = vec![(&value, 0usize)];
+    while let Some((value, depth)) = pending.pop() {
+        if depth > 128 { return Err("compiled plan transport depth limit".into()); }
+        match value {
+            serde_json::Value::Array(values) => pending.extend(values.iter().map(|v| (v, depth+1))),
+            serde_json::Value::Object(values) => pending.extend(values.values().map(|v| (v, depth+1))),
+            _ => {},
+        }
+    }
+    serde_json::to_vec(&value).map_err(|e| e.to_string())
+}
+pub fn identity(package: &Package) -> LangResult<String> {
+    use sha2::{Digest, Sha256};
+    Ok(format!("{:x}", Sha256::digest(canonical(package)?)))
+}
 fn check_from(
     original: &CheckedModule,
     package: &Package,
@@ -164,7 +186,7 @@ fn check_from(
     {
         return Err("compiled plan input/semantics mismatch".into());
     }
-    if crate::registry::canonical(package)?.len() > crate::registry::MAX_VIEW_BYTES {
+    if canonical(package)?.len() > crate::registry::MAX_VIEW_BYTES {
         return Err("compiled plan byte limit".into());
     }
     let done = seed.as_ref().map_or(0, |s| s.package.steps.len());
@@ -312,7 +334,7 @@ impl Checker {
         self.reused
     }
     pub fn check(&mut self, package: &Package) -> LangResult<CheckedPlan> {
-        if crate::registry::canonical(package)?.len() > crate::registry::MAX_VIEW_BYTES {
+        if canonical(package)?.len() > crate::registry::MAX_VIEW_BYTES {
             return Err("compiled plan byte limit".into());
         }
         self.reused = 0;
@@ -326,14 +348,14 @@ impl Checker {
                     input_core_sha256: package.input_core_sha256.clone(),
                     steps: package.steps[..length].to_vec(),
                 };
-                if &crate::registry::canonical(&prefix)? == bytes {
+                if &canonical(&prefix)? == bytes {
                     seed = Some(checked.clone());
                     self.reused = length;
                 }
             }
         }
         let checked = check_from(&self.original, package, seed)?;
-        let bytes = crate::registry::canonical(package)?;
+        let bytes = canonical(package)?;
         // Large admitted mathematical closures must remain eligible for prefix
         // reuse. Keep the same finite byte bound as admission. Sealed maintained
         // witnesses and packets are shared, not deep-cloned for each cache hit.

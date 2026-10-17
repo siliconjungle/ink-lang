@@ -275,6 +275,14 @@ use iterative traversal under the whole-view entry/byte bounds; do not confuse
 dependency height with proof nesting or bypass individual replay. See
 docs/structural-action-correspondence.md.
 
+Complete source-bearing plans use planning::canonical/identity, preserving
+valid frozen JSON floats and legacy integer packet bytes. Knowledge object
+canonicalization remains integer-only; every embedded object and proof must
+still replay. Keep selection, view, plan and trained-proof I/O at the common
+aggregate byte bound, distinct from source/trace/checkpoint and per-entry limits.
+Do not re-encode frozen rows or rehash snapshots to fit transport. See
+docs/source-plan-transport.md.
+
 Mixed immutable records carry bounded field provenance through literal constructors,
 projections and helper returns. Keep returned-value provenance separate from the
 work needed to produce it: unused dynamic arguments/fields, guards and failures
