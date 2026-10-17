@@ -28,7 +28,8 @@ snapshots. Their integration reader now uses the ordinary bounded plan decoder.
 This repairs the earlier published CI producer/reader failure without weakening
 individual object or proof limits.
 
-The final knowledge revision is `509b190cda149f658abdad4abf6d1a47535bd986`.
+The production corpus was acquired at knowledge revision
+`509b190cda149f658abdad4abf6d1a47535bd986`.
 Its required ten-program corpus uses an immutable compiler and private knowledge
 copies. All ten compile; two expose admitted alternatives, four laws are admitted,
 none is reused across programs, and defaults select no alternative. All searches
@@ -42,3 +43,13 @@ These finite implementation checks establish the real network's admission and
 CPU-target execution milestone. They do not establish compiler correctness,
 automatic profitability, general AD, device training, complete graph/tape support
 or the full Handwired/Pretext/Freerange programme. No new speed claim is made.
+
+
+CI integration revision `41a81caf8621443d6aa9980d4ea2710b4b3e876a` places the
+two exact immediate-equation regressions in `tests/test_closed_equations.py`,
+which the existing mandatory CI command already discovers. No workflow change
+is needed. All 91 producer/storage cases pass after this move, and the exact
+CI discovery command passes all five equation tests. The byte-equivalence
+receipt binds unchanged non-test Git entries, fixtures and regression ASTs;
+the final corpus and ordinary author above therefore use identical production
+and knowledge bytes. Historical corpus and conformance receipts stay unchanged.

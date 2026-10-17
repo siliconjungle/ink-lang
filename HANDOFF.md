@@ -181,8 +181,11 @@ with no model-specific rule or oracle authority. The aggregate plan allowance is
 512,000,000 bytes: this real complete packet is 259,869,282 bytes. Individual
 entry, proof work/depth, type and termination checks remain bounded. The exact
 standalone core passes 519 tests; the final focused producer run passes 91 tests.
-The final knowledge revision is `509b190cda149f658abdad4abf6d1a47535bd986`;
-its required frozen-corpus report is retained with the execution capsule.
+The producer/corpus revision is `509b190cda149f658abdad4abf6d1a47535bd986`.
+CI integration revision `41a81caf8621443d6aa9980d4ea2710b4b3e876a` only moves
+unchanged regressions into the existing mandatory equation test suite. The
+execution capsule retains their exact byte equivalence, the final corpus and
+the passing 91-test rerun.
 
 Native, JavaScript and Wasm execution now match all 24 complete learning/serving
 outcomes against the unchanged source, including events, rejected updates,
