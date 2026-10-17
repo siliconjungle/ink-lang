@@ -41,8 +41,10 @@ cross-target correspondence.
 
 The required `source_reverse` test validates all four active WGSL stages on every
 run. With `INK_TEST_WGPU=1`, it also builds the generated native host, executes both
-complete histories, and checks the independent gradient oracle. Existing native
-and browser CI jobs already run this test suite. The `gpu` suite covers local
+complete histories, and checks the independent gradient oracle. `INK_TEST_WASM=1`
+also builds the browser CPU image. The existing source-history browser command
+then requires the complete resident training history alongside its source-reverse
+history. Both native and browser CI gates use their existing commands. The `gpu` suite covers local
 helpers, captures, record elements, empty lists, padding/storage exhaustion,
 precondition rejection and lazy graph construction.
 

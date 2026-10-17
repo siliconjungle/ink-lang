@@ -1,9 +1,12 @@
 // Replay an existing reference history through JavaScript, Rust/Wasm and WebGPU.
-import {chromium} from 'playwright-core';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {checkSourceTraining} from './source-training-browser.mjs';
+const playwright=process.env.INK_PLAYWRIGHT_MODULE??'playwright-core';
+const {chromium}=await import(playwright.startsWith('/')?pathToFileURL(playwright).href:playwright);
 const [chrome,fixture='build/source-reverse-parity',output='build/source-reverse-browser.json',mode,artifact]=process.argv.slice(2);
 if(mode&&!(mode==='--initialized'&&artifact))throw Error('Expected --initialized ARTIFACT');
 if(!chrome)throw Error('Chrome executable required');
@@ -74,5 +77,11 @@ try{
   if(gpuCalls===0)throw Error('actual WebGPU dispatch required');
   return {status:'passed',comparisons,restores,gpuCalls,requiredErrors,results,...(restoreRejections?{restoreRejections}:{}),...(seed?{initializedChecks}:{}),scope:'complete values, outcomes, ordered events and exact portable snapshots; CPU-host computation, separate actual device computation'};
  },{fixture,artifact});
- assert.equal(receipt.status,'passed');await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));
+ assert.equal(receipt.status,'passed');
+ if(fixture==='build/source-reverse-parity'&&!artifact){
+  receipt.resident_training=await checkSourceTraining(page,
+   `http://127.0.0.1:${server.address().port}/build/resident-source-training/bundle/`,
+   'build/resident-source-training/validation');
+ }
+ await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

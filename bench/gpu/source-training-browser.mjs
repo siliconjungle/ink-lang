@@ -2,17 +2,11 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-const [base,root,output,chrome]=process.argv.slice(2);
-const spec=process.env.INK_PLAYWRIGHT_MODULE??'playwright-core';
-const {chromium}=await import(spec.startsWith('/')?pathToFileURL(spec).href:spec);
-const script=JSON.parse(await fs.readFile(path.join(root,'native-cpu-script.json'),'utf8'));
-const native=(await fs.readFile(path.join(root,'native-cpu-history.jsonl'),'utf8')).trim().split('\n').map(JSON.parse);
-if(script.length!==native.length)throw Error('incomplete native source control');
-const expected=Object.fromEntries(script.flatMap((op,i)=>op.read?[[op.label,native[i].values]]:[]));
-const browser=await chromium.launch({executablePath:chrome,headless:true,args:['--enable-unsafe-webgpu']});
-try {
- const page=await browser.newPage();
- await page.goto(base);
+export async function checkSourceTraining(page,base,root){
+ const script=JSON.parse(await fs.readFile(path.join(root,'native-cpu-script.json'),'utf8'));
+ const native=(await fs.readFile(path.join(root,'native-cpu-history.jsonl'),'utf8')).trim().split('\n').map(JSON.parse);
+ if(script.length!==native.length)throw Error('incomplete native source control');
+ const expected=Object.fromEntries(script.flatMap((op,i)=>op.read?[[op.label,native[i].values]]:[]));
  const result=await page.evaluate(async({base,script,expected})=>{
   const {loadInk}=await import(new URL('ink-gpu.mjs',base));
   let uploads=0,readbacks=0;
@@ -55,6 +49,18 @@ try {
   const adapter=await navigator.gpu.requestAdapter();
   return {host:'browser',adapter:adapter.info,userAgent:navigator.userAgent,histories,receipts,javascript_initial_gradient_exact:true};
  },{base,script,expected});
- await fs.writeFile(output,JSON.stringify(result,null,2)+'\n');
- console.log(JSON.stringify({host:result.host,complete_reads:Object.fromEntries(Object.entries(result.histories).map(([k,v])=>[k,Object.keys(v).length])),javascript_initial_gradient_exact:true}));
-}finally{await browser.close();}
+ return result;
+}
+
+if(process.argv[1]&&pathToFileURL(path.resolve(process.argv[1])).href===import.meta.url){
+ const [base,root,output,chrome]=process.argv.slice(2);
+ const spec=process.env.INK_PLAYWRIGHT_MODULE??'playwright-core';
+ const {chromium}=await import(spec.startsWith('/')?pathToFileURL(spec).href:spec);
+ const browser=await chromium.launch({executablePath:chrome,headless:true,args:['--enable-unsafe-webgpu',...(process.platform==='linux'?['--use-angle=swiftshader','--enable-unsafe-swiftshader']:[])]});
+ try{
+  const page=await browser.newPage();await page.goto(base);
+  const result=await checkSourceTraining(page,base,root);
+  await fs.writeFile(output,JSON.stringify(result,null,2)+'\n');
+  console.log(JSON.stringify({host:result.host,complete_reads:Object.fromEntries(Object.entries(result.histories).map(([k,v])=>[k,Object.keys(v).length])),javascript_initial_gradient_exact:true}));
+ }finally{await browser.close();}
+}
