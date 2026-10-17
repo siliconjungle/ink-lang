@@ -4,6 +4,8 @@ use verified_language::{check, syntax::parse};
 mod local_lists;
 #[path = "../lowerings/gpu/tests/function_types.rs"]
 mod function_types;
+#[path = "../lowerings/gpu/tests/entry_points.rs"]
+mod entry_points;
 #[test]
 fn packed_wasm_parallel_fallback_preserves_captures_indices_and_nesting() {
     if std::env::var_os("INK_TEST_WASM").is_none() { return; }
@@ -64,11 +66,8 @@ fn capability_rejection_preserves_compiled_cpu_and_staged_lowering() {
             .unwrap()
             .contains("cursor--")
     );
-    for name in ["lazy"] {
-        assert!(function(name)["graph"].is_null(), "{name}");
-        assert!(function(name)["shader"].is_null(), "{name}");
-        assert!(function(name)["fallback_reason"].is_string(), "{name}");
-    }
+    assert!(function("lazy")["graph"].is_object());
+    assert!(function("lazy")["fallback_reason"].is_null());
     for name in ["wide", "intermediate_wide", "count_constants"] {
         assert!(!function(name)["graph"].is_null(), "{name}");
         assert!(function(name)["fallback_reason"].is_null(), "{name}");

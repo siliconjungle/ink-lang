@@ -227,3 +227,65 @@ fn device(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>device_value(DevicePoint
     steps.push(json!({"pure":"device","args":args,"expect_gpu":true}));expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
     parity::conformance_checked("source-reverse-until-parity",&module,source,steps,expected);
 }
+
+#[test]
+fn internal_owned_helpers_preserve_full_host_state_and_literal_gpu_execution() {
+    let source=include_str!("../examples/device-private-helpers.ink");
+    let module=CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let mut runtime=Runtime::from_checked(&module).unwrap();
+    let mut steps=vec![];let mut expected=vec![];
+    let controls=[json!([]),json!([0.0,-0.0,1.0,-1.0]),json!([{ "F32Bits":2143289345u32 },-0.0]),json!([{"F32Bits":1u32},{"F32Bits":0x7f800000u32}])];
+    for inputs in controls {
+        for split in [0u32,3,8,u32::MAX] {
+            for empty in [false,true] {
+                for name in ["evaluated","readout"] {
+                    let args=json!([inputs,split,empty]);let result=pure(&module,name,args.clone());
+                    steps.push(json!({"pure":name,"args":args,"expect_gpu":true}));
+                    expected.push(json!({"reply":{"value":result},"snapshot":runtime.checkpoint_portable().unwrap()}));
+                }
+            }
+        }
+    }
+    for input in [json!(-0.0),json!(1.0),json!({"F32Bits":2143289345u32}),json!({"F32Bits":1u32})] {
+        for empty in [false,true] {
+            let args=json!([input,8,empty]);let value=pure(&module,"value",args.clone());
+            steps.push(json!({"pure":"value","args":args,"expect_gpu":true}));
+            expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+        }
+    }
+    for enabled in [false,true] {
+        let args=json!([[{"F32Bits":2143289345u32},-0.0],enabled]);let value=pure(&module,"lazy_total",args.clone());
+        steps.push(json!({"pure":"lazy_total","args":args,"expect_gpu":true}));
+        expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    for (input,maximum) in [(2.0,32),(-0.0,32),(-4.0,32),(2.0,1),(2.0,1000001)] {
+        let args=json!([input,maximum]);let value=pure(&module,"reverse_value",args.clone());
+        steps.push(json!({"pure":"reverse_value","args":args,"cpu_only":true}));
+        expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    let initial=runtime.checkpoint_portable().unwrap();
+    for args in [json!([[1.0,2.0],3,false]),json!([[],0,false]),json!([[10000.0],8,false]),json!([[3.0,4.0],u32::MAX,true])] {
+        let before=runtime.checkpoint_portable().unwrap();let outcome=runtime.invoke_json("observe",&args).unwrap();
+        if args[0].as_array().unwrap().is_empty()||args[0][0]==10000.0 {assert!(!outcome.committed);assert_eq!(runtime.checkpoint_portable().unwrap(),before);}else{assert!(outcome.committed);}
+        steps.push(json!({"call":"observe","args":args}));
+        expected.push(json!({"reply":{"outcome":outcome.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    }
+    steps.push(json!({"restore":initial}));runtime=Runtime::restore_portable_checked(&module,&initial).unwrap();
+    let outcome=runtime.invoke_json("current",&json!([])).unwrap();
+    steps.push(json!({"call":"current","args":[]}));expected.push(json!({"reply":{"outcome":outcome.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+    parity::conformance_checked("device-private-helpers",&module,source,steps,expected);
+    if std::env::var_os("INK_TEST_WGPU").is_some() && std::env::var_os("INK_TEST_WASM").is_some() {
+        let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        let fixture=root.join("build/device-private-helpers");
+        std::fs::write(fixture.join("storage-retention.json"),r#"{"schema":1,"keep":[{"path":".","reason":"Required complete entry/helper CPU and device proof and reproduction inputs"}],"safe_to_remove":[]}"#).unwrap();
+        let output=std::process::Command::new("python3").arg(root.join("tools/build_gpu_wasm.py"))
+            .arg(fixture.join("gpu-module")).arg("--target-dir").arg(fixture.join("browser-target"))
+            .env("CARGO_PROFILE_DEV_DEBUG","0").env("CARGO_INCREMENTAL","0").output().unwrap();
+        std::fs::write(fixture.join("browser-preparation.stdout"),&output.stdout).unwrap();
+        std::fs::write(fixture.join("browser-preparation.stderr"),&output.stderr).unwrap();
+        assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+        let mut manifest:Value=serde_json::from_slice(&std::fs::read(fixture.join("storage-retention.json")).unwrap()).unwrap();
+        manifest["safe_to_remove"]=json!([{"path":"browser-target","reason":"Completed generated browser ABI validation build; exact source, Wasm images and complete proof retained"}]);
+        std::fs::write(fixture.join("storage-retention.json"),serde_json::to_vec_pretty(&manifest).unwrap()).unwrap();
+    }
+}

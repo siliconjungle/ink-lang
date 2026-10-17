@@ -22,7 +22,7 @@ try{
  browser=await chromium.launch({executablePath:chrome,headless:true,args:['--enable-unsafe-webgpu',...(process.platform==='linux'?['--use-angle=swiftshader','--enable-unsafe-swiftshader']:[])]});
  const page=await browser.newPage();page.on('pageerror',e=>console.error(e));
  await page.goto(`http://127.0.0.1:${server.address().port}/${fixture}/script.json`);
- const receipt=await page.evaluate(async ({fixture,artifact})=>{
+ const replay=(fixture,artifact)=>page.evaluate(async ({fixture,artifact})=>{
   const base=new URL('/',location.href),folder=new URL(fixture+'/',base),bundle=artifact?new URL(artifact+'/program/',base):new URL('gpu-module/',folder);
   const {parseExactJSON}=await import(new URL('state-wasm.mjs',folder));
   const read=async name=>parseExactJSON(await(await fetch(new URL(name,folder))).text());
@@ -77,11 +77,13 @@ try{
   if(gpuCalls===0)throw Error('actual WebGPU dispatch required');
   return {status:'passed',comparisons,restores,gpuCalls,requiredErrors,results,...(restoreRejections?{restoreRejections}:{}),...(seed?{initializedChecks}:{}),scope:'complete values, outcomes, ordered events and exact portable snapshots; CPU-host computation, separate actual device computation'};
  },{fixture,artifact});
+ const receipt=await replay(fixture,artifact);
  assert.equal(receipt.status,'passed');
  if(fixture==='build/source-reverse-parity'&&!artifact){
   receipt.resident_training=await checkSourceTraining(page,
    `http://127.0.0.1:${server.address().port}/build/resident-source-training/bundle/`,
    'build/resident-source-training/validation');
+  receipt.private_helpers=await replay('build/device-private-helpers');
  }
  await fs.writeFile(output,JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
