@@ -2998,6 +2998,78 @@
       ],
       "review_status": "file-read; family assessment open",
       "note": "Full legacy 32-bit lowering read. Postorder traversal prepares Phi placeholders before cycles; calls/tail calls/returns/projections and special parameter slots adapt complete descriptors. Pair arithmetic, signed-high/unsigned-low comparisons, zero/sign extension, raw Float64 word insertion/extraction, byte reversal and SIMD lane operations remain machine-specific. Clz/ctz/popcount confirm the same three half-count identities already checked in the new knowledge bank, not extra theorems. Rotate counts explicitly distinguish 0/32 and masked dynamic halves; no naive shift-by-32 transfer. Endian-sensitive ordinary split memory accesses retain effect/control chains, while atomic accesses use pair atomics with memory order; neither raw memory splitting nor low-word-only address rewriting is an Ink source equality. Global pair lowering stays delegated; private source record/loop alternatives would need ordinary codec/step proofs and whole-caller measurements, not necessarily a new arithmetic primitive."
+    },
+    {
+      "path": "src/maglev/maglev-kna-processor.cc",
+      "sha256": "8ee535a8aa8510975f54f1b4fccf28900e5ea3fe588bebe70a6c81da3ce9bd9c",
+      "inclusive_lines": [
+        [
+          1,
+          150
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full implementation read. Re-established maps/types and safe conversion alternatives handle contradictions by explicit deoptimization or unreachable abort; unsafe oddball conversions become numeric alternatives only with strictly Number facts. Ink fixed numeric types and proof-backed equalities do not import speculative types or deoptimization as premises."
+    },
+    {
+      "path": "src/maglev/maglev-kna-processor.h",
+      "sha256": "c4f56fb83777d23c34649b040d4caf0bbd466f0351e60c27b7e7a1580bac7481",
+      "inclusive_lines": [
+        [
+          1,
+          578
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full processor read. Forward facts are rebuilt, loop headers merge saved backedge effects, resumable loops reset, exception handlers clear available expressions and tagged properties, and throw paths temporarily drop context constants that may be initialized by resumed generators. Stores invalidate possibly aliased property keys; dynamic array-buffer lengths are not immutable. Ink numeric-list sharing stays inside one pure lexical/lazy region with no mutable owners, String identity or dynamic JS array assumptions. No cross-state load reuse or type-based rewrite authority added."
+    },
+    {
+      "path": "src/maglev/maglev-post-hoc-optimizations-processors.h",
+      "sha256": "0ac6f188012a35fcfbf54ef466fce346f5dd4120fe819a9f379cc35bf8f92483",
+      "inclusive_lines": [
+        [
+          1,
+          999
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full processor collection read. Phi demand is rebuilt after inlining, including complete registered deopt-frame uses; LICM respects loop-entry availability, alias/write effects, zero-trip behavior and check ordering. Allocation escape closure precedes store-use dropping and physical sweeping. CSE admits fixed-input eligible nodes without epoch dependence, comparing complete options and canonicalized inputs. Block-local bounds coalescing checks the maximum constant index first and retains newly introduced larger checks; this deoptimization ordering is not an Ink fallible-index equality. Numeric immutable-list sharing now uses whole-source Normalize proofs and lexical/lazy regions; no speculative maps, identity, mutable owners or machine-allocation authority transferred."
+    },
+    {
+      "path": "src/maglev/maglev-cse.h",
+      "sha256": "7395fa8e6a27142dc81b8e2d6e8ecc20fa13e79a51db94633d22f63666c2edb6",
+      "inclusive_lines": [
+        [
+          1,
+          127
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full common hash/canonicalization helpers read. Opcode, complete options, vector contents and canonicalized input identities participate in hashing; commutative operand reordering uses explicit eligible node classifications. Ink exact numeric-list proposals compare complete typed syntax and independently replay whole-source equalities; neither a hash nor machine commutativity can establish source evaluation-order or floating/raw-bit facts. Checked algebraic normalization before sharing remains separately composable database knowledge."
+    },
+    {
+      "path": "src/compiler/turboshaft/csa-late-escape-analysis-phase.cc",
+      "sha256": "3371f88d51f706f0737870dcec031d1001883c7c8746426090d1dc2c482e9af8",
+      "inclusive_lines": [
+        [
+          1,
+          20
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full phase read: copying composes late escape elimination, machine optimization and value numbering in that order. Removing allocation scaffolding can expose further reductions; existing Ink literal targets delegate machine/GC effects to host toolchains. No raw memory or allocation rewrite authority follows from phase composition."
+    },
+    {
+      "path": "src/compiler/turboshaft/csa-late-escape-analysis-phase.h",
+      "sha256": "84fe0ed51787d7128185501c1af752708e9fc5babb6fa07bee152ced9337cd17",
+      "inclusive_lines": [
+        [
+          1,
+          20
+        ]
+      ],
+      "review_status": "file-read; family assessment open",
+      "note": "Full phase declaration read for the reviewed CSA late-escape copying pipeline. A pass declaration is infrastructure, not an additional optimization or measured Ink speedup."
     }
   ],
   "families": [
@@ -3077,7 +3149,7 @@
       "name": "maglev",
       "status": "partial",
       "entry_point": "src/maglev/maglev-graph-builder.cc",
-      "note": "Optimizer header and full 4050-line implementation read. Scoped facts, representation/check strength, disabled unsafe Smi bypass, NaN/negative-zero distinctions, call specialization/inlining scores and deferred Phi/identity repair assessed. Reducer helpers, graph builder, known-node aspects, representation/inlining passes and generic Ink applicability remain open. Known-node-aspects header and implementation read in full; broader graph builder/reducer and applicability assessment remain open. Full node-type lattice/classifier now reviewed; default bottom-subtype allowances and complement-only leaf classes cannot establish Ink dead-path, carrier or raw-bit facts. Full reusable reducer header now reviewed: optional failure and abort, readonly call argument views, before/after deopt frames and intermediate-throw reachability matter. Inline reducer implementation remains unread."
+      "note": "Optimizer header and full 4050-line implementation read. Scoped facts, representation/check strength, disabled unsafe Smi bypass, NaN/negative-zero distinctions, call specialization/inlining scores and deferred Phi/identity repair assessed. Reducer helpers, graph builder, known-node aspects, representation/inlining passes and generic Ink applicability remain open. Known-node-aspects header and implementation read in full; broader graph builder/reducer and applicability assessment remain open. Full node-type lattice/classifier now reviewed; default bottom-subtype allowances and complement-only leaf classes cannot establish Ink dead-path, carrier or raw-bit facts. Full reusable reducer header now reviewed: optional failure and abort, readonly call argument views, before/after deopt frames and intermediate-throw reachability matter. Inline reducer implementation remains unread. Full known-node-aspects recomputation processor now read, including loop/exception resets, safe/unsafe conversion distinctions and alias invalidation. Numeric immutable-list source sharing uses ordinary checked lexical equations; mutable JS loads, maps and speculative facts remain separate. Full post-hoc processor collection now read: complete phi/deopt demand, guarded LICM, escape dependency closure, effect-independent CSE and block-local bounds coalescing. Earlier maximum checks rely on deoptimization; Ink fallible access defaults require independent complete-source proofs."
     },
     {
       "name": "pipeline-infrastructure",

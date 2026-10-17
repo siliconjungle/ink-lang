@@ -14,7 +14,7 @@ shows checked and unchecked files. Regenerate it with `python3 tools/v8_audit_st
 --output bench/v8-learning/coverage.md`; this verifies every cached source hash and
 recorded line range. The audit ledger records partial reads and outstanding families;
 this is an ongoing audit, not a claim that every V8 optimization has been adopted.
-Current receipts cover 196 full files and one partial file, with 412 unread;
+Current receipts cover 254 full files and one partial file, with 354 unread;
 all 22 optimizer-family assessments remain partial.
 
 Reproduce the source inputs without a complete V8 checkout:
@@ -672,3 +672,49 @@ the measured cohort byte for byte. The distinct merged frozen corpus compiles
 all 10 programs, observes 24 old laws/six reused and selects none, with final stable
 context and median 53.851 s excluding private preparation. Historical timings keep
 their original compiler/package context.
+
+
+## Immutable numeric-list sharing
+
+The generic database sharing producer now accepts repeated immutable numeric
+lists, including nested lists, alongside scalars. It introduces ordinary lexical
+bindings and requires complete source-bound Normalize proofs. Callback binders,
+choice arms and lazy Boolean regions retain separate scopes. Owners, unknown
+named values, strings and unsupported binary64 proof terms are excluded. This
+extends the V8-inspired exact-expression sharing route without adding a compiler
+matcher, primitive or selection exception.
+
+The required CPU suite now checks 354 complete reference/native/JavaScript/Wasm
+outcomes and exact snapshots, including live captures, nested/empty lists, lazy
+branches and raw binary32 values. Independent wrong-result proof and unsupported
+owner/type controls remain mandatory. The [retained study](../bench/v8-learning/list-sharing/README.md)
+measures three explicit checked callers with full compact-call outputs. On held-out
+length 4,096, the two-fold caller improves about 7.5%, complete duplicated-list
+output about 1.4%, and the mixed conditional caller about 3.0%. Small/empty cases
+are mostly flat with some regressions. These shared-host measurements do not
+establish automatic profitability, other-target gains or general Ink speed.
+
+Modular proof authoring also skips unchanged syntax, keeps alpha-equivalent
+nonrecursive helper equations compact, reuses immutable signature dependencies
+and avoids factoring reflexive conversions. Every resulting theorem still replays
+in the ordinary checker. This reduces redundant authoring work; the full 232-node
+network remains unadmitted. Larger diagnostic work/depth bounds expose further
+normalization limits, so a bound increase alone has not established a usable plan.
+Limits remain design choices that may change with justified resource accounting.
+
+The complete Maglev known-node-aspects recomputation and post-hoc processors are
+now read, including exception/loop resets, complete deopt-frame demand, guarded
+LICM, escape closure, effect-independent CSE and block-local bounds coalescing.
+Speculative maps, mutable loads, identity and earlier deoptimization checks supply
+no Ink equality authority. All 22 optimizer families remain partial.
+
+
+The new final frozen cohort compiles all ten programs, admits alternatives for
+nine, observes 24 old laws with six reused, and selects none. No new attribution
+appears against the preceding count-lane cohort. All quick budgets expire; nine
+last gates require measurement evidence and one has no alternative. No near-miss
+reason is recorded. The 49.4895-second median excludes private preparation and is
+not a paired causal comparison. The exact final source context remains stable.
+All 47 focused knowledge regressions pass. The expanded CPU history also checks
+full-width U64, signed overflow and Boolean lists; an owned-result mutation control
+retains independent nested containers and inputs.

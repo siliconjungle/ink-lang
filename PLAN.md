@@ -559,3 +559,16 @@ the unchanged fold-composition work budget, so full-network specialization is
 not delivered. Next work must close that proof/composition path, then connect
 working learned implementation/goal choices and device training. No new speed
 claim is made by this milestone.
+
+
+V8-inspired exact expression sharing now also covers immutable numeric lists and
+nested lists through ordinary source-bound database proofs. The required CPU
+suite checks 354 complete reference/Rust/JavaScript/Wasm outcomes and exact
+snapshots. A retained complete-call JavaScript study shows a modest held-out
+7.5% gain for a 4,096-element map reused by two different folds; complete list
+output is mostly flat and small controls include regressions. Automatic selection
+still requires its existing evidence gates. Compact alpha-equivalent helper
+proofs and syntactic signature reuse reduce redundant proof-authoring work.
+The real full-network plan still fails construction, including with larger
+exploratory bounds; completing modular graph proofs, useful learned choices,
+device training and the full functionality programme remain required.
