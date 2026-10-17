@@ -593,3 +593,19 @@ record coordinates. See [source AD](docs/differentiable-computation.md#binary64-
 and [reverse learning](docs/source-reverse-differentiation.md#binary64-source-learning).
 F64 proofs/library generalization, broader source/contract support, device
 training and the complete programme remain required. No speed claim follows.
+
+## Resident source-gradient training
+
+A 244-parameter 10->[6,6]->4 source learner now keeps coordinate-forward gradients,
+ordered batch accumulation, Adam records and feedback on the GPU. Generic bounded
+private lists and literal lazy list graph stages enable ordinary authored source;
+no network/optimizer matcher or selection exception is added. Native/browser GPU
+histories each make 44 actual dispatches, match ten complete CPU reads, and perform
+no transfers during step calls. Browser Wasm and the initial JavaScript gradient
+also match; independent reverse calculation checks every initial coordinate.
+Validation includes empty/shorter/malformed batches, invalid configuration,
+nonfinite gradients/state, exhausted counters and restart. See
+[the consumer and remaining scope](docs/resident-source-training.md).
+Existing prepared-graph/reverse-tape learning remains on CPU. Device reverse tapes,
+binary64 arithmetic, wider graph/control/contract domains, useful learned choices
+and full programme acceptance remain required; this milestone makes no speed claim.

@@ -288,9 +288,11 @@ Outstanding groups include:
    learned context to actual eligible representation/algorithm/placement variants,
    checked migration/fallback and programmable objective changes. Existing source
    advice and frozen examples are foundations, not general autonomous selection.
-3. **Learning execution:** broader AD source/control-flow/contract domains, batched
-   GPU-resident gradients/optimizer/training, and explicit concurrency semantics.
-   A pure GPU dispatch beside CPU learning does not demonstrate device training.
+3. **Learning execution:** broader AD source/control-flow/contract domains, device
+   reverse tapes and wider trainable shapes, and explicit concurrency semantics.
+   The bounded F32 coordinate-forward/Adam example now performs actual batched
+   resident device training; existing prepared-graph/reverse-tape learners retain
+   CPU execution. A separate dispatch beside CPU learning is still not device training.
 4. **Freerange transfer:** reusable forward numeric/branch facts, backward missing
    requirements, source-bound interprocedural summaries/diagnostics, checked
    narrowing and whole-region fallback, and compact/packed consumers.
@@ -358,3 +360,27 @@ control flow, precision policies and hygiene. The existing required
 its native GPU host uses CPU tape training and a separate actual F32 dispatch.
 This does not supply F64 GPU arithmetic, device training, a binary64 proof domain
 or F64 neural/Adam library interfaces. The broader programme remains open.
+
+## Resident F32 source-gradient training
+
+`examples/resident-source-training.ink` supplies an ordinary authored 244-parameter
+10->[6,6]->4 ReGLU learner with coordinate-wise source forward gradients, ordered
+batch accumulation and complete Adam state. Shape, gradient, update and loss
+functions compose in a resident feedback plan. Generic bounded private list arrays
+and lazy list graph stages close its former GPU lowering gaps. No model matcher,
+new source primitive, knowledge law or automatic placement exception is involved.
+
+Native wgpu and browser WebGPU each execute 44 actual dispatches through ten
+complete reads, matching native CPU and browser Wasm CPU states/gradients/losses.
+Every step avoids uploads/readbacks; browser instrumentation checks actual buffer
+operations. Empty/shrinking batches, rejected updates, nonfinite values, step
+exhaustion, invalid shape and restart retain exact source behavior. JavaScript's
+initial gradient matches, and independent reverse differentiation checks all 244
+coordinates numerically. The existing required `source_reverse` suite covers the
+active shaders and runs the complete native proof under `INK_TEST_WGPU=1`.
+
+This is an independently authored consumer of the same architecture as the
+prepared-network milestone, without a checked replacement of that prepared graph.
+Reverse tapes, F64 device work, broader graph/contract domains, automatic profitable
+placement and the full programme remain open. No speed claim follows. See
+[scope and reproduction](docs/resident-source-training.md).

@@ -339,3 +339,13 @@ or literal scalar operations. Check input visibility/types before reduction and
 the computed equation afterward. Keep recursive constructor gates, capture
 avoidance, copied-term accounting and ordinary proof work/depth bounds. The
 producer supplies no destination, oracle result, axiom or source-specific rule.
+
+GPU-local immutable list constructors evaluate elements once in order and retain
+private arrays through helpers/captures. Account for WGSL vector/record alignment
+in the cumulative local storage bound, separately from packed ABI lanes. Lazy list
+graph stages retain branch control and input-derived capacity bounds; actual length
+stays resident. Graph wrapping must preserve direct traversal work limits. Keep
+device-training evidence distinct from host tape execution and from performance:
+the authored coordinate-forward/Adam consumer performs actual resident iterations,
+while the prepared graph and reverse tapes retain their existing CPU path. See
+docs/resident-source-training.md.
