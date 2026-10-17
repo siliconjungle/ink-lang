@@ -412,3 +412,29 @@ stateful consumer with rollback/events/snapshots and separate CPU reverse-AD
 controls. This is literal machinery, without a model matcher or speed claim.
 Device reverse tapes and the prepared graph remain open. See
 [scope and reproduction](docs/device-private-helpers.md).
+
+
+## Private record buffers and bounded list results
+
+The GPU literal emitter now carries complete nested owner bounds through records,
+helpers, branches and all supported ordered loops. Flat record/vector buffer
+elements use exact WGSL private layout, with cumulative 4,096-word array and
+64-element buffer bounds unchanged. Private F32/U64 scans use ordered exact
+arithmetic. Fixed local list results and lazy mixtures with input-sized lists
+have explicit capacity bounds, separate from resident logical lengths; both GPU
+hosts consume the same bounded manifest contract. The required complete helper
+history includes the fixed four-node tape-storage consumer in
+`examples/device-record-tape.ink`, with every node/adjoint observed.
+
+This removes private record storage and fixed-list transport barriers. It does
+not put the source reverse transform or original prepared graph on the GPU.
+General growing tapes, sums/strings and private list interfaces, wider AD domains,
+learned physical choices and the broader functional backlog remain open. See the
+[storage contract](docs/device-private-helpers.md#private-record-buffers-and-fixed-list-observations).
+
+
+The deployed guide was fetched successfully after Pages run `38992808637`.
+Its `specialize-prepared-computation-structure` section contains the expected
+root documentation link pinned to `9bb7627584f64641c62f9cc885e6f55518ef061a`.
+This closes that deployment observation; the pinned section retains its historical
+capability scope.
