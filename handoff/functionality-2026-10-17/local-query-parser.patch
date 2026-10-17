@@ -1,0 +1,77 @@
+diff --git a/core/src/syntax/query.rs b/core/src/syntax/query.rs
+index e6f4559a..9b673e4e 100644
+--- a/core/src/syntax/query.rs
++++ b/core/src/syntax/query.rs
+@@ -68,12 +68,18 @@ impl Parser {
+             binder: first,
+             source: var(&source_name),
+         });
++        let mut clause_work = 1;
+         let projection = loop {
+-            if clauses.len() > 16 {
++            if clause_work > 16 {
+                 return Err(self.err("query clause limit exceeded (16)"));
+             }
+-            if self.eat("from") || self.peek() == "join" {
+-                let join = self.eat("join");
++            if matches!(self.peek(), "from" | "join" | "semi" | "anti") {
++                let kind = self.take();
++                let join = kind != "from";
++                let witness = kind == "semi" || kind == "anti";
++                if witness {
++                    self.expect("join")?;
++                }
+                 let binder = self.name()?;
+                 if !binders.insert(binder.clone()) {
+                     return Err(self.err("duplicate query row binder"));
+@@ -85,14 +91,39 @@ impl Parser {
+                     inputs.push((name.clone(), source));
+                     source = var(&name);
+                 }
+-                clauses.push(Clause::From { binder, source });
+                 if join {
+                     self.expect("on")?;
+-                    clauses.push(Clause::Where(self.expr(0)?));
++                    let predicate = self.expr(0)?;
++                    if witness {
++                        let initial = self.fresh_name();
++                        let matched = self.query_fold(
++                            &[Clause::From { binder, source }],
++                            &predicate,
++                            &initial,
++                            false,
++                        )?;
++                        let matched = Expr::Let(
++                            initial,
++                            Some(Box::new(Type::Bool)),
++                            Box::new(Expr::Bool(false)),
++                            Box::new(matched),
++                        );
++                        clauses.push(Clause::Where(if kind == "anti" {
++                            Expr::Call("choose".into(), vec![matched, Expr::Bool(false), Expr::Bool(true)])
++                        } else { matched }));
++                    } else {
++                        clauses.push(Clause::From { binder, source });
++                        clauses.push(Clause::Where(predicate));
++                    }
++                    clause_work += 2;
++                } else {
++                    clauses.push(Clause::From { binder, source });
++                    clause_work += 1;
+                 }
+                 self.eat(";");
+             } else if self.eat("where") {
+                 clauses.push(Clause::Where(self.expr(0)?));
++                clause_work += 1;
+                 self.eat(";");
+             } else if self.eat("select") {
+                 let value = self.expr(0)?;
+@@ -102,7 +133,7 @@ impl Parser {
+             } else if element.is_none() && self.eat("}") {
+                 break Expr::Bool(true);
+             } else {
+-                return Err(self.err("expected from, join, where or select in query"));
++                return Err(self.err("expected from, join, semi join, anti join, where or select in query"));
+             }
+         };
+         // A single generator is the ordinary map of its ordered filters. Keep
