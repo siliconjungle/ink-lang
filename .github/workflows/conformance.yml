@@ -1096,13 +1096,18 @@ jobs:
     - name: Complex prepared geometry state recovery and device fallback
       run: cargo test --test generic_libraries prepared_complex_text::complex_prepared_state -- --nocapture --test-threads=1
     - name: Actual wgpu dispatch and resident feedback
-      run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test mixed_durability --test bend_features -- --nocapture --test-threads=1
+      run: cargo test --test lowering_parity --test generated_parity --test modules --test selected_checkpoint --test action_optimisation --test action_transitions --test numerical_state --test owned_parameter_helpers --test mixed_durability --test bend_features -- --nocapture --test-threads=1
     - name: Retain GPU failure reproductions
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: wgpu-native-conformance
         path: |
+          build/owned-parameter-helper-parity/source.ink
+          build/owned-parameter-helper-parity/script.json
+          build/owned-parameter-helper-parity/expected.json
+          build/owned-parameter-helper-parity/gpu-receipts.json
+          build/owned-parameter-helper-parity/gpu-final.snapshot
           build/prepared-complex-lifecycle/*.json
           build/prepared-complex-lifecycle/source.ink
           build/browser-lowering-parity.json
