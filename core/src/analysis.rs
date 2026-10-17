@@ -42,6 +42,117 @@ pub fn node_count(e: &Expr, limit: usize) -> Option<usize> {
     Some(count)
 }
 
+/// Executable names needed by one function after source elaboration. This is
+/// dependency analysis, not an equality, effect summary or admission witness.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct FunctionDependencies {
+    pub functions: BTreeSet<String>,
+    pub named_types: BTreeSet<String>,
+}
+
+/// Follow direct calls, signatures, local annotations, constructors and enum
+/// constants. Lexical bindings distinguish enum constants from record fields.
+/// No declarations or contracts are erased, and no source body is evaluated.
+/// Work exhaustion returns an error rather than a partial dependency set.
+pub fn function_dependencies(p: &Program, root: &str, limit: usize) -> LangResult<FunctionDependencies> {
+    fn spend(remaining: &mut usize) -> LangResult<()> {
+        *remaining = remaining.checked_sub(1).ok_or("function dependency work budget exceeded")?;
+        Ok(())
+    }
+    enum ScopeTask<'a> { Expression(&'a Expr), Bind(&'a str), Unbind(&'a str) }
+    enum TypeTask<'a> { Type(&'a Type), Name(&'a str) }
+    let mut remaining = limit;
+    let mut index = BTreeMap::new();
+    for f in &p.functions {
+        spend(&mut remaining)?;
+        if index.insert(f.name.as_str(), f).is_some() {
+            return Err("duplicate function in dependency analysis".into());
+        }
+    }
+    let mut ids = BTreeSet::new();
+    for id in &p.ids { spend(&mut remaining)?; ids.insert(id.as_str()); }
+    let first = *index.get(root).ok_or("unknown function dependency root")?;
+    let mut pending = vec![first];
+    let mut scheduled = BTreeSet::from([first.name.as_str()]);
+    let mut types = Vec::new();
+    let mut result = FunctionDependencies::default();
+    while let Some(f) = pending.pop() {
+        spend(&mut remaining)?;
+        result.functions.insert(f.name.clone());
+        let mut scope = BTreeMap::<&str, usize>::new();
+        for (name, t) in &f.params {
+            spend(&mut remaining)?;
+            *scope.entry(name).or_default() += 1;
+            types.push(TypeTask::Type(t));
+        }
+        types.push(TypeTask::Type(&f.result));
+        let mut tasks = vec![ScopeTask::Expression(&f.body)];
+        while let Some(task) = tasks.pop() {
+            spend(&mut remaining)?;
+            match task {
+                ScopeTask::Bind(name) => { *scope.entry(name).or_default() += 1; }
+                ScopeTask::Unbind(name) => {
+                    let count = scope.get_mut(name).ok_or("function dependency scope imbalance")?;
+                    *count -= 1;
+                    if *count == 0 { scope.remove(name); }
+                }
+                ScopeTask::Expression(e) => {
+                    match e {
+                        Expr::Let(name, annotation, initial, body) => {
+                            if let Some(t) = annotation { types.push(TypeTask::Type(t)); }
+                            tasks.extend([ScopeTask::Unbind(name), ScopeTask::Expression(body),
+                                          ScopeTask::Bind(name), ScopeTask::Expression(initial)]);
+                            continue;
+                        }
+                        Expr::Lambda(name, body) => {
+                            tasks.extend([ScopeTask::Unbind(name), ScopeTask::Expression(body), ScopeTask::Bind(name)]);
+                            continue;
+                        }
+                        Expr::Call(name, _) => {
+                            if let Some(callee) = index.get(name.as_str()) {
+                                if scheduled.insert(callee.name.as_str()) { pending.push(*callee); }
+                            }
+                        }
+                        Expr::Record(name, _) => types.push(TypeTask::Name(name)),
+                        Expr::Field(base, _) => {
+                            if let Expr::Var(name) = base.as_ref() {
+                                if !scope.contains_key(name.as_str()) && p.enums.contains_key(name) {
+                                    types.push(TypeTask::Name(name));
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                    tasks.extend(children(e).into_iter().rev().map(ScopeTask::Expression));
+                }
+            }
+        }
+    }
+    while let Some(task) = types.pop() {
+        spend(&mut remaining)?;
+        match task {
+            TypeTask::Type(t) => match t {
+                Type::Named(name) => types.push(TypeTask::Name(name)),
+                Type::List(t) | Type::Buffer(t) | Type::Option(t) | Type::Vector(t, _) => types.push(TypeTask::Type(t)),
+                Type::Map(a, b) | Type::Result(a, b) | Type::Table(a, b) => {
+                    types.extend([TypeTask::Type(a), TypeTask::Type(b)]);
+                }
+                Type::Unknown => return Err("unresolved type in function dependency analysis".into()),
+                _ => {}
+            },
+            TypeTask::Name(name) => {
+                if !result.named_types.insert(name.to_owned()) { continue; }
+                if let Some(fields) = p.records.get(name) {
+                    types.extend(fields.iter().map(|(_, t)| TypeTask::Type(t)));
+                } else if !p.enums.contains_key(name) && !ids.contains(name) {
+                    return Err(format!("unknown named type in function dependencies: {name}"));
+                }
+            }
+        }
+    }
+    Ok(result)
+}
+
 pub fn free_variables(e: &Expr) -> BTreeSet<String> {
     let mut out = BTreeSet::new();
     let mut pending = vec![(e, BTreeSet::new())];
