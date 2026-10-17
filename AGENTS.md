@@ -279,6 +279,10 @@ Direct gated conversion may allocate 16,384 work steps within the shared
 32,768-step structural attempt to substitute and align a valid larger body.
 Keep the whole-attempt and ordinary proof work/depth bounds; a larger direct
 candidate still requires exact checked conversion. See docs/structural-conversion.md.
+Capture-avoiding mathematical substitution may share one borrowed name analysis
+across its lexical walk. Keep every inserted term's copy work, simultaneous
+insertion and shadowing semantics; reserve fresh names against all source and
+replacement names. No cached term identity or verdict grants equality authority.
 
 Complete source-bearing plans use planning::canonical/identity, preserving
 valid frozen JSON floats and legacy integer packet bytes. Knowledge object
