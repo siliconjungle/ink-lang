@@ -49,3 +49,9 @@ Wasm bytes and generated CPU/device inputs remain exact; the Wasm loader path is
 redirected to the retained image. `artifacts.json` binds each uncompressed input,
 and `provenance.json` records the independent package pins. Completed validation
 targets are declared separately for retirement.
+
+The integration also repairs an existing CI harness failure: broadphase's valid
+checked plan exceeds Serde's default nesting budget. The test now uses the same
+bounded `planning::from_bytes` entry as normal plan loading, followed by ordinary
+proof checking. Production limits are unchanged. The exact public core/plan and
+successful complete execution receipt are retained in `raw/broadphase-*`.
