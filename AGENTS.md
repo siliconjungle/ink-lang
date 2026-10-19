@@ -9,6 +9,13 @@ laws, work skipping, range specialisations, maintained representations and layou
 alternatives belong in the independently pinned `ink-knowledge` database.
 No target matcher, theorem whitelist or hash may grant rewrite authority.
 
+Stateful JavaScript may execute eligible pure helpers with native F32 carriers
+through typed private bridges. State/actions, keeps, events, equality and portable
+snapshots retain exact bits; preserve eager captured ingress and normalize only
+where its ABI requires it. Unsupported owned/recursive float bridges retain the
+bit lane. This literal machinery grants no arithmetic rewrite or profitable
+selection authority. See docs/stateful-native-f32.md and its exact-history tests.
+
 Fixed keep retention is implementation machinery: checked effects derive root
 dependencies, concrete mutations invalidate them, and failed actions restore cache
 before-images. JavaScript host rollback restores its prior private cache image;
