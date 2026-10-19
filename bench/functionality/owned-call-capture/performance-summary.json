@@ -1,0 +1,844 @@
+{
+  "scope": "Private Nocturne forecast, same generated program/Wasm/shaders, warm complete owned results. Profiles force JS for measurement only; no deployment profile is installed. Prepared lifetimes have separate fixed captures and setup.",
+  "measurements": {
+    "node22": {
+      "runs": 3,
+      "samples_per_mode": 17,
+      "environment": "Node.js/22",
+      "rows": [
+        {
+          "n": 100,
+          "modes": {
+            "direct": {
+              "median_us": 13.719562500000393,
+              "fresh_process_medians_us": [
+                13.779296874998792,
+                13.719562500000393,
+                13.416015624999389
+              ]
+            },
+            "baseline-javascript": {
+              "median_us": 14.244300781250274,
+              "fresh_process_medians_us": [
+                14.358234374999057,
+                14.244300781250274,
+                13.69547656249992
+              ]
+            },
+            "baseline-cpu": {
+              "median_us": 88.6879882812508,
+              "fresh_process_medians_us": [
+                89.63590624999895,
+                87.4197617187491,
+                88.6879882812508
+              ]
+            },
+            "baseline-auto": {
+              "median_us": 97.80648046874774,
+              "fresh_process_medians_us": [
+                100.24495703124981,
+                96.55240625000161,
+                97.80648046874774
+              ]
+            },
+            "candidate-javascript": {
+              "median_us": 14.143882812499342,
+              "fresh_process_medians_us": [
+                14.275878906250483,
+                14.143882812499342,
+                13.803710937500213
+              ]
+            },
+            "candidate-cpu": {
+              "median_us": 87.422527343751,
+              "fresh_process_medians_us": [
+                89.22509765625009,
+                87.422527343751,
+                86.88883203124931
+              ]
+            },
+            "candidate-auto": {
+              "median_us": 88.80826953125087,
+              "fresh_process_medians_us": [
+                91.27766796875036,
+                88.58235546875193,
+                88.80826953125087
+              ]
+            },
+            "baseline-profiled-js": {
+              "median_us": 223.8793945312505,
+              "fresh_process_medians_us": [
+                232.84749609375055,
+                223.54655078125063,
+                223.8793945312505
+              ]
+            },
+            "candidate-profiled-js": {
+              "median_us": 65.04541015624987,
+              "fresh_process_medians_us": [
+                67.05696874999933,
+                65.04541015624987,
+                64.09391406250009
+              ]
+            },
+            "candidate-prepared-js": {
+              "median_us": 16.934734375000815,
+              "fresh_process_medians_us": [
+                17.195148437499697,
+                16.934734375000815,
+                16.846843750000673
+              ]
+            },
+            "candidate-prepared-cpu": {
+              "median_us": 7.26139062500053,
+              "fresh_process_medians_us": [
+                7.462890625000718,
+                7.26139062500053,
+                6.939941406249872
+              ]
+            },
+            "candidate-prepared-auto": {
+              "median_us": 19.633789062499574,
+              "fresh_process_medians_us": [
+                19.908367187500886,
+                19.633789062499574,
+                19.430015624999797
+              ]
+            }
+          },
+          "profiled_js_speedup": 3.441893809162784,
+          "unprofiled_auto_speedup": 1.10132176862573
+        },
+        {
+          "n": 1024,
+          "modes": {
+            "direct": {
+              "median_us": 135.48306249998632,
+              "fresh_process_medians_us": [
+                135.15690625000332,
+                138.80859374998522,
+                135.48306249998632
+              ]
+            },
+            "baseline-javascript": {
+              "median_us": 135.60807812501707,
+              "fresh_process_medians_us": [
+                135.22135937498092,
+                138.44467187499276,
+                135.60807812501707
+              ]
+            },
+            "baseline-cpu": {
+              "median_us": 846.8313749999936,
+              "fresh_process_medians_us": [
+                846.8313749999936,
+                844.8287812499871,
+                847.608734375001
+              ]
+            },
+            "baseline-auto": {
+              "median_us": 862.1738281249804,
+              "fresh_process_medians_us": [
+                862.1464843749891,
+                862.1738281249804,
+                871.7031249999962
+              ]
+            },
+            "candidate-javascript": {
+              "median_us": 137.6764374999766,
+              "fresh_process_medians_us": [
+                137.6764374999766,
+                141.08528124998543,
+                136.62240625001232
+              ]
+            },
+            "candidate-cpu": {
+              "median_us": 847.2773437499939,
+              "fresh_process_medians_us": [
+                847.044921874982,
+                847.2773437499939,
+                857.9563749999863
+              ]
+            },
+            "candidate-auto": {
+              "median_us": 849.6197812499986,
+              "fresh_process_medians_us": [
+                849.6197812499986,
+                845.6347656249932,
+                859.8561249999932
+              ]
+            },
+            "baseline-profiled-js": {
+              "median_us": 2155.065109375002,
+              "fresh_process_medians_us": [
+                2155.065109375002,
+                2155.552078124998,
+                2133.1660156250223
+              ]
+            },
+            "candidate-profiled-js": {
+              "median_us": 560.3515624999886,
+              "fresh_process_medians_us": [
+                558.552093749995,
+                567.4765625000049,
+                560.3515624999886
+              ]
+            },
+            "candidate-prepared-js": {
+              "median_us": 155.72329687500996,
+              "fresh_process_medians_us": [
+                153.6562500000116,
+                156.94790624999655,
+                155.72329687500996
+              ]
+            },
+            "candidate-prepared-cpu": {
+              "median_us": 53.23762500000839,
+              "fresh_process_medians_us": [
+                52.73503124999479,
+                53.23762500000839,
+                53.572921875002066
+              ]
+            },
+            "candidate-prepared-auto": {
+              "median_us": 156.75065624998297,
+              "fresh_process_medians_us": [
+                155.9974062500089,
+                158.67251562499973,
+                156.75065624998297
+              ]
+            }
+          },
+          "profiled_js_speedup": 3.8459161240851287,
+          "unprofiled_auto_speedup": 1.014776076489782
+        }
+      ],
+      "setup": [
+        {
+          "n": 100,
+          "captureMs": 0.3330829999999878,
+          "firstCpuMs": 2.1045000000000016,
+          "preparedEngineLoadMs": 3.8947080000000085,
+          "automaticCaptureMs": 0.3359999999999843,
+          "firstAutoMs": 0.21795900000000756,
+          "run": 1
+        },
+        {
+          "n": 1024,
+          "captureMs": 0.4129580000007991,
+          "firstCpuMs": 2.8596669999997175,
+          "preparedEngineLoadMs": 4.021541999999499,
+          "automaticCaptureMs": 0.4542089999995369,
+          "firstAutoMs": 0.2719999999999345,
+          "run": 1
+        },
+        {
+          "n": 100,
+          "captureMs": 0.3277089999999987,
+          "firstCpuMs": 2.283791999999977,
+          "preparedEngineLoadMs": 3.9037500000000023,
+          "automaticCaptureMs": 0.33883300000002237,
+          "firstAutoMs": 0.22383300000001327,
+          "run": 2
+        },
+        {
+          "n": 1024,
+          "captureMs": 0.4105409999992844,
+          "firstCpuMs": 2.905416999999943,
+          "preparedEngineLoadMs": 3.9628750000001673,
+          "automaticCaptureMs": 0.4257500000003347,
+          "firstAutoMs": 0.2557919999999285,
+          "run": 2
+        },
+        {
+          "n": 100,
+          "captureMs": 0.3452079999999995,
+          "firstCpuMs": 2.121875000000003,
+          "preparedEngineLoadMs": 4.086667000000006,
+          "automaticCaptureMs": 0.37879100000000676,
+          "firstAutoMs": 0.24329199999999673,
+          "run": 3
+        },
+        {
+          "n": 1024,
+          "captureMs": 0.4406250000001819,
+          "firstCpuMs": 3.0410830000000715,
+          "preparedEngineLoadMs": 3.990791000000172,
+          "automaticCaptureMs": 0.4349999999994907,
+          "firstAutoMs": 0.2686249999997017,
+          "run": 3
+        }
+      ]
+    },
+    "node26": {
+      "runs": 3,
+      "samples_per_mode": 17,
+      "environment": "Node.js/26",
+      "rows": [
+        {
+          "n": 100,
+          "modes": {
+            "direct": {
+              "median_us": 5.045246093750677,
+              "fresh_process_medians_us": [
+                5.0781250000007105,
+                5.045246093750677,
+                4.941406249999503
+              ]
+            },
+            "baseline-javascript": {
+              "median_us": 5.286292968751383,
+              "fresh_process_medians_us": [
+                5.357746093750393,
+                5.286292968751383,
+                5.234050781250943
+              ]
+            },
+            "baseline-cpu": {
+              "median_us": 79.41129687499959,
+              "fresh_process_medians_us": [
+                79.84846875000073,
+                79.41129687499959,
+                79.20589062500127
+              ]
+            },
+            "baseline-auto": {
+              "median_us": 87.48844140624979,
+              "fresh_process_medians_us": [
+                87.77278515624864,
+                86.92757031250054,
+                87.48844140624979
+              ]
+            },
+            "candidate-javascript": {
+              "median_us": 5.303062499999456,
+              "fresh_process_medians_us": [
+                5.305824218750033,
+                5.284343750000531,
+                5.303062499999456
+              ]
+            },
+            "candidate-cpu": {
+              "median_us": 79.33561328124927,
+              "fresh_process_medians_us": [
+                79.33561328124927,
+                79.05842968749965,
+                90.39925000000082
+              ]
+            },
+            "candidate-auto": {
+              "median_us": 81.22216796875037,
+              "fresh_process_medians_us": [
+                81.22216796875037,
+                80.5087890625007,
+                91.66568749999904
+              ]
+            },
+            "baseline-profiled-js": {
+              "median_us": 175.3318671875004,
+              "fresh_process_medians_us": [
+                175.53059765625,
+                172.93733984374882,
+                175.3318671875004
+              ]
+            },
+            "candidate-profiled-js": {
+              "median_us": 52.62125781250049,
+              "fresh_process_medians_us": [
+                53.239093749999356,
+                51.89941406249954,
+                52.62125781250049
+              ]
+            },
+            "candidate-prepared-js": {
+              "median_us": 7.417968750000448,
+              "fresh_process_medians_us": [
+                7.427570312500187,
+                7.23242187499995,
+                7.417968750000448
+              ]
+            },
+            "candidate-prepared-cpu": {
+              "median_us": 7.017414062500116,
+              "fresh_process_medians_us": [
+                6.979816406248673,
+                7.017414062500116,
+                7.093101562499982
+              ]
+            },
+            "candidate-prepared-auto": {
+              "median_us": 9.135578124999988,
+              "fresh_process_medians_us": [
+                9.176757812500824,
+                9.135578124999988,
+                8.928875000000502
+              ]
+            }
+          },
+          "profiled_js_speedup": 3.3319588789048153,
+          "unprofiled_auto_speedup": 1.0771497928978
+        },
+        {
+          "n": 1024,
+          "modes": {
+            "direct": {
+              "median_us": 48.682281249995185,
+              "fresh_process_medians_us": [
+                48.567062499998315,
+                48.95768750000684,
+                48.682281249995185
+              ]
+            },
+            "baseline-javascript": {
+              "median_us": 49.455078124992724,
+              "fresh_process_medians_us": [
+                49.795578124985695,
+                48.36328124997635,
+                49.455078124992724
+              ]
+            },
+            "baseline-cpu": {
+              "median_us": 765.7819062500124,
+              "fresh_process_medians_us": [
+                765.7819062500124,
+                759.4531249999932,
+                768.8932343750139
+              ]
+            },
+            "baseline-auto": {
+              "median_us": 777.8255156250111,
+              "fresh_process_medians_us": [
+                779.0917968749937,
+                769.4114531250023,
+                777.8255156250111
+              ]
+            },
+            "candidate-javascript": {
+              "median_us": 48.73762500000112,
+              "fresh_process_medians_us": [
+                49.24868749998268,
+                48.45573437501116,
+                48.73762500000112
+              ]
+            },
+            "candidate-cpu": {
+              "median_us": 764.1308593750011,
+              "fresh_process_medians_us": [
+                764.1308593750011,
+                759.7714843750225,
+                772.2656249999886
+              ]
+            },
+            "candidate-auto": {
+              "median_us": 766.5006406249972,
+              "fresh_process_medians_us": [
+                766.5006406249972,
+                762.5963437499763,
+                771.9824218750091
+              ]
+            },
+            "baseline-profiled-js": {
+              "median_us": 1645.7415468750014,
+              "fresh_process_medians_us": [
+                1652.4394531249982,
+                1621.684890625005,
+                1645.7415468750014
+              ]
+            },
+            "candidate-profiled-js": {
+              "median_us": 459.17643750000536,
+              "fresh_process_medians_us": [
+                459.17643750000536,
+                450.839843749975,
+                460.39387499999407
+              ]
+            },
+            "candidate-prepared-js": {
+              "median_us": 65.41731249998861,
+              "fresh_process_medians_us": [
+                66.18034375000548,
+                64.00000000002137,
+                65.41731249998861
+              ]
+            },
+            "candidate-prepared-cpu": {
+              "median_us": 52.953781250010934,
+              "fresh_process_medians_us": [
+                53.53320312499932,
+                52.032562500002655,
+                52.953781250010934
+              ]
+            },
+            "candidate-prepared-auto": {
+              "median_us": 66.59504687499407,
+              "fresh_process_medians_us": [
+                67.89648437499807,
+                66.59504687499407,
+                65.81118750000314
+              ]
+            }
+          },
+          "profiled_js_speedup": 3.5841158484422064,
+          "unprofiled_auto_speedup": 1.014774775648954
+        }
+      ],
+      "setup": [
+        {
+          "n": 100,
+          "captureMs": 0.27174999999999727,
+          "firstCpuMs": 3.5242080000000016,
+          "preparedEngineLoadMs": 3.2503750000000053,
+          "automaticCaptureMs": 0.16620800000001168,
+          "firstAutoMs": 0.23445900000000108,
+          "run": 1
+        },
+        {
+          "n": 1024,
+          "captureMs": 0.7742499999999382,
+          "firstCpuMs": 0.8552909999998519,
+          "preparedEngineLoadMs": 4.562792000000172,
+          "automaticCaptureMs": 0.45633300000008603,
+          "firstAutoMs": 0.15983400000004622,
+          "run": 1
+        },
+        {
+          "n": 100,
+          "captureMs": 0.2694590000000119,
+          "firstCpuMs": 3.6595839999999953,
+          "preparedEngineLoadMs": 3.2568330000000003,
+          "automaticCaptureMs": 0.1588339999999846,
+          "firstAutoMs": 0.22475000000000023,
+          "run": 2
+        },
+        {
+          "n": 1024,
+          "captureMs": 0.9795420000000377,
+          "firstCpuMs": 1.1127500000002328,
+          "preparedEngineLoadMs": 4.470917000000554,
+          "automaticCaptureMs": 0.44545800000014424,
+          "firstAutoMs": 0.16287499999998545,
+          "run": 2
+        },
+        {
+          "n": 100,
+          "captureMs": 0.26704199999998934,
+          "firstCpuMs": 3.4208750000000094,
+          "preparedEngineLoadMs": 3.152957999999998,
+          "automaticCaptureMs": 0.18979199999999707,
+          "firstAutoMs": 0.30708299999999156,
+          "run": 3
+        },
+        {
+          "n": 1024,
+          "captureMs": 0.39875000000029104,
+          "firstCpuMs": 0.9341249999997672,
+          "preparedEngineLoadMs": 4.490208999999595,
+          "automaticCaptureMs": 0.907416999999441,
+          "firstAutoMs": 0.18925000000035652,
+          "run": 3
+        }
+      ]
+    },
+    "browser": {
+      "runs": 3,
+      "samples_per_mode": 17,
+      "environment": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "rows": [
+        {
+          "n": 100,
+          "modes": {
+            "direct": {
+              "median_us": 4.707030951976776,
+              "fresh_process_medians_us": [
+                4.707030951976776,
+                4.609374795109034,
+                4.726562649011612
+              ]
+            },
+            "baseline-javascript": {
+              "median_us": 4.7851563431322575,
+              "fresh_process_medians_us": [
+                4.804687574505806,
+                4.765625111758709,
+                4.7851563431322575
+              ]
+            },
+            "baseline-cpu": {
+              "median_us": 84.68750026077032,
+              "fresh_process_medians_us": [
+                85.50781244412065,
+                84.25781223922968,
+                84.68750026077032
+              ]
+            },
+            "baseline-auto": {
+              "median_us": 92.51953149214387,
+              "fresh_process_medians_us": [
+                92.51953149214387,
+                91.46484360098839,
+                92.57812472060323
+              ]
+            },
+            "candidate-javascript": {
+              "median_us": 4.7851563431322575,
+              "fresh_process_medians_us": [
+                4.804687574505806,
+                4.7460938803851604,
+                4.7851563431322575
+              ]
+            },
+            "candidate-cpu": {
+              "median_us": 84.84375011175871,
+              "fresh_process_medians_us": [
+                84.84375011175871,
+                84.16015654802322,
+                84.94140626862645
+              ]
+            },
+            "candidate-auto": {
+              "median_us": 85.91796876862645,
+              "fresh_process_medians_us": [
+                85.3710938245058,
+                86.03515615686774,
+                85.91796876862645
+              ]
+            },
+            "baseline-profiled-js": {
+              "median_us": 163.9843750745058,
+              "fresh_process_medians_us": [
+                163.9843750745058,
+                163.18359412252903,
+                165.1171874254942
+              ]
+            },
+            "candidate-profiled-js": {
+              "median_us": 50.117187201976776,
+              "fresh_process_medians_us": [
+                50.117187201976776,
+                50.09765597060323,
+                50.507812295109034
+              ]
+            },
+            "candidate-prepared-js": {
+              "median_us": 6.953124888241291,
+              "fresh_process_medians_us": [
+                6.953124888241291,
+                6.7382813431322575,
+                7.031249813735485
+              ]
+            },
+            "candidate-prepared-cpu": {
+              "median_us": 6.562499795109034,
+              "fresh_process_medians_us": [
+                6.640625186264515,
+                6.386718712747097,
+                6.562499795109034
+              ]
+            },
+            "candidate-prepared-auto": {
+              "median_us": 8.437500335276127,
+              "fresh_process_medians_us": [
+                8.457031100988388,
+                8.222655858844519,
+                8.437500335276127
+              ]
+            },
+            "baseline-gpu": {
+              "median_us": 784.3749970197678,
+              "fresh_process_medians_us": [
+                751.2499988079071,
+                784.3749970197678,
+                793.1250035762787
+              ]
+            },
+            "candidate-gpu": {
+              "median_us": 728.7499904632568,
+              "fresh_process_medians_us": [
+                728.7499904632568,
+                722.5000113248825,
+                729.3750047683716
+              ]
+            }
+          },
+          "profiled_js_speedup": 3.272018727101224,
+          "unprofiled_auto_speedup": 1.0768356470495148
+        },
+        {
+          "n": 1024,
+          "modes": {
+            "direct": {
+              "median_us": 44.76562514901161,
+              "fresh_process_medians_us": [
+                45.5468762665987,
+                44.76562514901161,
+                44.68750022351742
+              ]
+            },
+            "baseline-javascript": {
+              "median_us": 44.76562328636646,
+              "fresh_process_medians_us": [
+                44.76562328636646,
+                45.390624552965164,
+                44.609375298023224
+              ]
+            },
+            "baseline-cpu": {
+              "median_us": 810.3906251490116,
+              "fresh_process_medians_us": [
+                813.2031243294477,
+                810.3906251490116,
+                809.0624995529652
+              ]
+            },
+            "baseline-auto": {
+              "median_us": 821.5625006705523,
+              "fresh_process_medians_us": [
+                822.7343745529652,
+                821.5625006705523,
+                819.1406261175871
+              ]
+            },
+            "candidate-javascript": {
+              "median_us": 45.624999329447746,
+              "fresh_process_medians_us": [
+                46.32812552154064,
+                45.624999329447746,
+                44.53125037252903
+              ]
+            },
+            "candidate-cpu": {
+              "median_us": 811.9531255215406,
+              "fresh_process_medians_us": [
+                813.5156240314245,
+                809.7656257450581,
+                811.9531255215406
+              ]
+            },
+            "candidate-auto": {
+              "median_us": 814.9218764156103,
+              "fresh_process_medians_us": [
+                820.2343750745058,
+                810.6249999254942,
+                814.9218764156103
+              ]
+            },
+            "baseline-profiled-js": {
+              "median_us": 1524.1406243294477,
+              "fresh_process_medians_us": [
+                1536.9531251490116,
+                1524.1406243294477,
+                1517.2656252980232
+              ]
+            },
+            "candidate-profiled-js": {
+              "median_us": 431.4062502235174,
+              "fresh_process_medians_us": [
+                433.2812502980232,
+                425.9374998509884,
+                431.4062502235174
+              ]
+            },
+            "candidate-prepared-js": {
+              "median_us": 61.406249180436134,
+              "fresh_process_medians_us": [
+                62.812499701976776,
+                61.406249180436134,
+                60.70312485098839
+              ]
+            },
+            "candidate-prepared-cpu": {
+              "median_us": 47.968748956918716,
+              "fresh_process_medians_us": [
+                49.296874552965164,
+                47.968748956918716,
+                47.89062403142452
+              ]
+            },
+            "candidate-prepared-auto": {
+              "median_us": 62.5,
+              "fresh_process_medians_us": [
+                63.04687447845936,
+                60.93749962747097,
+                62.5
+              ]
+            },
+            "baseline-gpu": {
+              "median_us": 1556.2499910593033,
+              "fresh_process_medians_us": [
+                1532.499998807907,
+                1556.2499910593033,
+                1559.3750029802322
+              ]
+            },
+            "candidate-gpu": {
+              "median_us": 1501.249998807907,
+              "fresh_process_medians_us": [
+                1501.249998807907,
+                1483.7500005960464,
+                1502.4999976158142
+              ]
+            }
+          },
+          "profiled_js_speedup": 3.5329590694148956,
+          "unprofiled_auto_speedup": 1.0081487863402936
+        }
+      ],
+      "setup": [
+        {
+          "n": 100,
+          "captureMs": 0.6299999952316284,
+          "firstCpuMs": 3.8299999237060547,
+          "preparedEngineLoadMs": 4.850000023841858,
+          "automaticCaptureMs": 0.1499999761581421,
+          "firstAutoMs": 0.26499998569488525,
+          "run": 1
+        },
+        {
+          "n": 1024,
+          "captureMs": 0.39499998092651367,
+          "firstCpuMs": 0.9750000238418579,
+          "preparedEngineLoadMs": 4.674999952316284,
+          "automaticCaptureMs": 0.43000006675720215,
+          "firstAutoMs": 0.16499996185302734,
+          "run": 1
+        },
+        {
+          "n": 100,
+          "captureMs": 0.4650000333786011,
+          "firstCpuMs": 2.899999976158142,
+          "preparedEngineLoadMs": 4.909999966621399,
+          "automaticCaptureMs": 0.18500006198883057,
+          "firstAutoMs": 0.23000001907348633,
+          "run": 2
+        },
+        {
+          "n": 1024,
+          "captureMs": 0.4500000476837158,
+          "firstCpuMs": 1.0099999904632568,
+          "preparedEngineLoadMs": 5.195000052452087,
+          "automaticCaptureMs": 0.49000000953674316,
+          "firstAutoMs": 0.19999992847442627,
+          "run": 2
+        },
+        {
+          "n": 100,
+          "captureMs": 0.5549999475479126,
+          "firstCpuMs": 3.2850000858306885,
+          "preparedEngineLoadMs": 4.894999980926514,
+          "automaticCaptureMs": 0.14499998092651367,
+          "firstAutoMs": 0.21000003814697266,
+          "run": 3
+        },
+        {
+          "n": 1024,
+          "captureMs": 0.38499999046325684,
+          "firstCpuMs": 0.9049999713897705,
+          "preparedEngineLoadMs": 4.825000047683716,
+          "automaticCaptureMs": 0.41999995708465576,
+          "firstAutoMs": 0.15000009536743164,
+          "run": 3
+        }
+      ]
+    }
+  }
+}
