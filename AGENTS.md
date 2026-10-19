@@ -266,6 +266,15 @@ field reads and calls keep their evaluation positions. Do not infer purity,
 unique ownership, numeric range or rewrite authority from a reused local name.
 See docs/immutable-javascript-bindings.md and the exact-bit alias/swap regression.
 
+JavaScript private record slots may cross bounded outlined helpers. Only evaluated
+constructors supply slots; preserve borrowed getters, unused work, source order,
+mutable loop snapshots and detached outputs. Straight-line immutable bindings may
+share identical fixed IEEE computations, including repeated tangent work, without
+dropping zero products or changing rounding/grouping. Exclude owned/recursive
+outline shapes, reserve complete fallback wrappers, and roll back optional facts.
+This grants no derivative law, range fact or profitable selection authority.
+See docs/scalar-record-differentiation.md and the scalar_records conformance suite.
+
 Whole-action specialization may use the re-derived frozen_domain after existing
 sorted-table premises. Arbitrary source predicates and producer hints grant no
 additional facts. Use exhaustive Cases to transport state-dependent premises;
