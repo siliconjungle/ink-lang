@@ -10,3 +10,4 @@
 #[path = "../lowerings/js/tests/state_capture.rs"] mod state_capture;
 #[path = "../lowerings/js/tests/state_equality.rs"] mod state_equality;
 #[path = "../lowerings/js/tests/state_float.rs"] mod state_float;
+#[path = "../lowerings/js/tests/scalar_records.rs"] mod scalar_records;
