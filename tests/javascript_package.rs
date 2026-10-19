@@ -9,3 +9,4 @@
 #[path = "../lowerings/js/tests/ownership_aliases.rs"] mod ownership_aliases;
 #[path = "../lowerings/js/tests/state_capture.rs"] mod state_capture;
 #[path = "../lowerings/js/tests/state_equality.rs"] mod state_equality;
+#[path = "../lowerings/js/tests/state_float.rs"] mod state_float;
