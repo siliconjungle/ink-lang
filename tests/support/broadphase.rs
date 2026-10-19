@@ -15,7 +15,9 @@ fn broadphase_complete_pairs_and_radix_match_portable_targets(){
   .args(["--scalar-calls","--output"]).arg(&output).output().unwrap();
  assert!(status.status.success(),"{}",String::from_utf8_lossy(&status.stderr));
  let original=verified_language::core::CheckedModule::from_source(program).unwrap();
- let package:verified_language::planning::Package=serde_json::from_slice(&std::fs::read(output.join("rewrite-plan.json")).unwrap()).unwrap();
+ // Use the normal bounded source-plan envelope, rather than Serde's smaller
+ // default recursion limit. The complete plan still undergoes normal checking.
+ let package=verified_language::planning::from_bytes(&std::fs::read(output.join("rewrite-plan.json")).unwrap()).unwrap();
  let checked=verified_language::planning::check(&original,&package).unwrap();
  parity::conformance_planned("broadphase-unfolded",&checked,include_str!("../../bench/broadphase/main.ink"),steps,expected);
 }

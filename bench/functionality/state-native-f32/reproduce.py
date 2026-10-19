@@ -52,6 +52,8 @@ def main():
     if out.parent != (ROOT / 'build').resolve():
         parser.error('--out must be a new direct child of the repository build directory')
     out.mkdir(parents=True, exist_ok=False)
+    for name, expected in json.loads((HERE / 'hashes.json').read_text()).items():
+        assert hashlib.sha256((HERE / name).read_bytes()).hexdigest() == expected, name
     manifest = json.loads((HERE / 'artifacts.json').read_text())
     for name, entry in manifest.items():
         data = gzip.decompress((HERE / entry['artifact']).read_bytes())
@@ -67,6 +69,14 @@ def main():
         emitted = out / 'regenerated.mjs'
         run([args.compiler.resolve(), 'build', out / 'conformance/source.core.json', '--core', '--target', 'javascript', '-o', emitted])
         assert emitted.read_bytes() == (out / 'conformance/program.mjs').read_bytes(), 'Compiler output changed; this is a different conformance artifact'
+        for name in ['core', 'plan']:
+            (out / ('broadphase-%s.json' % name)).write_bytes(gzip.decompress((HERE / ('raw/broadphase-%s.json.gz' % name)).read_bytes()))
+        checked = run([args.compiler.resolve(), 'check-plan', out / 'broadphase-core.json', out / 'broadphase-plan.json', '--core'], stdout=subprocess.PIPE)
+        receipt = json.loads(checked.stdout)
+        assert receipt['status'] == 'checked'
+        summary = {key: receipt[key] for key in ['status', 'input', 'selected', 'steps', 'plan_sha256']}
+        (out / 'broadphase-check.json').write_text(json.dumps(summary, indent=2) + '\n')
+        print('Checked retained broadphase plan:', summary)
     run([args.node, out / 'conformance/run.mjs'])
     # Replays the selected exact Wasm image even without a local Rust toolchain.
     run([args.node, out / 'cross/check-wasm.mjs'])
