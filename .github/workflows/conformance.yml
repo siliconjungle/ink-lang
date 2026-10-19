@@ -144,7 +144,7 @@ jobs:
       continue-on-error: true
     - name: Runtime policies and failure injection
       run: |
-        node --test runtime/tests/backend-selection.mjs runtime/tests/durable-state.mjs runtime/tests/scheduled-actions.mjs runtime/tests/initial-state.mjs runtime/tests/route-resources.mjs runtime/tests/usage-profile.mjs runtime/tests/adaptive-state.mjs
+        node --test runtime/tests/*.mjs
         node lowerings/gpu/tests/device_graph.mjs
     - name: Independent core and source-bound value admission
       run: |
@@ -185,7 +185,8 @@ jobs:
         CARGO_TARGET_DIR=target cargo test --manifest-path lowerings/gpu/Cargo.toml --test temporary_bounds
         cargo test --test distribution --test source_syntax --test action_values --test general_laws --test semantic_optimisation --test reference_evaluation_budget --test automatic_compilation
         cargo test --test internal_snapshots --test collect_before_build --test proved_refinement_parity --test adaptive_learning --test trained_build --test frozen_state --test adaptive_fold_projection --test function_specialization --test policy_learning --test differentiation --test reverse_learning --test source_reverse --test scalable_state --test binary64 --test adaptive_host --test programmable_objective --test learned_search
-        cargo test --manifest-path abi/Cargo.toml --locked --test objective
+        cargo test --manifest-path abi/Cargo.toml --locked --test objective --test packed
+        python3 bench/functionality/owned-call-capture/reproduce.py
         cargo test --test physical_capabilities --test gpu
         cargo build --bin ink --offline
         target/debug/ink verify-model reports/prepared-initializers-2026-10-16/neural --replay

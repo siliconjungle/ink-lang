@@ -17,8 +17,9 @@ const fixed = await loadInk(bundle, {
 ```
 
 Profiles have schema1, target_key, and models indexed by
-`profileScope(manifest, entry)`: source core identity, generated CPU C hash,
-generated JavaScript hash and entry/stage names. Each model declares a result
+`profileScope(manifest, entry)`: the `ink-complete-call-v2` version, source core
+identity, generated CPU Rust hash, generated JavaScript hash, runtime host
+identity and entry/stage names. Each model declares a result
 boundary, bounded feature domains and per-backend intercept/linear terms.
 Features are input_elements, input_bytes, output_capacity_elements, dispatches and
 iterations. Output capacity is the emitted physical upper bound, not a realized filter length; unknown CPU-only shapes contribute zero. Dispatch estimates follow the active graph route for mixed pipelines. These are cost estimates, never semantic facts. Separate recorded
@@ -42,6 +43,31 @@ collection and model fitting run offline in the planner. Saved profiles must bin
 representative measurements, exact code, target, boundary and observed domains;
 these bindings do not prove host or device execution.
 
+## Owned call captures
+
+Automatic packed calls eagerly snapshot typed inputs before yielding. Saved
+profiles choose from shape/byte descriptors before CPU/GPU words are created;
+JavaScript consumes native owned values directly. Profile-free default engines
+resolve the unconditional CPU choice at load through the shared decision contract
+and ordinary calls use the direct CPU path. Explicit/static JavaScript retains
+its caller-stable borrowed boundary.
+
+```js
+const prepared = engine.prepareCall('predict', [weights, samples]);
+const reply = await prepared.run(); // fresh evaluation and owned complete result
+await prepared.close();
+```
+
+Preparation owns a fixed typed input snapshot and checked topology. Selected
+transport words and feature descriptors may be reused; results never expose a
+retained capture. New weights/samples require new preparation. The API is on
+packed compute engines, separate from resident GPU sessions and borrowed Wasm
+output views. Close rejects new work and drains accepted calls. Prepared scopes
+wrap the ordinary scope as `['ink-prepared-call-v1', ordinaryScope]`; an ordinary
+profile cannot select this different lifetime. Report capture/setup separately
+and include it in finite-workload comparisons. Hosts never install measurements
+or choose a faster target from these mechanism checks.
+
 ## Prepared GPU inputs
 
 `await engine.prepareGpuPipeline(plan)` captures a fixed pure packed computation
@@ -58,7 +84,8 @@ future use. The literal selected route remains the computation authority.
 Resident sessions (`engine.open(plan)`) are the mutable, feedback-carrying
 counterpart: iterations, small reads, writes and buffer views over storage that
 stays on the device across host calls. Sessions use no profitability trials:
-`auto` opens on the GPU whenever the plan is eligible. See
+`auto` requires comparable lifecycle evidence before selecting an eligible GPU;
+otherwise it retains CPU. See
 [GPU compute](gpu-compute.md#resident-sessions).
 
 ## Mixed pipeline placement
@@ -82,7 +109,7 @@ const result = await engine.pipeline(plan); // one selected execution
 schema 1, `target_key`, optional measured `setup_ns` by backend, and at most 256
 models indexed by `segmentScope(pipelineScope(manifest, plan), start, end)`.
 Use `await engine.describePipeline(plan)` to obtain those exact scope strings and
-physical feature bounds. The scope binds the source, generated C/JavaScript/shader
+physical feature bounds. The scope binds the source, generated CPU/JavaScript/shader
 and runtime/device/planner source identities, constant types, complete dependency topology, requested results,
 feedback and iteration count. Models use the `captured-segment` boundary and
 bounded domains for all measured features. Intercepts/terms are nonnegative.

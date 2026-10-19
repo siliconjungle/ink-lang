@@ -1,0 +1,1 @@
+export const fixture=(n,seed=1)=>[{a:.125,b:-.25,c:.5,d:-.75},Array.from({length:n},(_,j)=>({x:Math.fround(((j*17+seed)%127-63)/64),y:Math.fround(((j*13+seed)%101-50)/64),z:Math.fround(((j*7+seed)%61-30)/64),bias:1}))];
