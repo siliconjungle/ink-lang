@@ -1,7 +1,9 @@
 Compiler rollout checks run the proposed compiler's JavaScript on **Node
 22.22.1, Node 26.1.0 and installed Google Chrome**, independently. The required
 `javascript-engine-rollout` CI job feeds `complete-conformance`; a failure,
-missing engine or inconclusive measurement blocks that aggregate check.
+missing engine blocks that aggregate check. An inconclusive changed-module
+measurement also blocks it. Exact standalone module identity is a separate
+unchanged-output proof, described below.
 
 Node 22.22.1 matches the audited application's pinned load-generator image.
 It is a conservative compatibility target, **not an attestation of the hosted
@@ -139,3 +141,20 @@ verifier rejects receipts from the old method. Numerical budgets are unchanged.
 A diagnostic Node `vm.SourceTextModule` attempt also remains archived: its
 context-global access overhead made it unrepresentative of normal Node execution.
 It is not promotion evidence. Required Node measurements use ordinary processes.
+
+`rollout.mjs` wraps the strict timing gate for compiler rollout. If the module
+bytes differ, the timing gate remains mandatory. If the compiler emits exactly
+the frozen standalone module bytes, a completed compiled receipt can instead
+establish unchanged emitted output. It still requires all three engines, every
+fresh run, independent verification, valid samples and complete-output checks.
+Conservative checks exclude imports, location-dependent globals and dynamic code
+loading. Missing/failed checks, stale bindings and diagnostic receipts reject.
+A failed fresh attempt cannot reuse an older completed receipt.
+
+The wrapper writes `unchanged-module.json` with its own verifier hash and raw
+receipt hash. The noisy timing decision remains blocked/inconclusive; it is
+never converted into a passing measurement. This proof says the compiler did
+not change this standalone executable module. It makes no speedup, memory,
+whole-application, dependency or deployment claim. CI uses the wrapper; use
+`rollout.mjs --verify ...` to recompute either accepted basis from current bytes.
+The strict `gate.mjs --verify` continues to reject inconclusive measurements.
