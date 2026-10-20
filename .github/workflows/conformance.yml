@@ -33,7 +33,8 @@ jobs:
     - name: Install pinned browser driver
       run: npm ci --prefix tools/engine-gate --ignore-scripts --no-audit --no-fund
     - name: Validate fail-closed engine policy and receipt checks
-      run: node tools/engine-gate/test.mjs
+      run: |
+        node tools/engine-gate/test.mjs
         node tools/engine-gate/rollout.test.mjs
     - name: Block regressions separately on Node 22, Node 26 and real Chrome
       run: >-

@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {spawnSync} from 'node:child_process';
 import {SETTINGS} from './policy.mjs';
 import {binding} from './gate.mjs';
 import {verifyUnchangedReceipt} from './rollout.mjs';
@@ -20,6 +22,12 @@ try {
  const make=()=>({schema:'ink-engine-gate-v1',mode:'compiled',settings:SETTINGS,binding:binding(config,candidate,compiler),runs:structuredClone(runs)});
  const valid=make(),proof=verifyUnchangedReceipt(valid,config,candidate,compiler);
  assert.equal(proof.status,'unchanged-emitted-module');assert.equal(proof.timingDecision.status,'blocked');
+ const receiptPath=join(dir,'receipt.json');writeFileSync(receiptPath,JSON.stringify(valid));
+ const staleAttempt=spawnSync(process.execPath,[fileURLToPath(new URL('./rollout.mjs',import.meta.url)),'--config',config,'--compiler',compiler,'--out',dir],{encoding:'utf8'});
+ assert.notEqual(staleAttempt.status,0);assert.match(staleAttempt.stderr,/no fresh completed receipt/);
+ assert.deepEqual(JSON.parse(readFileSync(receiptPath)),valid);
+ const verified=spawnSync(process.execPath,[fileURLToPath(new URL('./rollout.mjs',import.meta.url)),'--verify',receiptPath,'--candidate',candidate,'--config',config,'--compiler',compiler,'--out',dir],{encoding:'utf8'});
+ assert.equal(verified.status,0,verified.stderr);assert.equal(JSON.parse(readFileSync(join(dir,'unchanged-module.json'))).timingDecision.status,'blocked');
  for(const mutate of [r=>delete r.runs.chrome,r=>r.runs.node22.pop(),r=>r.runs.chrome[0].rows[0].completeOutputsChecked=0,r=>r.runs.node26[0].verification.candidate.independentChecks=0,r=>r.error='failed output',r=>r.mode='diagnostic']) {
   const r=make();mutate(r);assert.throws(()=>verifyUnchangedReceipt(r,config,candidate,compiler));
  }
