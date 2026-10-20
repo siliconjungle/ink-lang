@@ -1,9 +1,10 @@
 import {median} from './worker.mjs';
-export const SETTINGS=Object.freeze({processes:3,samples:15,warmCalls:65536,warmMs:250,batchMs:24,maxCalls:1048576});
+export const SETTINGS=Object.freeze({isolation:'independent-roles',processes:3,samples:15,warmCalls:65536,warmMs:250,batchMs:24,maxCalls:1048576});
 export const BUDGET=Object.freeze({relative:0.10,absoluteUs:0.02,controlRelative:0.10});
 // Process ranges are descriptive; they are deliberately not labelled confidence intervals.
 export function assess(runs,expectedCases) {
   if(runs.length!==SETTINGS.processes) throw Error('missing fresh process');
+  for(const run of runs)if(run.isolation!==SETTINGS.isolation)throw Error('benchmark realm isolation required');
   for(const run of runs) for(const mode of ['baseline','candidate','control']) {
     if(!(run.verification?.[mode]?.independentChecks>0)) throw Error('missing independent verification');
   }

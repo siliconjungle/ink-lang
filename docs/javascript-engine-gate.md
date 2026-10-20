@@ -34,7 +34,19 @@ binary hashes are recorded. The candidate is bound to its exact emitted bytes
 and compiler binary; the tooling checkout and package pins are recorded separately.
 Checkout metadata is provenance, not proof that a binary was built from it.
 
-Each engine runs three fresh processes serially. Each case has at least 65,536
+Each engine runs three fresh process groups serially. The baseline, candidate
+and byte-identical control own independent module instances, adapters and timed
+call sites. Each Node role runs in an ordinary separate Node process with its
+default realm and no extra engine flags. V8 IPC serialization preserves typed
+arrays, NaNs and signed zeros; messaging and transfer occur outside the role's
+timed loop. Chrome roles use separate same-origin iframe realms on the same
+main thread. Identity checks reject accidentally shared processes/realms. Setup
+and imports remain outside timing; the loop and clock live inside each role.
+This prevents shared caller and `Function`-constructor optimization feedback
+from making identical modules appear different merely because of import order.
+All roles remain alive while samples alternate serially.
+
+Each case has at least 65,536
 warmup calls, a 250 ms baseline warmup target, common calibrated batch sizes and
 15 samples with alternating order and calibrated batches targeting 24 ms. Setup, imports, independent result checking
 and complete-output consumption are outside timed intervals. A separate
@@ -107,3 +119,20 @@ and absolute-time regression budgets remain unchanged. A/A controls use the
 same 0.02 microsecond absolute floor: a few nanoseconds of variation on a fast
 scalar must not fail a stricter control rule than the candidate regression rule. Historical receipts retain their
 original 16,384-call / 100 ms / 12 ms settings and do not satisfy the new policy.
+
+The explicit compiled-reverse corpus adds complete 64-coordinate gradients and
+updates, plus an independent handwritten control. Its original/compiled source
+forms are retained separately. Fixed 65,536-call warmups are deliberately kept
+for this heavier workload: worker timeouts are ten minutes and the combined CI
+job allows ninety minutes. This changes scheduling limits only; sample counts,
+warmup rules, regression budgets and inconclusive rejection remain unchanged.
+
+The compiled-reverse investigation retained rejected shared-realm measurements
+after identical Node 22 modules differed by up to about 35%, correlated with
+import order. Those receipts keep their original method and are not promotion
+evidence. Independent-role receipts bind the new loader and isolation setting; the
+verifier rejects receipts from the old method. Numerical budgets are unchanged.
+
+A diagnostic Node `vm.SourceTextModule` attempt also remains archived: its
+context-global access overhead made it unrepresentative of normal Node execution.
+It is not promotion evidence. Required Node measurements use ordinary processes.
