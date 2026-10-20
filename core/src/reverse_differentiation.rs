@@ -7,6 +7,8 @@ use crate::{
     LangResult,
 };
 use std::collections::{BTreeMap, BTreeSet};
+#[path = "static_reverse.rs"]
+mod static_reverse;
 const INTRINSICS: [&str; 4] = [
     "reverse_gradient",
     "reverse_gradient_piecewise",
@@ -120,6 +122,7 @@ fn expand_scalar(
         occupied,
         next: 0,
         work: 150_000,
+        static_work: 32_768,
         prefix: String::new(),
         blocked: abstracts.keys().cloned().collect(),
         types: BTreeMap::new(),
@@ -136,6 +139,8 @@ fn expand_scalar(
         }
     }
     b.out = scalar.reverse_runtime(&b.prefix)?;
+    let runtime_functions: BTreeSet<_> = b.out.functions.iter().map(|f| f.name.clone()).collect();
+    let runtime_records: BTreeSet<_> = b.out.records.keys().cloned().collect();
     for n in b
         .out
         .records
@@ -161,6 +166,13 @@ fn expand_scalar(
             0,
         )?;
     }
+    if b.functions.is_empty() {
+        // Static-only requests never reference the owned tape implementation.
+        // Omit these private declarations rather than exposing unused owner
+        // shapes to target capability analysis and public bridge generation.
+        b.out.functions.retain(|f| !runtime_functions.contains(&f.name));
+        b.out.records.retain(|n, _| !runtime_records.contains(n));
+    }
     p.records.extend(b.out.records);
     p.functions.extend(b.out.functions);
     Ok(())
@@ -172,6 +184,7 @@ struct Builder {
     occupied: BTreeSet<String>,
     next: usize,
     work: usize,
+    static_work: usize,
     prefix: String,
     blocked: BTreeSet<String>,
     types: BTreeMap<String, String>,
@@ -901,6 +914,11 @@ impl Builder {
             return Err("reverse objective needs a first parameter and f32 or f64 result".into());
         }
         let piecewise = kind.ends_with("piecewise");
+        if let Some(wrapper) = static_reverse::compile(self, &fun, kind) {
+            self.wrappers
+                .insert((target.into(), kind.into()), wrapper.clone());
+            return Ok(wrapper);
+        }
         let objective = self.function(target, piecewise, 0)?;
         let weight = &fun.params[0].1;
         let dt = self.dtype(weight, 0)?;
