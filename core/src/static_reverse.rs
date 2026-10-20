@@ -583,11 +583,17 @@ pub(super) fn compile(b: &mut Builder, fun: &Function, kind: &str) -> Option<Str
         ""
     };
     b.wrappers.insert(
-        (fun.name.clone(), format!("reverse_linearize{suffix}")),
+        (
+            fun.name.clone(),
+            format!("compiled_reverse_linearize{suffix}"),
+        ),
         linear.clone(),
     );
     b.wrappers.insert(
-        (fun.name.clone(), format!("reverse_gradient{suffix}")),
+        (
+            fun.name.clone(),
+            format!("compiled_reverse_gradient{suffix}"),
+        ),
         gradient.clone(),
     );
     Some(if kind.starts_with("reverse_linearize") {

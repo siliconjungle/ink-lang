@@ -9,6 +9,14 @@ use serde_json::{json, Value as Json};
 fn module(source: &str) -> CheckedModule {
     CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap()
 }
+#[test]
+fn original_reverse_requests_keep_the_published_source_image() {
+    // Produced by the preceding independently pinned core/compiler, including
+    // both precisions and gradient/linearized interfaces. This protects saved
+    // state and proof bindings when the new authored forms are absent.
+    let m=module(include_str!("fixtures/legacy-reverse.ink"));
+    assert_eq!(m.identity().unwrap(),"b95c49a9b0578b9f5d561bdabb3beb163b09ac912d94e8ccf5d5b8304e3794fc");
+}
 fn run(m: &CheckedModule, name: &str, args: Json) -> Value {
     let fun = m
         .program()
@@ -45,7 +53,7 @@ fn has_tape(m: &CheckedModule, root: &str) -> bool {
 
 #[test]
 fn shared_primals_keep_distinct_tape_nodes_and_ordered_reverse_edges() {
-    let m=module("module sharing;fn square(x:f32)->f32{return x*x;}fn objective(x:f32)->f32{return square(x)+square(x);}fn derivative(x:f32,maximum:u32)->Result<f32,String>{return reverse_gradient(objective,x,maximum,false);}fn primal(x:f32,maximum:u32)->Result<f32,String>{return reverse_linearize(objective,x,maximum,false).map(fn(r)=>r.value);}");
+    let m=module("module sharing;fn square(x:f32)->f32{return x*x;}fn objective(x:f32)->f32{return square(x)+square(x);}fn derivative(x:f32,maximum:u32)->Result<f32,String>{return compiled_reverse_gradient(objective,x,maximum,false);}fn primal(x:f32,maximum:u32)->Result<f32,String>{return compiled_reverse_linearize(objective,x,maximum,false).map(fn(r)=>r.value);}");
     let deps = analysis::function_dependencies(m.program(), "derivative", 100_000).unwrap();
     let mut products = 0;
     for fun in m
@@ -89,9 +97,9 @@ record Pair{a:f32,b:f32,}
 fn helper(a:f32,b:f32)->f32{let square=a*a;return f32_div(square,b)+sqrt(b*b);}
 fn objective(w:Pair,c:f32)->f32{let unused=w.b*0.0;return helper(w.a,w.b)-helper(w.a,w.b)+(-w.a*w.a)*c;}
 fn dynamic_objective(w:List<f32>,c:f32)->f32{return objective(Pair{a:w.at_or(0,0.0),b:w.at_or(1,0.0)},c);}
-fn direct(w:Pair,c:f32,maximum:u32,stop:Bool)->Result<Pair,String>{return reverse_gradient(objective,w,maximum,stop,c);}
+fn direct(w:Pair,c:f32,maximum:u32,stop:Bool)->Result<Pair,String>{return compiled_reverse_gradient(objective,w,maximum,stop,c);}
 fn dynamic(w:List<f32>,c:f32,maximum:u32,stop:Bool)->Result<Pair,String>{return reverse_gradient(dynamic_objective,w,maximum,stop,c).map(fn(g)=>Pair{a:g.at_or(0,0.0),b:g.at_or(1,0.0)});}
-fn primal(w:Pair,c:f32,maximum:u32,stop:Bool)->Result<f32,String>{return reverse_linearize(objective,w,maximum,stop,c).map(fn(g)=>g.value);}
+fn primal(w:Pair,c:f32,maximum:u32,stop:Bool)->Result<f32,String>{return compiled_reverse_linearize(objective,w,maximum,stop,c).map(fn(g)=>g.value);}
 fn dynamic_primal(w:List<f32>,c:f32,maximum:u32,stop:Bool)->Result<f32,String>{return reverse_linearize(dynamic_objective,w,maximum,stop,c).map(fn(g)=>g.value);}
 "#;
         let source = if wide {
@@ -184,7 +192,7 @@ fn bounded_static_scheduling_covers_sixty_four_parameters_and_keeps_fallback() {
             .collect::<Vec<_>>()
             .join(",")
     );
-    source+=&format!("fn block(w:Block)->f32{{return {};}}fn objective(w:Weights)->f32{{return {};}}fn derivative(w:Weights)->Result<Weights,String>{{return reverse_gradient(objective,w,4096,true);}}",
+    source+=&format!("fn block(w:Block)->f32{{return {};}}fn objective(w:Weights)->f32{{return {};}}fn derivative(w:Weights)->Result<Weights,String>{{return compiled_reverse_gradient(objective,w,4096,true);}}",
         slots.iter().map(|n|format!("w.{n}*w.{n}")).collect::<Vec<_>>().join("+"),
         blocks.iter().map(|n|format!("block(w.{n})")).collect::<Vec<_>>().join("+"));
     let m = module(&source);
@@ -223,7 +231,7 @@ fn bounded_static_scheduling_covers_sixty_four_parameters_and_keeps_fallback() {
     );
     // Too much statically expanded work and dynamic control keep owned tapes.
     for objective in ["repeat(300,x,fn(i)=>fn(a)=>a*a)", "choose(x>0.0,x*x,-x)"] {
-        let m=module(&format!("module fallback;fn objective(x:f32)->f32{{return {objective};}}fn derivative(x:f32)->Result<f32,String>{{return reverse_gradient_piecewise(objective,x,4096,true);}}"));
+        let m=module(&format!("module fallback;fn objective(x:f32)->f32{{return {objective};}}fn derivative(x:f32)->Result<f32,String>{{return compiled_reverse_gradient_piecewise(objective,x,4096,true);}}"));
         assert!(has_tape(&m, "derivative"));
     }
 }

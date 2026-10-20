@@ -56,9 +56,9 @@ fn primal64(x:f64,direction:f64)->f64{return linearize(square64,x,direction).val
         .any(|n| n.starts_with("__ink_differential64_")));
     assert!(m
         .program()
-        .functions
-        .iter()
-        .any(|f| f.name.starts_with("__ink_reverse64_")));
+        .records
+        .keys()
+        .any(|n| n.starts_with("__ink_reverse64_")));
     assert_eq!(
         CheckedModule::from_bytes(&m.bytes().unwrap())
             .unwrap()
