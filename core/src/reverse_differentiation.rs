@@ -7,11 +7,17 @@ use crate::{
     LangResult,
 };
 use std::collections::{BTreeMap, BTreeSet};
-const INTRINSICS: [&str; 4] = [
+#[path = "static_reverse.rs"]
+mod static_reverse;
+const INTRINSICS: [&str; 8] = [
     "reverse_gradient",
     "reverse_gradient_piecewise",
     "reverse_linearize",
     "reverse_linearize_piecewise",
+    "compiled_reverse_gradient",
+    "compiled_reverse_gradient_piecewise",
+    "compiled_reverse_linearize",
+    "compiled_reverse_linearize_piecewise",
 ];
 fn v(n: &str) -> Expr {
     Expr::Var(n.into())
@@ -40,7 +46,7 @@ fn lambda(ns: &[String], mut e: Expr) -> Expr {
 
 pub(crate) fn hint(e: &Expr, p: &Program) -> Option<Type> {
     let Expr::Call(n, args) = e else { return None };
-    if !n.starts_with("reverse_gradient")
+    if !n.strip_prefix("compiled_").unwrap_or(n).starts_with("reverse_gradient")
         || !INTRINSICS.contains(&n.as_str())
         || p.functions.iter().any(|f| f.name == *n)
     {
@@ -120,6 +126,7 @@ fn expand_scalar(
         occupied,
         next: 0,
         work: 150_000,
+        static_work: 32_768,
         prefix: String::new(),
         blocked: abstracts.keys().cloned().collect(),
         types: BTreeMap::new(),
@@ -136,6 +143,8 @@ fn expand_scalar(
         }
     }
     b.out = scalar.reverse_runtime(&b.prefix)?;
+    let runtime_functions: BTreeSet<_> = b.out.functions.iter().map(|f| f.name.clone()).collect();
+    let runtime_records: BTreeSet<_> = b.out.records.keys().cloned().collect();
     for n in b
         .out
         .records
@@ -161,6 +170,13 @@ fn expand_scalar(
             0,
         )?;
     }
+    if b.functions.is_empty() {
+        // Static-only requests never reference the owned tape implementation.
+        // Omit these private declarations rather than exposing unused owner
+        // shapes to target capability analysis and public bridge generation.
+        b.out.functions.retain(|f| !runtime_functions.contains(&f.name));
+        b.out.records.retain(|n, _| !runtime_records.contains(n));
+    }
     p.records.extend(b.out.records);
     p.functions.extend(b.out.functions);
     Ok(())
@@ -172,6 +188,7 @@ struct Builder {
     occupied: BTreeSet<String>,
     next: usize,
     work: usize,
+    static_work: usize,
     prefix: String,
     blocked: BTreeSet<String>,
     types: BTreeMap<String, String>,
@@ -901,6 +918,14 @@ impl Builder {
             return Err("reverse objective needs a first parameter and f32 or f64 result".into());
         }
         let piecewise = kind.ends_with("piecewise");
+        let base_kind = kind.strip_prefix("compiled_").unwrap_or(kind);
+        if kind.starts_with("compiled_") {
+            if let Some(wrapper) = static_reverse::compile(self, &fun, base_kind) {
+                self.wrappers
+                    .insert((target.into(), kind.into()), wrapper.clone());
+                return Ok(wrapper);
+            }
+        }
         let objective = self.function(target, piecewise, 0)?;
         let weight = &fun.params[0].1;
         let dt = self.dtype(weight, 0)?;
@@ -940,7 +965,7 @@ impl Builder {
             ],
         );
         let gradient = self.gather(weight, f(v(&seed), "value"), v(&gradients), 0)?;
-        let (result, value) = if kind.starts_with("reverse_linearize") {
+        let (result, value) = if base_kind.starts_with("reverse_linearize") {
             let result = self.fresh();
             self.out.records.insert(
                 result.clone(),
