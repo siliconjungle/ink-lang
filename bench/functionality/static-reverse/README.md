@@ -41,6 +41,12 @@ realms. Calibration gives all roles equal call counts, and all transfer/setup is
 outside timing. The receipt binds this exact method. No frame-rate, production
 server capacity, GPU training or universal speedup claim follows.
 
+The retained adapter's `tapeDescriptors` diagnostic checks buffer descriptors,
+so it is false for both artifacts and is not an admission test. Static admission
+is checked by the `static_reverse` IR tests. The original emitted metadata has
+Flow/Node/Tape/Wire records; the compiled artifact omits those tape records. No
+measurement decision depends on that diagnostic field.
+
 ## Selected measurements
 
 Complete 64-coordinate updates took **17–39% less time** on this host. Each
