@@ -1,4 +1,4 @@
-//! Unique-ownership facts for in-place list appends. A lowering fact, not a
+//! Unique-ownership facts for private list storage. A lowering fact, not a
 //! proof rule: it never changes a program's meaning, only whether a backend
 //! may extend a list's storage instead of copying it.
 //!
@@ -32,7 +32,7 @@ impl InPlace {
     pub fn is_empty(&self) -> bool {
         self.sites.is_empty()
     }
-    /// Unique, dead outer-list storage for a sequential stage. This does not
+    /// Unique, dead outer-list storage for a sequential stage or call argument. This does not
     /// authorize element reuse, stage reordering, or moving a shared parameter.
     pub fn can_reuse(&self, receiver: &Expr) -> bool {
         self.reusable.contains(&ptr(receiver))
@@ -382,9 +382,15 @@ impl Owner<'_> {
                 }
                 trivially || FRESH.contains(&m.as_str())
             }
-            Expr::Call(n, args) if self.fresh_functions.contains(n) => {
-                for a in args { self.owned(a, scope, None, depth + 1)?; }
-                true
+            Expr::Call(n, args) => {
+                for a in args {
+                    let owned = self.owned(a, scope, None, depth + 1)?;
+                    if owned && self.p.functions.iter().any(|f| &f.name == n)
+                        && matches!(self.infer(a, scope), Some(Type::List(_))) {
+                        self.reusable.insert(ptr(a));
+                    }
+                }
+                trivially || self.fresh_functions.contains(n)
             }
             Expr::Record(name, fields) => {
                 let mut all = true;
@@ -433,6 +439,14 @@ pub fn analyse(body: &Expr, params: &[(String, Type)], p: &Program) -> InPlace {
 
 /// As `analyse`, with the body's declared result type as inference context.
 pub fn analyse_with_result(body: &Expr, params: &[(String, Type)], result: Option<&Type>, p: &Program) -> InPlace {
+    analyse_with_unique_lists(body, params, result, p, &[])
+}
+
+/// Private literal expansion may transfer a proven unique List argument into
+/// its corresponding parameter. The caller must supply facts from this same
+/// analysis; public/borrowed parameters must always use the ordinary entry.
+pub fn analyse_with_unique_lists(body: &Expr, params: &[(String, Type)], result: Option<&Type>, p: &Program,
+    unique: &[bool]) -> InPlace {
     // Bottom-up summaries start with shared parameters and no assumptions.
     // Only wholly fresh results propagate across calls; identity/recursive or
     // exhausted helpers retain ordinary copying. Summaries never import sites
@@ -445,25 +459,25 @@ pub fn analyse_with_result(body: &Expr, params: &[(String, Type)], result: Optio
             if fresh.contains(&f.name) || !matches!(f.result, Type::List(_) | Type::Named(_)) { continue; }
             let Some(nodes) = crate::analysis::node_count(&f.body, remaining.min(MAX_NODES)) else { continue; };
             remaining -= nodes;
-            if analyse_known(&f.body, &f.params, Some(&f.result), p, &fresh).is_some_and(|(_, owned)| owned) {
+            if analyse_known(&f.body, &f.params, Some(&f.result), p, &fresh, &[]).is_some_and(|(_, owned)| owned) {
                 fresh.insert(f.name.clone());
             }
             if remaining == 0 { break; }
         }
         if fresh.len() == before || remaining == 0 { break; }
     }
-    let mut ordinary = analyse_known(body, params, result, p, &BTreeSet::new())
+    let mut ordinary = analyse_known(body, params, result, p, &BTreeSet::new(), unique)
         .map_or_else(InPlace::default, |(sites, _)| sites);
     // Existing append consumers retain their original facts. New consumers
     // explicitly request the stronger cross-helper storage-reuse capability.
-    if let Some((extended, _)) = analyse_known(body, params, result, p, &fresh) {
+    if let Some((extended, _)) = analyse_known(body, params, result, p, &fresh, unique) {
         ordinary.reusable = extended.reusable;
     }
     ordinary
 }
 
 fn analyse_known(body: &Expr, params: &[(String, Type)], result: Option<&Type>, p: &Program,
-    fresh_functions: &BTreeSet<String>) -> Option<(InPlace, bool)> {
+    fresh_functions: &BTreeSet<String>, unique: &[bool]) -> Option<(InPlace, bool)> {
     if crate::analysis::node_count(body, MAX_NODES).is_none() {
         return None;
     }
@@ -476,7 +490,7 @@ fn analyse_known(body: &Expr, params: &[(String, Type)], result: Option<&Type>, 
     let scope: Scope = params
         .iter()
         .enumerate()
-        .map(|(i, (n, t))| (n.clone(), Binding { id: i, ty: t.clone(), owned: false }))
+        .map(|(i, (n, t))| (n.clone(), Binding { id: i, ty: t.clone(), owned: matches!(t,Type::List(_)) && unique.get(i)==Some(&true) }))
         .collect();
     let mut owner = Owner { p, f: &f, sites: BTreeSet::new(), reusable: BTreeSet::new(), fresh_functions };
     let owned = owner.owned(body, &scope, result, 0)?;
@@ -557,5 +571,24 @@ mod tests {
         }).collect();
         assert_eq!(counts["pipeline"],3);
         for name in ["borrowed","shared","pending","captured","failed_induction"] {assert_eq!(counts[name],0,"{name}");}
+    }
+
+    #[test]
+    fn private_list_transfer_keeps_callee_alias_and_pending_operand_checks() {
+        let p=crate::syntax::parse("module transfer;\n\
+          fn step(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}\n\
+          fn pending(xs:List<u32>)->List<u32>{return xs.zip(xs.map(fn(x)=>x+1),fn(x)=>fn(y)=>x+y);}\n\
+          fn caller(xs:List<u32>)->List<u32>{let ys=step(xs);return step(ys);}").unwrap();
+        let module=crate::core::CheckedModule::from_source(p).unwrap();let p=module.program();
+        for f in &p.functions[..2] {
+            let facts=analyse_with_unique_lists(&f.body,&f.params,Some(&f.result),p,&[true]);
+            let mut count=0;
+            crate::analysis::walk(&f.body,|e|if let Expr::Method(receiver,_,_)=e {count+=usize::from(facts.can_reuse(receiver));});
+            assert_eq!(count,usize::from(f.name=="step"));
+        }
+        let f=&p.functions[2];let facts=analyse_with_result(&f.body,&f.params,Some(&f.result),p);
+        let Expr::Let(_,_,_,body)=&f.body else {panic!("caller binding")};
+        let Expr::Call(_,args)=body.as_ref() else {panic!("caller invocation")};
+        assert!(facts.can_reuse(&args[0]));
     }
 }
