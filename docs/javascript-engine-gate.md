@@ -44,7 +44,10 @@ main thread. Identity checks reject accidentally shared processes/realms. Setup
 and imports remain outside timing; the loop and clock live inside each role.
 This prevents shared caller and `Function`-constructor optimization feedback
 from making identical modules appear different merely because of import order.
-All roles remain alive while samples alternate serially.
+All roles remain alive while samples alternate serially. Warmup and batch
+calibration execute equal call counts in all roles; only the baseline determines
+the common batch sizes. Calibration must not warm the baseline more than its
+byte-identical control.
 
 Each case has at least 65,536
 warmup calls, a 250 ms baseline warmup target, common calibrated batch sizes and

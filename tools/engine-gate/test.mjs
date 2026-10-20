@@ -6,7 +6,7 @@ import {pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {SETTINGS,assessEngines,validateEngine} from './policy.mjs';
 import {binding,verifyReceipt} from './gate.mjs';
-import {equal} from './worker.mjs';
+import {equal,measure} from './worker.mjs';
 const samples=x=>Array(SETTINGS.samples).fill(x);
 const runs=(kind,ratio=1,control=1)=>Array.from({length:3},()=>({isolation:SETTINGS.isolation,identity:kind==='chrome'?{kind,version:'155.0',userAgent:'Chrome/155.0',v8:'test'}:{kind:'node',node:kind==='node22'?'v22.22.1':'v26.1.0',v8:'test'},verification:Object.fromEntries(['baseline','candidate','control'].map(k=>[k,{independentChecks:1}])),rows:[{name:'full-call',callsPerBatch:1024,warmCalls:SETTINGS.warmCalls,completeOutputsChecked:SETTINGS.samples,samplesUs:{baseline:samples(10),candidate:samples(10*ratio),control:samples(10*control)}}]}));
 const engines=(a=1,b=1,c=1)=>({node22:runs('node22',a),node26:runs('node26',b),chrome:runs('chrome',c)});
@@ -49,3 +49,10 @@ try {
   assert.throws(()=>verifyReceipt(receipt,config,join(dir,'candidate.mjs'),join(dir,'compiler')),/stale receipt/);
 } finally {rmSync(dir,{recursive:true,force:true});}
 console.log('Engine gate: cross-engine regression, A/A noise, mixed processes, missing engines, exact outputs and stale receipts rejected');
+
+// Calibration must not give the baseline extra warmup / call-site feedback.
+const counts={baseline:0,candidate:0,control:0};
+await measure({baseline:'a',candidate:'b',workload:'c',settings:{warmCalls:2,maxCalls:8,warmMs:0,batchMs:0,samples:2},
+ createRole:async({role})=>({importMs:0,verification:{independentChecks:1},cases:[{name:'test',lifetime:'complete'}],realm:{Array:class{},Object:class{},Function:class{}},
+ time(name,n){counts[role]+=n;return {ms:1,value:{complete:true}};},close(){}})});
+assert.deepEqual(counts,{baseline:7,candidate:7,control:7});

@@ -55,11 +55,12 @@ export async function measure({baseline,candidate,workload,settings,reverse=fals
     const rows=[];
     for(const c of roles.baseline.cases) {
       const time=(name,n)=>roles[name].time(c.name,n);
+      const calibrate=async n=>{let ms;for(const name of ['baseline','candidate','control']){const r=await time(name,n);if(name==='baseline')ms=r.ms;}return ms;};
       let warm=settings.warmCalls;
-      while(warm<settings.maxCalls && (await time('baseline',warm)).ms<settings.warmMs)warm*=2;
+      while(warm<settings.maxCalls && await calibrate(warm)<settings.warmMs)warm*=2;
       for(const name of ['baseline','candidate','control'])await time(name,warm);
       let n=1;
-      while(n<settings.maxCalls && (await time('baseline',n)).ms<settings.batchMs)n*=2;
+      while(n<settings.maxCalls && await calibrate(n)<settings.batchMs)n*=2;
       const samples={baseline:[],candidate:[],control:[]};
       for(let trial=0;trial<settings.samples;trial++) {
         const values={};
