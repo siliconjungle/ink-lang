@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "source": "source.ink",
+  "baseline": "compiled-baseline.mjs",
+  "workload": "workload.mjs",
+  "inputs": [
+    "source.ink",
+    "workload.mjs"
+  ],
+  "frozenHashes": {
+    "source.ink": "7829179dcdb63b875e2011baf13ee8e2a407b108c75a1a88dcbcbb04654a497e",
+    "workload.mjs": "a620843522e12d25c08df4ccac7248f4f847f9b567ce748b5bd099fa123e456c",
+    "compiled-baseline.mjs": "b116ac565a62d050b073885004b246d135808c1b2f0e78b803f004df1f9bddef"
+  },
+  "cases": [
+    "gradient-64",
+    "learning-update-64",
+    "handwritten-update-64"
+  ],
+  "baselineProducer": {
+    "distribution": "c37c357ed3f185511f31432476b20315478b7e85",
+    "packages": {
+      "rust": "de96f9cb57c67b1bfab75fca1ae6cc7f853f9325",
+      "wasm": "f1c82e706362c3845b294c1887bc1fda62f86692",
+      "js": "cdc21a284331168148d43e0e0221bc8ddf7b3fff",
+      "gpu": "def274b5222ad65861f530e1002d34f491602356",
+      "runtime": "0b78ec1708d4f410c86fcc70d8b086eef6f8019f"
+    },
+    "corePackage": "b5895f1d79be47076ff97734c887a580e09c2a29",
+    "compilerBinarySha256": "be5c6814b7caf017f3c331535021248d9f638f105de945d835c37fc39083ad6b",
+    "command": "ink build source.ink --target javascript -o compiled-baseline.mjs",
+    "scope": "Initial explicit compiled-reverse floor; compiler-affecting sources and package pins match the integration commit. Timing comparison against the original interface remains separate."
+  }
+}
