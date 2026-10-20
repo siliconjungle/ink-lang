@@ -457,7 +457,12 @@ pub fn analyse_with_unique_lists(body: &Expr, params: &[(String, Type)], result:
         let before = fresh.len();
         for f in &p.functions {
             if fresh.contains(&f.name) || !matches!(f.result, Type::List(_) | Type::Named(_)) { continue; }
-            let Some(nodes) = crate::analysis::node_count(&f.body, remaining.min(MAX_NODES)) else { continue; };
+            let allowance = remaining.min(MAX_NODES);
+            let Some(nodes) = crate::analysis::node_count(&f.body, allowance) else {
+                remaining -= allowance;
+                if remaining == 0 { break; }
+                continue;
+            };
             remaining -= nodes;
             if analyse_known(&f.body, &f.params, Some(&f.result), p, &fresh, &[]).is_some_and(|(_, owned)| owned) {
                 fresh.insert(f.name.clone());
