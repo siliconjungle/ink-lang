@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "source": "source.ink",
+  "baseline": "baseline.mjs",
+  "workload": "existing-workload.mjs",
+  "inputs": [
+    "source.ink",
+    "existing-workload.mjs"
+  ],
+  "frozenHashes": {
+    "source.ink": "ffc4580ddbfc84f1bb2514ec830b388b67f05166088622dd54ca0a12edc472ad",
+    "baseline.mjs": "239abb777cc1eb02fd78cf5cc427fa63c78a517d67c992285e4cdda491bcb398",
+    "existing-workload.mjs": "2011b3f27d476438b143c760c129d0d23cbfc84f36d7b55317e092ef71b15573"
+  },
+  "cases": [
+    "scalar-f32",
+    "scalar-owned-f32",
+    "shift-public-8",
+    "shift-into-8",
+    "move-public-8",
+    "shift-public-100",
+    "shift-into-100",
+    "move-public-100"
+  ],
+  "baselineProducer": {
+    "distribution": "7c13d5291ba7336cd1db1e21ffab42e7d387ce13",
+    "javascript": "626571d12ea525cac24a37bb197594e82e53cf1a",
+    "compilerBinarySha256": "32ebf74ae95ae8a8ba67dcc0e8ffcff3885c61b8a74b75849e36828fdca7a2b8",
+    "command": "ink build source.ink --target javascript -o baseline.mjs"
+  }
+}

@@ -1,5 +1,5 @@
 import {median} from './worker.mjs';
-export const SETTINGS=Object.freeze({processes:3,samples:15,warmCalls:16384,warmMs:100,batchMs:12,maxCalls:1048576});
+export const SETTINGS=Object.freeze({processes:3,samples:15,warmCalls:65536,warmMs:250,batchMs:24,maxCalls:1048576});
 export const BUDGET=Object.freeze({relative:0.10,absoluteUs:0.02,controlRelative:0.10});
 // Process ranges are descriptive; they are deliberately not labelled confidence intervals.
 export function assess(runs,expectedCases) {
@@ -9,7 +9,7 @@ export function assess(runs,expectedCases) {
   }
   const rows=[];
   for(const name of expectedCases) {
-    const ratios=[],deltas=[],budgets=[],controls=[];
+    const ratios=[],deltas=[],budgets=[],controls=[],controlDeltas=[],controlBudgets=[];
     for(const run of runs) {
       if(run.rows.length!==expectedCases.length) throw Error('unexpected case count');
       const row=run.rows.find(r=>r.name===name);
@@ -22,12 +22,13 @@ export function assess(runs,expectedCases) {
       }
       const b=median(row.samplesUs.baseline),c=median(row.samplesUs.candidate),a=median(row.samplesUs.control);
       ratios.push(c/b);deltas.push(c-b);budgets.push(Math.max(BUDGET.absoluteUs,b*BUDGET.relative));controls.push(a/b);
+      controlDeltas.push(Math.abs(a-b));controlBudgets.push(Math.max(BUDGET.absoluteUs,b*BUDGET.controlRelative));
     }
-    const noisy=controls.some(x=>Math.abs(x-1)>BUDGET.controlRelative);
+    const noisy=controlDeltas.some((x,i)=>x>controlBudgets[i]);
     const allBad=deltas.every((x,i)=>x>budgets[i]);
     const allGood=deltas.every((x,i)=>x<=budgets[i]);
     rows.push({name,status:noisy?'inconclusive':allBad?'regression':allGood?'pass':'inconclusive',
-      ratio:median(ratios),processRatios:ratios,deltaUs:deltas,budgetUs:budgets,controlRatios:controls});
+      ratio:median(ratios),processRatios:ratios,deltaUs:deltas,budgetUs:budgets,controlRatios:controls,controlDeltaUs:controlDeltas,controlBudgetUs:controlBudgets});
   }
   return {status:rows.every(r=>r.status==='pass')?'pass':rows.some(r=>r.status==='regression')?'regression':'inconclusive',rows};
 }

@@ -34,9 +34,9 @@ binary hashes are recorded. The candidate is bound to its exact emitted bytes
 and compiler binary; the tooling checkout and package pins are recorded separately.
 Checkout metadata is provenance, not proof that a binary was built from it.
 
-Each engine runs three fresh processes serially. Each case has at least 16,384
-warmup calls, a 100 ms baseline warmup target, common calibrated batch sizes and
-15 samples with alternating order. Setup, imports, independent result checking
+Each engine runs three fresh processes serially. Each case has at least 65,536
+warmup calls, a 250 ms baseline warmup target, common calibrated batch sizes and
+15 samples with alternating order and calibrated batches targeting 24 ms. Setup, imports, independent result checking
 and complete-output consumption are outside timed intervals. A separate
 byte-identical baseline module supplies the A/A noise control. The public
 corpus covers complete 8/100-element forecasts and sequential twelve-coordinate
@@ -45,7 +45,7 @@ gradient updates. An independent binary32 evaluator checks every forecast and
 These finite checks do not prove compiler correctness.
 
 A case passes only when **every process** stays within the larger of **10% or
-0.02 microseconds** of its own baseline median. A/A drift over 10%, or processes
+0.02 microseconds** of its own baseline median. A/A differences beyond the larger of 10% or 0.02 microseconds, or processes
 that disagree about exceeding the budget, produce an inconclusive result, which
 also blocks the gate. The budget tolerates small timing variation while detecting
 the motivating 29% regression. Engines and cases are never averaged together.
@@ -53,6 +53,17 @@ Raw samples, process ratios and descriptive ranges remain available; they are
 not statistical confidence intervals. Cold import times are recorded separately
 and currently have no performance budget. Memory and whole-application latency
 need separate evidence.
+
+The same required job also runs the independent
+[call-boundary corpus](../bench/functionality/call-boundaries/README.md): scalar,
+list and record calls, public destinations, sealed prepared destinations, stable
+residual indexes and a capture/preparation-inclusive case. Its existing-API gate uses the preceding compiler; its new-API floor freezes
+the initial prepared-destination artifact. A separate old/new comparison uses
+the preceding compiled-value/materialization API for equivalent destination
+output and retains inconclusive results as observations. The adapter fuses element conversion into the destination
+copy; it does not add an extra top-level output conversion array. Prepared
+steady-state and preparation-inclusive results remain separate. Every engine
+and every case uses the same per-process regression and A/A noise budgets.
 
 The baseline does not regenerate automatically. Updating it requires an explicit
 review of source identities, hashes and per-engine results; a faster engine cannot
@@ -89,3 +100,10 @@ diagnostic comparison without compilation, and its receipt cannot be used for
 promotion. Real app build/deployment systems must call the verifier before
 replacing exports; this change wires the public corpus into Ink CI and does not
 modify or deploy an external application.
+
+The call-boundary investigation raised equal warmup counts and batch duration
+after byte-identical controls differed by 13–18% in earlier runs. Regression,
+and absolute-time regression budgets remain unchanged. A/A controls use the
+same 0.02 microsecond absolute floor: a few nanoseconds of variation on a fast
+scalar must not fail a stricter control rule than the candidate regression rule. Historical receipts retain their
+original 16,384-call / 100 ms / 12 ms settings and do not satisfy the new policy.

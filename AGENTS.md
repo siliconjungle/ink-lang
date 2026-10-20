@@ -365,3 +365,19 @@ device-training evidence distinct from host tape execution and from performance:
 the authored coordinate-forward/Adam consumer performs actual resident iterations,
 while the prepared graph and reverse tapes retain their existing CPU path. See
 docs/resident-source-training.md.
+
+Fixed-arity JavaScript scalar-result public adapters and owned/destination adapters preserve typed conversion order, contracts,
+exact floats and invocation-local schema memoization. Primitive scalar arguments
+need no memo; multiple converted object inputs and converted composites retain it.
+Unusual arity and exhausted adapter byte bounds keep the compact ordinary path.
+Prepared destination calls reuse existing sealed handles and lexical caches,
+never mutable host inputs. Scalar terminal lists can write directly; structured
+elements detach deeply with ordinary public floats. Destination capacity/disjointness
+remain trusted and partial writes are possible on failure; bounded canonical
+codec materialization is separate. No retained scratch pool, equality premise,
+range fact or profitable selection authority follows. See docs/prepared-destinations.md
+in the distribution and the call_boundaries conformance tests.
+
+Generated copier namespaces rename helper symbols only; preserve quoted source
+field/type names and schema literals verbatim. Do not text-replace whole emitted
+schemas or copier bodies to change private namespaces.
