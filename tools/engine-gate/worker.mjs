@@ -30,10 +30,17 @@ async function browserRole(init) {
   try {
     await new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=()=>reject(Error('benchmark realm failed to load'));document.body.append(frame);});
     const script=frame.contentDocument.createElement('script');script.type='module';
-    const loaded=new Promise((resolve,reject)=>{script.onload=resolve;script.onerror=()=>reject(Error('benchmark realm module failed to load'));});
-    script.textContent=`import {openRole} from ${JSON.stringify(import.meta.url)};globalThis.__inkEngineGateOpenRole=openRole;`;
-    frame.contentDocument.head.append(script);await loaded;
-    const api=await frame.contentWindow.__inkEngineGateOpenRole(init);
+    // Inline module scripts do not emit a load event. Resolve only after the
+    // module import completes, from inside the role's own realm.
+    const loaded=new Promise((resolve,reject)=>{
+      frame.contentWindow.__inkEngineGateReady=resolve;
+      frame.contentWindow.__inkEngineGateError=message=>reject(Error(message));
+      script.onerror=()=>reject(Error('benchmark realm module failed to load'));
+    });
+    script.textContent=`import(${JSON.stringify(import.meta.url)}).then(({openRole})=>globalThis.__inkEngineGateReady(openRole)).catch(error=>globalThis.__inkEngineGateError(String(error)));`;
+    frame.contentDocument.head.append(script);
+    const open=await loaded,api=await open(init);
+    delete frame.contentWindow.__inkEngineGateReady;delete frame.contentWindow.__inkEngineGateError;
     return {...api,close(){frame.remove();}};
   }catch(error){frame.remove();throw error;}
 }
