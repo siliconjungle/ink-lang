@@ -18,7 +18,9 @@ export function verifyUnchangedReceipt(receipt,configPath,candidate,compiler) {
   // This proof is only for self-contained emitted modules, not files whose
   // meaning changes with relative imports or their own location. Conservative
   // textual exclusions can reject benign metadata and never grant source laws.
-  if(/\bimport\b|\b(?:require|eval|Function)\s*\(|\b(?:__filename|__dirname|process|globalThis)\b/.test(bytes.toString('utf8')))throw Error('self-contained emitted module required');
+  // Emitted wire readers have local numeric require(n) bounds checks; these
+  // are ordinary lexical helpers, not external module loads in these ESM files.
+  if(/\bimport\b|\brequire\s*\(\s*[\x22\x27\x60]|\b(?:eval|Function)\s*\(|\b(?:__filename|__dirname|process|globalThis)\b/.test(bytes.toString('utf8')))throw Error('self-contained emitted module required');
   // Validate every engine identity, fresh run, independent result check, sample
   // and full-output check even when timing is inconclusive. No missing/failed
   // engine, incomplete run or changed-output regression may use this branch.
