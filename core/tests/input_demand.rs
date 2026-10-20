@@ -1,5 +1,41 @@
 use ink_core::{core::CheckedModule, input_demand, syntax};
 use std::collections::BTreeSet;
+#[test]
+fn helper_binding_chains_use_bounded_stack_without_changing_the_call_cutoff() {
+    std::thread::Builder::new()
+        .stack_size(2 * 1024 * 1024)
+        .spawn(|| {
+            for count in [60, 70] {
+                let mut source = String::from("module Chain;record Row{key:u32,unused:f32,}");
+                for i in 0..count {
+                    source.push_str(&format!("fn hop{i}(r:Row)->u32{{"));
+                    for j in 0..24 {
+                        source.push_str(&format!("let p{j}:u32={j};"));
+                    }
+                    source.push_str(&if i == 0 {
+                        "return r.key;}".to_owned()
+                    } else {
+                        format!("return hop{}(r);}}", i - 1)
+                    });
+                }
+                source.push_str(&format!("fn main(r:Row)->u32{{return hop{}(r);}}", count - 1));
+                let m = CheckedModule::from_source(syntax::parse(&source).unwrap()).unwrap();
+                let f = m
+                    .program()
+                    .functions
+                    .iter()
+                    .find(|f| f.name == "main")
+                    .unwrap();
+                assert_eq!(
+                    input_demand::fields(f, m.program()),
+                    vec![if count == 60 { set(&["key"]) } else { None }]
+                );
+            }
+        })
+        .unwrap()
+        .join()
+        .unwrap();
+}
 fn demand(body: &str) -> Vec<Option<BTreeSet<String>>> {
     let source=format!("module Demand; record Row{{key:u32,value:f32,flag:Bool,}} pub fn helper(xs:List<Row>)->u32{{return length(xs);}} pub fn run(xs:List<Row>,r:Row,cut:u32)->u32{{return {body};}}");
     let m = CheckedModule::from_source(syntax::parse(&source).unwrap()).unwrap();

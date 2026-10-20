@@ -36,7 +36,7 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
         nodes: usize,
         demands: Vec<Option<BTreeSet<String>>>,
     }
-    impl Walk<'_> {
+    impl<'a> Walk<'a> {
         fn whole(&mut self, origin: &Origin) {
             for i in origin.rows.iter().chain(&origin.lists) {
                 self.demands[*i] = None;
@@ -61,12 +61,65 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
             local.insert(name.clone(), args[0].clone());
             self.callback(body, &args[1..], &local)
         }
-        fn visit(&mut self, e: &Expr, env: &BTreeMap<String, Origin>) -> Origin {
-            self.nodes += 1;
-            if self.nodes > 100_000 {
-                self.demands.fill(None);
-                return Origin::default();
+        fn visit<'e>(&mut self, mut e: &'e Expr, env: &BTreeMap<String, Origin>) -> Origin
+        where
+            'a: 'e,
+        {
+            // Lexical suffixes and named helper bodies are tail traversals.
+            // Keep their environments and active names explicitly, rather than
+            // multiplying host stack depth by each helper's binding sequence.
+            let mut scope = std::borrow::Cow::Borrowed(env);
+            let mut entered = Vec::new();
+            let program = self.program;
+            let result = loop {
+                self.nodes += 1;
+                if self.nodes > 100_000 {
+                    self.demands.fill(None);
+                    break Origin::default();
+                }
+                match e {
+                    Expr::Let(name, _, initial, body) => {
+                        let origin = self.visit(initial, scope.as_ref());
+                        scope.to_mut().insert(name.clone(), origin);
+                        e = body;
+                    }
+                    Expr::Call(name, args) if program.functions.iter().any(|f| &f.name == name) => {
+                        let inputs: Vec<_> = args
+                            .iter()
+                            .map(|arg| self.visit(arg, scope.as_ref()))
+                            .collect();
+                        let function = program.functions.iter().find(|f| &f.name == name).unwrap();
+                        if function.params.len() != inputs.len()
+                            || self.active.len() >= 64
+                            || self.active.contains(name)
+                            || !bounded(&function.body)
+                            || program.contracts.precondition_checks.contains_key(name)
+                        {
+                            for input in &inputs {
+                                self.whole(input);
+                            }
+                            break Origin::default();
+                        }
+                        let local = function
+                            .params
+                            .iter()
+                            .zip(inputs)
+                            .map(|((param, _), input)| (param.clone(), input))
+                            .collect();
+                        self.active.insert(name.clone());
+                        entered.push(name.clone());
+                        scope = std::borrow::Cow::Owned(local);
+                        e = &function.body;
+                    }
+                    _ => break self.visit_inner(e, scope.as_ref()),
+                }
+            };
+            for name in entered {
+                self.active.remove(&name);
             }
+            result
+        }
+        fn visit_inner(&mut self, e: &Expr, env: &BTreeMap<String, Origin>) -> Origin {
             match e {
                 Expr::Var(n) => env.get(n).cloned().unwrap_or_default(),
                 Expr::Field(receiver, field) => {
@@ -82,12 +135,6 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
                         self.demands[i] = None;
                     }
                     Origin::default()
-                }
-                Expr::Let(name, _, initial, body) => {
-                    let origin = self.visit(initial, env);
-                    let mut local = env.clone();
-                    local.insert(name.clone(), origin);
-                    self.visit(body, &local)
                 }
                 Expr::Method(receiver, name, args)
                     if [
@@ -184,44 +231,6 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
                     result.union(self.visit(&args[2], env));
                     result
                 }
-                Expr::Call(name, args)
-                    if self.program.functions.iter().any(|f| &f.name == name) =>
-                {
-                    let inputs: Vec<_> = args.iter().map(|arg| self.visit(arg, env)).collect();
-                    let function = self
-                        .program
-                        .functions
-                        .iter()
-                        .find(|f| &f.name == name)
-                        .unwrap();
-                    // A recursive edge or exhausted budget conservatively demands
-                    // all its inputs. Top-level helpers have their own lexical scope.
-                    if function.params.len() != inputs.len()
-                        || self.active.len() >= 64
-                        || self.active.contains(name)
-                        || !bounded(&function.body)
-                        || self
-                            .program
-                            .contracts
-                            .precondition_checks
-                            .contains_key(name)
-                    {
-                        for input in &inputs {
-                            self.whole(input);
-                        }
-                        return Origin::default();
-                    }
-                    let local = function
-                        .params
-                        .iter()
-                        .zip(inputs)
-                        .map(|((param, _), input)| (param.clone(), input))
-                        .collect();
-                    self.active.insert(name.clone());
-                    let result = self.visit(&function.body, &local);
-                    self.active.remove(name);
-                    result
-                }
                 Expr::Lambda(name, body) => {
                     let mut local = env.clone();
                     local.insert(name.clone(), Origin::default());
@@ -271,6 +280,11 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
                 },
             );
         }
+    }
+    // No parameter can receive a field projection. Every possible traversal,
+    // including budget exhaustion, returns this same complete-conversion vector.
+    if env.is_empty() {
+        return w.demands;
     }
     let result = w.visit(&function.body, &env);
     w.whole(&result);
