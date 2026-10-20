@@ -20,6 +20,7 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Default, Debug)]
 pub struct InPlace {
     sites: BTreeSet<usize>,
+    reusable: BTreeSet<usize>,
 }
 impl InPlace {
     pub fn contains(&self, receiver: &Expr) -> bool {
@@ -30,6 +31,11 @@ impl InPlace {
     }
     pub fn is_empty(&self) -> bool {
         self.sites.is_empty()
+    }
+    /// Unique, dead outer-list storage for a sequential stage. This does not
+    /// authorize element reuse, stage reordering, or moving a shared parameter.
+    pub fn can_reuse(&self, receiver: &Expr) -> bool {
+        self.reusable.contains(&ptr(receiver))
     }
 }
 
@@ -180,17 +186,32 @@ fn contains_list(t: &Type, p: &Program, seen: &mut BTreeSet<String>) -> bool {
     }
 }
 
+fn mentions_root(args: &[Expr], root: usize, facts: &Facts) -> bool {
+    let mut found = false;
+    for arg in args {
+        crate::analysis::walk(arg, |node| {
+            found |= place(node, facts).is_some_and(|(_, other)| other.0 == root);
+        });
+    }
+    found
+}
+
 /// Mark places whose earlier, non-final occurrences sit where the value may
 /// be retained. A final occurrence is a move and retains nothing.
 fn retention(e: &Expr, parent: Option<(&Expr, usize)>, f: &mut Facts, p: &Program) {
     if let Some((occurrence, pl)) = place(e, f) {
         if !f.finals.contains(&occurrence) {
             let reads = match parent {
-                Some((Expr::Method(_, m, _), 0)) => READS.contains(&m.as_str()),
+                Some((Expr::Method(_, m, args), 0)) => {
+                    // A receiver is evaluated before its arguments, but read
+                    // afterward. Keep its pending loan when a later operand
+                    // mentions the same root (e.g. a.zip(a.map(...), ...)).
+                    READS.contains(&m.as_str()) && !mentions_root(args, pl.0, f)
+                },
                 Some((Expr::Method(_, m, _), _)) => m == "concat",
                 Some((Expr::Binary(..), _)) | Some((Expr::Field(..), _)) => true,
-                Some((Expr::Call(n, _), 0)) if FOLDS.contains(&n.as_str()) || n == "fold_until" => true,
-                Some((Expr::Call(n, _), _)) => p
+                Some((Expr::Call(n, args), 0)) if FOLDS.contains(&n.as_str()) || n == "fold_until" => !mentions_root(&args[1..], pl.0, f),
+                Some((Expr::Call(n, args), index)) => !mentions_root(&args[index+1..], pl.0, f) && p
                     .functions
                     .iter()
                     .find(|g| &g.name == n)
@@ -222,6 +243,8 @@ struct Owner<'a> {
     p: &'a Program,
     f: &'a Facts,
     sites: BTreeSet<usize>,
+    reusable: BTreeSet<usize>,
+    fresh_functions: &'a BTreeSet<String>,
 }
 
 impl Owner<'_> {
@@ -330,12 +353,14 @@ impl Owner<'_> {
                 // every step returns an owned accumulator (induction over the
                 // iterations). Sites found under a failed assumption are dropped.
                 let saved = self.sites.clone();
+                let saved_reusable = self.reusable.clone();
                 let assumed = init && {
                     let local = bind(true, self);
                     self.owned(body, &local, Some(&accumulator), depth + 1)?
                 };
                 if !assumed {
                     self.sites = saved;
+                    self.reusable = saved_reusable;
                     let local = bind(false, self);
                     self.owned(body, &local, Some(&accumulator), depth + 1)?;
                 }
@@ -351,7 +376,15 @@ impl Owner<'_> {
                 {
                     self.sites.insert(ptr(receiver));
                 }
+                if receiver_owned && matches!(self.infer(receiver, scope), Some(Type::List(_)))
+                    && ["map", "map_indexed", "filter", "scan"].contains(&m.as_str()) {
+                    self.reusable.insert(ptr(receiver));
+                }
                 trivially || FRESH.contains(&m.as_str())
+            }
+            Expr::Call(n, args) if self.fresh_functions.contains(n) => {
+                for a in args { self.owned(a, scope, None, depth + 1)?; }
+                true
             }
             Expr::Record(name, fields) => {
                 let mut all = true;
@@ -400,8 +433,39 @@ pub fn analyse(body: &Expr, params: &[(String, Type)], p: &Program) -> InPlace {
 
 /// As `analyse`, with the body's declared result type as inference context.
 pub fn analyse_with_result(body: &Expr, params: &[(String, Type)], result: Option<&Type>, p: &Program) -> InPlace {
+    // Bottom-up summaries start with shared parameters and no assumptions.
+    // Only wholly fresh results propagate across calls; identity/recursive or
+    // exhausted helpers retain ordinary copying. Summaries never import sites
+    // from another borrowed expression tree.
+    let mut fresh = BTreeSet::new();
+    let mut remaining = 16_384usize;
+    for _ in 0..8 {
+        let before = fresh.len();
+        for f in &p.functions {
+            if fresh.contains(&f.name) || !matches!(f.result, Type::List(_) | Type::Named(_)) { continue; }
+            let Some(nodes) = crate::analysis::node_count(&f.body, remaining.min(MAX_NODES)) else { continue; };
+            remaining -= nodes;
+            if analyse_known(&f.body, &f.params, Some(&f.result), p, &fresh).is_some_and(|(_, owned)| owned) {
+                fresh.insert(f.name.clone());
+            }
+            if remaining == 0 { break; }
+        }
+        if fresh.len() == before || remaining == 0 { break; }
+    }
+    let mut ordinary = analyse_known(body, params, result, p, &BTreeSet::new())
+        .map_or_else(InPlace::default, |(sites, _)| sites);
+    // Existing append consumers retain their original facts. New consumers
+    // explicitly request the stronger cross-helper storage-reuse capability.
+    if let Some((extended, _)) = analyse_known(body, params, result, p, &fresh) {
+        ordinary.reusable = extended.reusable;
+    }
+    ordinary
+}
+
+fn analyse_known(body: &Expr, params: &[(String, Type)], result: Option<&Type>, p: &Program,
+    fresh_functions: &BTreeSet<String>) -> Option<(InPlace, bool)> {
     if crate::analysis::node_count(body, MAX_NODES).is_none() {
-        return InPlace::default();
+        return None;
     }
     let mut f = Facts::default();
     let mut next = params.len();
@@ -414,11 +478,9 @@ pub fn analyse_with_result(body: &Expr, params: &[(String, Type)], result: Optio
         .enumerate()
         .map(|(i, (n, t))| (n.clone(), Binding { id: i, ty: t.clone(), owned: false }))
         .collect();
-    let mut owner = Owner { p, f: &f, sites: BTreeSet::new() };
-    match owner.owned(body, &scope, result, 0) {
-        Some(_) => InPlace { sites: owner.sites },
-        None => InPlace::default(),
-    }
+    let mut owner = Owner { p, f: &f, sites: BTreeSet::new(), reusable: BTreeSet::new(), fresh_functions };
+    let owned = owner.owned(body, &scope, result, 0)?;
+    Some((InPlace { sites: owner.sites, reusable: owner.reusable }, owned))
 }
 
 #[cfg(test)]
@@ -472,5 +534,28 @@ mod tests {
         assert_eq!(found["fresh_init"], 1);
         assert_eq!(found["leaked_step"], 0, "a step may return shared storage");
         assert_eq!(found["read_then_move"], 1, "reads do not retain");
+    }
+
+    #[test]
+    fn sequential_storage_reuse_is_fresh_across_helpers_and_respects_pending_loans() {
+        let p = crate::syntax::parse("module reuse;record Pair{left:List<u32>,right:List<u32>,}\n\
+          fn fresh(xs:List<u32>)->List<u32>{return xs.map(fn(x)=>x+1);}\n\
+          fn relay(xs:List<u32>)->List<u32>{return fresh(xs);}\n\
+          fn identity(xs:List<u32>)->List<u32>{return xs;}\n\
+          fn pipeline(xs:List<u32>)->List<u32>{return relay(xs).map(fn(x)=>x+1).filter(fn(x)=>x>2).scan();}\n\
+          fn borrowed(xs:List<u32>)->List<u32>{return identity(xs).map(fn(x)=>x+1);}\n\
+          fn shared(xs:List<u32>)->Pair{let a=fresh(xs);return Pair{left:a,right:a.map(fn(x)=>x+1)};}\n\
+          fn pending(xs:List<u32>)->List<u32>{let a=fresh(xs);return a.zip(a.map(fn(x)=>x+1),fn(x)=>fn(y)=>x+y);}\n\
+          fn captured(xs:List<u32>)->List<u32>{let a=fresh(xs);return a.map(fn(x)=>x+sum(a));}\n\
+          fn failed_induction(xs:List<u32>,ys:List<u32>)->List<u32>{return foldl(xs,[],fn(x)=>fn(a)=>choose(x>0,ys,a.map(fn(y)=>y+x)));}").unwrap();
+        let module=crate::core::CheckedModule::from_source(p).unwrap();let p=module.program();
+        let counts: BTreeMap<_,_>=p.functions.iter().map(|f| {
+            let facts=analyse_with_result(&f.body,&f.params,Some(&f.result),p);
+            let mut count=0;
+            crate::analysis::walk(&f.body,|e|if let Expr::Method(receiver,_,_)=e {count+=usize::from(facts.can_reuse(receiver));});
+            (f.name.as_str(),count)
+        }).collect();
+        assert_eq!(counts["pipeline"],3);
+        for name in ["borrowed","shared","pending","captured","failed_induction"] {assert_eq!(counts[name],0,"{name}");}
     }
 }
