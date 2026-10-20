@@ -5,8 +5,9 @@ The explicit `compiled_reverse_gradient` and `compiled_reverse_linearize` reques
 of constructing and dispatching an owned tape at runtime. They take the same
 objective, parameters, capacity, zero-cotangent policy and context as the original
 reverse requests. Existing requests retain their exact elaborated source images;
-using the new request is an authored source change with its own identity and
-checkpoint/proof bindings. The static domain applies to F32/F64 scalar and plain-record parameters, scalar/record context,
+using the new request is an authored source change. Successful static elaboration
+has a distinct checked image and checkpoint/proof bindings; a retained dynamic
+fallback can keep the original image. The static domain applies to F32/F64 scalar and plain-record parameters, scalar/record context,
 nonrecursive named helpers, lexical bindings, record construction/projection,
 addition, subtraction, multiplication, explicit division, negation, square root
 and literal `repeat` loops of at most 32 iterations. Dynamic lists, data-dependent

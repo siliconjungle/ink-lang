@@ -10,7 +10,7 @@ concurrency:
 jobs:
   javascript-engine-rollout:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 90
     env:
       CARGO_PROFILE_DEV_DEBUG: '0'
       CARGO_INCREMENTAL: '0'
@@ -75,6 +75,21 @@ jobs:
         path: |
           build/call-boundary-existing-rollout
           build/call-boundary-rollout
+    - name: Block complete static reverse learning regressions on every engine
+      run: >-
+        node tools/engine-gate/gate.mjs
+        --config bench/functionality/static-reverse/config.json
+        --compiler target/debug/ink
+        --out build/static-reverse-rollout
+        --node22 "$INK_GATE_NODE22"
+        --node26 "$(command -v node)"
+        --chrome "$(command -v google-chrome)"
+    - name: Retain complete static reverse learning measurements
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: javascript-static-reverse-rollout
+        path: build/static-reverse-rollout
   declared-feature-parity:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -1322,6 +1337,7 @@ jobs:
         cargo test --test frozen_state frozen_helper_chunks_preserve_long_computation_live_updates_and_checkpoints_on_all_targets -- --exact --nocapture
         python3 tools/build_gpu_wasm.py build/learned-program-adaptive-parity/gpu-module build/learned-program-frozen-parity/gpu-module --target-dir build/learned-program-browser-target
         python3 tools/build_gpu_wasm.py build/source-reverse-parity/gpu-module build/source-reverse-until-parity/gpu-module
+        python3 tools/build_gpu_wasm.py build/static-reverse-parity/gpu-module build/static-reverse64-parity/gpu-module --target-dir build/static-reverse-browser-target
         python3 tools/build_gpu_wasm.py build/prepared-complex-lifecycle/gpu-module build/scalar-statements-parity/gpu-module
         python3 tools/build_gpu_wasm.py build/frozen-program-parity/gpu-module build/shared-frozen-parameters-parity/gpu-module
         INK_TEST_WASM=1 cargo test --test trained_build composed_frozen_artifacts_initialize_live_weights_and_recheck_complete_plans -- --exact --nocapture
@@ -1333,6 +1349,8 @@ jobs:
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/learned-program-frozen-parity build/learned-program-frozen-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)"
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/source-reverse-until-parity build/source-reverse-until-browser.json
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/static-reverse-parity build/static-reverse-browser.json
+        node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/static-reverse64-parity build/static-reverse64-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/prepared-complex-lifecycle build/prepared-complex-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/scalar-statements-parity build/scalar-statements-browser.json
         node bench/gpu/replay-source-history-browser.mjs "$(command -v google-chrome)" build/frozen-program-parity build/frozen-program-browser.json
