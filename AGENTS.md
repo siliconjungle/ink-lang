@@ -381,3 +381,15 @@ in the distribution and the call_boundaries conformance tests.
 Generated copier namespaces rename helper symbols only; preserve quoted source
 field/type names and schema literals verbatim. Do not text-replace whole emitted
 schemas or copier bodies to change private namespaces.
+
+Whole static reverse tapes are a bounded alternative source elaboration for the
+existing F32/F64 reverse interfaces. Share only identical fixed operations on
+evaluated immutable scalar operands; retain distinct logical node capacities,
+strict unused work, descending nodes, ordered repeated edges and stopZero's lazy
+gate. Scalar SSA liveness may shorten storage, never erase dead-node chain rules.
+Shallow ordinary scalar continuation composition stays within existing target limits;
+optional source/node/phase/live/module bounds retain the owned-tape fallback and
+restore declarations/names. Omit bundled tape declarations only when no dynamic
+request references them. This grants no algebraic, physical, device-training or
+profitability authority. See docs/static-reverse-tapes.md and required source_reverse
+complete-history conformance.
