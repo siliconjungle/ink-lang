@@ -6,8 +6,7 @@ of constructing and dispatching an owned tape at runtime. They take the same
 objective, parameters, capacity, zero-cotangent policy and context as the original
 reverse requests. Existing requests retain their exact elaborated source images;
 using the new request is an authored source change with its own identity and
-checkpoint/proof bindings. This
-applies to F32/F64 scalar and plain-record parameters, scalar/record context,
+checkpoint/proof bindings. The static domain applies to F32/F64 scalar and plain-record parameters, scalar/record context,
 nonrecursive named helpers, lexical bindings, record construction/projection,
 addition, subtraction, multiplication, explicit division, negation, square root
 and literal `repeat` loops of at most 32 iterations. Dynamic lists, data-dependent
@@ -41,13 +40,13 @@ only those live values as parameters; they construct no intermediate tape or
 frame records. Dead intermediate storage is retired without erasing strict source
 work. There is no retained scratch pool or stale primal cache. The authored reverse
 interface keeps its existing ABI; elaborated helper signatures are ordinary checked
-functions. Static-only
-requests omit the unused bundled tape declarations. Mixed static/dynamic modules
+functions. Static-only requests omit the unused bundled tape declarations. Mixed static/dynamic modules
 retain the dynamic implementation as needed.
 
 Optional planning has independent limits: 8,192 source/shape visits and depth 32
-per request, 256 logical nodes, 768 bindings per phase, 192 live continuation parameters, and
-32,768 generated expression nodes, parameters and new record fields across one precision's
+per request, 256 logical nodes, 768 bindings per phase, 192 live continuation
+parameters, and 32,768 generated expression nodes, parameters and new record fields
+across one precision's
 expansion. Failed scheduling restores declarations and fresh names. These limits
 bound compiler work and output; they do not change the authored dynamic tape's
 capacity or raise ordinary target/source limits.
@@ -62,3 +61,10 @@ See the [complete-update study](../bench/functionality/static-reverse/README.md)
 the standalone `static_reverse` tests and the required `source_reverse` learning
 histories. The tests compare logical capacity, exact scalar bits, exceptional
 values, duplicate primals/edges, source transport, complete events and snapshots.
+
+Field-demand analysis traverses lexical suffixes and named helper bodies with an
+explicit environment and active-name stack. The existing 64-active-call cutoff
+and 100,000-visit budget retain complete conversion on exhaustion. Functions with
+no record/list-of-record parameters return the same complete-conversion vector
+without traversing their scalar graphs. This prevents compiler stack growth along
+continuation chains without changing projected fields or getter demand.
