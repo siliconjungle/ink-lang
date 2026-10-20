@@ -36,8 +36,9 @@ objective, reward, publication schedule or optimizer.
 coordinates and tracked arithmetic consume nodes; untracked constant computation
 does not. Exhaustion returns `Err`, never a partial gradient. An enclosing
 fallible learning action can propagate that failure and retain its transaction.
-Dynamic execution gets a fresh owned tape. Eligible bounded fixed-shape objectives
-can instead use [whole static tapes](static-reverse-tapes.md), retaining logical
+Each original reverse request gets a fresh owned tape. Explicit
+`compiled_reverse_gradient` / `compiled_reverse_linearize` requests can use
+[whole static tapes](static-reverse-tapes.md), retaining logical
 node capacity, reverse order and the same explicit zero-cotangent policy.
 No primal values or gradients survive
 across invocations as a hidden cache.

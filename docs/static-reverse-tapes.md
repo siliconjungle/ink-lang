@@ -1,7 +1,12 @@
 # Whole static reverse tapes
 
-The existing source reverse interfaces can compile a complete bounded scalar
-graph instead of constructing and dispatching an owned tape at runtime. This
+The explicit `compiled_reverse_gradient` and `compiled_reverse_linearize` requests
+(and their `_piecewise` variants) compile a complete bounded scalar graph instead
+of constructing and dispatching an owned tape at runtime. They take the same
+objective, parameters, capacity, zero-cotangent policy and context as the original
+reverse requests. Existing requests retain their exact elaborated source images;
+using the new request is an authored source change with its own identity and
+checkpoint/proof bindings. This
 applies to F32/F64 scalar and plain-record parameters, scalar/record context,
 nonrecursive named helpers, lexical bindings, record construction/projection,
 addition, subtraction, multiplication, explicit division, negation, square root
