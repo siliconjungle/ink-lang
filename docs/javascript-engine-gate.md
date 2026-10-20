@@ -1,7 +1,9 @@
 Compiler rollout checks run the proposed compiler's JavaScript on **Node
 22.22.1, Node 26.1.0 and installed Google Chrome**, independently. The required
 `javascript-engine-rollout` CI job feeds `complete-conformance`; a failure,
-missing engine or inconclusive measurement blocks that aggregate check.
+missing engine blocks that aggregate check. An inconclusive changed-module
+measurement also blocks it. Exact standalone module identity is a separate
+unchanged-output proof, described below.
 
 Node 22.22.1 matches the audited application's pinned load-generator image.
 It is a conservative compatibility target, **not an attestation of the hosted
@@ -34,7 +36,22 @@ binary hashes are recorded. The candidate is bound to its exact emitted bytes
 and compiler binary; the tooling checkout and package pins are recorded separately.
 Checkout metadata is provenance, not proof that a binary was built from it.
 
-Each engine runs three fresh processes serially. Each case has at least 65,536
+Each engine runs three fresh process groups serially. The baseline, candidate
+and byte-identical control own independent module instances, adapters and timed
+call sites. Each Node role runs in an ordinary separate Node process with its
+default realm and no extra engine flags. V8 IPC serialization preserves typed
+arrays, NaNs and signed zeros; messaging and transfer occur outside the role's
+timed loop. Chrome roles use separate same-origin iframe realms on the same
+main thread. Identity checks reject accidentally shared processes/realms. Setup
+and imports remain outside timing; the loop and clock live inside each role.
+This prevents shared caller and `Function`-constructor optimization feedback
+from making identical modules appear different merely because of import order.
+All roles remain alive while samples alternate serially. Warmup and batch
+calibration execute equal call counts in all roles; only the baseline determines
+the common batch sizes. Calibration must not warm the baseline more than its
+byte-identical control.
+
+Each case has at least 65,536
 warmup calls, a 250 ms baseline warmup target, common calibrated batch sizes and
 15 samples with alternating order and calibrated batches targeting 24 ms. Setup, imports, independent result checking
 and complete-output consumption are outside timed intervals. A separate
@@ -107,3 +124,42 @@ and absolute-time regression budgets remain unchanged. A/A controls use the
 same 0.02 microsecond absolute floor: a few nanoseconds of variation on a fast
 scalar must not fail a stricter control rule than the candidate regression rule. Historical receipts retain their
 original 16,384-call / 100 ms / 12 ms settings and do not satisfy the new policy.
+
+The explicit compiled-reverse corpus adds complete 64-coordinate gradients and
+updates, plus an independent handwritten control. Its original/compiled source
+forms are retained separately. Fixed 65,536-call warmups are deliberately kept
+for this heavier workload: worker timeouts are ten minutes and the combined CI
+job allows ninety minutes. This changes scheduling limits only; sample counts,
+warmup rules, regression budgets and inconclusive rejection remain unchanged.
+
+The compiled-reverse investigation retained rejected shared-realm measurements
+after identical Node 22 modules differed by up to about 35%, correlated with
+import order. Those receipts keep their original method and are not promotion
+evidence. Independent-role receipts bind the new loader and isolation setting; the
+verifier rejects receipts from the old method. Numerical budgets are unchanged.
+
+A Node `vm.SourceTextModule` prototype showed context-global access overhead
+and was discarded as an insight-only experiment. It supplies no retained
+measurement or promotion evidence. Required Node measurements use ordinary
+processes.
+
+`rollout.mjs` wraps the strict timing gate for compiler rollout. If the module
+bytes differ, the timing gate remains mandatory. If the compiler emits exactly
+the frozen standalone module bytes, a completed compiled receipt can instead
+establish unchanged emitted output. It still requires all three engines, every
+fresh run, independent verification, valid samples and complete-output checks.
+Conservative checks exclude imports, location-dependent globals and dynamic code
+loading. Missing/failed checks, stale bindings and diagnostic receipts reject.
+A failed fresh attempt cannot reuse an older completed receipt.
+
+The wrapper writes `unchanged-module.json` with its own verifier hash and raw
+receipt hash. The noisy timing decision remains blocked/inconclusive; it is
+never converted into a passing measurement. This proof says the compiler did
+not change this standalone executable module. It makes no speedup, memory,
+whole-application, dependency or deployment claim. CI uses the wrapper; use
+`rollout.mjs --verify ...` to recompute either accepted basis from current bytes.
+The strict `gate.mjs --verify` continues to reject inconclusive measurements.
+
+All four corpora run even when an earlier comparison fails, unless the job is
+cancelled. Failures still fail the required job; later evidence is collected
+without hiding an earlier regression, inconclusive result or missing engine.

@@ -14,7 +14,7 @@ export function binding(configPath,candidate,compiler) {
   const config=JSON.parse(readFileSync(configPath)),base=dirname(configPath);
   const inputs=Object.fromEntries(config.inputs.map(p=>[p,sha(resolve(base,p))]));
   for(const [p,expected] of Object.entries(config.frozenHashes)) if(sha(resolve(base,p))!==expected) throw Error('frozen baseline/input changed: '+p);
-  const tools=Object.fromEntries(['gate.mjs','policy.mjs','worker.mjs','node.mjs'].map(p=>[p,sha(resolve(HERE,p))]));
+  const tools=Object.fromEntries(['gate.mjs','policy.mjs','worker.mjs','node.mjs','node-roles.mjs','node-role.mjs'].map(p=>[p,sha(resolve(HERE,p))]));
   return {policy:hashJson({SETTINGS,BUDGET}),config:sha(configPath),inputs,tools,
     baseline:sha(resolve(base,config.baseline)),candidate:sha(candidate),compiler:sha(compiler)};
 }
@@ -59,7 +59,7 @@ async function main() {
   const save=()=>writeFileSync(resolve(out,'receipt.json'),JSON.stringify(receipt,null,2)+'\n');
   try {
     for(const id of ['node22','node26']) for(let i=0;i<SETTINGS.processes;i++) {
-      runs[id].push(JSON.parse(execFileSync(opts[id],[resolve(HERE,'node.mjs'),JSON.stringify({...local,reverse:!!(i%2)})],{encoding:'utf8',timeout:180000,maxBuffer:16*1024*1024})));
+      runs[id].push(JSON.parse(execFileSync(opts[id],[resolve(HERE,'node.mjs'),JSON.stringify({...local,reverse:!!(i%2)})],{encoding:'utf8',timeout:600000,maxBuffer:16*1024*1024})));
       console.log(`${id}: fresh process ${i+1}/${SETTINGS.processes} complete`);save();
     }
     // Expose only declared files on loopback, never the repository or private source tree.

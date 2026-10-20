@@ -1,0 +1,239 @@
+{
+  "schema": 1,
+  "compiler_sha256": "be5c6814b7caf017f3c331535021248d9f638f105de945d835c37fc39083ad6b",
+  "compiler_affecting_distribution": "c37c357ed3f185511f31432476b20315478b7e85",
+  "core_package": "b5895f1d79be47076ff97734c887a580e09c2a29",
+  "standalone_core_tests": 539,
+  "package_tests": {
+    "rust": 22,
+    "javascript": 70,
+    "gpu": 33,
+    "runtime": 9
+  },
+  "integrated_emission_tests": 27,
+  "cross_backend_observations": {
+    "f32": 51,
+    "f64": 51
+  },
+  "browser_comparisons": 306,
+  "benchmarks": {
+    "comparison-final": {
+      "receipt": "measurements/comparison-final/receipt.json",
+      "receiptSha256": "d23ade98f1986d2323ac70c6fa6f16fa4d7dc019bf5a92089cfb3c5b21260464",
+      "measurementDecision": "blocked",
+      "engines": {
+        "node22": {
+          "status": "inconclusive",
+          "cases": {
+            "gradient-64": "inconclusive",
+            "learning-update-64": "pass",
+            "handwritten-update-64": "pass"
+          }
+        },
+        "node26": {
+          "status": "pass",
+          "cases": {
+            "gradient-64": "pass",
+            "learning-update-64": "pass",
+            "handwritten-update-64": "pass"
+          }
+        },
+        "chrome": {
+          "status": "pass",
+          "cases": {
+            "gradient-64": "pass",
+            "learning-update-64": "pass",
+            "handwritten-update-64": "pass"
+          }
+        }
+      },
+      "rolloutBasis": "not-accepted",
+      "unchangedModuleProof": null
+    },
+    "floor-final": {
+      "receipt": "measurements/floor-final/receipt.json",
+      "receiptSha256": "1363b40837c698284e185b5f52d75c8489365d7af0efad44319867bbd86ed6ef",
+      "measurementDecision": "blocked",
+      "engines": {
+        "node22": {
+          "status": "inconclusive",
+          "cases": {
+            "gradient-64": "inconclusive",
+            "learning-update-64": "inconclusive",
+            "handwritten-update-64": "pass"
+          }
+        },
+        "node26": {
+          "status": "pass",
+          "cases": {
+            "gradient-64": "pass",
+            "learning-update-64": "pass",
+            "handwritten-update-64": "pass"
+          }
+        },
+        "chrome": {
+          "status": "pass",
+          "cases": {
+            "gradient-64": "pass",
+            "learning-update-64": "pass",
+            "handwritten-update-64": "pass"
+          }
+        }
+      },
+      "rolloutBasis": "unchanged-emitted-module",
+      "unchangedModuleProof": "measurements/floor-final/unchanged-module.json"
+    },
+    "existing-learning-final": {
+      "receipt": "measurements/existing-learning-final/receipt.json",
+      "receiptSha256": "900f397ca33a5cadfcf898e37339ed30b8472f3680207e677ef7d29d0be44fb0",
+      "measurementDecision": "pass",
+      "engines": {
+        "node22": {
+          "status": "pass",
+          "cases": {
+            "forecast-8": "pass",
+            "forecast-100": "pass",
+            "learning-update": "pass"
+          }
+        },
+        "node26": {
+          "status": "pass",
+          "cases": {
+            "forecast-8": "pass",
+            "forecast-100": "pass",
+            "learning-update": "pass"
+          }
+        },
+        "chrome": {
+          "status": "pass",
+          "cases": {
+            "forecast-8": "pass",
+            "forecast-100": "pass",
+            "learning-update": "pass"
+          }
+        }
+      },
+      "rolloutBasis": "timing-pass",
+      "unchangedModuleProof": null
+    },
+    "existing-calls-final": {
+      "receipt": "measurements/existing-calls-final/receipt.json",
+      "receiptSha256": "56515697d75607d6d5065e7773c1b7c72590d9ce2934bcf1410d16f6ad329902",
+      "measurementDecision": "blocked",
+      "engines": {
+        "node22": {
+          "status": "inconclusive",
+          "cases": {
+            "scalar-f32": "pass",
+            "scalar-owned-f32": "pass",
+            "shift-public-8": "pass",
+            "shift-into-8": "pass",
+            "move-public-8": "pass",
+            "shift-public-100": "pass",
+            "shift-into-100": "inconclusive",
+            "move-public-100": "pass"
+          }
+        },
+        "node26": {
+          "status": "inconclusive",
+          "cases": {
+            "scalar-f32": "pass",
+            "scalar-owned-f32": "pass",
+            "shift-public-8": "pass",
+            "shift-into-8": "pass",
+            "move-public-8": "pass",
+            "shift-public-100": "pass",
+            "shift-into-100": "pass",
+            "move-public-100": "inconclusive"
+          }
+        },
+        "chrome": {
+          "status": "pass",
+          "cases": {
+            "scalar-f32": "pass",
+            "scalar-owned-f32": "pass",
+            "shift-public-8": "pass",
+            "shift-into-8": "pass",
+            "move-public-8": "pass",
+            "shift-public-100": "pass",
+            "shift-into-100": "pass",
+            "move-public-100": "pass"
+          }
+        }
+      },
+      "rolloutBasis": "not-accepted",
+      "unchangedModuleProof": null
+    },
+    "prepared-calls-final": {
+      "receipt": "measurements/prepared-calls-final/receipt.json",
+      "receiptSha256": "680dde9974e8edcb053e5390fd9ded37cf49d9ab2bbf254ab4de08d529dfe5af",
+      "measurementDecision": "blocked",
+      "engines": {
+        "node22": {
+          "status": "inconclusive",
+          "cases": {
+            "scalar-f32": "pass",
+            "scalar-owned-f32": "pass",
+            "shift-public-8": "pass",
+            "shift-into-8": "pass",
+            "move-public-8": "pass",
+            "shift-prepared-8": "pass",
+            "move-prepared-8": "pass",
+            "shift-public-100": "pass",
+            "shift-into-100": "pass",
+            "move-public-100": "pass",
+            "shift-prepared-100": "pass",
+            "move-prepared-100": "pass",
+            "indexed-prepared-100": "pass",
+            "shift-prepare-call-8": "inconclusive"
+          }
+        },
+        "node26": {
+          "status": "inconclusive",
+          "cases": {
+            "scalar-f32": "pass",
+            "scalar-owned-f32": "pass",
+            "shift-public-8": "pass",
+            "shift-into-8": "pass",
+            "move-public-8": "pass",
+            "shift-prepared-8": "pass",
+            "move-prepared-8": "pass",
+            "shift-public-100": "pass",
+            "shift-into-100": "pass",
+            "move-public-100": "pass",
+            "shift-prepared-100": "pass",
+            "move-prepared-100": "pass",
+            "indexed-prepared-100": "pass",
+            "shift-prepare-call-8": "inconclusive"
+          }
+        },
+        "chrome": {
+          "status": "pass",
+          "cases": {
+            "scalar-f32": "pass",
+            "scalar-owned-f32": "pass",
+            "shift-public-8": "pass",
+            "shift-into-8": "pass",
+            "move-public-8": "pass",
+            "shift-prepared-8": "pass",
+            "move-prepared-8": "pass",
+            "shift-public-100": "pass",
+            "shift-into-100": "pass",
+            "move-public-100": "pass",
+            "shift-prepared-100": "pass",
+            "move-prepared-100": "pass",
+            "indexed-prepared-100": "pass",
+            "shift-prepare-call-8": "pass"
+          }
+        }
+      },
+      "rolloutBasis": "unchanged-emitted-module",
+      "unchangedModuleProof": "measurements/prepared-calls-final/unchanged-module.json"
+    }
+  },
+  "scope": "Finite exact-value, history and measurement evidence; no whole-compiler proof. Reverse graphs execute on CPU; actual-device controls are separate.",
+  "allRequiredRolloutChecksAccepted": false,
+  "unacceptedCheck": "The historical older eight-case call comparison has inconclusive Node 22/26 controls. It remains required in CI; no timing decision was relabelled.",
+  "archivedBrowserReplayComparisons": 306,
+  "publishedPreparedArtifactIdentity": "published-call-artifact-identity.json"
+}
