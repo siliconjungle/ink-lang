@@ -37,6 +37,7 @@ jobs:
         node tools/engine-gate/test.mjs
         node tools/engine-gate/rollout.test.mjs
     - name: Block regressions separately on Node 22, Node 26 and real Chrome
+      if: ${{ !cancelled() }}
       run: >-
         node tools/engine-gate/rollout.mjs
         --config bench/functionality/engine-gate/config.json
@@ -52,6 +53,7 @@ jobs:
         name: javascript-engine-rollout
         path: build/engine-rollout
     - name: Block existing public API regressions against the preceding compiler
+      if: ${{ !cancelled() }}
       run: >-
         node tools/engine-gate/rollout.mjs
         --config bench/functionality/call-boundaries/existing-api-config.json
@@ -61,6 +63,7 @@ jobs:
         --node26 "$(command -v node)"
         --chrome "$(command -v google-chrome)"
     - name: Block prepared-destination regressions against its explicit API floor
+      if: ${{ !cancelled() }}
       run: >-
         node tools/engine-gate/rollout.mjs
         --config bench/functionality/call-boundaries/config.json
@@ -78,6 +81,7 @@ jobs:
           build/call-boundary-existing-rollout
           build/call-boundary-rollout
     - name: Block complete static reverse learning regressions on every engine
+      if: ${{ !cancelled() }}
       run: >-
         node tools/engine-gate/rollout.mjs
         --config bench/functionality/static-reverse/config.json

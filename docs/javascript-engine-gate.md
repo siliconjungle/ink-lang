@@ -138,9 +138,10 @@ import order. Those receipts keep their original method and are not promotion
 evidence. Independent-role receipts bind the new loader and isolation setting; the
 verifier rejects receipts from the old method. Numerical budgets are unchanged.
 
-A diagnostic Node `vm.SourceTextModule` attempt also remains archived: its
-context-global access overhead made it unrepresentative of normal Node execution.
-It is not promotion evidence. Required Node measurements use ordinary processes.
+A Node `vm.SourceTextModule` prototype showed context-global access overhead
+and was discarded as an insight-only experiment. It supplies no retained
+measurement or promotion evidence. Required Node measurements use ordinary
+processes.
 
 `rollout.mjs` wraps the strict timing gate for compiler rollout. If the module
 bytes differ, the timing gate remains mandatory. If the compiler emits exactly
@@ -158,3 +159,7 @@ not change this standalone executable module. It makes no speedup, memory,
 whole-application, dependency or deployment claim. CI uses the wrapper; use
 `rollout.mjs --verify ...` to recompute either accepted basis from current bytes.
 The strict `gate.mjs --verify` continues to reject inconclusive measurements.
+
+All four corpora run even when an earlier comparison fails, unless the job is
+cancelled. Failures still fail the required job; later evidence is collected
+without hiding an earlier regression, inconclusive result or missing engine.
