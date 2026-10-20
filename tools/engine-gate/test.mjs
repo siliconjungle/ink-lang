@@ -1,0 +1,35 @@
+import assert from 'node:assert/strict';
+import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {SETTINGS,assessEngines,validateEngine} from './policy.mjs';
+import {binding,verifyReceipt} from './gate.mjs';
+import {equal} from './worker.mjs';
+const samples=x=>Array(SETTINGS.samples).fill(x);
+const runs=(kind,ratio=1,control=1)=>Array.from({length:3},()=>({identity:kind==='chrome'?{kind,version:'155.0',userAgent:'Chrome/155.0',v8:'test'}:{kind:'node',node:kind==='node22'?'v22.22.1':'v26.1.0',v8:'test'},verification:Object.fromEntries(['baseline','candidate','control'].map(k=>[k,{independentChecks:1}])),rows:[{name:'full-call',callsPerBatch:1024,warmCalls:16384,completeOutputsChecked:15,samplesUs:{baseline:samples(10),candidate:samples(10*ratio),control:samples(10*control)}}]}));
+const engines=(a=1,b=1,c=1)=>({node22:runs('node22',a),node26:runs('node26',b),chrome:runs('chrome',c)});
+assert.equal(assessEngines(engines(),['full-call']).status,'pass');
+const old=assessEngines(engines(1.29,.59),['full-call']);
+assert.equal(old.status,'blocked');assert.equal(old.engines.node22.status,'regression');assert.equal(old.engines.node26.status,'pass');
+const noisy=engines();noisy.chrome=runs('chrome',1,1.2);assert.equal(assessEngines(noisy,['full-call']).engines.chrome.status,'inconclusive');
+const mixed=engines();mixed.node22[1].rows[0].samplesUs.candidate=samples(13);assert.equal(assessEngines(mixed,['full-call']).engines.node22.status,'inconclusive');
+assert.throws(()=>assessEngines({node22:runs('node22')},['full-call']),/all required engines/);
+const missing=engines();missing.chrome.pop();assert.throws(()=>assessEngines(missing,['full-call']),/missing fresh process/);
+assert.throws(()=>validateEngine('node22',{kind:'node',node:'v26.1.0',v8:'test'}),/22.22.1/);
+const unchecked=engines();delete unchecked.chrome[0].verification;assert.throws(()=>assessEngines(unchecked,['full-call']),/independent verification/);
+assert.throws(()=>equal({a:-0},{a:0}),/unequal/);equal({a:NaN},{a:NaN});
+const dir=mkdtempSync(join(tmpdir(),'ink-gate-test-'));
+try {
+  for(const f of ['source.ink','workload.mjs','baseline.mjs','candidate.mjs','compiler']) writeFileSync(join(dir,f),f);
+  const config=join(dir,'config.json');
+  writeFileSync(config,JSON.stringify({inputs:['source.ink','workload.mjs'],baseline:'baseline.mjs',cases:['full-call'],frozenHashes:{}}));
+  const receipt={schema:'ink-engine-gate-v1',mode:'compiled',settings:SETTINGS,binding:binding(config,join(dir,'candidate.mjs'),join(dir,'compiler')),runs:engines()};
+  assert.equal(verifyReceipt(receipt,config,join(dir,'candidate.mjs'),join(dir,'compiler')).status,'pass');
+  const rejected=structuredClone(receipt);rejected.runs=engines(1.29,.59);rejected.decision={status:'pass'};
+  assert.throws(()=>verifyReceipt(rejected,config,join(dir,'candidate.mjs'),join(dir,'compiler')),/blocked/);
+  writeFileSync(join(dir,'candidate.mjs'),'different output');
+  assert.throws(()=>verifyReceipt(receipt,config,join(dir,'candidate.mjs'),join(dir,'compiler')),/stale receipt/);
+  writeFileSync(join(dir,'candidate.mjs'),'candidate.mjs');writeFileSync(join(dir,'compiler'),'different compiler');
+  assert.throws(()=>verifyReceipt(receipt,config,join(dir,'candidate.mjs'),join(dir,'compiler')),/stale receipt/);
+} finally {rmSync(dir,{recursive:true,force:true});}
+console.log('Engine gate: cross-engine regression, A/A noise, mixed processes, missing engines, exact outputs and stale receipts rejected');
