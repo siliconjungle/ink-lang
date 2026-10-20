@@ -8,6 +8,47 @@ concurrency:
   group: conformance-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
+  javascript-engine-rollout:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CARGO_PROFILE_DEV_DEBUG: '0'
+      CARGO_INCREMENTAL: '0'
+      CARGO_BUILD_JOBS: '2'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22.22.1'
+    - name: Retain exact Node 22 executable
+      run: echo "INK_GATE_NODE22=$(command -v node)" >> "$GITHUB_ENV"
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '26.1.0'
+    - name: Build the proposed compiler outside measurements
+      run: cargo build --locked --bin ink
+    - name: Install pinned browser driver
+      run: npm ci --prefix tools/engine-gate --ignore-scripts --no-audit --no-fund
+    - name: Validate fail-closed engine policy and receipt checks
+      run: node tools/engine-gate/test.mjs
+    - name: Block regressions separately on Node 22, Node 26 and real Chrome
+      run: >-
+        node tools/engine-gate/gate.mjs
+        --config bench/functionality/engine-gate/config.json
+        --compiler target/debug/ink
+        --out build/engine-rollout
+        --node22 "$INK_GATE_NODE22"
+        --node26 "$(command -v node)"
+        --chrome "$(command -v google-chrome)"
+    - name: Retain artifacts, identities, raw timings and gate verdicts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: javascript-engine-rollout
+        path: build/engine-rollout
   declared-feature-parity:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -1358,6 +1399,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: always()
     needs:
+    - javascript-engine-rollout
     - declared-feature-parity
     - cpu-foundations
     - cpu-knowledge
