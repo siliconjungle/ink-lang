@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "source": "source.ink",
+  "baseline": "baseline.mjs",
+  "workload": "workload.mjs",
+  "inputs": [
+    "source.ink",
+    "workload.mjs",
+    "baseline-source.ink"
+  ],
+  "frozenHashes": {
+    "source.ink": "7829179dcdb63b875e2011baf13ee8e2a407b108c75a1a88dcbcbb04654a497e",
+    "baseline-source.ink": "7ea140d9a03074fd90aad2a3e10addfeb6025604b150c3befe0964b17a53be66",
+    "baseline.mjs": "3fe6308451b28802e007b87036582e693286a23c5a54ad177ee725d53e3868e1",
+    "workload.mjs": "a620843522e12d25c08df4ccac7248f4f847f9b567ce748b5bd099fa123e456c"
+  },
+  "cases": [
+    "gradient-64",
+    "learning-update-64",
+    "handwritten-update-64"
+  ],
+  "baselineProducer": {
+    "distribution": "e39f97e310c28f49a7993a28e3f37b28f60d0f78",
+    "core": "1c1b5c577dfec1d8aef115864e28c944f1fb87ee",
+    "compilerBinarySha256": "8cef9b64237c6214a6173a9356b4f61890eb93e91a79b177c11c9c8b1760ba54",
+    "command": "ink build baseline-source.ink --target javascript -o baseline.mjs"
+  },
+  "comparison": "Explicit compiled reverse requests versus the original reverse requests, same objective/capacity/zero policy and update; exact and independent numerical controls required."
+}

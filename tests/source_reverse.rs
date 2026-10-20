@@ -5,6 +5,110 @@ mod parity;
 const SOURCE: &str = include_str!("../examples/source-reverse-learning.ink");
 const SOURCE_F64: &str = include_str!("../examples/source-reverse-learning-f64.ink");
 #[test]
+fn whole_static_tapes_preserve_complete_learning_histories() {
+    let slots=(0..8).map(|i|format!("w{i}")).collect::<Vec<_>>();
+    let blocks=(0..8).map(|i|format!("b{i}")).collect::<Vec<_>>();
+    let initial:Value=blocks.iter().enumerate().map(|(i,b)|(b.clone(),slots.iter().enumerate().map(|(j,n)|(n.clone(),json!((i*8+j)as f32/128.0))).collect::<Value>())).collect();
+    let init=format!("fn initial()->Weights{{return Weights{{{}}};}}",blocks.iter().enumerate().map(|(i,b)|format!("{b}:Block{{{}}}",slots.iter().enumerate().map(|(j,n)|format!("{n}:{}",(i*8+j)as f32/128.0)).collect::<Vec<_>>().join(","))).collect::<Vec<_>>().join(","));
+    let checks=format!("fn valid_block(w:Block)->Bool{{return {};}}fn valid(w:Weights)->Bool{{return {};}}",slots.iter().map(|n|format!("is_finite(w.{n})")).collect::<Vec<_>>().join("&&"),blocks.iter().map(|n|format!("valid_block(w.{n})")).collect::<Vec<_>>().join("&&"));
+    let state=r#"
+trainable state Parameters:Weights=initial();
+event learned:f32;
+query parameters()->Weights reads(Parameters){return Parameters;}
+query loss(target:f32)->f32 reads(Parameters){return energy(Parameters,target);}
+learn change observe(target:f32,rate:f32,maximum:u32)->Result<f32,String>
+ reads(Parameters) writes(Parameters) emits(learned)
+ requires(is_finite(target)&&rate>0.0&&rate<=1.0,"training domain")
+ ensures(result=>valid(Parameters),"finite weights") {
+ let gradient=derivatives(Parameters,target,maximum,true)?;
+ Parameters=update(Parameters,gradient,rate);
+ let value=energy(Parameters,target);emit learned(value);return Ok(value);
+}
+"#;
+    for wide in [false,true] {
+        let mut source=format!("{}\n{init}\n{checks}\n{state}",include_str!("../bench/functionality/static-reverse/source.ink"));
+        if wide {
+            // Float literals retain their explicit source precision.
+            let bytes=source.as_bytes();let mut out=String::new();let mut at=0;
+            while at<bytes.len() {
+                if bytes[at].is_ascii_digit() && (at==0 || !(bytes[at-1].is_ascii_alphanumeric() || bytes[at-1]==b'_')) {
+                    let start=at;while at<bytes.len() && bytes[at].is_ascii_digit(){at+=1;}
+                    let decimal=at+1<bytes.len() && bytes[at]==b'.' && bytes[at+1].is_ascii_digit();
+                    if decimal {at+=1;while at<bytes.len() && bytes[at].is_ascii_digit(){at+=1;}}
+                    out.push_str(&source[start..at]);if decimal {out.push_str("f64");}
+                } else {out.push(bytes[at]as char);at+=1;}
+            }
+            source=out.replace("f32","f64");
+        }
+        // This separate eligible dispatch checks device execution without
+        // claiming that the generated reverse graph executes on the device.
+        source.push_str("\nfn device(xs:List<f32>)->List<f32>{return xs.map(fn(x)=>x*2.0+1.0);}");
+        source.push_str(&format!("\nrecord Flat{{{},}}fn flat(value:Flat)->Flat{{return value;}}",(0..64).map(|i|format!("v{i}:{}",if wide{"f64"}else{"f32"})).collect::<Vec<_>>().join(",")));
+        println!("static reverse wide={wide}: check source");
+        let module=CheckedModule::from_source(syntax::parse(&source).unwrap()).unwrap();
+        println!("static reverse wide={wide}: initialise reference state");
+        let mut runtime=Runtime::from_checked(&module).unwrap();
+        let mut steps=vec![];let mut expected=vec![];
+        println!("static reverse wide={wide}: pure reference controls");
+        let flat:Value=(0..64).map(|i|(format!("v{i}"),json!(i as f32/32.0))).collect();
+        let args=json!([flat]);let value=pure(&module,"flat",args.clone());
+        steps.push(json!({"pure":"flat","args":args,"cpu_only":true}));
+        expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+        for maximum in [0,1,192,193,194,1_000_001] {
+            let args=json!([initial,0.25,maximum,false]);
+            for name in ["derivatives","linearized"] {
+                let value=pure(&module,name,args.clone());
+                steps.push(json!({"pure":name,"args":args,"cpu_only":true}));
+                expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+            }
+        }
+        let exceptional=if wide {
+            vec![json!({"F64Bits":"9223372036854775808"}),json!({"F64Bits":"1"}),json!({"F64Bits":"9218868437227405312"}),json!({"F64Bits":"9221120237041095220"})]
+        } else {
+            vec![json!({"F32Bits":0x80000000u32}),json!({"F32Bits":1u32}),json!({"F32Bits":0x7f800000u32}),json!({"F32Bits":0x7fc12345u32})]
+        };
+        for value in exceptional {
+            let mut weights=initial.clone();weights["b0"]["w0"]=value;
+            for stop in [false,true] {
+                let args=json!([weights,0.25,193,stop]);
+                for name in ["derivatives","linearized"] {
+                    let value=pure(&module,name,args.clone());
+                    steps.push(json!({"pure":name,"args":args,"cpu_only":true}));
+                    expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+                }
+            }
+        }
+        println!("static reverse wide={wide}: complete reference updates");
+        for epoch in 0..16 {
+            let args=json!([(epoch%7)as f32/8.0,1.0/1024.0,193]);
+            let result=runtime.invoke_json("observe",&args).unwrap();assert!(result.committed);
+            steps.push(json!({"call":"observe","args":args}));
+            expected.push(json!({"reply":{"outcome":result.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+            if epoch==7 {
+                let snapshot=runtime.checkpoint_portable().unwrap();
+                steps.push(json!({"restore":snapshot}));runtime=Runtime::restore_portable_checked(&module,&snapshot).unwrap();
+            }
+        }
+        for args in [json!([0.25,1.0/1024.0,192]),json!([0.25,0.0,193]),json!([3e38,1.0,193])] {
+            let before=runtime.checkpoint_portable().unwrap();
+            let result=runtime.invoke_json("observe",&args).unwrap();
+            // The final F64 update is finite; F32 overflows and rolls back.
+            if args[0]!=3e38 || !wide {assert!(!result.committed);assert_eq!(before,runtime.checkpoint_portable().unwrap());}
+            steps.push(json!({"call":"observe","args":args}));
+            expected.push(json!({"reply":{"outcome":result.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+        }
+        for (name,args) in [("parameters",json!([])),("loss",json!([0.25]))] {
+            let result=runtime.invoke_json(name,&args).unwrap();steps.push(json!({"call":name,"args":args}));
+            expected.push(json!({"reply":{"outcome":result.json()},"snapshot":runtime.checkpoint_portable().unwrap()}));
+        }
+        let args=json!([[0.0,-0.0,1.0,-2.0]]);let value=pure(&module,"device",args.clone());
+        steps.push(json!({"pure":"device","args":args,"expect_gpu":true}));
+        expected.push(json!({"reply":{"value":value},"snapshot":runtime.checkpoint_portable().unwrap()}));
+        println!("static reverse wide={wide}: compiled target histories");
+        parity::conformance_checked(if wide{"static-reverse64-parity"}else{"static-reverse-parity"},&module,&source,steps,expected);
+    }
+}
+#[test]
 fn resident_source_gradients_and_adam_keep_complete_training_on_the_device() {
     let source = include_str!("../examples/resident-source-training.ink");
     let p = syntax::parse(source).unwrap();
