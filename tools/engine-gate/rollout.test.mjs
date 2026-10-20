@@ -37,6 +37,8 @@ try {
   for(const name of ['candidate.mjs','baseline.mjs'])writeFileSync(join(dir,name),text);
   assert.throws(()=>verifyUnchangedReceipt(make(),config,candidate,compiler),/self-contained/);
  }
+ for(const name of ['candidate.mjs','baseline.mjs'])writeFileSync(join(dir,name),'function require(n){if(n>4)throw Error();}require(1);export const result=1;');
+ assert.equal(verifyUnchangedReceipt(make(),config,candidate,compiler).status,'unchanged-emitted-module');
  writeFileSync(join(dir,'source.ink'),'changed');assert.throws(()=>verifyUnchangedReceipt(valid,config,candidate,compiler),/stale/);
 }finally{rmSync(dir,{recursive:true,force:true});}
 console.log('Unchanged-module proof: exact bytes only; stale, changed, imported, incomplete and unchecked receipts rejected; noisy timing remains blocked');
