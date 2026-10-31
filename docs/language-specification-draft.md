@@ -195,7 +195,7 @@ it is not yet a proved source replacement. See [source routing](source-routing.m
 1. Program meaning is independent of physical representation wherever the programmer has not explicitly requested a particular representation.
 2. Persistent state changes through named atomic transactions. Pure computations and temporary local mutation remain available.
 3. Derived values specify what must stay correct. They do not prescribe whether to recompute, cache, index or maintain incrementally.
-4. Proofs and contracts are native language concepts. Developers do not need to write a separate Lean program.
+4. Proofs and contracts are native language concepts.
 5. Optimisation proposals may come from compiler passes, search, solvers, humans or AI. Acceptance depends on checked evidence.
 6. Correctness evidence and performance evidence are separate records.
 7. Programs run without a network connection or background optimiser. Adaptation is an optional execution mode.
