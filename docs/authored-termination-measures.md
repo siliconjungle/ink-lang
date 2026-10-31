@@ -68,9 +68,8 @@ evaluation fuel retained.
 
 This extends trusted source checking and correspondence; it adds no proof variant
 or solver to the core. The implemented scalar projection, RUP checker and lowerers
-remain trusted Rust implementations. The design follows the decreasing-measure
-principle described in [Lean's recursion reference](https://lean-lang.org/doc/reference/latest/Definitions/Recursive-Definitions/).
-It does not implement Lean's proof calculus or establish a verified compiler.
+remain trusted Rust implementations. Admitted measures must decrease at every
+recursive call. These checks do not establish a verified compiler.
 
 The checked fixture covers variable strides, derived distance, increasing indices,
 generic string payloads, imports, zero work, lexicographic resets and word boundaries. Sixteen replies

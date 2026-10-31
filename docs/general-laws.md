@@ -1,13 +1,10 @@
 # General laws
 
-Ink's proof database used to hold only *specific* laws: `map_double_integer`
-over integer lists, `filter_is_positive`, and so on. The general form ("for
-any `f`, any `p`, any element type") lived only in Lean and in producer code.
-Every program had to re-prove its own instance.
-
-The first-order kernel can now state a law once, over abstract symbols, check
-it once, store it in the database, and apply it to any program by
-instantiation.
+Ink's first-order kernel can state a law once over abstract symbols, check
+it once, store it in the proof database, and apply it to programs by
+instantiation. General laws quantify over functions, predicates and element
+types, so programs can reuse a checked family rather than re-proving each
+concrete instance.
 
 ## What the kernel gained
 

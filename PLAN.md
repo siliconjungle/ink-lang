@@ -567,7 +567,7 @@ Working learned implementation/goal choices and device training remain required.
 No new speed claim is made by this milestone.
 
 
-V8-inspired exact expression sharing now also covers immutable numeric lists and
+Exact expression sharing now also covers immutable numeric lists and
 nested lists through ordinary source-bound database proofs. The required CPU
 suite checks 354 complete reference/Rust/JavaScript/Wasm outcomes and exact
 snapshots. A retained complete-call JavaScript study shows a modest held-out

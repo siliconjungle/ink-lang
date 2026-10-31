@@ -681,7 +681,7 @@ lists, including nested lists, alongside scalars. It introduces ordinary lexical
 bindings and requires complete source-bound Normalize proofs. Callback binders,
 choice arms and lazy Boolean regions retain separate scopes. Owners, unknown
 named values, strings and unsupported binary64 proof terms are excluded. This
-extends the V8-inspired exact-expression sharing route without adding a compiler
+extends exact-expression sharing without adding a compiler
 matcher, primitive or selection exception.
 
 The required CPU suite now checks 354 complete reference/native/JavaScript/Wasm

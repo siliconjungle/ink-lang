@@ -54,13 +54,8 @@ not mistaken for literal leaves containing their own parameter holes. Buckets
 with fewer than 32 sites match directly. Bounds cover source nodes, inference
 attempts and indexed tokens.
 
-This direction is consistent with established theorem search techniques.
-[Z3's guide](https://microsoft.github.io/z3guide/docs/logic/Quantifiers/) describes
-term indexing as a way to reduce pattern-instantiation overhead, and also explains
-how overly restrictive patterns can lose useful instantiations.
-[Lean's discrimination-tree API](https://lean-lang.org/doc/api/Lean/Meta/DiscrTree/Main.html)
-provides another concrete example of structural theorem lookup. Ink's index is a
-conservative prefilter for its existing matching rules; it does not add matching
+The index is a conservative prefilter for Ink's existing matching rules.
+It reduces candidate work without discarding valid matches or adding matching
 modulo newly asserted equalities.
 
 ## Bounded file allocations

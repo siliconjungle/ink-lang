@@ -478,7 +478,7 @@ User tactics, AI agents and external solvers remain outside the trusted kernel. 
 
 General recursion cannot inhabit the proof fragment. Otherwise a nonterminating expression could masquerade as a proof of an arbitrary proposition.
 
-This architecture follows the small-kernel pattern described in [Lean’s proof-checking model](https://lean-lang.org/faq/). The proposed language owns its proof syntax and integration. Lean or another prover may help audit the kernel or develop external certificates, but is not a required user-facing language.
+The proposed language owns its proof syntax and integration. External provers may help audit the kernel or develop certificates; release proof packages must still satisfy the kernel’s checks.
 
 ## 9 Three distinct verification claims
 
