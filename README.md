@@ -249,6 +249,16 @@ adds stable payload identities and shared recursive-type facts. Codec/lowering
 correctness remains operationally trusted; no speedup or zero-copy execution is
 claimed by these conformance results.
 
+### Learnable holes
+
+`learn NAME(args): choice<T>` or `Mlp<I, H, O>` puts an unknown function inside
+ordinary code; `objective` declarations and `ink train --objective` fit it, and
+`build-model --freeze-roots __learned` ships the result as exact code. A hole is
+admitted only on an error path, so inputs the authored program handled keep
+their results, or behind an `ensures` guard with an authored fallback. See
+[learnable holes](docs/learnable-holes.md) and the
+[example](examples/learn-holes.ink).
+
 ### Programmable portfolio objectives
 
 An ordinary compiled Ink function can rank the complete eligible portfolio using

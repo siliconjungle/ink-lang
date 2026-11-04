@@ -14,14 +14,22 @@ pub struct Declarations {
     pub adaptive: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub learn: Vec<String>,
+    /// Generated parameter layout of `learn` holes (see holes.rs).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub holes: Vec<crate::holes::Hole>,
+    /// Objective functions with generated training queries.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub objectives: Vec<String>,
 }
 impl Declarations {
     pub fn is_empty(&self) -> bool {
         self.trainable.is_empty() && self.adaptive.is_empty() && self.learn.is_empty()
+            && self.holes.is_empty() && self.objectives.is_empty()
     }
 }
 
 pub fn check(p: &Program) -> LangResult<()> {
+    crate::holes::check(p)?;
     let d = &p.contracts.learning;
     for names in [&d.trainable, &d.adaptive, &d.learn] {
         if names.len() > 256 || names.iter().collect::<BTreeSet<_>>().len() != names.len() {

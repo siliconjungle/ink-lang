@@ -633,6 +633,12 @@ impl Loader {
         let mapping = names(node, index == 0);
         parsed.program = link(parsed.program, &mapping, &aliases)
             .map_err(|e| format!("{}: {e}", node.path.display()))?;
+        for hole in &mut parsed.holes {
+            for (_, t) in &mut hole.args {
+                if let Some(t) = t { ty(t, &mapping); }
+            }
+            if let ink_core::holes::Family::Choice(t) = &mut hole.family { ty(t, &mapping); }
+        }
         parsed.abstract_records=parsed.abstract_records.into_iter().map(|(mut name,owner)|{
             renamed(&mut name,&mapping);(name,owner)
         }).collect();
@@ -769,6 +775,12 @@ fn load_impl(path:impl AsRef<Path>,authoring:bool)->LangResult<Loaded> {
     let mut displays = vec![];
     for i in 1..loader.nodes.len() {
         let parsed = loader.program(i)?;
+        if !parsed.holes.is_empty() || !parsed.hole_guards.is_empty() || !parsed.objectives.is_empty() {
+            return Err(format!(
+                "{}: learn holes, hole guards and objectives are supported in the root module only",
+                loader.nodes[i].path.display()
+            ));
+        }
         surface.abstract_records.extend(parsed.abstract_records);
         for (name,origin) in parsed.access_origins {
             if surface.access_origins.get(&name).is_some_and(|previous|previous!=&origin) {

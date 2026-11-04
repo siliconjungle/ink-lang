@@ -239,6 +239,11 @@ fn run() -> LangResult<()> {
         "--python",
         "--replacement",
         "--restore",
+        "--objective",
+        "--data",
+        "--budget",
+        "--seed",
+        "--holes",
         "--initial-state",
         "--freeze",
         "--freeze-roots",
@@ -852,7 +857,8 @@ fn run() -> LangResult<()> {
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
         println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
-        println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] [--freeze | --freeze-roots A,B] [--specialize-frozen] --target TARGET -o NEW_DIRECTORY (train and publish; optionally bind immutable roots and withdraw their writers)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+        println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] [--freeze | --freeze-roots A,B] [--specialize-frozen] --target TARGET -o NEW_DIRECTORY (train and publish; optionally bind immutable roots and withdraw their writers)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)
+ink train SOURCE --objective NAME --data DATA.json [--holes A,B] [--budget N] [--seed N] [--restore MODEL.snapshot] -o MODEL.snapshot (fit learn holes; also writes MODEL.snapshot.trace.json for build-model)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -1602,6 +1608,30 @@ fn run() -> LangResult<()> {
                 "{}",
                 serde_json::to_string_pretty(&output).map_err(|e| e.to_string())?
             );
+        }
+        "train" if args.iter().any(|a| a == "--objective") => {
+            if semantic_selection.is_some() { return Err("train the source module before selecting implementations".into()); }
+            let objective = arg_value(&args, "--objective")?.ok_or("missing objective name")?;
+            let data_path = arg_value(&args, "--data")?.ok_or("train --objective requires --data DATA.json")?;
+            let data: serde_json::Value = serde_json::from_slice(&read_bounded(&data_path, 64_000_000)?)
+                .map_err(|e| format!("training data: {e}"))?;
+            let number = |flag: &str, default: u64| -> LangResult<u64> {
+                arg_value(&args, flag)?.map(|v| v.parse::<u64>().map_err(|_| format!("invalid {flag}"))).transpose().map(|v| v.unwrap_or(default))
+            };
+            let holes = arg_value(&args, "--holes")?.map(|v| v.split(',').map(str::to_string).collect());
+            let options = verified_language::hole_training::Options { objective, data, budget: number("--budget", 20_000)?, seed: number("--seed", 0)?, holes };
+            let module = core::CheckedModule::from_source(p.clone())?;
+            let initial = arg_value(&args, "--restore")?.map(|path|read_bounded(&path,64_000_000)).transpose()?;
+            let trained = verified_language::hole_training::train(&module, initial.as_deref(), &options)?;
+            let out = arg_value(&args, "-o")?.ok_or("train requires -o MODEL.snapshot")?;
+            if let Some(parent) = Path::new(&out).parent() {
+                if !parent.as_os_str().is_empty() { fs::create_dir_all(parent).map_err(|e| e.to_string())?; }
+            }
+            let receipt = serde_json::to_string_pretty(&trained.receipt).map_err(|e| e.to_string())?;
+            fs::write(&out, trained.snapshot).map_err(|e| e.to_string())?;
+            write(&format!("{out}.receipt.json"), &receipt)?;
+            write(&format!("{out}.trace.json"), &serde_json::to_string_pretty(&trained.trace).map_err(|e| e.to_string())?)?;
+            println!("{receipt}");
         }
         "train" => {
             if semantic_selection.is_some() { return Err("train the source module before selecting implementations".into()); }

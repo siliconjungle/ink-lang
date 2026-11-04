@@ -143,6 +143,9 @@ struct Parser {
     /// External law sources accept `law` declarations; executable ones never do.
     law_mode: bool,
     laws: Vec<crate::law_syntax::LawDecl>,
+    holes: Vec<crate::holes::HoleSpec>,
+    hole_guards: std::collections::BTreeMap<String, Expr>,
+    objectives: Vec<String>,
 }
 impl Parser {
     // Precedence parsing builds left-associated and postfix chains in a loop,
@@ -457,6 +460,10 @@ impl Parser {
         } else if self.peek() == "exists" && self.ts.get(self.at + 1).is_some_and(|t| t.text == "{") {
             self.take();
             self.query_expression(None)?
+        } else if self.peek() == "learn"
+            && self.ts.get(self.at + 2).is_some_and(|t| t.text == "(")
+        {
+            self.learn_hole()?
         } else if self.eat("match") {
             self.match_expression()?
         } else if self.eat("~") {
@@ -734,8 +741,15 @@ impl Parser {
                 p.contracts.implementations.push(crate::contracts::Implementation { name, specification, body });
             } else if self.eat("invariant") {
                 p.contracts.invariants.push(self.expr(0)?); self.expect(";")?;
-            } else if self.eat("fn") {
+            } else if self.eat("fn") || self.objective_declaration() {
+                let objective = self.ts.get(self.at.wrapping_sub(1)).is_some_and(|t| t.text == "objective");
                 let name = self.name()?;
+                if objective {
+                    if self.objectives.len() >= 16 || self.objectives.contains(&name) {
+                        return Err(self.err("duplicate objective or objective limit exceeded"));
+                    }
+                    self.objectives.push(name.clone());
+                }
                 self.type_parameters(&name)?;
                 let params = self.params()?;
                 self.expect("->")?;
@@ -748,6 +762,13 @@ impl Parser {
                     .get(&name)
                     .cloned()
                     .unwrap_or_default();
+                // `ensures PREDICATE` without parentheses guards `learn` holes.
+                if self.peek() == "ensures" && self.ts.get(self.at + 1).is_some_and(|t| t.text != "(") {
+                    self.take();
+                    let guard = self.expr(0)?;
+                    self.eat(";");
+                    self.hole_guards.insert(name.clone(), guard);
+                }
                 let (requires, ensures) = self.contracts()?;
                 if self.eat("decreases") {
                     let measure = self.expr(0)?;
@@ -1072,12 +1093,76 @@ impl Parser {
             constant_parameters: std::mem::take(&mut self.constant_parameters),
             abstract_records,
             access_origins: Default::default(),
+            holes: std::mem::take(&mut self.holes),
+            hole_guards: std::mem::take(&mut self.hole_guards),
+            objectives: std::mem::take(&mut self.objectives),
         };
         if !surface.abstract_records.is_empty() {surface.mark_accesses()?;}
         Ok(surface)
     }
     // Contracts validate, never assume. Failure is the declared Result error.
     // They erase into normal lazy branches and lexical result bindings.
+    /// `objective NAME(..)` at declaration start; consumes the keyword.
+    fn objective_declaration(&mut self) -> bool {
+        let starts = self.peek() == "objective"
+            && self.ts.get(self.at + 1).is_some_and(|t| t.text.chars().next().is_some_and(|c| c.is_ascii_alphabetic() || c == '_'))
+            && self.ts.get(self.at + 2).is_some_and(|t| t.text == "(");
+        if starts {
+            self.take();
+        }
+        starts
+    }
+    /// `learn NAME(arg[: Type], ..): choice<T> | Mlp<I, H.., O> [else FALLBACK]`
+    fn learn_hole(&mut self) -> LangResult<Expr> {
+        self.expect("learn")?;
+        let name = self.name()?;
+        if self.law_mode {
+            return Err(self.err("learn holes are executable source, not laws"));
+        }
+        self.expect("(")?;
+        let mut args = vec![];
+        if !self.eat(")") {
+            loop {
+                let e = self.expr(0)?;
+                let t = if self.eat(":") { Some(self.ty()?) } else { None };
+                args.push((e, t));
+                if self.eat(")") {
+                    break;
+                }
+                self.expect(",")?;
+            }
+        }
+        self.expect(":")?;
+        let family = match self.take().as_str() {
+            "choice" => {
+                self.expect("<")?;
+                let t = self.ty()?;
+                self.expect(">")?;
+                crate::holes::Family::Choice(t)
+            }
+            "Mlp" => {
+                self.expect("<")?;
+                let mut widths = vec![];
+                loop {
+                    let w = self.take();
+                    widths.push(w.replace('_', "").parse::<u32>().map_err(|_| self.err("Mlp widths are integer literals"))?);
+                    if self.eat(">") {
+                        break;
+                    }
+                    self.expect(",")?;
+                }
+                crate::holes::Family::Mlp(widths)
+            }
+            other => return Err(self.err(&format!("unknown learn hole family {other}; use choice<T> or Mlp<..>"))),
+        };
+        let fallback = if self.eat("else") { Some(self.expr(11)?) } else { None };
+        let call = Expr::Call(
+            crate::holes::hole_function(&name),
+            args.iter().map(|(e, _)| e.clone()).collect(),
+        );
+        self.holes.push(crate::holes::HoleSpec { name, args, family, fallback });
+        Ok(call)
+    }
     fn contracts(&mut self) -> LangResult<(Vec<(Expr, Expr)>, Vec<(String, Expr, Expr)>)> {
         let mut requires = Vec::new();
         let mut ensures = Vec::new();
@@ -2049,6 +2134,9 @@ fn parser(
         constant_scope: Default::default(),
         law_mode,
         laws: vec![],
+        holes: vec![],
+        hole_guards: Default::default(),
+        objectives: vec![],
     })
 }
 

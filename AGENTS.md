@@ -57,6 +57,20 @@ establish profitable setup, constants, memory or migration. Use comparable
 lifecycle evidence or an admitted validated work model for every automatic choice.
 Correctness, applicability and profitability are separate gates.
 
+Learnable holes (`learn NAME(..): choice<T> | Mlp<..>`, see
+docs/learnable-holes.md) are admitted structurally, not by whole-action proof.
+A hole must sit on an error path (`x.unwrap_or(hole)` or the failure arm of
+`fold`), so every input the authored program handled keeps its exact result,
+or be guarded: `else FALLBACK` inside a function that declares `ensures
+PREDICATE`, which reruns with the authored fallback when learned output fails
+the predicate. Reject every other position. This is the admission rule for
+learned parts only; exact code keeps its proof obligations, and holes grant no
+equality, approximation, rewrite or profitability authority. Lowering is
+source desugaring into one trainable value state, ordinary pure helpers,
+`__learn_get`/`__learn_set` and objective queries; do not add executable-core
+primitives for it. Training evaluates every candidate exactly and keeps only
+strict objective improvements; its snapshot must equal a replay of its trace.
+
 Legacy aggregate certificates, bounded cache/narrowing, typed storage policies,
 source maintenance evaluators and historical scalar loaders are removed.
 Do not restore compatibility flags, experiment admission paths or obsolete APIs.
