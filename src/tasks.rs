@@ -188,3 +188,199 @@ pub fn replay(rt: &mut Runtime, m: &Tasks, recorded: &Trace) -> LangResult<Trace
     }
     Ok(trace)
 }
+
+/// Cancellation a concurrent effect handler may poll: set when an earlier step
+/// ends the task, after which its reply is discarded.
+pub type Cancel = std::sync::atomic::AtomicBool;
+
+/// Run `name` concurrently, the way the JavaScript host does: a step starts once
+/// every step in its `after` list has finished, so independent effects overlap
+/// on up to `concurrency` threads while queries, changes and ordered effects
+/// keep their order. The result and the kept outcomes are those of sequential
+/// execution (`run`); a failure ends the task at the earliest failing step in
+/// source order, and effects started after it are recorded as `discarded`.
+///
+/// `call` performs every state call (generated queries, queries and changes) on
+/// the calling thread, so any state that implements it works: the reference
+/// evaluator, a compiled native state, or a Wasm state behind a host binding.
+/// `effect(step, name, args, cancel)` runs on a worker thread.
+pub fn run_concurrent(
+    call: &mut dyn FnMut(&str, Vec<Value>) -> LangResult<Value>,
+    m: &Tasks,
+    name: &str,
+    args: &[Value],
+    effect: &(dyn Fn(u32, &str, &[Value], &Cancel) -> Result<Value, String> + Sync),
+    concurrency: usize,
+) -> LangResult<Trace> {
+    use std::sync::{atomic::Ordering, mpsc};
+    let t = task(m, name)?;
+    if args.len() != t.params.len() {
+        return Err(format!("task {name} takes {} arguments", t.params.len()));
+    }
+    if concurrency == 0 {
+        return Err("concurrency must be at least 1".into());
+    }
+    use StepState as Status;
+    let n = t.steps.len();
+    let mut ctx: BTreeMap<String, Value> = t.params.iter().map(|(n, _)| n.clone()).zip(args.iter().cloned()).collect();
+    let mut status = vec![Status::Waiting; n];
+    let mut records: Vec<EffectRecord> = vec![];
+    // The earliest failing step and how it ended: a `?` result, or an error.
+    let mut failed: Option<(usize, Result<Value, String>)> = None;
+    let cancels: Vec<Cancel> = (0..n).map(|_| Cancel::new(false)).collect();
+    let uses = |ctx: &BTreeMap<String, Value>, s: &ink_core::tasks::Step| s.uses.iter().map(|u| ctx[u].clone()).collect::<Vec<_>>();
+    let fail = |failed: &mut Option<(usize, Result<Value, String>)>, i: usize, how: Result<Value, String>| {
+        if failed.as_ref().is_none_or(|(at, _)| i < *at) {
+            *failed = Some((i, how));
+            for c in &cancels[i + 1..] {
+                c.store(true, Ordering::SeqCst);
+            }
+        }
+    };
+    std::thread::scope(|scope| -> LangResult<()> {
+        let (send, receive) = mpsc::channel::<(usize, Vec<Value>, Result<Value, String>)>();
+        let mut running = 0usize;
+        loop {
+            // Start every ready step before the earliest failure, in source order.
+            let mut progressed = true;
+            while progressed {
+                progressed = false;
+                for i in 0..n {
+                    let before = failed.as_ref().is_none_or(|(at, _)| i < *at);
+                    if status[i] != Status::Waiting || !before || running >= concurrency {
+                        continue;
+                    }
+                    let s = &t.steps[i];
+                    if !s.after.iter().all(|&j| status[j as usize] == Status::Done) {
+                        continue;
+                    }
+                    progressed = true;
+                    let used = uses(&ctx, s);
+                    let mut computed = vec![];
+                    for q in &s.args {
+                        computed.push(call(q, used.clone())?);
+                    }
+                    if s.kind == Kind::Effect {
+                        status[i] = Status::Running;
+                        running += 1;
+                        let (send, cancel, callee, values) = (send.clone(), &cancels[i], s.callee.clone(), computed);
+                        scope.spawn(move || {
+                            let reply = effect(i as u32, &callee, &values, cancel);
+                            let _ = send.send((i, values, reply));
+                        });
+                        continue;
+                    }
+                    let value = match s.kind {
+                        Kind::Value => call(&s.callee, used)?,
+                        _ => call(&s.callee, computed)?,
+                    };
+                    finish(&mut ctx, &mut status, i, s, value, &mut |i, how| fail(&mut failed, i, how))?;
+                }
+            }
+            if running == 0 {
+                return Ok(());
+            }
+            let (i, values, reply) = receive.recv().map_err(|e| e.to_string())?;
+            running -= 1;
+            let s = &t.steps[i];
+            let mut record = EffectRecord {
+                step: i as u32,
+                effect: s.callee.clone(),
+                args: values,
+                reply: reply.as_ref().ok().cloned(),
+                error: reply.as_ref().err().cloned(),
+                outcome: "accepted".into(),
+            };
+            if failed.as_ref().is_some_and(|(at, _)| i > *at) {
+                record.outcome = "discarded".into();
+                status[i] = Status::Failed;
+                records.push(record);
+                continue;
+            }
+            let used = uses(&ctx, s);
+            let accepted = match &reply {
+                Ok(v) => {
+                    let mut with = used.clone();
+                    with.push(v.clone());
+                    // A reply that does not decode to the declared type is rejected.
+                    s.accept.as_ref().is_some_and(|a| call(a, with).ok() == Some(json!(true)))
+                }
+                Err(_) => false,
+            };
+            if accepted {
+                records.push(record);
+                finish(&mut ctx, &mut status, i, s, reply.unwrap(), &mut |i, how| fail(&mut failed, i, how))?;
+            } else if let Some(f) = &s.fallback {
+                record.outcome = "fallback".into();
+                records.push(record);
+                let value = call(f, used)?;
+                finish(&mut ctx, &mut status, i, s, value, &mut |i, how| fail(&mut failed, i, how))?;
+            } else {
+                record.outcome = "failed".into();
+                let message = match &record.error {
+                    Some(e) => format!("effect {} failed: {e}", s.callee),
+                    None => format!("effect {} returned a value its declared type or contract rejects", s.callee),
+                };
+                records.push(record);
+                status[i] = Status::Failed;
+                fail(&mut failed, i, Err(message));
+            }
+        }
+    })?;
+    // Effects after the earliest failure were speculative.
+    if let Some((at, _)) = &failed {
+        for r in records.iter_mut() {
+            if r.step as usize > *at {
+                r.outcome = "discarded".into();
+            }
+        }
+    }
+    records.sort_by_key(|r| r.step);
+    let mut trace = Trace { format: TRACE_FORMAT.into(), task: name.into(), args: args.to_vec(), effects: records, result: None, error: None };
+    match failed {
+        Some((_, Ok(result))) => trace.result = Some(result),
+        Some((_, Err(error))) => trace.error = Some(error),
+        None => {
+            let uses = t.ret_uses.iter().map(|n| ctx[n].clone()).collect();
+            trace.result = Some(call(&t.ret, uses)?);
+        }
+    }
+    Ok(trace)
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum StepState {
+    Waiting,
+    Running,
+    Done,
+    Failed,
+}
+
+/// Bind a finished step's value, or end the task at a `?` error.
+fn finish(
+    ctx: &mut BTreeMap<String, Value>,
+    status: &mut [StepState],
+    i: usize,
+    s: &ink_core::tasks::Step,
+    value: Value,
+    fail: &mut dyn FnMut(usize, Result<Value, String>),
+) -> LangResult<()> {
+    let value = if s.propagate {
+        match value {
+            Value::Object(o) if o.contains_key("Err") => {
+                status[i] = StepState::Failed;
+                fail(i, Ok(Value::Object(o)));
+                return Ok(());
+            }
+            Value::Object(mut o) if o.contains_key("Ok") => o.remove("Ok").unwrap(),
+            other => return Err(format!("step {}: expected a Result, got {other}", i + 1)),
+        }
+    } else {
+        value
+    };
+    if let Some(b) = &s.bind {
+        ctx.insert(b.clone(), value);
+    }
+    status[i] = StepState::Done;
+    Ok(())
+}
