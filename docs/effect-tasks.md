@@ -204,6 +204,7 @@ replay mismatch detection and the model adapter.
 
 At most 128 effects, 64 tasks and 128 steps per task. Tasks do not branch or
 loop; put that logic in pure helpers or split it into tasks the host
-composes. Effects are not cancelled when a task ends early; the abort signal
-is passed to handlers. Native and Wasm hosts do not have task runners yet; they
+composes. When a step ends the task, effects after it that are still running
+see their `signal` abort, and no new request starts; handlers decide how to
+stop. Native and Wasm hosts do not have task runners yet; they
 can run the same manifest through their existing call interfaces.
