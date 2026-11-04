@@ -56,3 +56,19 @@ Potion 8M, static retrieval and the two synthetic fixtures. The standalone JS
 suite passes 71 tests; distribution coverage includes the helper-bound and
 bit-carrier fallback suites. These checks remain implementation evidence,
 separate from the ordinary replayed equality selection.
+
+Native F32 Buffer fill now has a dense private Number carrier. Exact NaN tags
+retain slot arrays, later tagged stores promote only their owner's range, and
+growth/freezing preserve ordinary source collection behavior. Literal map,
+indexed-map and scan traverse an affine receiver's logical range directly and
+refresh cached storage after promotion. No primitive, arithmetic order, numeric
+range assumption or ownership authority changes.
+
+The external experiment's authored row layout selects each weight row once and
+visits adjacent dimensions. Short inputs prefetch row references before their
+coordinate reductions. Each dimension retains its original token order and the
+norm retains its right fold. This source construction is not an automatically
+admitted compiler rewrite. The public host's F32 output bridge also preserves
+exceptional bit carriers when writing Float32Array results. The same-source
+old/new Buffer control, output-boundary control, NumPy comparison and browser
+validation are retained in the experiment's `results/javascript-rows` directory.
