@@ -962,6 +962,7 @@ impl Context<'_> {
 
 pub fn check(p: &Program) -> LangResult<()> {
     crate::learning::check(p)?;
+    crate::tasks::check(p)?;
     let mut names = BTreeSet::new();
     for n in p
         .ids

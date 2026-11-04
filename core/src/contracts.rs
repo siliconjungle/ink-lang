@@ -28,6 +28,9 @@ pub const SEMANTICS: &str = "ink-contracts-v1";
 pub struct Contracts {
     #[serde(default, skip_serializing_if = "crate::learning::Declarations::is_empty")]
     pub learning: crate::learning::Declarations,
+    /// External effects and task orchestration manifests (see tasks.rs).
+    #[serde(default, skip_serializing_if = "crate::tasks::Tasks::is_empty")]
+    pub tasks: crate::tasks::Tasks,
     #[serde(default, skip_serializing_if="BTreeMap::is_empty")]
     pub action_protocols: BTreeMap<String, crate::protocol::Execution>,
     /// Predicates on immutable nominal values, in the single `value` binder.
@@ -65,6 +68,7 @@ pub struct Contracts {
 impl Contracts {
     pub fn is_empty(&self) -> bool {
         self.learning.is_empty()
+            && self.tasks.is_empty()
             && self.action_protocols.is_empty()
             && self.value_invariants.is_empty()
             && self.value_constructors.is_empty()
