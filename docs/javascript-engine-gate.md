@@ -81,6 +81,35 @@ not statistical confidence intervals. Cold import times are recorded separately
 and currently have no performance budget. Memory and whole-application latency
 need separate evidence.
 
+**Dedicated runner.** With five processes, a hosted runner still cannot decide the shortest cases.
+On 37daa70a every Chrome case and all but one Node case passed, but
+`shift-prepare-call-8`, whose budget is 0.25–0.40 microseconds per call, had
+its byte-identical control outside budget in 3 of 5 Node 22 processes and all
+5 Node 26 processes. Its candidate stayed within budget in every process, yet
+too few processes were trusted, so the gate blocked. Hosted runners share
+cores with other tenants; the remedy is a quieter machine, not a wider budget.
+
+The job runs on a dedicated runner once one exists:
+
+1. Use a machine (bare metal, or a VM with dedicated vCPUs) that runs nothing
+   else. Register one GitHub Actions runner on it for this repository, with
+   the labels `self-hosted`, `linux`, `x64` and `ink-engine-gate`.
+2. Install Google Chrome (`google-chrome` on the PATH), git, a C toolchain and
+   rustup; the job installs Node 22 and 26 itself.
+3. Reduce timing noise: set the CPU frequency governor to `performance`,
+   disable turbo/boost, and keep two or more cores for the runner alone
+   (`isolcpus`, or `CPUAffinity=` in the runner's systemd unit). Measured
+   processes inherit the runner's affinity.
+4. Set the repository variable `INK_ENGINE_GATE_RUNNER` to
+   `["self-hosted","linux","x64","ink-engine-gate"]`.
+
+Until the variable is set, the job keeps running on `ubuntu-24.04`. Pull
+requests from forks always run on a hosted runner, because this repository is
+public and a self-hosted runner would otherwise execute outside code; also
+keep "Require approval for all outside collaborators" enabled for workflow
+runs. The budgets, process count and majority rule are unchanged on either
+runner.
+
 The same required job also runs the independent
 [call-boundary corpus](../bench/functionality/call-boundaries/README.md): scalar,
 list and record calls, public destinations, sealed prepared destinations, stable
