@@ -208,3 +208,14 @@ composes. When a step ends the task, effects after it that are still running
 see their `signal` abort, and no new request starts; handlers decide how to
 stop. Native and Wasm hosts do not have task runners yet; they
 can run the same manifest through their existing call interfaces.
+
+Ink OS runs tasks for installed apps (ink-os-platform
+`docs/cross-app-plans.md`). An app's tasks contract binds each effect to a
+capability-checked driver:
+
+- a model resource the operator configures;
+- an HTTP resource;
+- an exported entry of an exact app release;
+- the clock or randomness.
+
+Each run's trace is stored for offline replay.

@@ -87,6 +87,14 @@ its body, and `width` is the most nodes of one region that may run together.
 In the support-triage task, the customer lookup, the model classification and
 the summary have no path between them.
 
+Ink OS uses these facts across apps. Its compiler's `footprints` request
+reports each graph's state roots read and written, with keeps resolved to
+their roots, and whether a function is pure: no read, write, emit, action or
+effect node in any region, and only pure callees. The OS refreshes another
+app's read only when a commit writes a root that read depends on. It moves a
+consumer's code next to a provider's data only when that code is pure (see
+ink-os-platform `docs/cross-app-plans.md`).
+
 ## Placement
 
 Placement is derived from effects, most preferred first:
