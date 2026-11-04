@@ -25,12 +25,23 @@ fn lowering_fixes_dependencies_and_rejects_ill_formed_tasks() {
     let p = syntax::parse(SOURCE).unwrap();
     CheckedModule::from_source(p.clone()).unwrap();
     let m = &p.contracts.tasks;
-    assert_eq!(m.effects.iter().map(|e| (e.name.as_str(), e.ordered)).collect::<Vec<_>>(),
-        [("fetch_ticket", false), ("lookup_customer", false), ("classify", false), ("summarise", false), ("notify", true)]);
+    assert_eq!(
+        m.effects.iter().map(|e| (e.name.as_str(), e.ordered)).collect::<Vec<_>>(),
+        [
+            ("fetch_ticket", false),
+            ("lookup_customer", false),
+            ("classify", false),
+            ("summarise", false),
+            ("notify", true)
+        ]
+    );
     assert_eq!(m.effects[2].declarations, "enum Label { Bug, Billing, Question, Other, }");
     let t = &m.tasks[0];
     let kinds: Vec<Kind> = t.steps.iter().map(|s| s.kind.clone()).collect();
-    assert_eq!(kinds, [Kind::Effect, Kind::Effect, Kind::Effect, Kind::Effect, Kind::Value, Kind::Change, Kind::Effect]);
+    assert_eq!(
+        kinds,
+        [Kind::Effect, Kind::Effect, Kind::Effect, Kind::Effect, Kind::Value, Kind::Change, Kind::Effect]
+    );
     // Customer lookup, classification and summary use only the ticket, so they
     // may run together; the change and the ordered effect wait for everything.
     let after: Vec<Vec<u32>> = t.steps.iter().map(|s| s.after.clone()).collect();
@@ -57,16 +68,40 @@ fn lowering_fixes_dependencies_and_rejects_ill_formed_tasks() {
     forged.contracts.tasks.tasks[0].steps[2].accept = Some("__task_triage_3_accept".into());
     assert!(CheckedModule::from_source(forged).unwrap_err().contains("wrong signature"));
 
-    rejects(("let plan: String = plan_of(customer);", "let plan = plan_of(customer);"), "needs a type annotation");
+    rejects(
+        ("let plan: String = plan_of(customer);", "let plan = plan_of(customer);"),
+        "needs a type annotation",
+    );
     rejects(("let plan: String = plan_of(customer);", "let plan: u32 = plan_of(customer);"), "");
-    rejects(("let customer = lookup_customer(ticket.customer);", "let customer = lookup_customer(ticket.customer)?;"), "`?` needs a Result");
-    rejects(("let count = record(id, label)?;", "let count = record(id, label) ensures count > 0 else 0;"), "guards a bound effect result");
-    rejects(("ensures string_byte_len(summary) <= 140 else \"\"", "ensures string_byte_len(summary) <= 140 else 3"), "");
+    rejects(
+        (
+            "let customer = lookup_customer(ticket.customer);",
+            "let customer = lookup_customer(ticket.customer)?;",
+        ),
+        "`?` needs a Result",
+    );
+    rejects(
+        ("let count = record(id, label)?;", "let count = record(id, label) ensures count > 0 else 0;"),
+        "guards a bound effect result",
+    );
+    rejects(
+        (
+            "ensures string_byte_len(summary) <= 140 else \"\"",
+            "ensures string_byte_len(summary) <= 140 else 3",
+        ),
+        "",
+    );
     rejects(("let plan: String", "let ticket: String"), "already bound");
-    rejects(("task triage(id: u32) -> Result<Label, String>", "task triage(id: u32) -> Result<Label, u32>"), "`?` needs the task to return Result<_, String>");
+    rejects(
+        ("task triage(id: u32) -> Result<Label, String>", "task triage(id: u32) -> Result<Label, u32>"),
+        "`?` needs the task to return Result<_, String>",
+    );
     rejects(("effect summarise(text: String)", "effect rule_label(text: String)"), "collides");
     rejects(("  return Ok(label);\n}", "}"), "a task ends with `return EXPR;`");
-    rejects(("let summary = summarise(ticket.text)", "let summary = summarise(ticket.text, 1)"), "takes 1 arguments");
+    rejects(
+        ("let summary = summarise(ticket.text)", "let summary = summarise(ticket.text, 1)"),
+        "takes 1 arguments",
+    );
 }
 
 fn reference(p: &ink_core::core::Program, id: u32, replies: &BTreeMap<&str, Result<Value, String>>) -> (Trace, Runtime) {
@@ -121,62 +156,88 @@ fn concurrent_javascript_traces_replay_on_the_reference_evaluator() {
     let ink = env!("CARGO_BIN_EXE_ink");
     let example = root.join("examples/effect-tasks.ink");
     for args in [
-        vec!["build".into(), example.display().to_string(), "--target".into(), "javascript".into(), "-o".into(), dir.join("program.mjs").display().to_string()],
-        vec!["emit-tasks".into(), example.display().to_string(), "-o".into(), dir.join("tasks.json").display().to_string()],
+        vec![
+            "build".into(),
+            example.display().to_string(),
+            "--target".into(),
+            "javascript".into(),
+            "-o".into(),
+            dir.join("program.mjs").display().to_string(),
+        ],
+        vec![
+            "emit-tasks".into(),
+            example.display().to_string(),
+            "-o".into(),
+            dir.join("tasks.json").display().to_string(),
+        ],
     ] {
         let out = Command::new(ink).args(&args).output().unwrap();
         assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
     }
-    let out = Command::new("node")
-        .arg(root.join("tests/fixtures/effect-tasks-host.mjs"))
-        .arg(dir.join("program.mjs"))
-        .arg(dir.join("tasks.json"))
-        .output()
-        .unwrap();
-    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
-    let report: Value = serde_json::from_slice(&out.stdout).unwrap();
-    let runs = report["traces"].as_array().unwrap();
-    // The three requests that depend only on the ticket overlapped.
-    assert!(runs[0]["peak"].as_u64().unwrap() >= 3, "peak concurrency {}", runs[0]["peak"]);
-    assert!(report["prompt"].as_str().unwrap().contains("classify(text: String, labels: List<Label>) -> Label"));
+    for mode in ["interpreted", "compiled"] {
+        let out = Command::new("node")
+            .arg(root.join("tests/fixtures/effect-tasks-host.mjs"))
+            .arg(dir.join("program.mjs"))
+            .arg(dir.join("tasks.json"))
+            .arg(mode)
+            .output()
+            .unwrap();
+        assert!(out.status.success(), "{mode}: {}", String::from_utf8_lossy(&out.stderr));
+        let report: Value = serde_json::from_slice(&out.stdout).unwrap();
+        let runs = report["traces"].as_array().unwrap();
+        // The three requests that depend only on the ticket overlapped.
+        assert!(runs[0]["peak"].as_u64().unwrap() >= 3, "peak concurrency {}", runs[0]["peak"]);
+        assert!(report["prompt"]
+            .as_str()
+            .unwrap()
+            .contains("classify(text: String, labels: List<Label>) -> Label"));
 
-    let p = syntax::parse(SOURCE).unwrap();
-    let mut rt = Runtime::new(p.clone()).unwrap();
-    let mut results = vec![];
-    for (i, r) in runs.iter().enumerate() {
-        let trace: Trace = serde_json::from_value(r["trace"].clone()).unwrap();
-        let checked = replay(&mut rt, &p.contracts.tasks, &trace).unwrap_or_else(|e| panic!("run {}: {e}", i + 1));
-        results.push(checked.result.clone().unwrap_or_else(|| json!({"host_error": checked.error.is_some()})));
-        // Tampering with a recorded reply changes the replayed result or is rejected.
-        if i == 0 {
-            let k = trace.effects.iter().position(|e| e.effect == "classify" && e.outcome == "accepted").unwrap();
-            let mut forged = trace.clone();
-            forged.effects[k].reply = Some(json!("Label.Question"));
-            let mut scratch = Runtime::new(p.clone()).unwrap();
-            assert!(replay(&mut scratch, &p.contracts.tasks, &forged).is_err());
+        let p = syntax::parse(SOURCE).unwrap();
+        let mut rt = Runtime::new(p.clone()).unwrap();
+        let mut results = vec![];
+        for (i, r) in runs.iter().enumerate() {
+            let trace: Trace = serde_json::from_value(r["trace"].clone()).unwrap();
+            let checked = replay(&mut rt, &p.contracts.tasks, &trace).unwrap_or_else(|e| panic!("run {}: {e}", i + 1));
+            results.push(checked.result.clone().unwrap_or_else(|| json!({"host_error": checked.error.is_some()})));
+            // Tampering with a recorded reply changes the replayed result or is rejected.
+            if i == 0 {
+                let k = trace.effects.iter().position(|e| e.effect == "classify" && e.outcome == "accepted").unwrap();
+                let mut forged = trace.clone();
+                forged.effects[k].reply = Some(json!("Label.Question"));
+                let mut scratch = Runtime::new(p.clone()).unwrap();
+                assert!(replay(&mut scratch, &p.contracts.tasks, &forged).is_err());
+            }
+        }
+        assert_eq!(
+            results,
+            [
+                json!({"Ok": "Label.Bug"}),
+                json!({"Ok": "Label.Question"}),
+                json!({"Ok": "Label.Question"}),
+                json!({"Err": "no such ticket"}),
+                json!({"Err": "channel closed"}),
+                json!({"host_error": true}),
+            ]
+        );
+        // Speculative requests after the failing lookup were discarded, not replayed.
+        let failed: Trace = serde_json::from_value(runs[5]["trace"].clone()).unwrap();
+        assert!(failed.effects.iter().any(|e| e.outcome == "failed" && e.effect == "lookup_customer"));
+        assert!(failed.effects.iter().all(|e| e.step <= 1 || e.outcome == "discarded"));
+        // Ordered notifications were sent only for tasks whose change committed.
+        assert_eq!(report["sent"], json!([["priority", ""], ["queue", ""], ["queue", "short"], ["queue", "s"]]));
+        // Final state agrees between the JavaScript host and the reference replay.
+        let labels: Vec<Value> = (1..=6).map(|id| rt.invoke_json("label_of", &json!([id])).unwrap().result.json()).collect();
+        assert_eq!(
+            json!({"triaged": rt.invoke_json("triaged", &json!([])).unwrap().result.json(), "labels": labels}),
+            report["final"]
+        );
+        assert_eq!(report["final"]["triaged"], json!(4));
+
+        if mode == "interpreted" {
+            // The CLI replays a saved trace too.
+            std::fs::write(dir.join("trace.json"), serde_json::to_vec(&runs[1]["trace"]).unwrap()).unwrap();
         }
     }
-    assert_eq!(results, [
-        json!({"Ok": "Label.Bug"}),
-        json!({"Ok": "Label.Question"}),
-        json!({"Ok": "Label.Question"}),
-        json!({"Err": "no such ticket"}),
-        json!({"Err": "channel closed"}),
-        json!({"host_error": true}),
-    ]);
-    // Speculative requests after the failing lookup were discarded, not replayed.
-    let failed: Trace = serde_json::from_value(runs[5]["trace"].clone()).unwrap();
-    assert!(failed.effects.iter().any(|e| e.outcome == "failed" && e.effect == "lookup_customer"));
-    assert!(failed.effects.iter().all(|e| e.step <= 1 || e.outcome == "discarded"));
-    // Ordered notifications were sent only for tasks whose change committed.
-    assert_eq!(report["sent"], json!([["priority", ""], ["queue", ""], ["queue", "short"], ["queue", "s"]]));
-    // Final state agrees between the JavaScript host and the reference replay.
-    let labels: Vec<Value> = (1..=6).map(|id| rt.invoke_json("label_of", &json!([id])).unwrap().result.json()).collect();
-    assert_eq!(json!({"triaged": rt.invoke_json("triaged", &json!([])).unwrap().result.json(), "labels": labels}), report["final"]);
-    assert_eq!(report["final"]["triaged"], json!(4));
-
-    // The CLI replays a saved trace too.
-    std::fs::write(dir.join("trace.json"), serde_json::to_vec(&runs[1]["trace"]).unwrap()).unwrap();
     let out = Command::new(ink).arg("replay-task").arg(&example).arg(dir.join("trace.json")).output().unwrap();
     assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
     let replayed: Value = serde_json::from_slice(&out.stdout).unwrap();

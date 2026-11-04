@@ -3,8 +3,9 @@
 //!
 //! Every value of a finite type (Bool, payload-free enums, Option of those) is
 //! a one-hot vector. Authored operations become small fixed weight patterns:
-//! equality is an elementwise gate and a sum, `choose` is two gated products,
-//! `&&`/`||` are affine maps through a ReLU, and calls are inlined. A `choice`
+//! equality is an elementwise gate and a sum (an affine read against a
+//! constant), `choose` is two gated products, `&&` is a gated product and `||`
+//! its affine complement, and calls are inlined. A `choice`
 //! learn hole becomes a lookup layer whose output weights *are* its table: one
 //! weight per row of `ink learn-rows`. Every value in the network is 0, 1 or a
 //! small integer, so f32 evaluation is exact.
@@ -136,9 +137,20 @@ impl Builder<'_> {
     fn affine(&mut self, inputs: Vec<usize>, width: usize, terms: Vec<(u32, u32, f32)>, bias: Vec<f32>) -> LangResult<usize> {
         self.push(Node::Affine { inputs, width, terms, bias })
     }
-    /// `s` (a one-wide 0/1 node) times every element of `v`.
+    fn constant(&self, n: usize) -> Option<Vec<f32>> {
+        match &self.nodes[n] {
+            Node::Const { values } => Some(values.clone()),
+            _ => None,
+        }
+    }
+    /// `s` (a one-wide 0/1 node) times every element of `v`. A constant `v`
+    /// needs no gate: the product is affine in `s`.
     fn scale(&mut self, s: usize, v: usize) -> LangResult<usize> {
         let k = self.width(v);
+        if let Some(values) = self.constant(v) {
+            let terms = values.iter().enumerate().filter(|(_, x)| **x != 0.0).map(|(o, x)| (o as u32, 0, *x)).collect();
+            return self.affine(vec![s], k, terms, vec![0.0; k]);
+        }
         let spread = self.affine(vec![s], k, (0..k as u32).map(|o| (o, 0, 1.0)).collect(), vec![0.0; k])?;
         self.push(Node::Gate { relu: spread, linear: v })
     }
@@ -201,10 +213,18 @@ impl Builder<'_> {
                 if x.carrier != y.carrier {
                     return Err(format!("circuit: comparing {:?} with {:?}", x.ty, y.ty));
                 }
+                let sign = if op == "==" { 1.0 } else { -1.0 };
+                let bias = vec![if op == "==" { 0.0 } else { 1.0 }];
+                // Against a constant, equality reads one coordinate: no gate.
+                let known = self.constant(y.node).map(|c| (x.node, c)).or_else(|| self.constant(x.node).map(|c| (y.node, c)));
+                if let Some((other, c)) = known {
+                    let terms = c.iter().enumerate().filter(|(_, v)| **v != 0.0).map(|(i, v)| (0, i as u32, sign * v)).collect();
+                    let truth = self.affine(vec![other], 1, terms, bias)?;
+                    return self.boolean(truth);
+                }
                 let product = self.push(Node::Gate { relu: x.node, linear: y.node })?;
                 let k = x.carrier.len() as u32;
-                let sign = if op == "==" { 1.0 } else { -1.0 };
-                let truth = self.affine(vec![product], 1, (0..k).map(|i| (0, i, sign)).collect(), vec![if op == "==" { 0.0 } else { 1.0 }])?;
+                let truth = self.affine(vec![product], 1, (0..k).map(|i| (0, i, sign)).collect(), bias)?;
                 self.boolean(truth)
             }
             Expr::Binary(op, a, b) if op == "&&" || op == "||" => {
@@ -213,13 +233,15 @@ impl Builder<'_> {
                 if x.ty != Type::Bool || y.ty != Type::Bool {
                     return Err(format!("circuit: {op} needs Bool operands"));
                 }
-                // both = relu(x + y - 1); either = x + y - both.
-                let sum = self.affine(vec![x.node, y.node], 1, vec![(0, 1, 1.0), (0, 3, 1.0)], vec![-1.0])?;
-                let both = self.push(Node::Relu { input: sum })?;
+                // both = relu(x) · y, a ReGLU product: exact on 0/1 and, on soft
+                // values, the multilinear extension (no dead ReLU region).
+                // either = x + y - both.
+                let (xt, yt) = (self.pick(x.node, 1)?, self.pick(y.node, 1)?);
+                let both = self.push(Node::Gate { relu: xt, linear: yt })?;
                 let truth = if op == "&&" {
                     both
                 } else {
-                    self.affine(vec![x.node, y.node, both], 1, vec![(0, 1, 1.0), (0, 3, 1.0), (0, 4, -1.0)], vec![0.0])?
+                    self.affine(vec![xt, yt, both], 1, vec![(0, 0, 1.0), (0, 1, 1.0), (0, 2, -1.0)], vec![0.0])?
                 };
                 self.boolean(truth)
             }
@@ -466,4 +488,275 @@ pub fn check(module: &CheckedModule, c: &Circuit, learned: Option<&Value>) -> La
         }
     }
     Ok(size)
+}
+
+/// Name of a finite JSON value in a circuit carrier (`"Color.Red"`, `"true"`,
+/// `"Some(Bin.A)"`, `"None"`).
+pub fn value_name(v: &Value) -> LangResult<String> {
+    Ok(match v {
+        Value::Bool(b) => b.to_string(),
+        Value::String(s) => s.clone(),
+        Value::Object(o) if o.contains_key("None") => "None".into(),
+        Value::Object(o) if o.contains_key("Some") => format!("Some({})", value_name(&o["Some"])?),
+        other => return Err(format!("circuit: {other} is not a finite value")),
+    })
+}
+
+pub struct FitOptions {
+    pub epochs: u32,
+    pub seed: u64,
+}
+
+pub struct Fitted {
+    /// Hardened table per hole name, as result ordinals.
+    pub tables: BTreeMap<String, Vec<usize>>,
+    pub correct_before: usize,
+    pub correct_after: usize,
+    pub loss_before: f64,
+    pub loss_after: f64,
+    pub epochs: u32,
+}
+
+fn with_tables(c: &Circuit, tables: &BTreeMap<String, Vec<usize>>) -> Circuit {
+    let mut out = c.clone();
+    for h in &c.holes {
+        if let (Some(t), Node::Affine { terms, .. }) = (tables.get(&h.hole), &mut out.nodes[h.node]) {
+            *terms = t.iter().enumerate().map(|(e, v)| (*v as u32, e as u32, 1.0)).collect();
+        }
+    }
+    out
+}
+
+fn correct(c: &Circuit, examples: &[(Vec<usize>, usize)]) -> LangResult<usize> {
+    let mut n = 0;
+    for (input, want) in examples {
+        let out = evaluate(c, input)?;
+        let best = out.iter().enumerate().fold(0, |b, (i, x)| if *x > out[b] { i } else { b });
+        n += (best == *want && out[best] == 1.0) as usize;
+    }
+    Ok(n)
+}
+
+/// Fit the circuit's learn-hole tables by gradient descent through the whole
+/// circuit, authored parts included. Each table entry becomes a softmax over
+/// result values; every other node keeps its fixed weights, so on soft inputs
+/// the circuit computes a continuous extension of the authored code. The loss
+/// is the squared distance between outputs and the wanted one-hot results.
+/// Entries harden to their most likely value; the best hardened tables by
+/// exact correct count are returned. Admission is the caller's: the result is
+/// only a proposal for `ink gate-edit`.
+pub fn fit(c: &Circuit, examples: &[(Vec<usize>, usize)], options: &FitOptions) -> LangResult<Fitted> {
+    if c.holes.is_empty() {
+        return Err("circuit: this function reaches no learn hole".into());
+    }
+    if examples.is_empty() || options.epochs == 0 || options.epochs > 100_000 {
+        return Err("circuit: fitting needs examples and 1..100000 epochs".into());
+    }
+    let output_width = c.result.len();
+    for (input, want) in examples {
+        if input.len() != c.params.len() || input.iter().zip(&c.params).any(|(i, p)| *i >= p.values.len()) || *want >= output_width {
+            return Err("circuit: example outside the function's domain".into());
+        }
+    }
+    // Parameters are shared by every lookup layer of the same hole.
+    let mut holes: BTreeMap<String, (usize, usize)> = BTreeMap::new();
+    for h in &c.holes {
+        holes.entry(h.hole.clone()).or_insert((h.entries, h.values.len()));
+    }
+    let current: BTreeMap<String, Vec<usize>> = holes
+        .keys()
+        .map(|name| {
+            let h = c.holes.iter().find(|h| &h.hole == name).unwrap();
+            let Node::Affine { terms, .. } = &c.nodes[h.node] else { unreachable!() };
+            let mut t = vec![0; h.entries];
+            for (v, e, _) in terms {
+                t[*e as usize] = *v as usize;
+            }
+            (name.clone(), t)
+        })
+        .collect();
+    let mut seed = options.seed.wrapping_mul(0x9e3779b97f4a7c15) | 1;
+    let mut noise = || {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        ((seed >> 11) as f64 / (1u64 << 53) as f64 - 0.5) * 0.2
+    };
+    let mut theta: BTreeMap<String, Vec<Vec<f64>>> = holes
+        .iter()
+        .map(|(name, (entries, values))| {
+            let t = &current[name];
+            // Start from (nearly) uniform distributions, as the relaxed meaning
+            // does; a strong prior on the current table can trap the descent
+            // in its basin. The current table is kept unless an exact
+            // hardened table does better.
+            let _ = t;
+            (name.clone(), (0..*entries).map(|_| (0..*values).map(|_| noise()).collect()).collect())
+        })
+        .collect();
+    let (mut m1, mut m2) = (theta.clone(), theta.clone());
+    for x in m1.values_mut().chain(m2.values_mut()).flatten().flatten() {
+        *x = 0.0;
+    }
+    let layer_of: BTreeMap<usize, String> = c.holes.iter().map(|h| (h.node, h.hole.clone())).collect();
+    let softmax = |row: &[f64], tau: f64| -> Vec<f64> {
+        let top = row.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+        let e: Vec<f64> = row.iter().map(|x| ((x - top) / tau).exp()).collect();
+        let s: f64 = e.iter().sum();
+        e.into_iter().map(|x| x / s).collect()
+    };
+    // Entries no example reaches keep their current value.
+    let mut touched: BTreeMap<String, Vec<bool>> = holes.iter().map(|(n, (entries, _))| (n.clone(), vec![false; *entries])).collect();
+    let harden = |theta: &BTreeMap<String, Vec<Vec<f64>>>, touched: &BTreeMap<String, Vec<bool>>| -> BTreeMap<String, Vec<usize>> {
+        theta
+            .iter()
+            .map(|(n, rows)| {
+                let t = rows.iter().enumerate().map(|(e, r)| if touched[n][e] { r.iter().enumerate().fold(0, |b, (i, x)| if *x > r[b] { i } else { b }) } else { current[n][e] }).collect();
+                (n.clone(), t)
+            })
+            .collect()
+    };
+    let correct_before = correct(c, examples)?;
+    let mut best = (correct_before, current.clone());
+    let (mut loss_before, mut loss_after) = (f64::NAN, f64::NAN);
+    let mut epochs = 0;
+    for epoch in 1..=options.epochs {
+        epochs = epoch;
+        let tau = 1.0 * (0.1f64).powf(epoch as f64 / options.epochs as f64);
+        let soft: BTreeMap<String, Vec<Vec<f64>>> = theta.iter().map(|(n, rows)| (n.clone(), rows.iter().map(|r| softmax(r, tau)).collect())).collect();
+        let mut grad: BTreeMap<String, Vec<Vec<f64>>> = theta.iter().map(|(n, rows)| (n.clone(), rows.iter().map(|r| vec![0.0; r.len()]).collect())).collect();
+        let mut loss = 0.0;
+        for (input, want) in examples {
+            // Forward in f64 over the same nodes.
+            let mut values: Vec<Vec<f64>> = Vec::with_capacity(c.nodes.len());
+            let mut concat: Vec<Vec<f64>> = Vec::with_capacity(c.nodes.len());
+            for (k, n) in c.nodes.iter().enumerate() {
+                let (v, x) = match n {
+                    Node::Input { param, width } => {
+                        let mut v = vec![0.0; *width];
+                        v[input[*param]] = 1.0;
+                        (v, vec![])
+                    }
+                    Node::Const { values } => (values.iter().map(|x| *x as f64).collect(), vec![]),
+                    Node::Affine { inputs, width, terms, bias } => {
+                        let x: Vec<f64> = inputs.iter().flat_map(|i| values[*i].iter().copied()).collect();
+                        let mut y: Vec<f64> = bias.iter().map(|b| *b as f64).collect();
+                        y.resize(*width, 0.0);
+                        if let Some(hole) = layer_of.get(&k) {
+                            let w = &soft[hole];
+                            for (t, row) in w.iter().enumerate() {
+                                for (v, p) in row.iter().enumerate() {
+                                    y[v] += p * x[t];
+                                }
+                            }
+                        } else {
+                            for &(o, i, w) in terms {
+                                y[o as usize] += w as f64 * x[i as usize];
+                            }
+                        }
+                        (y, x)
+                    }
+                    Node::Relu { input } => (values[*input].iter().map(|x| x.max(0.0)).collect(), vec![]),
+                    Node::Gate { relu, linear } => (values[*relu].iter().zip(&values[*linear]).map(|(a, b)| a.max(0.0) * b).collect(), vec![]),
+                };
+                values.push(v);
+                concat.push(x);
+            }
+            let out = &values[c.output];
+            let mut grads: Vec<Vec<f64>> = values.iter().map(|v| vec![0.0; v.len()]).collect();
+            for (j, y) in out.iter().enumerate() {
+                let t = (j == *want) as u8 as f64;
+                loss += (y - t) * (y - t);
+                grads[c.output][j] += 2.0 * (y - t);
+            }
+            // Backward.
+            for k in (0..c.nodes.len()).rev() {
+                let dy = std::mem::take(&mut grads[k]);
+                if dy.iter().all(|g| *g == 0.0) {
+                    continue;
+                }
+                match &c.nodes[k] {
+                    Node::Input { .. } | Node::Const { .. } => {}
+                    Node::Affine { inputs, terms, .. } => {
+                        let x = &concat[k];
+                        let mut dx = vec![0.0; x.len()];
+                        if let Some(hole) = layer_of.get(&k) {
+                            let w = &soft[hole];
+                            let g = grad.get_mut(hole).unwrap();
+                            for (t, row) in w.iter().enumerate() {
+                                // dL/dW[v][t] = dy[v] x[t]; through the softmax of entry t.
+                                let dw: Vec<f64> = row.iter().enumerate().map(|(v, _)| dy[v] * x[t]).collect();
+                                // An entry is reached when the loss depends on it.
+                                if dw.iter().any(|d| *d != 0.0) {
+                                    touched.get_mut(hole).unwrap()[t] = true;
+                                }
+                                let dot: f64 = dw.iter().zip(row).map(|(a, p)| a * p).sum();
+                                for (u, p) in row.iter().enumerate() {
+                                    g[t][u] += p * (dw[u] - dot) / tau;
+                                }
+                                dx[t] += row.iter().enumerate().map(|(v, p)| p * dy[v]).sum::<f64>();
+                            }
+                        } else {
+                            for &(o, i, w) in terms {
+                                dx[i as usize] += w as f64 * dy[o as usize];
+                            }
+                        }
+                        let mut at = 0;
+                        for i in inputs {
+                            let width = values[*i].len();
+                            for (j, d) in dx[at..at + width].iter().enumerate() {
+                                grads[*i][j] += d;
+                            }
+                            at += width;
+                        }
+                    }
+                    Node::Relu { input } => {
+                        for (j, d) in dy.iter().enumerate() {
+                            if values[*input][j] > 0.0 {
+                                grads[*input][j] += d;
+                            }
+                        }
+                    }
+                    Node::Gate { relu, linear } => {
+                        for (j, d) in dy.iter().enumerate() {
+                            let (a, b) = (values[*relu][j], values[*linear][j]);
+                            if a > 0.0 {
+                                grads[*relu][j] += d * b;
+                            }
+                            grads[*linear][j] += d * a.max(0.0);
+                        }
+                    }
+                }
+            }
+        }
+        loss /= examples.len() as f64;
+        if epoch == 1 {
+            loss_before = loss;
+        }
+        loss_after = loss;
+        // Adam.
+        for (name, rows) in theta.iter_mut() {
+            for (e, row) in rows.iter_mut().enumerate() {
+                for (v, x) in row.iter_mut().enumerate() {
+                    let g = grad[name][e][v] / examples.len() as f64;
+                    let a = &mut m1.get_mut(name).unwrap()[e][v];
+                    *a = 0.9 * *a + 0.1 * g;
+                    let b = &mut m2.get_mut(name).unwrap()[e][v];
+                    *b = 0.999 * *b + 0.001 * g * g;
+                    let mhat = m1[name][e][v] / (1.0 - 0.9f64.powi(epoch as i32));
+                    let vhat = m2[name][e][v] / (1.0 - 0.999f64.powi(epoch as i32));
+                    *x -= 0.1 * mhat / (vhat.sqrt() + 1e-8);
+                }
+            }
+        }
+        let hard = harden(&theta, &touched);
+        let n = correct(&with_tables(c, &hard), examples)?;
+        if n > best.0 {
+            best = (n, hard);
+        }
+        if best.0 == examples.len() {
+            break;
+        }
+    }
+    Ok(Fitted { tables: best.1, correct_before, correct_after: best.0, loss_before, loss_after, epochs })
 }

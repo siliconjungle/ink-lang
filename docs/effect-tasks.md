@@ -139,6 +139,24 @@ that calls `DurableState.invoke` with fresh operation identities.
 `concurrency` bounds simultaneously running steps (default 16) and `signal`
 aborts the task.
 
+### Compiled tasks
+
+`ink build --target javascript` also compiles every task into the module,
+printed from its [mid-level IR](mid-level-ir.md) graph:
+
+```js
+import {createState, tasks, TaskFailed} from './program.mjs';
+const state = await createState();
+const {result, trace} = await tasks.triage(state, [7], handlers, {concurrency: 8});
+```
+
+The arguments mirror `runTask`: the state (or a `call(name, args)` function),
+the task arguments, the handlers and options (`concurrency`, `signal`,
+`replay`). Step expressions run as plain JavaScript instead of round trips
+through generated queries. Replies are still checked by the generated accept
+query. Results and traces are the same as the interpreted host's, and
+`replayTask` and `ink replay-task` check them.
+
 ### Language models
 
 `modelEffect(complete)` adapts any `complete(prompt) -> Promise<string>`

@@ -9,7 +9,20 @@ three things explicit:
 - **Placement:** where each declaration may run.
 
 Backends can then print it rather than rediscovering structure in the source
-tree.
+tree. The pinned JavaScript lowering already does this for tasks: every
+`task` in a module is compiled from its IR graph (see below).
+
+The IR is built from core's own analyses rather than its own guesses:
+
+- **Types** come from the checker. Pure functions use its source inference
+  (`check::infer_context`) with the same contextual typing for literals,
+  callback parameters and accumulators. Actions, keeps and task steps are
+  lowered from the typed action IR (`action_ir::CheckedActions`).
+- **Effects** come from the derived action effects
+  (`effects::CheckedEffects`). A call to a query or change carries its
+  callee's transitive reads, writes and emits. A keep read carries what the
+  keep derives from. Table methods write exactly when `effects::TABLE_WRITES`
+  says so, the same list the effect analysis uses.
 
 ```sh
 ink emit-mir SOURCE [--simplify] -o program.mir.json
@@ -17,15 +30,15 @@ ink emit-mir SOURCE [--simplify] -o program.mir.json
 
 ## Shape
 
-Every function, query, change and task becomes a graph, and every graph has a
-body region. A region is a list of nodes and an optional result. A node has:
+Every function, query, change, keep and task becomes a graph, and every graph
+has a body region. A region is a list of nodes and an optional result. A node has:
 
 - `op`, which is one of:
   - `param`, `const`;
   - `binary`, `neg`;
   - `call` (a pure user function), `builtin`, `method`;
   - `field`, `record`;
-  - `lambda`, `gamma`, `try`;
+  - `lambda`, `gamma`, `try`, `return`;
   - `read`, `write`, `emit`, `action`, `effect`;
 - `inputs`: data dependencies;
 - `after`: effect-order dependencies, kept separate from data;
@@ -39,9 +52,10 @@ region or an enclosing one, and `ink_core::mir::verify` checks exactly that.
 ## Laziness
 
 `choose`, `&&` and `||` become `gamma` nodes whose branch regions run only
-when selected. Callbacks become `lambda` regions. In an action, an `if` whose
-branches may `return` takes the rest of the block into each branch, so every
-region ends with its result and no control flow is implicit.
+when selected. Callbacks become `lambda` regions. In an action, `return` is a
+node that leaves the action. An `if` becomes a `gamma` over its two branches,
+lowered once each. The rest of the block follows the `gamma`, ordered after
+any `return` inside it. Nothing is duplicated.
 
 ## Effects
 
@@ -54,9 +68,10 @@ The IR derives effect order from what each node touches:
 - **Derived values (keeps):** a read of a keep is a read of every state it
   depends on, transitively.
 - **Events:** emits are ordered with other emits of the same event.
-- **`?`:** may leave the action, so it is a barrier. It waits for every
-  earlier effect, and every later effect waits for it.
-- **Calls to other actions:** these carry the callee's declared reads, writes
+- **`?`, `return` and change calls:** each may leave the action, so it is a
+  barrier. It waits for every earlier effect, and every later effect waits for
+  it.
+- **Calls to other actions:** these carry the callee's derived reads, writes
   and emits.
 
 Tasks keep the order their manifest fixes (see [effect tasks](effect-tasks.md)):
@@ -79,7 +94,7 @@ Placement is derived from effects, most preferred first:
 | Graph | Placement |
 | --- | --- |
 | pure function | client, worker, server |
-| query | replica, server |
+| query, keep | replica, server |
 | change | server |
 | task | host |
 
@@ -103,7 +118,8 @@ It never moves work across a branch boundary, never removes calls, effects or
 
 ## Backends as printers
 
-`src/mir_js.rs` prints pure-function graphs as JavaScript:
+`lowerings/js/src/mir.rs`, in the pinned JavaScript lowering, prints
+pure-function graphs as JavaScript:
 
 - one binding per node;
 - `if`/`else` for `gamma`;
@@ -118,9 +134,26 @@ evaluator on random inputs, before and after `simplify`, for 18 functions:
 - strings, lists with `foldl`, Option `fold`, enums;
 - authored rule chains and learn holes.
 
-It is a demonstration that backends can be printers over this IR. It does not
-replace the pinned JavaScript lowering. Moving that lowering's specialisations
-into IR passes is the next step.
+### Compiled tasks
+
+`lowerings/js/src/tasks.rs` uses that printer to compile every task in a
+module. `ink build --target javascript` adds `export const {tasks,
+TaskFailed}` to the module:
+
+- Each top-level node becomes a promise that awaits exactly its `inputs` and
+  `after` edges, so independent effects overlap.
+- Step expressions and fallbacks run as plain JavaScript, with no round trip
+  through generated queries.
+- Effect replies still enter Ink through the generated accept query.
+
+Results, traces and the earliest-failure rule match the interpreted host.
+`tests/effect_tasks.rs` runs all six recorded scenarios through both and
+replays both sets of traces on the reference evaluator. Modules without tasks
+emit exactly the same JavaScript as before.
+
+The rest of the JavaScript lowering still emits from source trees. Moving its
+specialisations into IR passes is the remaining migration; each moved
+specialisation must keep the existing cross-target conformance suites green.
 
 ## Trust
 
@@ -136,9 +169,9 @@ evidence.
 ## Coverage
 
 Every example in `examples/` lowers with no unsupported declarations and
-verifies, before and after simplification. Locally inferred types are
-best-effort: a node whose type depends on context it cannot see has no `ty`,
-and printers that need one fail closed.
+verifies, before and after simplification. A node has no `ty` only when the
+checker cannot type it in isolation. This happens with callback parameters of
+methods the IR does not know. Printers that need a type fail closed.
 
 ## Validation
 
@@ -146,6 +179,8 @@ and printers that need one fail closed.
 
 - every example lowering and verifying;
 - per-state effect order and the `?` barrier;
+- a returning branch lowered once, keeps as graphs ordered after the writes
+  they read, change calls carrying derived effects, and checker types;
 - `&&` laziness;
 - independent task effects;
 - simplification;

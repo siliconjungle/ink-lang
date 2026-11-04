@@ -2,16 +2,25 @@
 // task host with fake effect handlers, then prints the traces, the observed
 // concurrency and the final state for tests/effect_tasks.rs to replay against
 // the sequential reference evaluator.
-//   node effect-tasks-host.mjs PROGRAM.mjs TASKS.json
+//   node effect-tasks-host.mjs PROGRAM.mjs TASKS.json [compiled]
+// With `compiled`, the same runs use the module's own compiled `tasks`
+// (printed from the mid-level IR) instead of the interpreted host.
 import {readFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
 import {runTask, replayTask, stateCaller, TaskFailed} from '../../runtime/hosts/tasks.mjs';
 import {modelEffect} from '../../runtime/hosts/model-effect.mjs';
 import {stringifyExactJSON} from '../../runtime/hosts/state-wasm.mjs';
 
-const [program, tasks] = process.argv.slice(2);
+const [program, tasks, mode] = process.argv.slice(2);
 const manifest = JSON.parse(readFileSync(tasks, 'utf8'));
-const {createState} = await import(pathToFileURL(program));
+const compiledModule = await import(pathToFileURL(program));
+const {createState} = compiledModule;
+const compiled = mode === 'compiled';
+if (compiled && !compiledModule.tasks?.triage) throw Error('the module has no compiled tasks');
+const runOne = (args, effects) => compiled
+  ? compiledModule.tasks.triage(state, args, effects)
+  : runTask({manifest, call, task: 'triage', args, effects});
+const Failed = compiled ? compiledModule.TaskFailed : TaskFailed;
 const state = await createState();
 const call = stateCaller(state);
 const delay = ms => new Promise(r => setTimeout(r, ms));
@@ -48,10 +57,10 @@ const traces = [];
 for (const [id, effects] of runs) {
   peak = 0;
   try {
-    const {trace} = await runTask({manifest, call, task: 'triage', args: [id], effects});
+    const {trace} = await runOne([id], effects);
     traces.push({trace, peak});
   } catch (e) {
-    if (!(e instanceof TaskFailed)) throw e;
+    if (!(e instanceof Failed)) throw e;
     traces.push({trace: e.trace, peak});
   }
 }

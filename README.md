@@ -266,15 +266,18 @@ improves on held-out data; see [rows and gated edits](docs/learn-rows.md).
 which escapes plateaus that one-entry-at-a-time search cannot.
 `ink emit-circuit` lowers functions over finite types into exact
 affine/ReLU/ReGLU networks, checked on every input; a choice hole becomes a
-lookup layer whose weights are its rows. See [the circuit target](docs/circuit-target.md).
+lookup layer whose weights are its rows, and `ink train-circuit` fits those
+rows by gradient through the authored code around them. See
+[the circuit target](docs/circuit-target.md).
 
 ### Mid-level IR
 
 `ink emit-mir` lowers every function, query, change and task into a typed
 dataflow graph with explicit effect order (per state, with `?` as a barrier),
 lazy branch regions, placement (client, worker, replica, server, host) and a
-parallel schedule. Backends can print it; a small JavaScript printer is
-checked against the reference evaluator. See [the mid-level IR](docs/mid-level-ir.md).
+parallel schedule, built on the checker's types and core's derived effects.
+The JavaScript lowering prints from it: tasks compile to async functions whose
+independent effects overlap. See [the mid-level IR](docs/mid-level-ir.md).
 
 ### Effects and tasks
 

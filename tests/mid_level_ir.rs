@@ -6,13 +6,16 @@ use serde_json::{json, Value};
 use std::{collections::BTreeSet, path::Path, process::Command};
 use verified_language::{
     core::{CheckedModule, Program, Type},
-    eval, mir_js, syntax,
+    eval, javascript::mir as mir_js, syntax,
 };
 
 fn program(source: &str) -> Program {
     let p = syntax::parse(source).unwrap();
     CheckedModule::from_source(p.clone()).unwrap();
     p
+}
+fn mir(p: &Program) -> Mir {
+    lower(&CheckedModule::from_source(p.clone()).unwrap())
 }
 fn graph<'a>(m: &'a Mir, name: &str) -> &'a ink_core::mir::Graph {
     m.graphs.iter().find(|g| g.name == name).unwrap_or_else(|| panic!("{name}: {:?}", m.unsupported.get(name)))
@@ -41,8 +44,8 @@ fn every_example_lowers_and_verifies() {
             continue;
         }
         let Ok(loaded) = verified_language::modules::load(&path) else { continue };
-        let p = loaded.program;
-        let mut m = lower(&p);
+        let Ok(module) = CheckedModule::from_source(loaded.program) else { continue };
+        let mut m = lower(&module);
         assert!(m.unsupported.is_empty(), "{}: {:?}", path.display(), m.unsupported);
         verify(&m).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
         simplify(&mut m);
@@ -67,12 +70,23 @@ change step(x: u32) -> Result<u32, String> writes(A, B) emits(changed) {
 }
 query total() -> u32 reads(A, B) { return A + B; }
 fn lazy(a: Bool, x: u32) -> Bool { return a && check(x) == Ok(x); }
+keep Doubled: u32 = A * 2;
+change early(x: u32) -> Result<u32, String> writes(A) {
+  if x > 5 { return Ok(x); }
+  A = A + x;
+  return Ok(A);
+}
+change outer(x: u32) -> Result<u32, String> reads(Doubled) writes(A, B) {
+  let a = early(x)?;
+  B = B + a + Doubled;
+  return Ok(a);
+}
 ";
 
 #[test]
 fn effects_are_ordered_per_state_and_try_is_a_barrier() {
     let p = program(EFFECTS);
-    let m = lower(&p);
+    let m = mir(&p);
     verify(&m).unwrap();
     let g = graph(&m, "step");
     assert_eq!((g.kind.clone(), g.placement.clone()), (Kind::Change, vec![Place::Server]));
@@ -98,10 +112,45 @@ fn effects_are_ordered_per_state_and_try_is_a_barrier() {
     assert_eq!(top(&l.body, |n| matches!(n.op, Op::Gamma)).len(), 1);
 }
 
+fn all<'a>(r: &'a Region, out: &mut Vec<&'a Node>) {
+    for n in &r.nodes {
+        out.push(n);
+        n.regions.iter().for_each(|r| all(r, out));
+    }
+}
+
+#[test]
+fn returns_keeps_and_calls_use_core_analyses() {
+    let p = program(EFFECTS);
+    let m = mir(&p);
+    verify(&m).unwrap();
+    // A returning branch does not copy the rest of the block: one write to A.
+    let early = graph(&m, "early");
+    let mut nodes = vec![];
+    all(&early.body, &mut nodes);
+    assert_eq!(nodes.iter().filter(|n| matches!(&n.op, Op::Write { state, .. } if state == "A")).count(), 1);
+    let gamma = top(&early.body, |n| matches!(n.op, Op::Gamma))[0].id;
+    let write = top(&early.body, |n| matches!(n.op, Op::Write { .. }))[0].id;
+    assert!(reaches(&early.body, gamma, write), "the write follows the branch that may return");
+    // The keep is its own graph and its readers order after writes to A.
+    let keep = graph(&m, "Doubled");
+    assert_eq!((keep.kind.clone(), keep.reads.clone()), (Kind::Keep, vec!["A".to_string()]));
+    let outer = graph(&m, "outer");
+    let call = top(&outer.body, |n| matches!(&n.op, Op::Action { name, change: true } if name == "early"))[0].id;
+    let doubled = top(&outer.body, |n| matches!(&n.op, Op::Read { state, .. } if state == "Doubled"))[0].id;
+    let b = top(&outer.body, |n| matches!(&n.op, Op::Write { state, .. } if state == "B"))[0].id;
+    assert!(reaches(&outer.body, call, doubled) && reaches(&outer.body, call, b));
+    // The callee's derived writes reach the caller's summary.
+    assert_eq!(outer.writes, ["A", "B"]);
+    // Types come from the checker: the comparison is Bool and its operands u32.
+    let cmp = nodes.iter().find(|n| matches!(&n.op, Op::Binary { operator } if operator == ">")).unwrap();
+    assert_eq!(cmp.ty, Some(Type::Bool));
+}
+
 #[test]
 fn task_graphs_expose_independent_effects() {
     let p = program(include_str!("../examples/effect-tasks.ink"));
-    let m = lower(&p);
+    let m = mir(&p);
     let g = graph(&m, "triage");
     assert_eq!((g.kind.clone(), g.placement.clone()), (Kind::Task, vec![Place::Host]));
     let effect = |name: &str| top(&g.body, |n| matches!(&n.op, Op::Effect { name: e, .. } if e == name))[0].id;
@@ -173,7 +222,7 @@ impl Random {
 fn printed_matches_reference(source: &str, functions: &[&str], simplified: bool, tag: &str) {
     let p = program(source);
     let module = CheckedModule::from_source(p.clone()).unwrap();
-    let mut m = lower(&p);
+    let mut m = mir(&p);
     if simplified {
         simplify(&mut m);
         verify(&m).unwrap();
@@ -219,13 +268,13 @@ fn a_thin_javascript_printer_matches_the_reference_evaluator() {
     printed_matches_reference(include_str!("../examples/learn-holes.ink"), &["authored", "step"], true, "holes");
     // Effectful graphs are not pure functions; the printer refuses them.
     let p = program(EFFECTS);
-    assert!(mir_js::module(&lower(&p), &p.records, "step").is_err());
+    assert!(mir_js::module(&mir(&p), &p.records, "step").is_err());
 }
 
 #[test]
 fn simplification_merges_repeated_work_without_crossing_branches() {
     let p = program(NUMBERS);
-    let mut m = lower(&p);
+    let mut m = mir(&p);
     let before = graph(&m, "twice").body.nodes.len();
     let removed = simplify(&mut m);
     let twice = graph(&m, "twice");
@@ -233,7 +282,7 @@ fn simplification_merges_repeated_work_without_crossing_branches() {
     // One `a + b` remains.
     assert_eq!(top(&twice.body, |n| matches!(&n.op, Op::Binary { operator } if operator == "+")).len(), 2);
     // Work inside a lazy branch stays there.
-    let mut lazy = lower(&program(EFFECTS));
+    let mut lazy = mir(&program(EFFECTS));
     simplify(&mut lazy);
     assert!(top(&graph(&lazy, "lazy").body, |n| matches!(&n.op, Op::Call { .. })).is_empty());
 }

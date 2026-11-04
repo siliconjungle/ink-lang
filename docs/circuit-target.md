@@ -26,9 +26,9 @@ payloads, and `Option` of those. Each value is a one-hot vector.
 | --- | --- |
 | parameter | input one-hot |
 | `Enum.Variant`, `true`, `None` | constant one-hot |
-| `a == b`, `a != b`, `!a` | ReGLU gate `relu(a) · b` elementwise, then a sum |
-| `a && b`, `a \|\| b` | `t = relu(a + b − 1)`; or is `a + b − t` |
-| `choose(c, x, y)` | `relu(c) · x + relu(¬c) · y`, two gates |
+| `a == b`, `a != b`, `!a` | ReGLU gate `relu(a) · b` elementwise, then a sum; against a constant, one affine read |
+| `a && b`, `a \|\| b` | `t = relu(a) · b`, one ReGLU gate; or is `a + b − t` |
+| `choose(c, x, y)` | `relu(c) · x + relu(¬c) · y`, two gates; a constant branch is affine in `c` |
 | `Some(x)` | affine shift into the option's one-hot |
 | `o.fold(fn(v) => A, fn(_) => B)`, `o.unwrap_or(B)` | payload slice for `v`; gated sum of both arms |
 | `let`, calls to pure functions | bound values, inlined bodies |
@@ -51,6 +51,52 @@ That second layer's weights are the table. Entry `t` of the layer is row `t`
 of `ink learn-rows`, keyed by the same argument values. Parameters can be
 trained as a table, edited as rows through a [gate](learn-rows.md), or read
 and written as circuit weights. All three are the same data.
+
+Constant operands fold out of gates: equality against a literal reads one
+coordinate, and a constant branch of `choose` or `Option` scales affinely. On
+the crossing controller this removed about a tenth of the nodes and weights.
+
+## Training through the circuit
+
+```sh
+ink train-circuit SOURCE FUNCTION --data EXAMPLES.json [--epochs N] [--seed N] -o EDIT.json
+ink gate-edit SOURCE EDIT.json --objective NAME --data HELDOUT.json -o MODEL.snapshot
+```
+
+`train-circuit` fits learn-hole tables by gradient descent through the whole
+circuit of `FUNCTION`, authored parts included:
+
+- Each table entry becomes a softmax over its result values. Every other
+  weight stays fixed.
+- On soft values the authored gates compute the multilinear extension of the
+  authored code (`relu(a) · b` is `a · b` for values in [0, 1]). This is the
+  [relaxed meaning](relaxed-meanings.md) extended through authored code.
+- `EXAMPLES.json` lists `{"args": [...], "want": value}` for the function. The
+  loss is the squared distance between outputs and the wanted one-hots.
+- Distributions start uniform. Adam steps while the softmax temperature
+  anneals from 1 to 0.1.
+- After each epoch, entries the loss depends on harden to their most likely
+  value; entries no example reaches keep their current value. The hardened
+  table with the most exactly correct examples is kept.
+
+The output is an [edit](learn-rows.md), not a model. `ink gate-edit` admits it
+only if the exact objective improves.
+
+`examples/circuit-training.ink` is a case where gradients through authored
+code are needed. A routing table is supervised only through
+`consistent(c, s)`, which requires the circle and star entries of each
+colour and size to agree on a non-Reject bin. Starting from the untrained
+table:
+
+| Method | Result on the 12 cases | Exact evaluations |
+| --- | --- | --- |
+| Coordinate search | stops at 9 mistakes; no single entry change helps | 145 |
+| Relaxed, score function | 0 mistakes | about 2,100 |
+| Circuit gradient, seeds 1–5 | 0 mistakes in 17–20 epochs | one forward and backward pass per example per epoch |
+
+In each run exactly the 18 reachable entries change, and the gate admits the
+edit (9 → 0). These are small, controlled measurements, not claims about
+other problems.
 
 ## Checking
 
@@ -110,13 +156,19 @@ code; that needs measurement like any other target choice.
 
 `runtime/tests/circuit.mjs` covers batching and weight rows.
 
-## Limits and next steps
+## Limits
 
-- Only finite types are supported. The natural next domain is piecewise-linear
-  f32 code (`max`, `min`, comparisons with constants, affine arithmetic).
-  ReLU circuits represent it exactly, but checking it needs interval or SMT
-  arguments instead of enumeration.
-- Indicator layers grow with the product of argument domain sizes. Structured
-  encodings (factorised indicators, shared prefixes) can reduce them.
-- Circuits are not yet differentiable training targets. Holes are trained as
-  tables (including [relaxed](relaxed-meanings.md) training) and re-emitted.
+- **Only finite types.** Exactness does not extend to f32 code, for two
+  reasons:
+  - A comparison such as `x > c` is a step function. A ReLU network is
+    continuous, so it can only approximate a step, never equal it.
+  - Each Ink f32 operation rounds once. A ReLU identity such as
+    `max(a, b) = b + relu(a − b)` rounds twice, so it can differ from Ink's
+    result in the last bit.
+
+  An exact float target therefore needs comparison nodes and per-operation
+  rounding, which makes it an ordinary instruction set rather than a ReLU
+  network. Circuits stay a finite-domain target.
+- **Indicator layers grow with the product of argument domain sizes.** Weights
+  stay linear in the size of the table the hole already has.
+- **The check is exhaustive and bounded to 65,536 inputs.**

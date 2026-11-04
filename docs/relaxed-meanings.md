@@ -69,6 +69,18 @@ Coordinate search stops at 1. Under the relaxed meaning, the expected
 objective decreases as both distributions move towards the better values
 together, so the hardened table reaches 0.
 
+## Through authored code
+
+Score-function training treats the program as a black box. For functions over
+finite types there is a second, smoother relaxation: their
+[circuit](circuit-target.md). On one-hot inputs the circuit equals the
+program. On soft inputs its gates compute the multilinear extension of the
+authored code, so gradients flow through authored comparisons, `choose`, `&&`
+and calls back to the hole's table. `ink train-circuit` fits tables this way
+and writes an edit for the gate. On `examples/circuit-training.ink` it
+reaches 0 mistakes in about 20 epochs, where coordinate search stops at 9 and
+score-function training needs about 2,100 exact evaluations.
+
 ## Trust
 
 The relaxed meaning exists only inside the training driver. Nothing relaxed is
@@ -96,5 +108,6 @@ authority.
 - Score-function gradients are noisy. Cost grows with the number of entries
   and with the variance of the objective.
 - Entries are independent under the relaxation, so correlations between
-  entries are learned only through the objective.
+  entries are learned only through the objective, or through the circuit's
+  gradients when the function is finite.
 - `Mlp` holes are already continuous and keep their SPSA training.

@@ -1,4 +1,4 @@
-use ink_core::{mir, syntax};
+use ink_core::{core::CheckedModule, mir, syntax};
 
 #[test]
 fn programs_lower_to_verified_graphs_with_effect_order() {
@@ -8,7 +8,7 @@ state B: u32 = 0;
 fn twice(x: u32) -> u32 { return (x + 1) * (x + 1); }
 change bump(x: u32) -> u32 writes(A, B) { A = A + x; B = B + twice(x); return A; }
 ").unwrap();
-    let mut m = mir::lower(&p);
+    let mut m = mir::lower(&CheckedModule::from_source(p).unwrap());
     assert!(m.unsupported.is_empty(), "{:?}", m.unsupported);
     mir::verify(&m).unwrap();
     let bump = m.graphs.iter().find(|g| g.name == "bump").unwrap();
