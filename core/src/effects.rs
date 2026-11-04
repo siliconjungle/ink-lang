@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub const SEMANTICS: &str = "ink-action-effects-v1";
+/// Table methods that write their state. Every other table method only reads.
+pub const TABLE_WRITES: [&str; 6] = ["insert", "replace", "remove", "put", "put_many", "remove_many"];
 const WORK: usize = 2_000_000;
 
 /// Only outer constructors are tracked. Unknown values include every inhabitant
@@ -614,7 +616,7 @@ impl Checker<'_> {
                 }
                 let name = self.actions.module().program().states[*root].name.clone();
                 b.access.reads.insert(name.clone());
-                if ["insert", "replace", "remove", "put", "put_many", "remove_many"].contains(&method.as_str()) {
+                if TABLE_WRITES.contains(&method.as_str()) {
                     b.access.writes.insert(name);
                     b.paths = b
                         .paths
