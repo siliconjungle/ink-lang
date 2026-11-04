@@ -368,6 +368,13 @@ the computed equation afterward. Keep recursive constructor gates, capture
 avoidance, copied-term accounting and ordinary proof work/depth bounds. The
 producer supplies no destination, oracle result, axiom or source-specific rule.
 
+Packed browser numeric destinations copy exact List words into matching
+caller-owned typed arrays. Keep intrinsic bounds, actual graph lengths,
+unchanged tails and copy-before-unmap; ordinary reads remain detached. CPU
+fallback uses the same ABI codec, while GPU binary64 stays unsupported. This
+transport mechanism adds no primitive, arithmetic rewrite or placement policy.
+See docs/typed-compute-destinations.md and ABI/GPU/runtime destination tests.
+
 GPU-local immutable list constructors evaluate elements once in order and retain
 private arrays through helpers/captures. Account for WGSL vector/record alignment
 in the cumulative local storage bound, separately from packed ABI lanes. Lazy list
