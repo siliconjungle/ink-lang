@@ -19,6 +19,10 @@ pub struct SurfaceProgram {
     /// Source abstraction is an interface property, not a mathematical axiom.
     pub abstract_records: BTreeMap<String, String>,
     pub access_origins: BTreeMap<String, String>,
+    /// `learn` holes, `ensures` guards and objectives, lowered before elaboration.
+    pub holes: Vec<crate::holes::HoleSpec>,
+    pub hole_guards: BTreeMap<String, Expr>,
+    pub objectives: Vec<String>,
 }
 
 impl SurfaceProgram {
@@ -29,6 +33,12 @@ impl SurfaceProgram {
         crate::abstraction::mark(&mut self.program, &mut self.access_origins, names)
     }
     pub fn elaborate(mut self) -> LangResult<Program> {
+        if !self.holes.is_empty() || !self.hole_guards.is_empty() || !self.objectives.is_empty() {
+            let holes = std::mem::take(&mut self.holes);
+            let guards = std::mem::take(&mut self.hole_guards);
+            let objectives = std::mem::take(&mut self.objectives);
+            crate::holes::lower(&mut self, holes, guards, objectives)?;
+        }
         // Parsed modules have already resolved their own lexical calls. This
         // also covers source-law tools that construct a surface program directly.
         crate::contracts::collections::resolve(&mut self.program)?;
