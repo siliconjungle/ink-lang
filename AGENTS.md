@@ -74,6 +74,11 @@ Learned parameters are also keyed rows (docs/learn-rows.md). Gated edits from
 people, training or models apply through `__learn_set` only on exact objective
 improvement on the gate's data (or no regression when explicitly allowed);
 gating compares measurements and grants no other authority.
+`--method relaxed` relaxes only holes (distributions over exact tables) inside
+the training driver; authored code is never executed softly or served relaxed.
+The circuit target (docs/circuit-target.md) lowers finite functions to
+affine/ReLU/ReGLU networks and must keep its exhaustive reference check and
+fail-closed diagnostics; circuits are literal lowerings with no other authority.
 
 External effects and tasks (`effect`, `ordered effect`, `task`; see
 docs/effect-tasks.md) lower to generated readonly queries plus a

@@ -264,6 +264,9 @@ improves on held-out data; see [rows and gated edits](docs/learn-rows.md).
 `ink train --method relaxed` trains choice holes under their
 [relaxed meaning](docs/relaxed-meanings.md), as distributions over exact tables,
 which escapes plateaus that one-entry-at-a-time search cannot.
+`ink emit-circuit` lowers functions over finite types into exact
+affine/ReLU/ReGLU networks, checked on every input; a choice hole becomes a
+lookup layer whose weights are its rows. See [the circuit target](docs/circuit-target.md).
 
 ### Effects and tasks
 
