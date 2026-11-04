@@ -142,6 +142,18 @@ fn returns_keeps_and_calls_use_core_analyses() {
     assert!(reaches(&outer.body, call, doubled) && reaches(&outer.body, call, b));
     // The callee's derived writes reach the caller's summary.
     assert_eq!(outer.writes, ["A", "B"]);
+    // Work on parameters alone can run at the caller; state reads and writes
+    // and everything after them run on the server.
+    let places: Vec<(Option<Place>, &Op)> = outer.body.nodes.iter().map(|n| (n.place, &n.op)).collect();
+    assert!(places.iter().all(|(p, op)| match op {
+        Op::Param { .. } | Op::Const { .. } => *p == Some(Place::Client),
+        Op::Write { .. } | Op::Read { .. } | Op::Action { .. } | Op::Try | Op::Return => *p == Some(Place::Server),
+        _ => p.is_some(),
+    }));
+    let tasks = mir(&program(include_str!("../examples/effect-tasks.ink")));
+    let task = graph(&tasks, "triage");
+    assert!(task.body.nodes.iter().all(|n| !matches!(n.op, Op::Effect { .. }) || n.place == Some(Place::Host)));
+    assert!(task.body.nodes.iter().any(|n| matches!(&n.op, Op::Action { name, .. } if name == "record") && n.place == Some(Place::Server)));
     // Types come from the checker: the comparison is Bool and its operands u32.
     let cmp = nodes.iter().find(|n| matches!(&n.op, Op::Binary { operator } if operator == ">")).unwrap();
     assert_eq!(cmp.ty, Some(Type::Bool));

@@ -100,8 +100,20 @@ Placement is derived from effects, most preferred first:
 
 A query can run on a client against a replica kept current from the commit
 log. A change runs where the authoritative state lives. A task runs on the
-host that performs its effects, and its steps take their own graph's
-placement. Splitting a graph across places is future work.
+host that performs its effects.
+
+Each top-level node also records its own `place`, which splits a graph by
+where its values become available:
+- work that depends only on parameters and constants can run at the caller
+  (`client`);
+- state reads and writes, `?`, `return`, and everything after them run where
+  the state is (`replica` for readonly graphs, `server` for changes);
+- in tasks, effects run on the `host`, change calls on the `server` and query
+  calls on a `replica`.
+
+Values that flow from client nodes into the others are what a request has to
+carry. This is a dependency judgment, not a cost model: it says where work may
+run, never that moving it is profitable.
 
 ## Passes
 

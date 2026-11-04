@@ -86,6 +86,9 @@ pub struct Node {
     pub regions: Vec<Region>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ty: Option<Type>,
+    /// Where this node's work can run (top-level nodes; see `place`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub place: Option<Place>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -333,7 +336,7 @@ impl Lower<'_> {
         if let Some(t) = &ty {
             self.types.insert(id, t.clone());
         }
-        f.region.nodes.push(Node { id, op, inputs, after, regions, ty });
+        f.region.nodes.push(Node { id, op, inputs, after, regions, ty, place: None });
         Ok(id)
     }
     fn ty(&self, id: u32) -> Option<Type> {
@@ -712,6 +715,40 @@ fn summarise(g: &mut Graph, footprints: &BTreeMap<u32, Footprint>) {
         Kind::Task => vec![Place::Host],
     };
     g.schedule = schedule(&g.body);
+    place(g, footprints);
+}
+
+/// Split a graph across places by where its values become available. Work
+/// that depends only on parameters and constants can run at the caller
+/// (client); state reads and everything after them run where state is
+/// (replica for readonly graphs, server for changes); external effects run on
+/// the host. Values crossing from client nodes to the others are what a
+/// request carries. This is a dependency judgment, not a cost model: it says
+/// where work may run, never that moving it is profitable.
+fn place(g: &mut Graph, footprints: &BTreeMap<u32, Footprint>) {
+    fn effectful(n: &Node, footprints: &BTreeMap<u32, Footprint>) -> bool {
+        footprints.contains_key(&n.id) || matches!(n.op, Op::Read { .. } | Op::Write { .. } | Op::Emit { .. } | Op::Action { .. } | Op::Effect { .. } | Op::Return | Op::Try)
+    }
+    let state = match g.kind {
+        Kind::Function => Place::Client,
+        Kind::Query | Kind::Keep => Place::Replica,
+        Kind::Change => Place::Server,
+        Kind::Task => Place::Host,
+    };
+    let mut at: BTreeMap<u32, Place> = BTreeMap::new();
+    for n in &mut g.body.nodes {
+        let deps_client = n.inputs.iter().chain(&n.after).all(|d| at.get(d).is_none_or(|p| *p == Place::Client));
+        let p = match &n.op {
+            Op::Effect { .. } => Place::Host,
+            Op::Action { change: true, .. } => Place::Server,
+            Op::Action { change: false, .. } => Place::Replica,
+            _ if g.kind == Kind::Function => Place::Client,
+            _ if !effectful(n, footprints) && deps_client => Place::Client,
+            _ => state,
+        };
+        at.insert(n.id, p);
+        n.place = Some(p);
+    }
 }
 
 /// Dependency depth of the top region and the widest set of nodes in any
@@ -792,7 +829,7 @@ fn task_graph(l: &mut Lower, ir: &CheckedActions, t: &crate::tasks::Task) -> Lan
             crate::tasks::Kind::Query | crate::tasks::Kind::Change => {
                 let a = p.actions.iter().find(|a| a.name == s.callee).ok_or("mir: missing action")?;
                 let id = l.fresh()?;
-                f.region.nodes.push(Node { id, op: Op::Action { name: s.callee.clone(), change: a.kind == ActionKind::Change }, inputs: args, after: steps.clone(), regions: vec![], ty: Some(a.result.clone()) });
+                f.region.nodes.push(Node { id, op: Op::Action { name: s.callee.clone(), change: a.kind == ActionKind::Change }, inputs: args, after: steps.clone(), regions: vec![], ty: Some(a.result.clone()), place: None });
                 l.types.insert(id, a.result.clone());
                 id
             }
@@ -812,7 +849,7 @@ fn task_graph(l: &mut Lower, ir: &CheckedActions, t: &crate::tasks::Task) -> Lan
                 }
                 let id = l.fresh()?;
                 let after = if e.ordered { steps.clone() } else { vec![] };
-                f.region.nodes.push(Node { id, op: Op::Effect { name: e.name.clone(), ordered: e.ordered }, inputs: args, after, regions, ty: Some(e.result.clone()) });
+                f.region.nodes.push(Node { id, op: Op::Effect { name: e.name.clone(), ordered: e.ordered }, inputs: args, after, regions, ty: Some(e.result.clone()), place: None });
                 l.types.insert(id, e.result.clone());
                 id
             }
@@ -823,7 +860,7 @@ fn task_graph(l: &mut Lower, ir: &CheckedActions, t: &crate::tasks::Task) -> Lan
                 Some(Type::Result(x, _)) => Some(*x),
                 _ => None,
             };
-            f.region.nodes.push(Node { id: tid, op: Op::Try, inputs: vec![id], after: vec![], regions: vec![], ty: ty.clone() });
+            f.region.nodes.push(Node { id: tid, op: Op::Try, inputs: vec![id], after: vec![], regions: vec![], ty: ty.clone(), place: None });
             if let Some(t) = ty {
                 l.types.insert(tid, t);
             }
