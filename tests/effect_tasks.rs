@@ -311,6 +311,8 @@ fn concurrent_javascript_traces_replay_on_the_reference_evaluator() {
                 assert_eq!((w.result, w.error.is_some()), (r.result, r.error.is_some()), "wasm run {}", i + 1);
             }
             assert!(wasm["traces"][0]["peak"].as_u64().unwrap() >= 3, "wasm peak concurrency");
+            // Ill-typed model replies trapped the instance, and the host recovered.
+            assert!(wasm["traps"].as_u64().unwrap() > 0, "wasm typed-ingress traps");
             assert_eq!(wasm["final"], report["final"]);
         }
 
