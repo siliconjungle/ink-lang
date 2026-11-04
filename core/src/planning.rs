@@ -33,6 +33,7 @@ pub enum Step {
     Routing(Route),
     Resources(resources::Plan),
     Maintained(crate::maintained::Package),
+    MaintainedUnits(crate::maintained::UnitPackage),
     Protocol(crate::protocol::Plan),
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -152,7 +153,10 @@ fn interface(original: &CheckedModule, selected: &CheckedModule) -> LangResult<(
     Ok(())
 }
 pub fn check(original: &CheckedModule, package: &Package) -> LangResult<CheckedPlan> {
-    check_from(original, package, None)
+    check_from(original, package, None, None)
+}
+pub fn check_with_units(original:&CheckedModule,package:&Package,units:&crate::proof_units::Checker)->LangResult<CheckedPlan> {
+ check_from(original,package,None,Some(units))
 }
 /// Stable JSON transport for complete source-bearing plans. Frozen executable
 /// rows may contain ordinary finite JSON float inputs. This is distinct from
@@ -187,6 +191,7 @@ fn check_from(
     original: &CheckedModule,
     package: &Package,
     seed: Option<CheckedPlan>,
+    units: Option<&crate::proof_units::Checker>,
 ) -> LangResult<CheckedPlan> {
     if package.schema != 1
         || package.semantics != SEMANTICS
@@ -306,6 +311,11 @@ fn check_from(
                 checked.maintained=Some(Arc::new(crate::maintained::check(&checked.module,p)?));
                 checked.protocol=None;
             }
+            Step::MaintainedUnits(p) => {
+                if checked.representation.is_some(){return Err("maintained folds require source tables".into());}
+                checked.maintained=Some(Arc::new(crate::maintained::check_units(&checked.module,p,units.ok_or("proof units require an admitted session")?)?));
+                checked.protocol=None;
+            }
             Step::Routing(p) => {
                 checked.resources = None;
                 checked.route = Some(if let Some(e) = &p.equivalence {
@@ -362,7 +372,7 @@ impl Checker {
                 }
             }
         }
-        let checked = check_from(&self.original, package, seed)?;
+        let checked = check_from(&self.original, package, seed, None)?;
         let bytes = canonical(package)?;
         // Large admitted mathematical closures must remain eligible for prefix
         // reuse. Keep the same finite byte bound as admission. Sealed maintained
