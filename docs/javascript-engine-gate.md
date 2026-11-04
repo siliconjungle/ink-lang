@@ -36,7 +36,7 @@ binary hashes are recorded. The candidate is bound to its exact emitted bytes
 and compiler binary; the tooling checkout and package pins are recorded separately.
 Checkout metadata is provenance, not proof that a binary was built from it.
 
-Each engine runs three fresh process groups serially. The baseline, candidate
+Each engine runs five fresh process groups serially. The baseline, candidate
 and byte-identical control own independent module instances, adapters and timed
 call sites. Each Node role runs in an ordinary separate Node process with its
 default realm and no extra engine flags. V8 IPC serialization preserves typed
@@ -61,10 +61,20 @@ gradient updates. An independent binary32 evaluator checks every forecast and
 64 changing-weight updates; every timed batch's complete result is compared too.
 These finite checks do not prove compiler correctness.
 
-A case passes only when **every process** stays within the larger of **10% or
-0.02 microseconds** of its own baseline median. A/A differences beyond the larger of 10% or 0.02 microseconds, or processes
-that disagree about exceeding the budget, produce an inconclusive result, which
-also blocks the gate. The budget tolerates small timing variation while detecting
+A process whose byte-identical A/A control misses its own baseline by more than
+the larger of 10% or 0.02 microseconds measured noise rather than code, so its
+comparison is discarded, never relabelled. At least **three of the five
+processes must be trusted**. A case passes when a **strict majority of trusted
+processes** stays within the larger of **10% or 0.02 microseconds** of its own
+baseline median, and is a regression when a strict majority exceeds it. Fewer
+trusted processes, or a tie, produce an inconclusive result, which also blocks
+the gate. A consistent regression still exceeds the budget in most processes
+(the motivating 29% one in all of them).
+
+On shared CI runners, single processes regularly showed A/A differences of
+20–90%, and single candidate processes swung by similar amounts. The earlier
+rule had three processes and required every A/A and every process within
+budget, so the gate blocked on every run regardless of the code. The budget tolerates small timing variation while detecting
 the motivating 29% regression. Engines and cases are never averaged together.
 Raw samples, process ratios and descriptive ranges remain available; they are
 not statistical confidence intervals. Cold import times are recorded separately

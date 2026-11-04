@@ -13,7 +13,7 @@ try {
  writeFileSync(config,JSON.stringify({inputs:['source.ink'],frozenHashes:{},baseline:'baseline.mjs',cases:['complete']}));
  writeFileSync(join(dir,'source.ink'),'source');writeFileSync(compiler,'compiler');
  for(const name of ['candidate.mjs','baseline.mjs'])writeFileSync(join(dir,name),'export const result=1;');
- const runs=Object.fromEntries(['node22','node26','chrome'].map(kind=>[kind,Array.from({length:3},()=>({
+ const runs=Object.fromEntries(['node22','node26','chrome'].map(kind=>[kind,Array.from({length:SETTINGS.processes},()=>({
   isolation:SETTINGS.isolation,identity:kind==='chrome'?{kind,version:'155',userAgent:'Chrome/155',v8:'test'}:{kind:'node',node:kind==='node22'?'v22.22.1':'v26.1.0',v8:'test'},
   verification:Object.fromEntries(['baseline','candidate','control'].map(r=>[r,{independentChecks:1}])),
   rows:[{name:'complete',warmCalls:SETTINGS.warmCalls,callsPerBatch:1,completeOutputsChecked:SETTINGS.samples,

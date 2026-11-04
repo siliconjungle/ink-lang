@@ -8,7 +8,7 @@ import {SETTINGS,assessEngines,validateEngine} from './policy.mjs';
 import {binding,verifyReceipt} from './gate.mjs';
 import {equal,measure} from './worker.mjs';
 const samples=x=>Array(SETTINGS.samples).fill(x);
-const runs=(kind,ratio=1,control=1)=>Array.from({length:3},()=>({isolation:SETTINGS.isolation,identity:kind==='chrome'?{kind,version:'155.0',userAgent:'Chrome/155.0',v8:'test'}:{kind:'node',node:kind==='node22'?'v22.22.1':'v26.1.0',v8:'test'},verification:Object.fromEntries(['baseline','candidate','control'].map(k=>[k,{independentChecks:1}])),rows:[{name:'full-call',callsPerBatch:1024,warmCalls:SETTINGS.warmCalls,completeOutputsChecked:SETTINGS.samples,samplesUs:{baseline:samples(10),candidate:samples(10*ratio),control:samples(10*control)}}]}));
+const runs=(kind,ratio=1,control=1)=>Array.from({length:SETTINGS.processes},()=>({isolation:SETTINGS.isolation,identity:kind==='chrome'?{kind,version:'155.0',userAgent:'Chrome/155.0',v8:'test'}:{kind:'node',node:kind==='node22'?'v22.22.1':'v26.1.0',v8:'test'},verification:Object.fromEntries(['baseline','candidate','control'].map(k=>[k,{independentChecks:1}])),rows:[{name:'full-call',callsPerBatch:1024,warmCalls:SETTINGS.warmCalls,completeOutputsChecked:SETTINGS.samples,samplesUs:{baseline:samples(10),candidate:samples(10*ratio),control:samples(10*control)}}]}));
 const engines=(a=1,b=1,c=1)=>({node22:runs('node22',a),node26:runs('node26',b),chrome:runs('chrome',c)});
 assert.equal(assessEngines(engines(),['full-call']).status,'pass');
 const unisolated=engines();delete unisolated.node22[0].isolation;assert.throws(()=>assessEngines(unisolated,['full-call']),/realm isolation/);
@@ -22,7 +22,20 @@ const tinyNoisy=structuredClone(tiny);for(const run of tinyNoisy.chrome)run.rows
 assert.equal(assessEngines(tinyNoisy,['full-call']).engines.chrome.status,'inconclusive');
 const tinyRegression=structuredClone(tiny);for(const run of tinyRegression.chrome)run.rows[0].samplesUs.candidate=samples(.06);
 assert.equal(assessEngines(tinyRegression,['full-call']).engines.chrome.status,'regression');
-const mixed=engines();mixed.node22[1].rows[0].samplesUs.candidate=samples(13);assert.equal(assessEngines(mixed,['full-call']).engines.node22.status,'inconclusive');
+// One slow process among five trusted ones does not decide; three do.
+const mixed=engines();mixed.node22[1].rows[0].samplesUs.candidate=samples(13);assert.equal(assessEngines(mixed,['full-call']).engines.node22.status,'pass');
+const majority=engines();for(const i of [0,2,4])majority.node22[i].rows[0].samplesUs.candidate=samples(13);assert.equal(assessEngines(majority,['full-call']).engines.node22.status,'regression');
+const tie=engines();for(let i=0;i<2;i++){tie.node22[i].rows[0].samplesUs.control=samples(15);}for(const i of [2,3])tie.node22[i].rows[0].samplesUs.candidate=samples(13);
+assert.equal(assessEngines(tie,['full-call']).engines.node22.status,'regression','two of three trusted processes over budget');
+const even=engines();even.node22[0].rows[0].samplesUs.control=samples(15);for(const i of [1,2])even.node22[i].rows[0].samplesUs.candidate=samples(13);
+assert.equal(assessEngines(even,['full-call']).engines.node22.status,'inconclusive','two of four trusted processes over budget is a tie');
+// Processes whose own A/A control is noisy are discarded; the rest must be
+// enough (three of five) and agree.
+const noisyProcesses=(n,ratio=1)=>{const e=engines(1,1,1);for(let i=0;i<n;i++){const row=e.chrome[i].rows[0];row.samplesUs.control=samples(15);row.samplesUs.candidate=samples(25);}for(let i=n;i<SETTINGS.processes;i++)e.chrome[i].rows[0].samplesUs.candidate=samples(10*ratio);return assessEngines(e,['full-call']).engines.chrome.status;};
+assert.equal(noisyProcesses(2),'pass','two noisy processes leave three trusted ones that pass');
+assert.equal(noisyProcesses(3),'inconclusive','two trusted processes are not enough');
+assert.equal(noisyProcesses(2,1.29),'regression','trusted processes still detect the motivating regression');
+assert.equal(noisyProcesses(0,1.29),'regression');
 assert.throws(()=>assessEngines({node22:runs('node22')},['full-call']),/all required engines/);
 const missing=engines();missing.chrome.pop();assert.throws(()=>assessEngines(missing,['full-call']),/missing fresh process/);
 assert.throws(()=>validateEngine('node22',{kind:'node',node:'v26.1.0',v8:'test'}),/22.22.1/);
