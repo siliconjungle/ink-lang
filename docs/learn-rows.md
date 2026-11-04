@@ -96,6 +96,17 @@ back with a second learning commit.
 Frozen artifacts (`build-model --freeze-roots __learned`) have no
 `__learn_set`, so they cannot be edited. Edits are for live deployments.
 
+## Ink OS
+
+Ink OS offers the same rows and gate for installed apps. See
+ink-os-platform `docs/learned-parameters.md`:
+
+- `GET /apps/:id/ink/learned` lists the rows and mirrors them into World.
+- `PUT .../learned/gate` stores the owner's held-out data.
+- `POST .../learned/edits` judges an edit on a scratch state of the same
+  release. It applies the edit live only on improvement and records the
+  receipt in World.
+
 ## Trust
 
 Gating compares measured objective values on the supplied data. It grants no
