@@ -30,6 +30,32 @@ fn given(xs:List<Item>)->List<Item>{return xs;}
 fn final_call(xs:List<Item>,ok:Bool)->List<Item>{return given(xs);}
 fn computed_call(xs:List<Item>,ok:Bool)->List<Item>{return given(choose(ok,xs,xs));}
 fn shared_call(xs:List<Item>,ok:Bool)->List<List<Item>>{return [given(xs),xs];}
+fn after_map(xs:List<Item>,ok:Bool)->List<List<Item>>{
+ let indices:List<u32>=[0,1];let counts=indices.map(fn(i)=>length(xs)+i);
+ return [xs,counts.map(fn(n)=>Item{value:n})];
+}
+fn method_branch(xs:List<Item>,ok:Bool)->List<Item>{
+ let indices:List<u32>=[0,1];return choose(ok,xs,indices.map(fn(i)=>Item{value:length(xs)+i}));
+}
+fn receiver_capture(xs:List<Item>,ok:Bool)->List<Item>{
+ return xs.map(fn(item)=>Item{value:item.value+length(xs)});
+}
+fn after_filter(xs:List<Item>,ok:Bool)->List<Item>{
+ let indices:List<u32>=[0,1];let seen=indices.filter(fn(i)=>i<length(xs));
+ return buffer(xs).push(Item{value:length(seen)}).freeze();
+}
+fn after_indexed(xs:List<Item>,ok:Bool)->List<Item>{
+ let indices:List<u32>=[0,1];let seen=indices.map_indexed(fn(i)=>fn(x)=>x+i+length(xs));
+ return buffer(xs).push(Item{value:sum(seen)}).freeze();
+}
+fn after_zip(xs:List<Item>,ok:Bool)->List<Item>{
+ let a:List<u32>=[0,1];let b:List<u32>=[2,3];let seen=a.zip(b,fn(a)=>fn(b)=>a+b+length(xs));
+ return buffer(xs).push(Item{value:sum(seen)}).freeze();
+}
+fn after_variant(xs:List<Item>,ok:Bool)->List<Item>{
+ let seen:Result<u32,u32>=Err(1);let mapped=seen.map_err(fn(error)=>error+length(xs));
+ return buffer(xs).push(Item{value:mapped.fold(fn(value)=>value,fn(error)=>error)}).freeze();
+}
 record Particle{position:u32,velocity:u32,active:Bool,}
 fn particles(xs:List<Particle>)->List<Particle>{return xs.map(fn(p)=>Particle{position:p.position+p.velocity,velocity:p.velocity,active:p.active});}
 "#;
@@ -42,7 +68,7 @@ fn variant_branches_move_only_captures_without_later_or_repeated_uses(){
  let d=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/variant-fold-ownership-conformance");fs::create_dir_all(&d).unwrap();
  fs::write(d.join("source.ink"),SOURCE).unwrap();fs::write(d.join("plan.json"),registry::canonical(plan.package()).unwrap()).unwrap();
  let runtime=Runtime::new(m.program().clone()).unwrap();let mut steps=vec![];let mut expected=vec![];
- for n in [0,1,64,257]{for ok in [false,true]{for function in ["propagated","branches","shared","fields","repeated","final_call","computed_call","shared_call"]{
+ for n in [0,1,64,257]{for ok in [false,true]{for function in ["propagated","branches","shared","fields","repeated","final_call","computed_call","shared_call","after_map","method_branch","receiver_capture","after_filter","after_indexed","after_zip","after_variant"]{
   let values=json!((0..n).map(|i|json!({"value":i})).collect::<Vec<_>>());
   let first=if function=="fields"{json!({"values":values,"tag":u32::MAX})}else{values};
   let args=json!([first,ok]);let f=m.program().functions.iter().find(|f|f.name==function).unwrap();let values=args.as_array().unwrap().iter().zip(&f.params).map(|(v,(_,t))|eval::Value::from_program_json(v,t,m.program()).unwrap()).collect();let result=eval::call(m.program(),function,values,&mut 1_000_000).unwrap().json();
@@ -64,7 +90,11 @@ fn main(){let state=State::new();for ok in [false,true]{
  let xs=values();CLONES.store(0,Relaxed);let out=state.function_l_final_call(xs,ok);assert_eq!(out.len(),257);assert_eq!(CLONES.load(Relaxed),0);
  let xs=values();CLONES.store(0,Relaxed);let out=state.function_l_computed_call(xs,ok);assert_eq!(out.len(),257);assert_eq!(CLONES.load(Relaxed),0);
  let xs=values();CLONES.store(0,Relaxed);let out=state.function_l_shared_call(xs,ok);assert_eq!(out.len(),2);assert_eq!(out[0],out[1]);assert_eq!(CLONES.load(Relaxed),257);
- let xs=values();CLONES.store(0,Relaxed);let out=state.function_l_repeated(xs,ok);assert_eq!(out.len(),if ok{3}else{1});assert_eq!(CLONES.load(Relaxed),if ok{771}else{257});
+ let xs=values();CLONES.store(0,Relaxed);let out=state.function_l_repeated(xs,ok);assert_eq!(out.len(),if ok{3}else{1});assert_eq!(CLONES.load(Relaxed),if ok{771}else{0});
+ let xs=values();CLONES.store(0,Relaxed);let out=state.function_l_after_map(xs,ok);assert_eq!(out[0].len(),257);assert_eq!(out[1][1].l_value,258);assert_eq!(CLONES.load(Relaxed),0);
+ let xs=values();CLONES.store(0,Relaxed);let out=state.function_l_method_branch(xs,ok);assert_eq!(out.len(),if ok{257}else{2});assert_eq!(CLONES.load(Relaxed),0);
+ for method in [State::function_l_after_filter,State::function_l_after_indexed,State::function_l_after_zip,State::function_l_after_variant]{let xs=values();CLONES.store(0,Relaxed);let out=method(&state,xs,ok);assert_eq!(out.len(),258);assert_eq!(CLONES.load(Relaxed),0);}
+ let xs=values();let out=state.function_l_receiver_capture(xs,ok);assert_eq!(out.len(),257);assert_eq!(out[0].l_value,257);assert_eq!(out[256].l_value,513);
 }}
 "#).unwrap();let out=Command::new(env!("CARGO")).args(["run","--offline","--quiet","--manifest-path"]).arg(selected.join("Cargo.toml")).args(["--bin","count_clones","--target-dir"]).arg(selected.join("target")).output().unwrap();assert!(out.status.success(),"{}",String::from_utf8_lossy(&out.stderr));
  parity::conformance("generated-parity-variant-fold-ownership",m.program().clone(),SOURCE,steps,expected);

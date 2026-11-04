@@ -155,6 +155,12 @@ facts. Keep real upstream benchmarks and lifecycle/output-size controls in
 bench/competitive-workloads; measured voxel/codec algorithms remain knowledge
 libraries. Formats and performance observations never grant rewrite authority.
 
+Direct fixed collection/variant callbacks release capture loans when the
+synchronous method returns. Preserve receiver/argument aliases and repeated
+capture sharing during the call, earlier unknown closure loans, lexical identity
+and variant fold's separate at-most-once branch facts. Backend borrow/ownership
+checks still govern moves. See docs/synchronous-callback-lifetimes.md.
+
 Browser resident List composition snapshots results through opaque same-runtime
 sessions, preserving descriptor equality, bounded capacity, logical lengths,
 feedback and source-close independence. GPU copies keep raw packed words on the
