@@ -257,7 +257,13 @@ ordinary code; `objective` declarations and `ink train --objective` fit it, and
 admitted only on an error path, so inputs the authored program handled keep
 their results, or behind an `ensures` guard with an authored fallback. See
 [learnable holes](docs/learnable-holes.md) and the
-[example](examples/learn-holes.ink).
+[example](examples/learn-holes.ink). Learned parameters are also addressable
+rows (`recover(State.Quoted, Class.Quote) = Step.End`), and `ink gate-edit`
+admits an edit from anyone, including a model, only when the exact objective
+improves on held-out data; see [rows and gated edits](docs/learn-rows.md).
+`ink train --method relaxed` trains choice holes under their
+[relaxed meaning](docs/relaxed-meanings.md), as distributions over exact tables,
+which escapes plateaus that one-entry-at-a-time search cannot.
 
 ### Effects and tasks
 

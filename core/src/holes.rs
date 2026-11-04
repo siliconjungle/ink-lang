@@ -65,6 +65,13 @@ pub struct Hole {
     /// For `mlp`: layer widths, inputs first. Empty for `choice`.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub shape: Vec<u32>,
+    /// For `choice`: each argument's values in ordinal order. Table entry
+    /// `i0 + n0 * (i1 + n1 * ..)` holds the result for those ordinals.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub domains: Vec<Vec<String>>,
+    /// For `choice`: result values in ordinal order.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub values: Vec<String>,
     /// `error-path` or `guarded`.
     pub admission: String,
     /// The declaration that contains the hole.
@@ -410,8 +417,10 @@ pub fn lower(
                 let mut entries: u64 = 1;
                 let mut index = String::new();
                 let mut stride: u64 = 1;
+                let mut domains = vec![];
                 for (i, t) in arg_types.iter().enumerate() {
                     let values = finite_values(t, &p.enums)?;
+                    domains.push(values.clone());
                     let ord = format!("__learn_ord_{}_{}", h.name, i);
                     let body = if t == &Type::Bool {
                         "choose(x, 1, 0)".to_string()
@@ -464,6 +473,8 @@ pub fn lower(
                     parameters: entries as u32,
                     choices: values.len() as u32,
                     shape: vec![],
+                    domains,
+                    values,
                     admission: admission.into(),
                     declaration,
                 });
@@ -522,6 +533,8 @@ pub fn lower(
                     parameters: count as u32,
                     choices: 0,
                     shape: shape.clone(),
+                    domains: vec![],
+                    values: vec![],
                     admission: admission.into(),
                     declaration,
                 });
@@ -746,6 +759,15 @@ pub fn check(p: &Program) -> LangResult<()> {
         };
         if !fields.iter().any(|(n, t)| n == &h.field && t == &expected) {
             return Err(format!("learn hole {} has no matching parameter field", h.name));
+        }
+        let described = if h.family == "choice" {
+            h.domains.iter().try_fold(1u64, |n, d| (!d.is_empty()).then(|| n.saturating_mul(d.len() as u64))) == Some(h.parameters as u64)
+                && h.values.len() == h.choices as usize
+        } else {
+            h.domains.is_empty() && h.values.is_empty()
+        };
+        if !described {
+            return Err(format!("learn hole {} has an inconsistent table description", h.name));
         }
         if !["error-path", "guarded"].contains(&h.admission.as_str()) {
             return Err(format!("learn hole {} has unknown admission {}", h.name, h.admission));

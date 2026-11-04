@@ -108,7 +108,9 @@ objective. `choice` holes use coordinate search over table entries. `Mlp` holes
 use simultaneous-perturbation (SPSA) gradient estimates with Adam steps, which
 work for any objective the program can compute. `--holes A,B` restricts
 training, `--budget` caps evaluations (default 20,000) and `--seed` fixes the
-perturbations. Training is deterministic.
+perturbations. Training is deterministic. `--method relaxed` first trains
+`choice` holes under their [relaxed meaning](relaxed-meanings.md), which can
+leave plateaus where changing one entry at a time does not help.
 
 The output snapshot is the starting state plus one `__learn_set` commit, and
 `MODEL.snapshot.trace.json` replays exactly that commit, so ordinary
@@ -122,11 +124,14 @@ The output snapshot is the starting state plus one `__learn_set` commit, and
 - **Live:** leave `__learned` trainable. Applications call `__learn_set` (a
   learn change) to publish new parameters, for example after training on
   feedback with `ink train --restore`. Each update is an ordinary transaction.
+  Parameters can also be listed and edited as keyed rows, with edits admitted
+  only on measured improvement; see [rows and gated edits](learn-rows.md).
 
 ## Limits
 
-- Relaxed (soft) execution for gradient training through discrete code is not
-  part of this layer; `choice` holes are searched, not differentiated.
+- Authored code is never executed softly. `--method relaxed` relaxes only the
+  holes, as distributions over exact tables; see
+  [relaxed meanings](relaxed-meanings.md).
 - `Mlp` training estimates gradients from objective evaluations; it does not use
   source reverse AD, which requires record parameters and its own domain.
 - Inline annotation types, fallbacks and guards may reference root-module and

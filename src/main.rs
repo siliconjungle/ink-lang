@@ -244,6 +244,8 @@ fn run() -> LangResult<()> {
         "--budget",
         "--seed",
         "--holes",
+        "--allow-equal",
+        "--method",
         "--initial-state",
         "--freeze",
         "--freeze-roots",
@@ -858,7 +860,7 @@ fn run() -> LangResult<()> {
         );
         println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
         println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] [--freeze | --freeze-roots A,B] [--specialize-frozen] --target TARGET -o NEW_DIRECTORY (train and publish; optionally bind immutable roots and withdraw their writers)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)
-ink train SOURCE --objective NAME --data DATA.json [--holes A,B] [--budget N] [--seed N] [--restore MODEL.snapshot] -o MODEL.snapshot (fit learn holes; also writes MODEL.snapshot.trace.json for build-model)\nink emit-tasks SOURCE [-o TASKS.json] (effect and task manifest for hosts)\nink replay-task SOURCE TRACE.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable] (re-run a recorded task trace sequentially and check it)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed] [--holes A,B] [--budget N] [--seed N] [--restore MODEL.snapshot] -o MODEL.snapshot (fit learn holes; also writes MODEL.snapshot.trace.json for build-model)\nink emit-holes SOURCE [-o HOLES.json] (learn hole parameter layout for hosts)\nink learn-rows SOURCE [--restore MODEL.snapshot] (learned parameters as keyed rows)\nink gate-edit SOURCE EDIT.json --objective NAME --data DATA.json [--restore MODEL.snapshot] [--allow-equal] -o MODEL.snapshot (admit a row edit only if the exact objective improves)\nink emit-tasks SOURCE [-o TASKS.json] (effect and task manifest for hosts)\nink replay-task SOURCE TRACE.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable] (re-run a recorded task trace sequentially and check it)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -1609,6 +1611,48 @@ ink train SOURCE --objective NAME --data DATA.json [--holes A,B] [--budget N] [-
                 serde_json::to_string_pretty(&output).map_err(|e| e.to_string())?
             );
         }
+        "emit-holes" => {
+            let l = &p.contracts.learning;
+            let text = serde_json::to_string_pretty(&serde_json::json!({"format": "ink-holes-v1", "module": p.module, "holes": l.holes, "objectives": l.objectives})).map_err(|e| e.to_string())?;
+            match arg_value(&args, "-o")? {
+                Some(out) => write(&out, &text)?,
+                None => println!("{text}"),
+            }
+        }
+        "learn-rows" => {
+            let mut runtime = match arg_value(&args, "--restore")? {
+                Some(path) => stateful::Runtime::restore_portable(p.clone(), &read_bounded(&path, 64_000_000)?)?,
+                None => stateful::Runtime::new(p.clone())?,
+            };
+            let params = runtime.invoke_json(ink_core::holes::GET, &serde_json::json!([]))?.result.json();
+            let rows = verified_language::learn_rows::rows(&p.contracts.learning.holes, &params)?;
+            println!("{}", serde_json::to_string_pretty(&serde_json::json!({"format": verified_language::learn_rows::ROWS_FORMAT, "rows": rows})).map_err(|e| e.to_string())?);
+        }
+        "gate-edit" => {
+            if semantic_selection.is_some() { return Err("gate edits against the source module".into()); }
+            let edit_path = args.get(2).ok_or("gate-edit requires EDIT.json")?;
+            let edit: verified_language::learn_rows::Edit = serde_json::from_slice(&read_bounded(edit_path, 16_000_000)?)
+                .map_err(|e| format!("edit: {e}"))?;
+            let objective = arg_value(&args, "--objective")?.ok_or("gate-edit requires --objective NAME")?;
+            let data_path = arg_value(&args, "--data")?.ok_or("gate-edit requires --data DATA.json")?;
+            let data: serde_json::Value = serde_json::from_slice(&read_bounded(&data_path, 64_000_000)?)
+                .map_err(|e| format!("gate data: {e}"))?;
+            let out = arg_value(&args, "-o")?.ok_or("gate-edit requires -o MODEL.snapshot")?;
+            let initial = arg_value(&args, "--restore")?.map(|path| read_bounded(&path, 64_000_000)).transpose()?;
+            let module = core::CheckedModule::from_source(p.clone())?;
+            let gated = verified_language::learn_rows::gate(&module, initial.as_deref(), &edit, &objective, &data, args.iter().any(|a| a == "--allow-equal"))?;
+            let receipt = serde_json::to_string_pretty(&gated.receipt).map_err(|e| e.to_string())?;
+            println!("{receipt}");
+            if !gated.admitted {
+                return Err(format!("edit rejected: {}", gated.receipt["rejection"].as_str().unwrap_or("not admitted")));
+            }
+            if let Some(parent) = Path::new(&out).parent() {
+                if !parent.as_os_str().is_empty() { fs::create_dir_all(parent).map_err(|e| e.to_string())?; }
+            }
+            fs::write(&out, gated.snapshot.unwrap_or_default()).map_err(|e| e.to_string())?;
+            write(&format!("{out}.receipt.json"), &receipt)?;
+            write(&format!("{out}.trace.json"), &serde_json::to_string_pretty(&gated.trace).map_err(|e| e.to_string())?)?;
+        }
         "emit-tasks" => {
             let manifest = &p.contracts.tasks;
             let text = serde_json::to_string_pretty(&serde_json::json!({"format": "ink-tasks-v1", "module": p.module, "effects": manifest.effects, "tasks": manifest.tasks})).map_err(|e| e.to_string())?;
@@ -1646,7 +1690,12 @@ ink train SOURCE --objective NAME --data DATA.json [--holes A,B] [--budget N] [-
                 arg_value(&args, flag)?.map(|v| v.parse::<u64>().map_err(|_| format!("invalid {flag}"))).transpose().map(|v| v.unwrap_or(default))
             };
             let holes = arg_value(&args, "--holes")?.map(|v| v.split(',').map(str::to_string).collect());
-            let options = verified_language::hole_training::Options { objective, data, budget: number("--budget", 20_000)?, seed: number("--seed", 0)?, holes };
+            let method = match arg_value(&args, "--method")?.as_deref() {
+                None | Some("coordinate") => verified_language::hole_training::Method::Coordinate,
+                Some("relaxed") => verified_language::hole_training::Method::Relaxed,
+                Some(other) => return Err(format!("unknown training method {other}; use coordinate or relaxed")),
+            };
+            let options = verified_language::hole_training::Options { objective, data, budget: number("--budget", 20_000)?, seed: number("--seed", 0)?, holes, method };
             let module = core::CheckedModule::from_source(p.clone())?;
             let initial = arg_value(&args, "--restore")?.map(|path|read_bounded(&path,64_000_000)).transpose()?;
             let trained = verified_language::hole_training::train(&module, initial.as_deref(), &options)?;

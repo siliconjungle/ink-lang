@@ -163,6 +163,7 @@ fn objective_training_improves_holes_and_replays_exactly() {
         budget: 4000,
         seed: 7,
         holes,
+        method: Default::default(),
     };
     let choice = hole_training::train(&m, None, &options("mistakes", cases(), None)).unwrap();
     assert_eq!(choice.receipt["initial_loss"], json!(3.0));
@@ -190,7 +191,7 @@ fn trained_holes_match_across_targets_and_freeze() {
     let trained = hole_training::train(
         &m,
         None,
-        &hole_training::Options { objective: "fit".into(), data: points(), budget: 1500, seed: 3, holes: Some(vec!["adjust".into()]) },
+        &hole_training::Options { objective: "fit".into(), data: points(), budget: 1500, seed: 3, holes: Some(vec!["adjust".into()]), method: Default::default() },
     )
     .unwrap();
     let parameters = trained.trace["observations"][0]["args"][0].clone();
