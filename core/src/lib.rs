@@ -73,6 +73,7 @@ pub mod field_projection;
 pub mod frozen;
 pub mod holes;
 pub mod tasks;
+pub mod mir;
 pub mod property;
 pub mod contracts;
 mod approximation;
