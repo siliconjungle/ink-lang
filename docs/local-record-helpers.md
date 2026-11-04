@@ -43,6 +43,21 @@ under the callee's own analysis. This removes a call boundary without changing
 the arithmetic, adding a public owner capability or retaining scratch storage
 between invocations. The same expansion limits and ordinary fallback apply.
 
+Small native-F32/F64-result helpers whose inputs are scalars or scalar Lists can also
+expand under these bounds. This exposes literal lookup/arithmetic work to the
+JavaScript engine without a helper-call boundary. Every argument still evaluates
+once in source order, List inputs remain shared under the callee's own analysis,
+and each source arithmetic operation retains its rounding point. Recursive or
+oversized helpers keep ordinary calls. This is bounded literal emission, not an
+algebraic fusion rule or a finite-value assumption.
+
+Sealed compiled captures of native F32 lists/vectors may store normalized Number
+carriers in a private `Float32Array`. Ordered validation and resource charging
+complete first; any exact NaN payload tag keeps the ordinary slot array. Public
+results remain detached, and `drop`/`take` produce growable ordinary Lists. This
+carrier adds preparation allocation and conversion; it grants no range fact,
+source rewrite, public typed-array ABI or profitability premise.
+
 The [direct-owner study](../reports/direct-owned-helpers-2026-10-17/README.md)
 retains two six-pair complete neural comparisons: prediction improves about
 1.13–1.19×, while training remains mixed, including a cadence that regresses in
@@ -90,7 +105,8 @@ fn collect(xs:List<f32>)->List<f32>{
 ## Bounds and ordinary fallback
 
 Local user-record storage admits at most 64 fields. Expansion requires an
-already decomposed record argument and a nonrecursive body. Owned parameters and
+already decomposed record argument, an eligible floating-result helper, or
+checked owned parameters, and a nonrecursive body. Owned parameters and
 results retain the same checked owner operations; owned temporaries remain
 internal capabilities. It admits up to 512 source nodes per body, four nested helper
 expansions, 16,384 charged expansion nodes per emission and 262,144 charged source

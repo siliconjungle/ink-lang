@@ -12,3 +12,5 @@
 #[path = "../lowerings/js/tests/state_float.rs"] mod state_float;
 #[path = "../lowerings/js/tests/scalar_records.rs"] mod scalar_records;
 #[path = "../lowerings/js/tests/call_boundaries.rs"] mod call_boundaries;
+#[path = "../lowerings/js/tests/inlining.rs"] mod inlining;
+#[path = "../lowerings/js/tests/float_islands.rs"] mod float_islands;
