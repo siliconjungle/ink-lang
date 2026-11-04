@@ -264,6 +264,10 @@ pub(crate) fn check_registry_with_context(
     exports: &[String],
 ) -> LangResult<(CheckedDefinition, crate::logic::Context)> {
     let context = crate::registry::CheckedBundle::checked_first_order_context(bundle)?;
+    checked_scope_definition(bundle,exports,context,None)
+}
+// The optional closure is supplied only by the opaque proof-unit checker.
+pub(crate) fn checked_scope_definition(bundle:&crate::registry::Bundle,exports:&[String],context:crate::logic::Context,closure:Option<Vec<String>>)->LangResult<(CheckedDefinition,crate::logic::Context)> {
     if exports.is_empty() || exports.len() > 128 {
         return Err("definition export count limit".into());
     }
@@ -317,7 +321,7 @@ pub(crate) fn check_registry_with_context(
             exports: exports.to_vec(),
             choices: BTreeMap::new(),
             bundle_sha256: crate::registry::bundle_identity(bundle)?,
-            closure: bundle.objects.keys().cloned().collect(),
+            closure: closure.unwrap_or_else(||bundle.objects.keys().cloned().collect()),
             selection_sha256: None,
         },
         context,

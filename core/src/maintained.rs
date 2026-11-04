@@ -338,7 +338,22 @@ fn masked(group: &str, contribution: Term, row: Term, zero: &Term) -> Term {
         on_false: Box::new(zero.clone()),
     }
 }
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UnitPackage {
+ pub schema:u32, pub semantics:String, pub input_core_sha256:String,
+ pub knowledge:crate::proof_units::Scope, pub views:Vec<View>,
+}
+pub fn check_units(module:&CheckedModule,package:&UnitPackage,units:&crate::proof_units::Checker)->LangResult<CheckedViews> {
+ if package.schema!=1 || package.semantics!="ink-maintained-fold-units-v1" {return Err("maintained unit semantics mismatch".into());}
+ let (knowledge,context)=units.scope(&package.knowledge)?;
+ let packet=Package{schema:1,semantics:SEMANTICS.into(),input_core_sha256:package.input_core_sha256.clone(),knowledge,views:package.views.clone()};
+ check_context(module,&packet,Some((context,package.knowledge.objects.clone())))
+}
 pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedViews> {
+ check_context(module,package,None)
+}
+fn check_context(module:&CheckedModule,package:&Package,units:Option<(crate::logic::Context,Vec<String>)>)->LangResult<CheckedViews> {
     if package.schema != 1
         || package.semantics != SEMANTICS
         || package.input_core_sha256 != module.identity()?
@@ -417,10 +432,10 @@ pub fn check(module: &CheckedModule, package: &Package) -> LangResult<CheckedVie
         }
         selected.push((s, id));
     }
-    let (definition, context) = definition::check_registry_with_context(
-        &package.knowledge,
-        &exports.into_iter().collect::<Vec<_>>(),
-    )?;
+    let exports=exports.into_iter().collect::<Vec<_>>();
+    let (definition, context)=if let Some((context,closure))=units {
+        definition::checked_scope_definition(&package.knowledge,&exports,context,Some(closure))?
+    }else{definition::check_registry_with_context(&package.knowledge,&exports)?};
     let mut zeros = vec![];
     for ((s, fold), v) in selected.iter().zip(&package.views) {
         // A view is either a commutative group (inverse, cancellation, deletion

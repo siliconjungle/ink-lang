@@ -314,7 +314,7 @@ pub struct CheckedBundle {
     order: Vec<String>,
     snapshot_id: String,
 }
-fn admit_first_order(context: &mut crate::logic::Context, id: &str, e: &Entry) -> LangResult<()> {
+pub(crate) fn admit_first_order(context: &mut crate::logic::Context, id: &str, e: &Entry) -> LangResult<()> {
     if !matches!(e.kind, Kind::Definition | Kind::Theorem) {
         return Err("first-order entry kind".into());
     }
@@ -389,29 +389,7 @@ impl CheckedBundle {
             for d in &obj.dependencies {
                 identifier(d)?
             }
-            let witness = &b.membership[id];
-            if witness.entries.len() > 64
-                || !sorted(&witness.entries)
-                || !witness.entries.contains(id)
-                || witness.path.len() > 64
-            {
-                return Err("invalid snapshot membership proof".into());
-            }
-            for i in &witness.entries {
-                identifier(i)?
-            }
-            let mut hash = identity(&json!({"schema":1,"entries":witness.entries}))?;
-            for step in &witness.path {
-                identifier(&step.sibling)?;
-                hash = if step.left {
-                    identity(&json!({"schema":1,"left":step.sibling,"right":hash}))?
-                } else {
-                    identity(&json!({"schema":1,"left":hash,"right":step.sibling}))?
-                };
-            }
-            if hash != b.snapshot.root {
-                return Err("entry is not in pinned snapshot".into());
-            }
+            authenticate_membership(id,&b.membership[id],&b.snapshot)?;
         }
         let mut order = vec![];
         let mut active = BTreeSet::new();
@@ -871,4 +849,32 @@ mod tests {
             .verify(&program())
             .is_err());
     }
+}
+
+pub(crate) fn authenticate_membership(id:&str,witness:&Membership,snapshot:&Snapshot)->LangResult<()> {
+    if snapshot.schema!=1 || snapshot.semantics!=SNAPSHOT_SEMANTICS {return Err("knowledge snapshot semantics mismatch".into());}
+    identifier(id)?;identifier(&snapshot.root)?;
+    if witness.entries.len() > 64
+        || !sorted(&witness.entries)
+        || !witness.entries.iter().any(|entry|entry==id)
+        || witness.path.len() > 64
+    {
+        return Err("invalid snapshot membership proof".into());
+    }
+    for i in &witness.entries {
+        identifier(i)?
+    }
+    let mut hash = identity(&json!({"schema":1,"entries":witness.entries}))?;
+    for step in &witness.path {
+        identifier(&step.sibling)?;
+        hash = if step.left {
+            identity(&json!({"schema":1,"left":step.sibling,"right":hash}))?
+        } else {
+            identity(&json!({"schema":1,"left":hash,"right":step.sibling}))?
+        };
+    }
+    if hash != snapshot.root {
+        return Err("entry is not in pinned snapshot".into());
+    }
+    Ok(())
 }
