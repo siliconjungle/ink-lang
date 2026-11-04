@@ -1267,6 +1267,9 @@ jobs:
       CARGO_INCREMENTAL: '0'
       INK_TEST_WASM: '1'
     steps:
+    - name: Free runner disk for browser, Wasm and GPU builds
+      # Hosted images ship unused toolchains; this job once ran out of space.
+      run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h /
     - uses: actions/checkout@v4
       with:
         submodules: recursive

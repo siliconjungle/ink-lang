@@ -434,3 +434,11 @@ restore declarations/names. Omit bundled tape declarations only when no dynamic
 request references them. This grants no algebraic, physical, device-training or
 profitability authority. See docs/static-reverse-tapes.md and required source_reverse
 complete-history conformance.
+
+Reusable mathematical proof units retain opaque checked logic entries, not theorem
+proof bodies. New units replay the existing first-order declaration checker against
+only their declared checked imports. Scope admission checks the exact reachable
+closure and pinned membership; source-specific maintained-fold equations still
+replay against the complete checked source. Hashes, compression and serialized
+cache claims cannot construct witnesses. New sessions replay all units, and old
+complete-plan admission stays unchanged. See docs/proof-units.md.
