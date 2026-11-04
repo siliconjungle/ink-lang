@@ -155,6 +155,13 @@ facts. Keep real upstream benchmarks and lifecycle/output-size controls in
 bench/competitive-workloads; measured voxel/codec algorithms remain knowledge
 libraries. Formats and performance observations never grant rewrite authority.
 
+Browser resident List composition snapshots results through opaque same-runtime
+sessions, preserving descriptor equality, bounded capacity, logical lengths,
+feedback and source-close independence. GPU copies keep raw packed words on the
+shared device queue; mixed CPU/GPU paths retain owned transport. Public result
+reads still detach. This explicit API grants no automatic placement policy or
+arithmetic rewrite. See docs/resident-list-composition.md.
+
 Source physical capabilities now include optional direct Buffer owners and checked
 flat scalar columns on Rust/Rust-Wasm. Bounds and unchanged-field certificates bind
 an exact module, function and child path; source aliases retain numeric types and
