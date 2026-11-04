@@ -146,6 +146,8 @@ struct Parser {
     holes: Vec<crate::holes::HoleSpec>,
     hole_guards: std::collections::BTreeMap<String, Expr>,
     objectives: Vec<String>,
+    effects: Vec<crate::tasks::EffectSpec>,
+    tasks: Vec<crate::tasks::TaskSpec>,
 }
 impl Parser {
     // Precedence parsing builds left-associated and postfix chains in a loop,
@@ -741,6 +743,7 @@ impl Parser {
                 p.contracts.implementations.push(crate::contracts::Implementation { name, specification, body });
             } else if self.eat("invariant") {
                 p.contracts.invariants.push(self.expr(0)?); self.expect(";")?;
+            } else if self.task_declaration()? {
             } else if self.eat("fn") || self.objective_declaration() {
                 let objective = self.ts.get(self.at.wrapping_sub(1)).is_some_and(|t| t.text == "objective");
                 let name = self.name()?;
@@ -1096,6 +1099,8 @@ impl Parser {
             holes: std::mem::take(&mut self.holes),
             hole_guards: std::mem::take(&mut self.hole_guards),
             objectives: std::mem::take(&mut self.objectives),
+            effects: std::mem::take(&mut self.effects),
+            tasks: std::mem::take(&mut self.tasks),
         };
         if !surface.abstract_records.is_empty() {surface.mark_accesses()?;}
         Ok(surface)
@@ -1111,6 +1116,68 @@ impl Parser {
             self.take();
         }
         starts
+    }
+    /// `[ordered] effect NAME(params) -> T;` or `task NAME(params) -> T { .. }`
+    /// at declaration start. Returns false, consuming nothing, otherwise.
+    fn task_declaration(&mut self) -> LangResult<bool> {
+        let word = |k: usize| self.ts.get(self.at + k).map(|t| t.text.clone()).unwrap_or_default();
+        let ordered = word(0) == "ordered" && word(1) == "effect";
+        let keyword = word(ordered as usize);
+        if !["effect", "task"].contains(&keyword.as_str()) || word(ordered as usize + 2) != "(" {
+            return Ok(false);
+        }
+        if self.law_mode {
+            return Err(self.err("effects and tasks are executable source, not laws"));
+        }
+        if ordered {
+            self.take();
+        }
+        self.take();
+        let name = self.name()?;
+        let params = self.params()?;
+        self.expect("->")?;
+        let result = self.ty()?;
+        if keyword == "effect" {
+            self.expect(";")?;
+            self.effects.push(crate::tasks::EffectSpec { name, params, result, ordered });
+            return Ok(true);
+        }
+        self.mutables.clear();
+        self.pure = false;
+        self.generic_scope.clear();
+        self.expect("{")?;
+        let mut steps = vec![];
+        let ret = loop {
+            if self.eat("return") {
+                let e = self.expr(0)?;
+                self.expect(";")?;
+                self.expect("}")?;
+                break e;
+            }
+            if self.peek() == "}" || self.peek() == "<eof>" {
+                return Err(self.err("a task ends with `return EXPR;`"));
+            }
+            let (bind, ty) = if self.eat("let") {
+                let n = self.name()?;
+                let t = if self.eat(":") { Some(self.ty()?) } else { None };
+                self.expect("=")?;
+                (Some(n), t)
+            } else {
+                (None, None)
+            };
+            let expr = self.expr(0)?;
+            let guard = if self.eat("ensures") {
+                let predicate = self.expr(0)?;
+                self.expect("else")?;
+                Some((predicate, self.expr(0)?))
+            } else {
+                None
+            };
+            self.expect(";")?;
+            steps.push(crate::tasks::StepSpec { bind, ty, expr, guard });
+        };
+        self.tasks.push(crate::tasks::TaskSpec { name, params, result, steps, ret });
+        Ok(true)
     }
     /// `learn NAME(arg[: Type], ..): choice<T> | Mlp<I, H.., O> [else FALLBACK]`
     fn learn_hole(&mut self) -> LangResult<Expr> {
@@ -2137,6 +2204,8 @@ fn parser(
         holes: vec![],
         hole_guards: Default::default(),
         objectives: vec![],
+        effects: vec![],
+        tasks: vec![],
     })
 }
 

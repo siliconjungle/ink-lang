@@ -71,6 +71,19 @@ source desugaring into one trainable value state, ordinary pure helpers,
 primitives for it. Training evaluates every candidate exactly and keeps only
 strict objective improvements; its snapshot must equal a replay of its trace.
 
+External effects and tasks (`effect`, `ordered effect`, `task`; see
+docs/effect-tasks.md) lower to generated readonly queries plus a
+`contracts.tasks` manifest; do not add executable-core primitives or let hosts
+compute their own ordering. Queries, changes and ordered effects wait for every
+earlier step; other steps wait only for the steps whose names they use. Hosts
+must report the earliest failure in source order and record speculative
+replies as discarded, so results equal sequential execution with the same
+replies. Effect replies are untrusted: they enter only through the generated
+accept query (declared type and `ensures`), and failures take the authored
+`else` value or end the task. A task is not a transaction. Trace replay against
+the reference evaluator is the cross-host check; it grants no equality,
+approximation or profitability authority.
+
 Legacy aggregate certificates, bounded cache/narrowing, typed storage policies,
 source maintenance evaluators and historical scalar loaders are removed.
 Do not restore compatibility flags, experiment admission paths or obsolete APIs.

@@ -259,6 +259,19 @@ their results, or behind an `ensures` guard with an authored fallback. See
 [learnable holes](docs/learnable-holes.md) and the
 [example](examples/learn-holes.ink).
 
+### Effects and tasks
+
+`effect NAME(params) -> T;` types a request Ink does not evaluate (HTTP, a
+database, a language model). `task` declarations orchestrate effects, queries,
+changes and pure values; each effect reply re-enters Ink through its declared
+type and an optional `ensures ... else FALLBACK` contract. The compiler fixes
+which steps wait for which, so hosts run independent requests concurrently
+while results match sequential execution. `runtime/hosts/tasks.mjs` runs tasks,
+`model-effect.mjs` turns a completion function into a typed handler, and
+recorded traces replay on the reference evaluator with `ink replay-task`. See
+[effect tasks](docs/effect-tasks.md) and the
+[example](examples/effect-tasks.ink).
+
 ### Programmable portfolio objectives
 
 An ordinary compiled Ink function can rank the complete eligible portfolio using

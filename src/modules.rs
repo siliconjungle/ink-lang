@@ -639,6 +639,15 @@ impl Loader {
             }
             if let ink_core::holes::Family::Choice(t) = &mut hole.family { ty(t, &mapping); }
         }
+        for effect in &mut parsed.effects {
+            effect.params.iter_mut().for_each(|(_, t)| ty(t, &mapping));
+            ty(&mut effect.result, &mapping);
+        }
+        for task in &mut parsed.tasks {
+            task.params.iter_mut().for_each(|(_, t)| ty(t, &mapping));
+            ty(&mut task.result, &mapping);
+            task.steps.iter_mut().filter_map(|s| s.ty.as_mut()).for_each(|t| ty(t, &mapping));
+        }
         parsed.abstract_records=parsed.abstract_records.into_iter().map(|(mut name,owner)|{
             renamed(&mut name,&mapping);(name,owner)
         }).collect();
@@ -780,6 +789,9 @@ fn load_impl(path:impl AsRef<Path>,authoring:bool)->LangResult<Loaded> {
                 "{}: learn holes, hole guards and objectives are supported in the root module only",
                 loader.nodes[i].path.display()
             ));
+        }
+        if !parsed.effects.is_empty() || !parsed.tasks.is_empty() {
+            return Err(format!("{}: effects and tasks are supported in the root module only", loader.nodes[i].path.display()));
         }
         surface.abstract_records.extend(parsed.abstract_records);
         for (name,origin) in parsed.access_origins {

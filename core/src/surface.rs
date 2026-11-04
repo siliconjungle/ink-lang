@@ -23,6 +23,9 @@ pub struct SurfaceProgram {
     pub holes: Vec<crate::holes::HoleSpec>,
     pub hole_guards: BTreeMap<String, Expr>,
     pub objectives: Vec<String>,
+    /// `effect` and `task` declarations, lowered before learn holes.
+    pub effects: Vec<crate::tasks::EffectSpec>,
+    pub tasks: Vec<crate::tasks::TaskSpec>,
 }
 
 impl SurfaceProgram {
@@ -33,6 +36,11 @@ impl SurfaceProgram {
         crate::abstraction::mark(&mut self.program, &mut self.access_origins, names)
     }
     pub fn elaborate(mut self) -> LangResult<Program> {
+        if !self.effects.is_empty() || !self.tasks.is_empty() {
+            let effects = std::mem::take(&mut self.effects);
+            let tasks = std::mem::take(&mut self.tasks);
+            crate::tasks::lower(&mut self, effects, tasks)?;
+        }
         if !self.holes.is_empty() || !self.hole_guards.is_empty() || !self.objectives.is_empty() {
             let holes = std::mem::take(&mut self.holes);
             let guards = std::mem::take(&mut self.hole_guards);

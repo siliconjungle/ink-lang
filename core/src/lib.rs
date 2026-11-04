@@ -72,6 +72,7 @@ pub mod value_limits;
 pub mod field_projection;
 pub mod frozen;
 pub mod holes;
+pub mod tasks;
 pub mod property;
 pub mod contracts;
 mod approximation;

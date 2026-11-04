@@ -858,7 +858,7 @@ fn run() -> LangResult<()> {
         );
         println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
         println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] [--freeze | --freeze-roots A,B] [--specialize-frozen] --target TARGET -o NEW_DIRECTORY (train and publish; optionally bind immutable roots and withdraw their writers)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)
-ink train SOURCE --objective NAME --data DATA.json [--holes A,B] [--budget N] [--seed N] [--restore MODEL.snapshot] -o MODEL.snapshot (fit learn holes; also writes MODEL.snapshot.trace.json for build-model)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+ink train SOURCE --objective NAME --data DATA.json [--holes A,B] [--budget N] [--seed N] [--restore MODEL.snapshot] -o MODEL.snapshot (fit learn holes; also writes MODEL.snapshot.trace.json for build-model)\nink emit-tasks SOURCE [-o TASKS.json] (effect and task manifest for hosts)\nink replay-task SOURCE TRACE.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable] (re-run a recorded task trace sequentially and check it)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -1608,6 +1608,33 @@ ink train SOURCE --objective NAME --data DATA.json [--holes A,B] [--budget N] [-
                 "{}",
                 serde_json::to_string_pretty(&output).map_err(|e| e.to_string())?
             );
+        }
+        "emit-tasks" => {
+            let manifest = &p.contracts.tasks;
+            let text = serde_json::to_string_pretty(&serde_json::json!({"format": "ink-tasks-v1", "module": p.module, "effects": manifest.effects, "tasks": manifest.tasks})).map_err(|e| e.to_string())?;
+            match arg_value(&args, "-o")? {
+                Some(out) => write(&out, &text)?,
+                None => println!("{text}"),
+            }
+        }
+        "replay-task" => {
+            if semantic_selection.is_some() { return Err("replay tasks against the source module".into()); }
+            let trace_path = args.get(2).ok_or("replay-task requires TRACE.json")?;
+            let trace: verified_language::tasks::Trace = serde_json::from_slice(&read_bounded(trace_path, 64_000_000)?)
+                .map_err(|e| format!("task trace: {e}"))?;
+            let mut runtime = match arg_value(&args, "--restore")? {
+                Some(path) => {
+                    let bytes = read_bounded(&path, 64_000_000)?;
+                    if bytes.starts_with(b"VLSTATE\0") { stateful::Runtime::restore_portable(p.clone(), &bytes)? } else { stateful::Runtime::restore(p.clone(), &bytes)? }
+                }
+                None => stateful::Runtime::new(p.clone())?,
+            };
+            let checked = verified_language::tasks::replay(&mut runtime, &p.contracts.tasks, &trace)?;
+            if let Some(file) = arg_value(&args, "--snapshot-out")? {
+                let bytes = if args.iter().any(|s| s == "--portable") { runtime.checkpoint_portable()? } else { runtime.checkpoint()? };
+                fs::write(file, bytes).map_err(|e| e.to_string())?;
+            }
+            println!("{}", serde_json::to_string_pretty(&checked).map_err(|e| e.to_string())?);
         }
         "train" if args.iter().any(|a| a == "--objective") => {
             if semantic_selection.is_some() { return Err("train the source module before selecting implementations".into()); }
