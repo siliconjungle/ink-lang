@@ -268,6 +268,14 @@ which escapes plateaus that one-entry-at-a-time search cannot.
 affine/ReLU/ReGLU networks, checked on every input; a choice hole becomes a
 lookup layer whose weights are its rows. See [the circuit target](docs/circuit-target.md).
 
+### Mid-level IR
+
+`ink emit-mir` lowers every function, query, change and task into a typed
+dataflow graph with explicit effect order (per state, with `?` as a barrier),
+lazy branch regions, placement (client, worker, replica, server, host) and a
+parallel schedule. Backends can print it; a small JavaScript printer is
+checked against the reference evaluator. See [the mid-level IR](docs/mid-level-ir.md).
+
 ### Effects and tasks
 
 `effect NAME(params) -> T;` types a request Ink does not evaluate (HTTP, a

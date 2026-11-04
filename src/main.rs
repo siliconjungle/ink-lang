@@ -246,6 +246,7 @@ fn run() -> LangResult<()> {
         "--holes",
         "--allow-equal",
         "--method",
+        "--simplify",
         "--initial-state",
         "--freeze",
         "--freeze-roots",
@@ -860,7 +861,7 @@ fn run() -> LangResult<()> {
         );
         println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
         println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] [--freeze | --freeze-roots A,B] [--specialize-frozen] --target TARGET -o NEW_DIRECTORY (train and publish; optionally bind immutable roots and withdraw their writers)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)
-ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed] [--holes A,B] [--budget N] [--seed N] [--restore MODEL.snapshot] -o MODEL.snapshot (fit learn holes; also writes MODEL.snapshot.trace.json for build-model)\nink emit-holes SOURCE [-o HOLES.json] (learn hole parameter layout for hosts)\nink learn-rows SOURCE [--restore MODEL.snapshot] (learned parameters as keyed rows)\nink gate-edit SOURCE EDIT.json --objective NAME --data DATA.json [--restore MODEL.snapshot] [--allow-equal] -o MODEL.snapshot (admit a row edit only if the exact objective improves)\nink emit-circuit SOURCE FUNCTION [--restore MODEL.snapshot] -o CIRCUIT.json (exact affine/ReLU/ReGLU circuit of a finite function, checked on every input)\nink emit-tasks SOURCE [-o TASKS.json] (effect and task manifest for hosts)\nink replay-task SOURCE TRACE.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable] (re-run a recorded task trace sequentially and check it)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
+ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed] [--holes A,B] [--budget N] [--seed N] [--restore MODEL.snapshot] -o MODEL.snapshot (fit learn holes; also writes MODEL.snapshot.trace.json for build-model)\nink emit-holes SOURCE [-o HOLES.json] (learn hole parameter layout for hosts)\nink learn-rows SOURCE [--restore MODEL.snapshot] (learned parameters as keyed rows)\nink gate-edit SOURCE EDIT.json --objective NAME --data DATA.json [--restore MODEL.snapshot] [--allow-equal] -o MODEL.snapshot (admit a row edit only if the exact objective improves)\nink emit-circuit SOURCE FUNCTION [--restore MODEL.snapshot] -o CIRCUIT.json (exact affine/ReLU/ReGLU circuit of a finite function, checked on every input)\nink emit-mir SOURCE [--simplify] [-o MIR.json] (typed dataflow IR with effect order, placement and schedules)\nink emit-tasks SOURCE [-o TASKS.json] (effect and task manifest for hosts)\nink replay-task SOURCE TRACE.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable] (re-run a recorded task trace sequentially and check it)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] -o OUTPUT (native and wasm32 use typed Rust)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
         return Ok(());
     }
@@ -1610,6 +1611,22 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 "{}",
                 serde_json::to_string_pretty(&output).map_err(|e| e.to_string())?
             );
+        }
+        "emit-mir" => {
+            let mut mir = ink_core::mir::lower(&p);
+            if args.iter().any(|a| a == "--simplify") {
+                ink_core::mir::simplify(&mut mir);
+            }
+            ink_core::mir::verify(&mir)?;
+            let text = serde_json::to_string_pretty(&mir).map_err(|e| e.to_string())?;
+            match arg_value(&args, "-o")? {
+                Some(out) => {
+                    write(&out, &text)?;
+                    let summary: Vec<serde_json::Value> = mir.graphs.iter().map(|g| serde_json::json!({"name": g.name, "kind": g.kind, "placement": g.placement, "schedule": g.schedule})).collect();
+                    println!("{}", serde_json::json!({"graphs": summary, "unsupported": mir.unsupported}));
+                }
+                None => println!("{text}"),
+            }
         }
         "emit-circuit" => {
             let function = args.get(2).ok_or("emit-circuit requires FUNCTION")?;

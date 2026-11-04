@@ -75,6 +75,7 @@ pub mod training;
 pub mod hole_training;
 pub mod learn_rows;
 pub mod circuit;
+pub mod mir_js;
 pub mod tasks;
 pub mod initial_state;
 mod trained_build;

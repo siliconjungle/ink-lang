@@ -79,6 +79,12 @@ the training driver; authored code is never executed softly or served relaxed.
 The circuit target (docs/circuit-target.md) lowers finite functions to
 affine/ReLU/ReGLU networks and must keep its exhaustive reference check and
 fail-closed diagnostics; circuits are literal lowerings with no other authority.
+The mid-level IR (core/src/mir.rs, docs/mid-level-ir.md) derives effect order
+from per-state reads/writes, event emits and `?` barriers, keeps lazy constructs
+in regions and records placement. Its passes must preserve evaluation order,
+laziness and effects (merge only within a region; remove only total
+operations). It grants no equality, rewrite or profitability authority;
+printers over it fail closed and are checked against the reference evaluator.
 
 External effects and tasks (`effect`, `ordered effect`, `task`; see
 docs/effect-tasks.md) lower to generated readonly queries plus a
