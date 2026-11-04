@@ -2,9 +2,8 @@
 
 `ink-runtime` supplies durable hosts for generated native Rust executables,
 JavaScript modules and the complete Rust/Wasm ABI. The JavaScript host lives
-in `hosts/durable-state.mjs`; the native host in `src/durable.rs`. Each host serializes calls, restores a private candidate
-from the published checkpoint, executes once, and persists one record containing
-the new checkpoint and retry receipt before returning the reply. Failed actions
+in `hosts/durable-state.mjs`; the native host in `src/durable.rs`. Each host serializes calls, executes once, and
+durably records the call and its retry receipt before returning the reply. Failed actions
 leave the published state intact. An uncertain storage write poisons the host:
 close and reopen it to recover the actual stored record before retrying.
 
@@ -150,10 +149,17 @@ exactly-once execution. Applications must bound their retry window accordingly.
 
 Records allow at most 64 MiB of snapshot data and 4 MiB of receipt metadata,
 with SHA-256 corruption detection and the underlying snapshot's schema/checksum
-validation. The initial implementation copies/restores a complete snapshot and
-replaces a complete file per call, including queries with new retry IDs. This is
-a correctness baseline; append logs, batching, incremental checkpoints and
-performance evaluation remain separate work.
+validation. Stores that support `append` record each call as one hash-chained
+operation frame and write a complete checkpoint every `checkpointInterval`
+frames (default 32); recovery restores the checkpoint and replays its frames.
+The JavaScript host no longer copies the complete state per call: a compiled
+invoke is atomic, so the only unpublished commit is one followed by a failed
+reply encoding or storage write, and that poisons the host until it is
+reopened from the last published record. Native generated states keep their
+retained undo boundary. `read(call, args)` runs a query against committed
+state with no request id, receipt or frame; a call that changes the version
+through `read` poisons the host. Batching and typed delta logs remain separate
+work.
 
 ## Acceptance
 
