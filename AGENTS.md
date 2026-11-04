@@ -57,47 +57,17 @@ establish profitable setup, constants, memory or migration. Use comparable
 lifecycle evidence or an admitted validated work model for every automatic choice.
 Correctness, applicability and profitability are separate gates.
 
-Learnable holes (`learn NAME(..): choice<T> | Mlp<..>`, see
-docs/learnable-holes.md) are admitted structurally, not by whole-action proof.
-A hole must sit on an error path (`x.unwrap_or(hole)` or the failure arm of
-`fold`), so every input the authored program handled keeps its exact result,
-or be guarded: `else FALLBACK` inside a function that declares `ensures
-PREDICATE`, which reruns with the authored fallback when learned output fails
-the predicate. Reject every other position. This is the admission rule for
-learned parts only; exact code keeps its proof obligations, and holes grant no
-equality, approximation, rewrite or profitability authority. Lowering is
-source desugaring into one trainable value state, ordinary pure helpers,
-`__learn_get`/`__learn_set` and objective queries; do not add executable-core
-primitives for it. Training evaluates every candidate exactly and keeps only
-strict objective improvements; its snapshot must equal a replay of its trace.
-Learned parameters are also keyed rows (docs/learn-rows.md). Gated edits from
-people, training or models apply through `__learn_set` only on exact objective
-improvement on the gate's data (or no regression when explicitly allowed);
-gating compares measurements and grants no other authority.
-`--method relaxed` relaxes only holes (distributions over exact tables) inside
-the training driver; authored code is never executed softly or served relaxed.
-The circuit target (docs/circuit-target.md) lowers finite functions to
-affine/ReLU/ReGLU networks and must keep its exhaustive reference check and
-fail-closed diagnostics; circuits are literal lowerings with no other authority.
-The mid-level IR (core/src/mir.rs, docs/mid-level-ir.md) derives effect order
-from per-state reads/writes, event emits and `?` barriers, keeps lazy constructs
-in regions and records placement. Its passes must preserve evaluation order,
-laziness and effects (merge only within a region; remove only total
-operations). It grants no equality, rewrite or profitability authority;
-printers over it fail closed and are checked against the reference evaluator.
-
-External effects and tasks (`effect`, `ordered effect`, `task`; see
-docs/effect-tasks.md) lower to generated readonly queries plus a
-`contracts.tasks` manifest; do not add executable-core primitives or let hosts
-compute their own ordering. Queries, changes and ordered effects wait for every
-earlier step; other steps wait only for the steps whose names they use. Hosts
-must report the earliest failure in source order and record speculative
-replies as discarded, so results equal sequential execution with the same
-replies. Effect replies are untrusted: they enter only through the generated
-accept query (declared type and `ensures`), and failures take the authored
-`else` value or end the task. A task is not a transaction. Trace replay against
-the reference evaluator is the cross-host check; it grants no equality,
-approximation or profitability authority.
+Learned parts, effects and the IR follow one rule: they lower to existing
+constructs (no new executable-core primitive) and grant no equality,
+approximation, rewrite or profitability authority. Learn holes are admitted
+only on an error path or behind `ensures ... else` (docs/learnable-holes.md);
+training and relaxed training keep only exact objective improvements, circuit
+fitting only proposes edits, and gated edits apply only on exact improvement;
+snapshots equal trace replays (docs/learn-rows.md, docs/relaxed-meanings.md). Effect replies enter only
+through generated accept queries and task results equal sequential execution
+(docs/effect-tasks.md). Circuits keep their exhaustive reference check and IR
+passes preserve order, laziness and effects (docs/circuit-target.md,
+docs/mid-level-ir.md). Feature details live in those docs and their tests.
 
 Legacy aggregate certificates, bounded cache/narrowing, typed storage policies,
 source maintenance evaluators and historical scalar loaders are removed.
