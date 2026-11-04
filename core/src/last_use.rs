@@ -43,7 +43,7 @@ impl LastUses {
 }
 
 /// Captured bindings remain shared inside callbacks, which may run repeatedly.
-/// Direct callbacks of fixed synchronous loops end their loans on return.
+/// Direct callbacks of fixed synchronous loops/methods end their loans on return.
 /// Shadowing uses fresh binding identities.
 /// Excessive depth/node count fails closed to ordinary copying.
 pub fn analyse<'a>(body: &'a Expr, parameters: impl IntoIterator<Item = &'a str>) -> LastUses {
@@ -53,6 +53,17 @@ pub fn analyse<'a>(body: &'a Expr, parameters: impl IntoIterator<Item = &'a str>
         finals: BTreeMap<usize, BTreeSet<usize>>,
         finished: Vec<(usize, BTreeSet<usize>)>,
         captured: BTreeSet<usize>,
+    }
+    fn synchronous<'a>(receiver:Option<&'a Expr>,args:&'a [Expr],env:&mut Env<'a>,w:&mut Walk,depth:usize)->Option<()>{
+        let before=w.captured.clone();
+        if let Some(receiver)=receiver{visit(receiver,env,w,depth+1)?;}
+        for arg in args{visit(arg,env,w,depth+1)?;}
+        // Keep every receiver/argument/callback observation shared until the
+        // synchronous operation ends. Earlier unknown loans remain active.
+        let captures=&w.captured;
+        w.finals.retain(|id,_|before.contains(id)||!captures.contains(id));
+        w.captured=before;
+        Some(())
     }
     fn visit<'a>(e: &'a Expr, env: &mut Env<'a>, w: &mut Walk, depth: usize) -> Option<()> {
         w.nodes += 1;
@@ -84,12 +95,7 @@ pub fn analyse<'a>(body: &'a Expr, parameters: impl IntoIterator<Item = &'a str>
                 if let Some(sites)=w.finals.remove(&id){w.finished.push((id,sites));}
             }
             Expr::Call(name,args) if finite_callbacks(name,args).is_some()=>{
-                let before=w.captured.clone();
-                for arg in args{visit(arg,env,w,depth+1)?;}
-                // Callback body sites never move captures. Keep the loan
-                // active across all sibling arguments until the call ends.
-                for id in w.captured.difference(&before).copied().collect::<Vec<_>>(){w.finals.remove(&id);}
-                w.captured=before;
+                synchronous(None,args,env,w,depth)?;
             }
             Expr::Call(name,args) if name=="choose" && args.len()==3 => {
                 visit(&args[0],env,w,depth+1)?;
@@ -134,6 +140,9 @@ pub fn analyse<'a>(body: &'a Expr, parameters: impl IntoIterator<Item = &'a str>
                     if !sites.is_empty(){w.finals.insert(id,sites);}
                 }
             }
+            Expr::Method(receiver,name,args) if finite_method_callbacks(name,args).is_some()=>{
+                synchronous(Some(receiver),args,env,w,depth)?;
+            }
             _ => {
                 for child in crate::analysis::children(e) {
                     visit(child, env, w, depth + 1)?;
@@ -175,6 +184,17 @@ fn finite_callbacks(name:&str,args:&[Expr])->Option<&'static [usize]>{
     slots.iter().all(|index|matches!(args[*index],Expr::Lambda(..))).then_some(slots)
 }
 
+// Checked collection/variant methods also join their direct callbacks before
+// returning first-order values. Variant fold retains its distinct branch facts.
+fn finite_method_callbacks(name:&str,args:&[Expr])->Option<&'static [usize]>{
+    let slots:&'static [usize]=match (name,args.len()){
+        ("map"|"map_indexed"|"filter"|"map_err",1)=>&[0],
+        ("zip"|"map_parallel",2)=>&[1],
+        _=>return None,
+    };
+    slots.iter().all(|index|matches!(args[*index],Expr::Lambda(..))).then_some(slots)
+}
+
 // This analysis is type independent. Emission separately excludes borrowed
 // roots and active loans. Overlapping whole-record/ancestor reads kill earlier
 // field candidates; disjoint reads can leave independent final fields.
@@ -188,6 +208,15 @@ fn analyse_fields<'a>(body:&'a Expr,parameters:impl IntoIterator<Item=&'a str>)-
             Expr::Field(parent,field)=>projection(parent,env).map(|(id,mut path)|{path.push(field.clone());(id,path)}),
             _=>None,
         }
+    }
+    fn synchronous<'a>(receiver:Option<&'a Expr>,args:&'a [Expr],env:&mut Env<'a>,w:&mut Walk,depth:usize)->Option<()>{
+        let before=w.captured.clone();
+        if let Some(receiver)=receiver{visit(receiver,env,w,depth+1)?;}
+        for arg in args{visit(arg,env,w,depth+1)?;}
+        let captures=&w.captured;
+        w.finals.retain(|(id,_),_|before.contains(id)||!captures.contains(id));
+        w.captured=before;
+        Some(())
     }
     fn visit<'a>(e:&'a Expr,env:&mut Env<'a>,w:&mut Walk,depth:usize)->Option<()>{
         w.nodes+=1;if depth>256 || w.nodes>1_000_000{return None;}
@@ -211,11 +240,7 @@ fn analyse_fields<'a>(body:&'a Expr,parameters:impl IntoIterator<Item=&'a str>)-
                 for key in keys{let sites=w.finals.remove(&key)?;w.finished.push((key,sites));}
             }
             Expr::Call(name,args) if finite_callbacks(name,args).is_some()=>{
-                let before=w.captured.clone();
-                for arg in args{visit(arg,env,w,depth+1)?;}
-                let captures=w.captured.difference(&before).copied().collect::<BTreeSet<_>>();
-                w.finals.retain(|(id,_),_|!captures.contains(id));
-                w.captured=before;
+                synchronous(None,args,env,w,depth)?;
             }
             Expr::Call(name,args) if name=="choose" && args.len()==3=>{
                 visit(&args[0],env,w,depth+1)?;let before=w.finals.clone();
@@ -249,6 +274,9 @@ fn analyse_fields<'a>(body:&'a Expr,parameters:impl IntoIterator<Item=&'a str>)-
                     sites.extend(prior.into_iter().filter(|site|left.contains(site)&&right.contains(site)));
                     if !sites.is_empty(){w.finals.insert(key,sites);}
                 }
+            }
+            Expr::Method(receiver,name,args) if finite_method_callbacks(name,args).is_some()=>{
+                synchronous(Some(receiver),args,env,w,depth)?;
             }
             // A short-circuit arm may be skipped. Treat it as an eager read
             // for conservative liveness; no execution-order change follows.
@@ -443,6 +471,42 @@ mod tests {
         let e=Expr::Let("closure".into(),None,Box::new(Expr::Lambda("i".into(),Box::new(field("r","a")))),
             Box::new(Expr::Let("result".into(),None,Box::new(loop_read("r")),Box::new(field("r","b")))));
         let facts=analyse(&e,["r"]);let Expr::Let(_,_,_,rest)=&e else{unreachable!()};let Expr::Let(_,_,_,tail)=rest.as_ref()else{unreachable!()};assert!(!facts.contains_field(tail));
+    }
+    fn mapping(name:&str,receiver:Expr,body:Expr)->Expr{
+        Expr::Method(Box::new(receiver),name.into(),vec![Expr::Lambda("item".into(),Box::new(body))])
+    }
+    #[test]
+    fn direct_method_captures_end_before_later_reads_and_other_branch_moves(){
+        for method in ["map","map_indexed","filter","map_err"]{
+            let call=mapping(method,v("xs"),field("r","a"));
+            let e=Expr::Let("result".into(),None,Box::new(call.clone()),Box::new(field("r","b")));
+            let facts=analyse(&e,["xs","r"]);let Expr::Let(_,_,call,tail)=&e else{unreachable!()};
+            let Expr::Method(_,_,args)=call.as_ref()else{unreachable!()};let Expr::Lambda(_,body)=&args[0]else{unreachable!()};
+            assert!(!facts.contains_field(body));assert!(facts.contains_field(tail));
+            let e=Expr::Call("choose".into(),vec![Expr::Bool(true),v("r"),call.as_ref().clone()]);
+            let facts=analyse(&e,["xs","r"]);let Expr::Call(_,arms)=&e else{unreachable!()};
+            assert!(facts.contains(&arms[1]));
+        }
+    }
+    #[test]
+    fn method_receiver_aliases_and_callback_captures_stay_shared_until_return(){
+        let e=Expr::Let("out".into(),None,Box::new(mapping("map",v("xs"),v("xs"))),Box::new(v("xs")));
+        let facts=analyse(&e,["xs"]);let Expr::Let(_,_,call,tail)=&e else{unreachable!()};
+        let Expr::Method(receiver,_,args)=call.as_ref()else{unreachable!()};let Expr::Lambda(_,body)=&args[0]else{unreachable!()};
+        assert!(!facts.contains(receiver));assert!(!facts.contains(body));assert!(facts.contains(tail));
+        let call=Expr::Method(Box::new(v("xs")),"zip".into(),vec![v("ys"),Expr::Lambda("a".into(),Box::new(Expr::Lambda("b".into(),Box::new(Expr::Call("pair".into(),vec![v("xs"),v("ys")])))))]);
+        let facts=analyse(&call,["xs","ys"]);let Expr::Method(receiver,_,args)=&call else{unreachable!()};
+        assert!(!facts.contains(receiver));assert!(!facts.contains(&args[0]));
+    }
+    #[test]
+    fn unknown_and_preexisting_closure_loans_survive_known_methods(){
+        for name in ["unknown","map"]{
+            let call=mapping(name,v("xs"),field("r","a"));
+            let rest=Expr::Let("out".into(),None,Box::new(call),Box::new(field("r","b")));
+            let e=if name=="map"{Expr::Let("closure".into(),None,Box::new(Expr::Lambda("i".into(),Box::new(field("r","a")))),Box::new(rest))}else{rest};
+            let facts=analyse(&e,["xs","r"]);
+            assert!(facts.fields.is_empty());
+        }
     }
     fn variant_fold(yes:Expr,no:Expr)->Expr{
         Expr::Method(Box::new(v("result")),"fold".into(),vec![
