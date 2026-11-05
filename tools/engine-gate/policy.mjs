@@ -1,5 +1,5 @@
 import {median} from './worker.mjs';
-export const SETTINGS=Object.freeze({isolation:'independent-roles',processes:3,samples:15,warmCalls:65536,warmMs:250,batchMs:24,maxCalls:1048576});
+export const SETTINGS=Object.freeze({isolation:'independent-roles',processes:5,trustedProcesses:3,samples:15,warmCalls:65536,warmMs:250,batchMs:24,maxCalls:1048576});
 export const BUDGET=Object.freeze({relative:0.10,absoluteUs:0.02,controlRelative:0.10});
 // Process ranges are descriptive; they are deliberately not labelled confidence intervals.
 export function assess(runs,expectedCases) {
@@ -25,11 +25,16 @@ export function assess(runs,expectedCases) {
       ratios.push(c/b);deltas.push(c-b);budgets.push(Math.max(BUDGET.absoluteUs,b*BUDGET.relative));controls.push(a/b);
       controlDeltas.push(Math.abs(a-b));controlBudgets.push(Math.max(BUDGET.absoluteUs,b*BUDGET.controlRelative));
     }
-    const noisy=controlDeltas.some((x,i)=>x>controlBudgets[i]);
-    const allBad=deltas.every((x,i)=>x>budgets[i]);
-    const allGood=deltas.every((x,i)=>x<=budgets[i]);
-    rows.push({name,status:noisy?'inconclusive':allBad?'regression':allGood?'pass':'inconclusive',
-      ratio:median(ratios),processRatios:ratios,deltaUs:deltas,budgetUs:budgets,controlRatios:controls,controlDeltaUs:controlDeltas,controlBudgetUs:controlBudgets});
+    // A process whose byte-identical control misses its own baseline by more
+    // than the budget measured noise, not code: its comparison is discarded,
+    // never relabelled. At least SETTINGS.trustedProcesses must remain, and a
+    // strict majority of them decides: within budget passes, over budget is a
+    // regression, and a tie is inconclusive.
+    const trusted=controlDeltas.map((x,i)=>x<=controlBudgets[i]),kept=deltas.map((x,i)=>[x,budgets[i]]).filter((_,i)=>trusted[i]);
+    const enough=kept.length>=SETTINGS.trustedProcesses;
+    const over=kept.filter(([x,b])=>x>b).length,within=kept.length-over;
+    rows.push({name,status:!enough?'inconclusive':over*2>kept.length?'regression':within*2>kept.length?'pass':'inconclusive',
+      ratio:median(ratios),processRatios:ratios,deltaUs:deltas,budgetUs:budgets,controlRatios:controls,controlDeltaUs:controlDeltas,controlBudgetUs:controlBudgets,trustedProcesses:trusted});
   }
   return {status:rows.every(r=>r.status==='pass')?'pass':rows.some(r=>r.status==='regression')?'regression':'inconclusive',rows};
 }

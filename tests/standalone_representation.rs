@@ -62,6 +62,14 @@ fn main(){
  let before=state.checkpoint().unwrap();
  assert_eq!(state.invoke_json("__unknown",&json!([])).unwrap_err(),"unknown action __unknown");
  assert_eq!(state.checkpoint().unwrap(),before);
+ // Wrongly typed arguments are errors, never panics (a trap in Wasm), and change nothing.
+ for call in &calls{
+  let action=call["call"].as_str().unwrap();let args=call["args"].as_array().unwrap();
+  assert!(state.invoke_json(action,&json!("not an array")).is_err());
+  if !args.is_empty(){assert!(state.invoke_json(action,&json!([])).is_err());}
+  for i in 0..args.len(){let mut bad=args.clone();bad[i]=json!({"__wrong":[]});assert!(state.invoke_json(action,&Json::Array(bad)).is_err(),"{action} accepted a wrongly typed argument {i}");}
+ }
+ assert_eq!(state.checkpoint().unwrap(),before);
  let mut broken=before.clone();broken[12]^=1;assert!(State::restore(&broken).is_err());
  let mut broken=before.clone();let end=broken.len()-1;broken[end]^=1;assert!(State::restore(&broken).is_err());
  assert!(State::restore(&before[..before.len()-1]).is_err());

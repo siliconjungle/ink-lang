@@ -36,7 +36,7 @@ binary hashes are recorded. The candidate is bound to its exact emitted bytes
 and compiler binary; the tooling checkout and package pins are recorded separately.
 Checkout metadata is provenance, not proof that a binary was built from it.
 
-Each engine runs three fresh process groups serially. The baseline, candidate
+Each engine runs five fresh process groups serially. The baseline, candidate
 and byte-identical control own independent module instances, adapters and timed
 call sites. Each Node role runs in an ordinary separate Node process with its
 default realm and no extra engine flags. V8 IPC serialization preserves typed
@@ -61,15 +61,54 @@ gradient updates. An independent binary32 evaluator checks every forecast and
 64 changing-weight updates; every timed batch's complete result is compared too.
 These finite checks do not prove compiler correctness.
 
-A case passes only when **every process** stays within the larger of **10% or
-0.02 microseconds** of its own baseline median. A/A differences beyond the larger of 10% or 0.02 microseconds, or processes
-that disagree about exceeding the budget, produce an inconclusive result, which
-also blocks the gate. The budget tolerates small timing variation while detecting
+A process whose byte-identical A/A control misses its own baseline by more than
+the larger of 10% or 0.02 microseconds measured noise rather than code, so its
+comparison is discarded, never relabelled. At least **three of the five
+processes must be trusted**. A case passes when a **strict majority of trusted
+processes** stays within the larger of **10% or 0.02 microseconds** of its own
+baseline median, and is a regression when a strict majority exceeds it. Fewer
+trusted processes, or a tie, produce an inconclusive result, which also blocks
+the gate. A consistent regression still exceeds the budget in most processes
+(the motivating 29% one in all of them).
+
+On shared CI runners, single processes regularly showed A/A differences of
+20–90%, and single candidate processes swung by similar amounts. The earlier
+rule had three processes and required every A/A and every process within
+budget, so the gate blocked on every run regardless of the code. The budget tolerates small timing variation while detecting
 the motivating 29% regression. Engines and cases are never averaged together.
 Raw samples, process ratios and descriptive ranges remain available; they are
 not statistical confidence intervals. Cold import times are recorded separately
 and currently have no performance budget. Memory and whole-application latency
 need separate evidence.
+
+**Dedicated runner.** With five processes, a hosted runner still cannot decide the shortest cases.
+On 37daa70a every Chrome case and all but one Node case passed, but
+`shift-prepare-call-8`, whose budget is 0.25–0.40 microseconds per call, had
+its byte-identical control outside budget in 3 of 5 Node 22 processes and all
+5 Node 26 processes. Its candidate stayed within budget in every process, yet
+too few processes were trusted, so the gate blocked. Hosted runners share
+cores with other tenants; the remedy is a quieter machine, not a wider budget.
+
+The job runs on a dedicated runner once one exists:
+
+1. Use a machine (bare metal, or a VM with dedicated vCPUs) that runs nothing
+   else. Register one GitHub Actions runner on it for this repository, with
+   the labels `self-hosted`, `linux`, `x64` and `ink-engine-gate`.
+2. Install Google Chrome (`google-chrome` on the PATH), git, a C toolchain and
+   rustup; the job installs Node 22 and 26 itself.
+3. Reduce timing noise: set the CPU frequency governor to `performance`,
+   disable turbo/boost, and keep two or more cores for the runner alone
+   (`isolcpus`, or `CPUAffinity=` in the runner's systemd unit). Measured
+   processes inherit the runner's affinity.
+4. Set the repository variable `INK_ENGINE_GATE_RUNNER` to
+   `["self-hosted","linux","x64","ink-engine-gate"]`.
+
+Until the variable is set, the job keeps running on `ubuntu-24.04`. Pull
+requests from forks always run on a hosted runner, because this repository is
+public and a self-hosted runner would otherwise execute outside code; also
+keep "Require approval for all outside collaborators" enabled for workflow
+runs. The budgets, process count and majority rule are unchanged on either
+runner.
 
 The same required job also runs the independent
 [call-boundary corpus](../bench/functionality/call-boundaries/README.md): scalar,

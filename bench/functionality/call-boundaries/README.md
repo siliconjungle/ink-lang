@@ -48,11 +48,13 @@ node tools/engine-gate/gate.mjs \
   --chrome /absolute/path/to/google-chrome
 ```
 
-Each engine has three fresh processes, equal warmup of at least 65,536 calls,
+Each engine has five fresh processes, equal warmup of at least 65,536 calls,
 a 250 ms baseline warmup target, calibrated 24 ms batches, fifteen alternating
-samples and byte-identical A/A controls. Every case/process must satisfy the
-unchanged maximum of 10% or 0.02 microseconds regression budget; A/A differences above the same maximum of 10% or 0.02 microseconds, or
-inconsistent process verdicts, block the gate. Engines are separate.
+samples and byte-identical A/A controls. Every case must satisfy the
+unchanged maximum of 10% or 0.02 microseconds regression budget in a strict
+majority of the processes whose A/A control is within the same maximum. At
+least three of the five processes must be trusted that way; a majority over
+budget is a regression and a tie blocks as inconclusive. Engines are separate.
 Import times and emitted bytes are recorded separately. No automatic planner
 choice or arithmetic rewrite follows from these measurements.
 
