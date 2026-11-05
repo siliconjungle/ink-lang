@@ -1131,6 +1131,11 @@ jobs:
       CARGO_INCREMENTAL: '0'
       INK_TEST_WASM: '1'
     steps:
+    - name: Free runner disk for GPU, Wasm and native builds
+      # Builds after a lowering pin change ran this runner out of space.
+      # It runs before checkout, so it cannot use the repository's step shell.
+      shell: bash
+      run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h /
     - uses: actions/checkout@v4
       with:
         submodules: recursive
