@@ -178,6 +178,38 @@ const complete = async prompt => {
 };
 ```
 
+### Native and Wasm hosts
+
+`tasks::run_concurrent` (`src/tasks.rs`) is the same scheduler in Rust for
+native hosts. A step starts once every step in its `after` list has finished.
+Effect handlers run on up to `concurrency` threads, and every state call
+(generated queries, queries and changes) runs on the calling thread through
+the host's `call(name, args)`:
+
+```rust
+let trace = tasks::run_concurrent(
+    &mut |name, args| state.invoke_json(name, &Value::Array(args)).map(|r| r.result.json()),
+    &program.contracts.tasks, "triage", &[json!(7)],
+    &|step, effect, args, cancel| handle(effect, args, cancel),
+    8,
+)?;
+```
+
+`cancel` is set when an earlier step ends the task; the reply of such an
+effect is recorded as `discarded`. A compiled native state works the same
+way through its JSON entry point.
+
+A state compiled to Wasm (`runtime/hosts/state-wasm.mjs`) runs tasks on the
+JavaScript host through `stateCaller`, as the JavaScript state does
+(`tests/fixtures/effect-tasks-wasm.mjs`). A reply of the wrong type is an
+error from the generated state's typed ingress, as it is in JavaScript, so
+the accept query's call fails and the scheduler treats the reply as
+rejected; the instance keeps running.
+
+Given the same replies, both produce the JavaScript host's traces (requests,
+kept outcomes and result) and end in the same state. Their traces replay on
+the reference evaluator.
+
 ### Traces and replay
 
 Every run returns a trace (`ink-task-trace-v1`) of each request, its reply or
@@ -200,14 +232,20 @@ overlapped and that the reference replay ends in the JavaScript host's state.
 `runtime/tests/tasks.mjs` checks scheduling, earliest-failure reporting,
 replay mismatch detection and the model adapter.
 
+The same test runs the six recorded scenarios again on the Rust scheduler
+(over the reference evaluator, with effects on threads) and, under
+`INK_TEST_WASM`, on the JavaScript host with the state compiled to Wasm. It
+checks equal kept effects, results and final state, overlap of the three
+independent requests, and that the new traces replay on the reference
+evaluator.
+
 ## Limits
 
 At most 128 effects, 64 tasks and 128 steps per task. Tasks do not branch or
 loop; put that logic in pure helpers or split it into tasks the host
 composes. When a step ends the task, effects after it that are still running
 see their `signal` abort, and no new request starts; handlers decide how to
-stop. Native and Wasm hosts do not have task runners yet; they
-can run the same manifest through their existing call interfaces.
+stop.
 
 Ink OS runs tasks for installed apps (ink-os-platform
 `docs/cross-app-plans.md`). An app's tasks contract binds each effect to a

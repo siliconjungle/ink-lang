@@ -8,7 +8,7 @@ use verified_language::{
     core::CheckedModule,
     stateful::Runtime,
     syntax,
-    tasks::{replay, run, Trace},
+    tasks::{replay, run, run_concurrent, Cancel, Trace},
 };
 
 const SOURCE: &str = include_str!("../examples/effect-tasks.ink");
@@ -232,6 +232,90 @@ fn concurrent_javascript_traces_replay_on_the_reference_evaluator() {
             report["final"]
         );
         assert_eq!(report["final"]["triaged"], json!(4));
+
+        // The native concurrent runner, given the same replies, records the same
+        // requests, outcomes and results, ends in the same state, and its
+        // traces replay on the reference evaluator.
+        if mode == "interpreted" {
+            let mut native = Runtime::new(p.clone()).unwrap();
+            for (i, r) in runs.iter().enumerate() {
+                let recorded: Trace = serde_json::from_value(r["trace"].clone()).unwrap();
+                let active = std::sync::atomic::AtomicUsize::new(0);
+                let peak = std::sync::atomic::AtomicUsize::new(0);
+                let reply = |step: u32, effect: &str, args: &[Value], _cancel: &Cancel| {
+                    use std::sync::atomic::Ordering::SeqCst;
+                    let now = active.fetch_add(1, SeqCst) + 1;
+                    peak.fetch_max(now, SeqCst);
+                    std::thread::sleep(std::time::Duration::from_millis(30));
+                    active.fetch_sub(1, SeqCst);
+                    let r = recorded.effects.iter().find(|e| e.step == step).ok_or("not started in the recording")?;
+                    assert_eq!((r.effect.as_str(), r.args.as_slice()), (effect, args), "run {}: request", i + 1);
+                    r.reply.clone().ok_or_else(|| r.error.clone().unwrap_or_default())
+                };
+                let id = recorded.args[0].clone();
+                let trace = run_concurrent(
+                    &mut |name, args| Ok(native.invoke_json(name, &Value::Array(args))?.result.json()),
+                    &p.contracts.tasks,
+                    "triage",
+                    &[id],
+                    &reply,
+                    8,
+                )
+                .unwrap();
+                let kept = |t: &Trace| {
+                    t.effects
+                        .iter()
+                        .filter(|e| e.outcome != "discarded")
+                        .map(|e| (e.step, e.effect.clone(), e.args.clone(), e.reply.clone(), e.error.clone(), e.outcome.clone()))
+                        .collect::<Vec<_>>()
+                };
+                assert_eq!(kept(&trace), kept(&recorded), "run {}: kept effects", i + 1);
+                assert_eq!((trace.result.clone(), trace.error.is_some()), (recorded.result.clone(), recorded.error.is_some()), "run {}", i + 1);
+                if i == 0 {
+                    assert!(peak.load(std::sync::atomic::Ordering::SeqCst) >= 3, "native peak concurrency");
+                }
+                let mut scratch = Runtime::new(p.clone()).unwrap();
+                for earlier in &runs[..i] {
+                    let t: Trace = serde_json::from_value(earlier["trace"].clone()).unwrap();
+                    replay(&mut scratch, &p.contracts.tasks, &t).unwrap();
+                }
+                replay(&mut scratch, &p.contracts.tasks, &trace).unwrap_or_else(|e| panic!("native run {}: {e}", i + 1));
+            }
+            let labels: Vec<Value> = (1..=6).map(|id| native.invoke_json("label_of", &json!([id])).unwrap().result.json()).collect();
+            assert_eq!(json!({"triaged": native.invoke_json("triaged", &json!([])).unwrap().result.json(), "labels": labels}), report["final"]);
+        }
+
+        // With the state compiled to Wasm, the concurrent JavaScript host given the
+        // recorded replies produces the same traces and final state.
+        if mode == "interpreted" && std::env::var_os("INK_TEST_WASM").is_some() {
+            let module = CheckedModule::from_source(syntax::parse(SOURCE).unwrap()).unwrap();
+            let project = dir.join("rust");
+            ink_runtime::emit_rust_program(&ink_lowering_rust::state_native::emit(module.program()).unwrap(), &project).unwrap();
+            ink_runtime::toolchain::complete_program(&project, true, &project.join("program.wasm"), "cargo").unwrap();
+            std::fs::write(dir.join("state-wasm.mjs"), ink_runtime::STATE_WASM_HOST).unwrap();
+            let recorded: Vec<Value> = runs.iter().map(|r| r["trace"].clone()).collect();
+            std::fs::write(dir.join("recorded.json"), serde_json::to_vec(&recorded).unwrap()).unwrap();
+            let out = Command::new("node")
+                .arg(root.join("tests/fixtures/effect-tasks-wasm.mjs"))
+                .arg(&dir)
+                .arg(dir.join("tasks.json"))
+                .arg(dir.join("recorded.json"))
+                .output()
+                .unwrap();
+            assert!(out.status.success(), "wasm: {}", String::from_utf8_lossy(&out.stderr));
+            let wasm: Value = serde_json::from_slice(&out.stdout).unwrap();
+            for (i, (w, r)) in wasm["traces"].as_array().unwrap().iter().zip(runs).enumerate() {
+                let (w, r): (Trace, Trace) = (serde_json::from_value(w["trace"].clone()).unwrap(), serde_json::from_value(r["trace"].clone()).unwrap());
+                let kept = |t: &Trace| t.effects.iter().filter(|e| e.outcome != "discarded").map(|e| (e.step, e.args.clone(), e.reply.clone(), e.outcome.clone())).collect::<Vec<_>>();
+                assert_eq!(kept(&w), kept(&r), "wasm run {}", i + 1);
+                assert_eq!((w.result, w.error.is_some()), (r.result, r.error.is_some()), "wasm run {}", i + 1);
+            }
+            assert!(wasm["traces"][0]["peak"].as_u64().unwrap() >= 3, "wasm peak concurrency");
+            // Ill-typed model replies are errors from typed ingress; the instance never traps.
+            assert!(wasm["rejected"].as_u64().unwrap() > 0, "wasm typed-ingress rejections");
+            assert_eq!(wasm["trapped"], false, "wasm instance trapped");
+            assert_eq!(wasm["final"], report["final"]);
+        }
 
         if mode == "interpreted" {
             // The CLI replays a saved trace too.
