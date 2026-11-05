@@ -200,12 +200,11 @@ effect is recorded as `discarded`. A compiled native state works the same
 way through its JSON entry point.
 
 A state compiled to Wasm (`runtime/hosts/state-wasm.mjs`) runs tasks on the
-JavaScript host through `stateCaller`. One difference matters: a reply of the
-wrong type traps the Wasm instance inside its typed ingress, where JavaScript
-throws. The host therefore keeps the state's latest snapshot. After a trap it
-starts a fresh instance from that snapshot and reports the call as failed,
-which is what the accept query's rejection means to the scheduler
-(`tests/fixtures/effect-tasks-wasm.mjs`).
+JavaScript host through `stateCaller`, as the JavaScript state does
+(`tests/fixtures/effect-tasks-wasm.mjs`). A reply of the wrong type is an
+error from the generated state's typed ingress, as it is in JavaScript, so
+the accept query's call fails and the scheduler treats the reply as
+rejected; the instance keeps running.
 
 Given the same replies, both produce the JavaScript host's traces (requests,
 kept outcomes and result) and end in the same state. Their traces replay on
