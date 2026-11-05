@@ -219,3 +219,63 @@ fn twice(x:u32)->u32{return x+x;}",
     assert_eq!(replies[11]["result"], serde_json::json!({"Some":"Label.Bug"}));
     assert_eq!(replies[12], serde_json::json!(8));
 }
+
+// Native state reports which roots and keys each commit changed, in the
+// shape the JavaScript lowering's takeChanges uses, so hosts can keep keyed
+// readers current when another key changes.
+#[test]
+fn generated_native_state_reports_changed_roots_and_keys() {
+    let module = CheckedModule::from_source(
+        parse(
+            "module changes;
+record Row {id:u64,open:Bool,}
+state Rows:Table<u64,Row>=Table.empty();
+state Version:u64=0;
+change put(row:Row)->Result<Unit,String> reads(Rows,Version) writes(Rows,Version){Rows.put(row.id,row);Version=Version+1;return Ok(());}
+change touch(row:Row)->Result<Unit,String> reads(Rows) writes(Rows){Rows.put(row.id,row);return Ok(());}
+change failing(row:Row)->Result<Unit,String> reads(Rows) writes(Rows){Rows.put(row.id,row);return Err(\"no\");}
+change many(keys:List<u64>,rows:List<Row>)->Result<Unit,String> reads(Rows) writes(Rows){return Rows.put_many(keys,rows);}",
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let dir = Path::new("build/native-changes");
+    fs::create_dir_all(dir.join("src/bin")).unwrap();
+    ink_runtime::emit_rust_program(&ink_lowering_rust::state_native::emit(module.program()).unwrap(), dir).unwrap();
+    fs::write(
+        dir.join("src/bin/changes.rs"),
+        r#"use compiled_state::State;use serde_json::json;
+fn main(){let mut s=State::new();let mut out=vec![];
+ out.push(s.take_changes());
+ assert!(s.track_changes());
+ let mut call=|s:&mut State,name:&str,args:serde_json::Value|{s.invoke_json(name,&args).unwrap();s.take_changes()};
+ out.push(call(&mut s,"put",json!([{"id":5,"open":true}])));
+ out.push(call(&mut s,"touch",json!([{"id":5,"open":true}])));
+ out.push(call(&mut s,"touch",json!([{"id":5,"open":false}])));
+ out.push(call(&mut s,"failing",json!([{"id":6,"open":true}])));
+ let keys:Vec<u64>=(100..200).collect();let rows:Vec<_>=keys.iter().map(|k|json!({"id":k,"open":true})).collect();
+ out.push(call(&mut s,"many",json!([keys,rows])));
+ println!("{}",serde_json::Value::Array(out));}
+"#,
+    )
+    .unwrap();
+    let built = Command::new("cargo")
+        .args(["build", "--release", "--bin", "changes", "--manifest-path"])
+        .arg(dir.join("Cargo.toml"))
+        .output()
+        .unwrap();
+    assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
+    let out = Command::new(dir.join("target/release/changes")).output().unwrap();
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    let reports: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    use serde_json::json;
+    assert_eq!(reports[0], json!({"all":true}), "nothing is known before tracking starts");
+    assert_eq!(reports[1]["roots"], json!(["Rows", "Version"]));
+    assert_eq!(reports[1]["keys"]["Rows"], json!([5]));
+    assert_eq!(reports[1]["filters"], serde_json::Value::Null);
+    assert_eq!(reports[2], json!({"all":false,"roots":[],"filters":null,"keys":{}}), "an identical rewrite changes nothing");
+    assert_eq!(reports[3]["roots"], json!(["Rows"]));
+    assert_eq!(reports[3]["keys"], json!({"Rows":[5]}));
+    assert_eq!(reports[4]["roots"], json!([]), "a failed change reports nothing");
+    assert_eq!(reports[5]["keys"]["Rows"], serde_json::Value::Null, "more than 64 keys name the root only");
+}
