@@ -347,10 +347,11 @@ impl Elaborator {
         loop {
             let prefix = format!("__ink_surface_{}", self.fresh);
             self.fresh += 1;
-            if self
-                .occupied
-                .iter()
-                .any(|n| n == &prefix || n.starts_with(&format!("{prefix}_")))
+            // occupied is ordered: the prefix itself or the first name after
+            // "{prefix}_" decides whether any occupied name starts with it.
+            let scoped = format!("{prefix}_");
+            if self.occupied.contains(&prefix)
+                || self.occupied.range(scoped.clone()..).next().is_some_and(|n| n.starts_with(&scoped))
             {
                 continue;
             }
