@@ -78,6 +78,7 @@ impl SurfaceProgram {
             abstract_records: self.abstract_records,
             access_origins: self.access_origins,
             in_action: false,
+            context: std::cell::RefCell::new(None),
         };
         if e.parameters.len() + e.aliases.len() > 1024 {
             return Err("surface declaration limit exceeded".into());
@@ -180,6 +181,7 @@ impl SurfaceProgram {
         e.output.termination.measures.retain(|n,_| !e.parameters.contains_key(n));
         // Remove the output while walking to permit generated declarations.
         let mut p = std::mem::take(&mut e.output);
+        e.context.get_mut().take();
         let env = BTreeMap::new();
         // Resolve every ordinary signature before any body, so a surface
         // operation can inspect the declared result of a later helper.
@@ -196,6 +198,7 @@ impl SurfaceProgram {
             {
                 original.params = f.params.clone();
                 original.result = f.result.clone();
+                e.context.get_mut().take();
             }
         }
         for d in &mut p.states {
@@ -204,6 +207,7 @@ impl SurfaceProgram {
         }
         crate::contracts::cells::lower(&mut p)?;
         e.templates.states=p.states.clone(); e.templates.keeps=p.keeps.clone();
+        e.context.get_mut().take();
         for f in &mut p.functions {
             e.function(f, &env, 0)?;
             if let Some(measure)=p.termination.measures.get_mut(&f.name) {
@@ -289,7 +293,7 @@ impl SurfaceProgram {
             if e.templates.contracts.learning.adaptive.contains(&base) && !e.output.contracts.learning.adaptive.contains(&instance) {
                 e.output.contracts.learning.adaptive.push(instance.clone());
             }
-            e.output.functions[index] = function;
+            e.replace_function(index, function);
             e.instance_contract(&base, &instance, &bindings, &args, 0)?;
         }
         p.contracts.learning.adaptive.extend(e.output.contracts.learning.adaptive);
@@ -341,6 +345,9 @@ struct Elaborator {
     abstract_records: BTreeMap<String, String>,
     access_origins: BTreeMap<String, String>,
     in_action: bool,
+    /// Templates plus generated functions/records, as inspected by type
+    /// hints. Rebuilt on demand; generated declarations are appended in place.
+    context: std::cell::RefCell<Option<std::rc::Rc<Program>>>,
 }
 impl Elaborator {
     fn fresh_prefix(&mut self) -> String {
@@ -423,7 +430,7 @@ impl Elaborator {
             f.result = self.ty(&f.result, &bindings, 0)?;
             let index = self.output.functions.len();
             self.pending_functions.push((index, f.clone(), bindings, name, args));
-            self.output.functions.push(f);
+            self.push_function(f);
         } else if let Some(fields) = self.templates.records.get(&name).cloned() {
             self.instances.insert(instance.clone(), instance.clone());
             self.instance_bases.insert(instance.clone(), name.clone());
@@ -434,7 +441,7 @@ impl Elaborator {
                 .into_iter()
                 .map(|(n, t)| Ok((n, self.ty(&t, &bindings, depth + 1)?)))
                 .collect::<LangResult<Vec<_>>>()?;
-            self.output.records.insert(instance.clone(), fields);
+            self.insert_record(instance.clone(), fields);
             if let Some(mut predicate) = self.templates.contracts.value_invariants.get(&name).cloned() {
                 let locals = std::mem::replace(&mut self.locals, BTreeSet::from(["value".into()]));
                 let types = std::mem::replace(&mut self.local_types,
@@ -739,10 +746,7 @@ impl Elaborator {
                 }
                 self.expr(a, env, depth + 1)?;
                 let resolved = t.as_ref().map(|t| t.as_ref().clone()).or_else(|| {
-                    let mut p = self.templates.clone();
-                    p.functions.extend(self.output.functions.clone());
-                    p.records.extend(self.output.records.clone());
-                    self.value_hint(a, &p)
+                    self.value_hint(a, &self.program_context())
                 });
                 let old_type = resolved.and_then(|t| self.local_types.insert(n.clone(), t));
                 let previous = self.locals.insert(n.clone());
@@ -879,6 +883,7 @@ impl Elaborator {
         let definite=matches!(seed,Expr::Var(_)|Expr::Record(..)|Expr::Float(_)|Expr::Bool(_)|Expr::String(_)|Expr::Unit)
             || matches!(seed,Expr::Call(n,_) if p.functions.iter().any(|f|&f.name==n));
         let initial=if definite {self.value_hint(seed,&p)}else{None};
+        drop(p);
         for i in callbacks {
             let inputs=match (name,i,&first,&initial) {
                 ("foldl"|"foldr"|"fold_until",_,Some(Type::List(item)),Some(acc))=>Some(vec![*item.clone(),acc.clone()]),
@@ -941,16 +946,44 @@ impl Elaborator {
         if params.iter().any(|(_,t)|crate::local_collections::owned(t,&p)) {return Ok(());}
         let env=params.iter().cloned().collect();
         crate::check::infer_as(e,&env,&p,&result)?;
+        drop(p);
         let name=self.fresh_prefix();
-        self.output.functions.push(Function{name:name.clone(),params:params.clone(),result,body:e.clone()});
+        self.push_function(Function{name:name.clone(),params:params.clone(),result,body:e.clone()});
         *e=Expr::Call(name,params.into_iter().map(|(n,_)|Expr::Var(n)).collect());
         Ok(())
     }
-    fn program_context(&self) -> Program {
-        let mut p = self.templates.clone();
-        p.functions.extend(self.output.functions.clone());
-        p.records.extend(self.output.records.clone());
-        p
+    fn program_context(&self) -> std::rc::Rc<Program> {
+        self.context.borrow_mut().get_or_insert_with(|| {
+            let mut p = self.templates.clone();
+            p.functions.extend(self.output.functions.clone());
+            p.records.extend(self.output.records.clone());
+            std::rc::Rc::new(p)
+        }).clone()
+    }
+    // Generated declarations follow the templates in the context, exactly as
+    // a rebuild would place them. A snapshot still held elsewhere is left
+    // untouched: `make_mut` then copies before appending.
+    fn push_function(&mut self, f: Function) {
+        if let Some(p) = self.context.get_mut() {
+            std::rc::Rc::make_mut(p).functions.push(f.clone());
+        }
+        self.output.functions.push(f);
+    }
+    fn replace_function(&mut self, index: usize, f: Function) {
+        let position = self.templates.functions.len() + index;
+        match self.context.get_mut() {
+            Some(p) if p.functions.get(position).is_some_and(|g| g.name == f.name) => {
+                std::rc::Rc::make_mut(p).functions[position] = f.clone();
+            }
+            stale => { stale.take(); }
+        }
+        self.output.functions[index] = f;
+    }
+    fn insert_record(&mut self, name: String, fields: Vec<(String, Type)>) {
+        if let Some(p) = self.context.get_mut() {
+            std::rc::Rc::make_mut(p).records.insert(name.clone(), fields.clone());
+        }
+        self.output.records.insert(name, fields);
     }
     fn arguments(
         &mut self,
@@ -1025,7 +1058,7 @@ impl Elaborator {
             if self.templates.records.contains_key(&name) {
                 return Err("generated array name collision".into());
             }
-            self.output.records.insert(
+            self.insert_record(
                 name.clone(),
                 (0..n)
                     .map(|i| (format!("item{i}"), element.clone()))
@@ -1325,13 +1358,14 @@ impl Elaborator {
                 let helper=self.fresh_prefix();let mut ps=spec.params.clone();let mut actual=args.to_vec();
                 if post{ps.push(("result".into(),spec.result.clone()));actual.push(Expr::Var("result".into()));}
                 self.templates.functions.push(Function{name:helper.clone(),params:ps,result:Type::Bool,body:clause.clone()});
+                self.context.get_mut().take();
                 if let Some(vars)=self.parameters.get(&owner).cloned(){self.parameters.insert(helper.clone(),vars);}
                 if let Some(cs)=self.constant_parameters.get(&owner).cloned(){self.constant_parameters.insert(helper.clone(),cs);}
                 let helper_key=self.fresh_prefix();self.applications.insert(helper_key.clone(),(helper.clone(),type_args.clone()));
                 let old=self.local_types.insert("result".into(),result.clone());
                 let value=self.inline_callback_call_raw(&helper_key,&actual,env,depth+1)?;
                 if let Some(t)=old{self.local_types.insert("result".into(),t);}else{self.local_types.remove("result");}
-                self.templates.functions.retain(|f|f.name!=helper);self.parameters.remove(&helper);self.constant_parameters.remove(&helper);
+                self.templates.functions.retain(|f|f.name!=helper);self.context.get_mut().take();self.parameters.remove(&helper);self.constant_parameters.remove(&helper);
                 if post{ensures.push(value)}else{requires.push(value)}
             }
         }
@@ -1343,7 +1377,7 @@ impl Elaborator {
             let body=self.inline_callback_call_raw(&candidate_key,args,env,depth+1)?;
             let concrete=if index==0{target.clone()}else{format!("{prefix}_impl{index}")};
             if candidate==name{selected=concrete.clone();}
-            self.output.functions.push(Function{name:concrete.clone(),params:params.clone(),result:result.clone(),body});
+            self.push_function(Function{name:concrete.clone(),params:params.clone(),result:result.clone(),body});
             if index>0{self.output.contracts.implementations.push(crate::contracts::Implementation{name:concrete,specification:target.clone(),body:vec![]});}
         }
         Ok(Expr::Call(selected,params.iter().map(|(n,_)|Expr::Var(n.clone())).collect()))
