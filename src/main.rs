@@ -174,15 +174,16 @@ fn planning_capability(
     let _ = fs::remove_dir_all(scratch);
     result
 }
+/// `checked` is the admitted module of the program being built.
 fn emit_state_rust(
-    p: &syntax::Program,
+    checked: &core::CheckedModule,
     selected: Option<&verified_language::optimisation::CheckedSelection>,
     args: &[String],
 ) -> LangResult<String> {
     let storage = state_table_storage(args)?;
     match selected {
         Some(s) => state_native::emit_selected_with_table_storage(s, storage),
-        None => state_native::emit_with_table_storage(p, storage),
+        None => state_native::emit_checked_with_table_storage(checked, storage),
     }
 }
 fn state_table_storage(args: &[String]) -> LangResult<state_native::TableStorage> {
@@ -1878,10 +1879,11 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
         "build" | "emit-rust" => {
             let input_core = core::CheckedModule::from_source(p.clone())?;
 
+            let input_identity = input_core.identity()?;
             let input_core_sha256 = semantic_selection
                 .as_ref()
                 .map(|s| s.evidence().input_core_sha256.clone())
-                .unwrap_or(input_core.identity()?);
+                .unwrap_or(input_identity.clone());
             let replacement = arg_value(&args, "--replacement")?
                 .map(|path| {
                     verified_language::implementation::apply_replacement(&mut p, Path::new(&path))
@@ -1894,15 +1896,23 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 .as_ref()
                 .map(|s| s.evidence().applied_laws.clone())
                 .unwrap_or_default();
-            check::check(&p)?;
+            // Admission checks the whole program. Without a separate
+            // replacement or implementation the program is still the one
+            // admitted above, so that module and its identity are reused.
+            let rechecked;
+            let (checked, selected_core_sha256) = if replacement.is_none() && implementation.is_none() {
+                (&input_core, input_identity)
+            } else {
+                check::check(&p)?;
+                rechecked = core::CheckedModule::from_source(p.clone())?;
+                let identity = rechecked.identity()?;
+                (&rechecked, identity)
+            };
             if let Some(selected) = &semantic_selection {
-                if core::CheckedModule::from_source(p.clone())?.identity()?
-                    != selected.module().identity()?
-                {
+                if selected_core_sha256 != selected.module().identity()? {
                     return Err("checked selection provenance cannot be reused after a separate implementation or replacement changes the program".into());
                 }
             }
-            let selected_core_sha256 = core::CheckedModule::from_source(p.clone())?.identity()?;
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT.o")?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
             let initial=arg_value(&args,"--initial-state")?.map(|path|read_bounded(&path,64_000_000)).transpose()?;
@@ -1933,7 +1943,7 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
             }
 
             if cmd == "emit-rust" {
-                let code = emit_state_rust(&p, semantic_selection.as_ref(), &args)?;
+                let code = emit_state_rust(checked, semantic_selection.as_ref(), &args)?;
                 write(&out, &code)?;
                 return Ok(());
             }
@@ -1941,7 +1951,7 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 if arg_value(&args, "--route")?.is_some() {
                     return Err("explicit routes require the GPU bundle target".into());
                 }
-                verified_language::runtime::emit_rust_program(&emit_state_rust(&p, semantic_selection.as_ref(), &args)?,Path::new(&out))?;
+                verified_language::runtime::emit_rust_program(&emit_state_rust(checked, semantic_selection.as_ref(), &args)?,Path::new(&out))?;
                 verified_language::runtime::emit_initial_state(Path::new(&out),initial.as_deref())?;
                 write(&format!("{out}/plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"table_storage":if target=="rust"{Some(arg_value(&args,"--table-storage")?.unwrap_or_else(||"ordered".into()))}else{None},"initial_state":initial_metadata,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal emission and target runtimes/toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
                 println!("wrote complete {target} project to {out}");
@@ -1954,7 +1964,7 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 let project = std::path::PathBuf::from(format!("{out}.project"));
                 let lowering = arg_value(&args,"--lowering")?.unwrap_or_else(||"rust".into());
                 if lowering!="rust"{return Err("--lowering must be rust; the C backend has been removed".into());}
-                verified_language::runtime::emit_rust_program(&emit_state_rust(&p,semantic_selection.as_ref(),&args)?,&project)?;
+                verified_language::runtime::emit_rust_program(&emit_state_rust(checked,semantic_selection.as_ref(),&args)?,&project)?;
                 verified_language::runtime::emit_initial_state(&project,initial.as_deref())?;
                 let cargo = arg_value(&args, "--cargo")?
                     .or_else(|| std::env::var("INK_CARGO").ok())
@@ -1995,11 +2005,10 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 if cmd != "build" {
                     return Err("JavaScript requires build --target javascript".into());
                 }
-                let module = core::CheckedModule::from_source(p.clone())?;
                 let emission = if let Some(selected) = &semantic_selection {
                     verified_language::javascript::lower_selected(selected)?
                 } else {
-                    verified_language::javascript::lower(&module)?
+                    verified_language::javascript::lower(checked)?
                 };
                 if let Some(seed)=&initial {verified_language::initial_state::javascript(Path::new(&out),&emission.javascript,seed)?;}
                 else {write(&out, &emission.javascript)?;}
