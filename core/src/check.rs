@@ -89,14 +89,29 @@ pub fn infer_context(e: &Expr, env: &Env, p: &Program, want: Option<&Type>) -> L
             }
             Ok(ty)
         }
-        Expr::Let(n, t, a, b) => {
-            let ty = infer_context(a, env, p, t.as_deref())?;
-            if t.as_deref().is_some_and(|t| t != &ty) {
-                return Err("let binding type mismatch".into());
-            }
+        Expr::Let(..) => {
+            // A body is typed in its binding's scope and nothing returns to
+            // an outer one, so a chain of lets extends one copy of the
+            // environment in place instead of copying it at every binding.
             let mut local = env.clone();
-            local.insert(n.clone(), ty);
-            infer_context(b, &local, p, want)
+            let mut rest = e;
+            loop {
+                let Expr::Let(n, t, a, b) = rest else {
+                    return infer_context(rest, &local, p, want);
+                };
+                let ty = infer_context(a, &local, p, t.as_deref())?;
+                if t.as_deref().is_some_and(|t| t != &ty) {
+                    return Err("let binding type mismatch".into());
+                }
+                local.insert(n.clone(), ty);
+                rest = b;
+                if matches!(rest, Expr::Let(..)) {
+                    // What `infer_context` asks first of any expression.
+                    if let Some(result) = crate::local_collections::infer(rest, &local, p, want) {
+                        return result;
+                    }
+                }
+            }
         }
         Expr::Record(n, fields) => {
             let schema = p.records.get(n).ok_or("unknown record")?;
