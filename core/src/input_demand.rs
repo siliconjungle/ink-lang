@@ -32,6 +32,10 @@ impl Origin {
 pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<String>>> {
     struct Walk<'a> {
         program: &'a Program,
+        // First declaration of each name, as a scan of `functions` would find.
+        functions: BTreeMap<&'a str, &'a Function>,
+        // A helper body is the same at every call site that reaches it.
+        bounded: BTreeMap<&'a str, bool>,
         active: BTreeSet<String>,
         nodes: usize,
         demands: Vec<Option<BTreeSet<String>>>,
@@ -83,16 +87,19 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
                         scope.to_mut().insert(name.clone(), origin);
                         e = body;
                     }
-                    Expr::Call(name, args) if program.functions.iter().any(|f| &f.name == name) => {
+                    Expr::Call(name, args) if self.functions.contains_key(name.as_str()) => {
                         let inputs: Vec<_> = args
                             .iter()
                             .map(|arg| self.visit(arg, scope.as_ref()))
                             .collect();
-                        let function = program.functions.iter().find(|f| &f.name == name).unwrap();
+                        let function = self.functions[name.as_str()];
                         if function.params.len() != inputs.len()
                             || self.active.len() >= 64
                             || self.active.contains(name)
-                            || !bounded(&function.body)
+                            || !*self
+                                .bounded
+                                .entry(function.name.as_str())
+                                .or_insert_with(|| bounded(&function.body))
                             || program.contracts.precondition_checks.contains_key(name)
                         {
                             for input in &inputs {
@@ -253,6 +260,8 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
     }
     let mut w = Walk {
         program,
+        functions: BTreeMap::new(),
+        bounded: BTreeMap::new(),
         active: BTreeSet::from([function.name.clone()]),
         nodes: 0,
         demands: vec![None; function.params.len()],
@@ -285,6 +294,9 @@ pub fn fields(function: &Function, program: &Program) -> Vec<Option<BTreeSet<Str
     // including budget exhaustion, returns this same complete-conversion vector.
     if env.is_empty() {
         return w.demands;
+    }
+    for f in &program.functions {
+        w.functions.entry(f.name.as_str()).or_insert(f);
     }
     let result = w.visit(&function.body, &env);
     w.whole(&result);
