@@ -54,11 +54,12 @@ fn capability_rejection_preserves_compiled_cpu_and_staged_lowering() {
             .map(|n| n["op"].as_str().unwrap().to_owned())
             .collect::<Vec<_>>()
     };
+    // An integer sum over filters is one reduction: both filters and the map
+    // run inside its first pass, with nothing compacted in between.
+    assert_eq!(operations("double_filter"), ["sum"]);
+    let fused = &function("double_filter")["graph"]["nodes"][0]["schedule"]["passes"];
+    assert_eq!(fused.as_array().unwrap().len(), 2);
     // Every original stage is retained, now including the ordered consumer.
-    assert_eq!(
-        operations("double_filter"),
-        ["filter", "filter", "map", "sum"]
-    );
     assert_eq!(operations("shadow"), ["map", "map", "sum"]);
     assert_eq!(operations("ordered"), ["scalar", "foldr"]);
     let ordered = &function("ordered")["graph"]["nodes"][1];
