@@ -32,10 +32,13 @@ the original forecasting/learning corpus:
 - `existing-api-config.json` compares the eight existing public/owned/Into cases
   with the preceding compiler. `existing-workload.mjs` is a frozen self-contained
   projection of the same adapter with only its case list filtered.
-- `config.json` protects all fourteen cases against the initial prepared-API
-  artifact from JavaScript package `c0b94f3caa732d869c940f69fa05bf5a4d5fb32b`.
-  This preserves the new gains instead of keeping the old materialization cost
-  as a loose future regression floor.
+- `config.json` protects all fourteen cases against the prepared-API floor
+  `prepared-floor-2026-11-11.mjs` from JavaScript package
+  `9d8bdf5e66e03fb83f2c07e91a4f5e4a0ad24fec`. This preserves the new gains
+  instead of keeping the old materialization cost as a loose future regression
+  floor. The initial floor `prepared-baseline.mjs`, from JavaScript package
+  `c0b94f3caa732d869c940f69fa05bf5a4d5fb32b`, and all of its evidence below
+  are retained unchanged; see "Second prepared floor".
 
 Both use the same mandatory policy. For the full new-API floor:
 
@@ -125,3 +128,56 @@ Saved artifacts: the three `release-*-receipt.json` files and candidates,
 `comparison-receipt.json`, `summary.json`, `validation.json`, compressed test
 logs, exact final conformance inputs/results, dependency locks, and the known
 field-label regression before/after program are retained here.
+
+## Second prepared floor (11 November 2026)
+
+The initial floor registered every captured value, call result and prepared
+token in a module-wide `WeakMap`. `shift-prepare-call-8` captures and prepares
+on every call, so on that floor it mostly measured weak-table insertion and
+when the collector swept the table. In each of the eight CI gate runs examined
+between 9 and 11 November the byte-identical control for that case missed its
+own baseline by more than the 10% control budget on Node 22.22.1 or Node 26.1.0
+(control ratios from 0.49 to 1.90), so the gate was inconclusive for every
+changed module, whatever the module did. The other failure in that period,
+`shift-prepared-100` at 1.23x to 1.34x on Node, was a real regression and was
+fixed in the JavaScript package before this floor was taken.
+
+The second floor is the module emitted by distribution
+`86a4c8bac20bbc728d5b744ba482f77793a58354` with JavaScript package
+`9d8bdf5e66e03fb83f2c07e91a4f5e4a0ad24fec`. It keeps a handle's payload in a
+private field and converts records at public calls through literals. CI run
+42933071350 measured exactly this module against the initial floor with the
+required gate. Medians of the five process ratios:
+
+| case | Node 22.22.1 | Node 26.1.0 | Chrome |
+| --- | ---: | ---: | ---: |
+| scalar-f32 | 1.00 | 1.00 | 0.98 |
+| scalar-owned-f32 | 1.00 | 1.00 | 1.01 |
+| shift-public-8 | 0.15 | 0.16 | 0.19 |
+| shift-into-8 | 0.18 | 0.17 | 0.20 |
+| move-public-8 | 0.42 | 0.43 | 0.39 |
+| shift-prepared-8 | 0.97 | 0.97 | 0.90 |
+| move-prepared-8 | 0.99 | 0.99 | 0.97 |
+| shift-public-100 | 0.14 | 0.16 | 0.16 |
+| shift-into-100 | 0.22 | 0.22 | 0.21 |
+| move-public-100 | 0.53 | 0.53 | 0.49 |
+| shift-prepared-100 | 1.04 | 1.02 | 0.96 |
+| move-prepared-100 | 0.99 | 0.98 | 1.00 |
+| indexed-prepared-100 | 1.00 | 1.02 | 1.02 |
+| shift-prepare-call-8 | 0.27 | 0.24 | 0.42 |
+
+Every case passed on Chrome, and every case but the last passed on both Node
+versions. The last was reported inconclusive on Node because the initial
+floor's control ratios ran from 0.54 to 1.90, not because of this module. No
+engine shows a regression that another engine's gain is being used to excuse.
+
+With the second floor as its own candidate, the gate's Node procedure run on a
+two-core development machine passes all fourteen cases on Node 22.22.1 and
+Node 26.1.0, with control ratios for `shift-prepare-call-8` between 0.86 and
+1.04. Chrome was not available on that machine.
+
+`config.json` keeps the initial floor's hash frozen beside the new one, so
+neither file can change unnoticed. `initial-prepared-config.json` is the
+configuration as it stood for the initial floor, byte for byte, so the
+`release-prepared-receipt.json` binding recorded on 20 October still names a
+file that exists.

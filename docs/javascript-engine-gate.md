@@ -114,7 +114,9 @@ The same required job also runs the independent
 [call-boundary corpus](../bench/functionality/call-boundaries/README.md): scalar,
 list and record calls, public destinations, sealed prepared destinations, stable
 residual indexes and a capture/preparation-inclusive case. Its existing-API gate uses the preceding compiler; its new-API floor freezes
-the initial prepared-destination artifact. A separate old/new comparison uses
+the second prepared-destination artifact, selected on 11 November 2026 for the
+reasons and per-engine results recorded in that README; the initial artifact and
+its evidence are retained. A separate old/new comparison uses
 the preceding compiled-value/materialization API for equivalent destination
 output and retains inconclusive results as observations. The adapter fuses element conversion into the destination
 copy; it does not add an extra top-level output conversion array. Prepared

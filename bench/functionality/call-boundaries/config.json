@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "source": "source.ink",
-  "baseline": "prepared-baseline.mjs",
+  "baseline": "prepared-floor-2026-11-11.mjs",
   "workload": "workload.mjs",
   "inputs": [
     "source.ink",
@@ -10,7 +10,8 @@
   "frozenHashes": {
     "source.ink": "ffc4580ddbfc84f1bb2514ec830b388b67f05166088622dd54ca0a12edc472ad",
     "workload.mjs": "898dcd908067d02c20de32154e6ccd89db7f6ca7d40dca187581ef7bbb9a9ebd",
-    "prepared-baseline.mjs": "cb160b1adea41fab913b675c0e917963772cf39a3eab0d03fb54b50c1ffd9534"
+    "prepared-baseline.mjs": "cb160b1adea41fab913b675c0e917963772cf39a3eab0d03fb54b50c1ffd9534",
+    "prepared-floor-2026-11-11.mjs": "b591e3c05ca04b7bbd5b0dcdff375bc4522bc4f7717abe4b0b8c3a96a9ddd033"
   },
   "cases": [
     "scalar-f32",
@@ -29,11 +30,13 @@
     "shift-prepare-call-8"
   ],
   "baselineProducer": {
-    "distributionBase": "7c13d5291ba7336cd1db1e21ffab42e7d387ce13",
-    "javascript": "c0b94f3caa732d869c940f69fa05bf5a4d5fb32b",
-    "core": "1c1b5c577dfec1d8aef115864e28c944f1fb87ee",
-    "compilerBinarySha256": "314f2ed4c18702e557a9585a8037b64290a012ba95413d11b16f3a64c80a7564",
-    "command": "ink build source.ink --target javascript -o prepared-baseline.mjs",
-    "selection": "Initial explicit prepared-destination API floor after exact conformance and comparative measurements; previous APIs retain their separate prior-compiler gate"
+    "distributionBase": "86a4c8bac20bbc728d5b744ba482f77793a58354",
+    "javascript": "9d8bdf5e66e03fb83f2c07e91a4f5e4a0ad24fec",
+    "core": "f1931588e506562f327b26247f088f29c8bc91eb",
+    "compilerBinarySha256": "183aed031710f4b0a777e7d28ab5e6f098d20b0937ef39c55dae57e54746ad75",
+    "command": "ink build source.ink --target javascript -o prepared-floor-2026-11-11.mjs",
+    "supersedes": "prepared-baseline.mjs",
+    "review": "CI run 42933071350 measured this module against prepared-baseline.mjs on Node 22.22.1, Node 26.1.0 and Chrome; per-engine results and the reason for a second floor are in README.md",
+    "selection": "Second prepared-destination floor. The initial floor registered every handle and prepared token in a module-wide WeakMap, so shift-prepare-call-8 measured the collector: its byte-identical control missed its own baseline by more than the control budget on Node in each of the eight CI gate runs examined from 2026-11-09 to 2026-11-11, which left the gate inconclusive for any changed module. This module keeps handle payloads in private fields. Against the initial floor it is at or below 1.04x on every case on all three engines and its own control is stable."
   }
 }
