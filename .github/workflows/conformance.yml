@@ -256,7 +256,7 @@ jobs:
         python3 reports/modular-action-projection-2026-10-17/audit.py
         python3 reports/owned-graph-projection-2026-10-17/audit.py --ink target/debug/ink
         cargo fetch --locked --manifest-path lowerings/js/Cargo.toml
-        cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields --test prepared_sums --test sum_spines --test binary32_literals --test native_f32 --test f32_carriers
+        cargo test --manifest-path lowerings/js/Cargo.toml --locked --test prepared_calls --test prepared_residual --test prepared_loops --test prepared_fields --test prepared_sums --test sum_spines --test binary32_literals --test native_f32 --test f32_carriers --test record_shapes --test record_elision --test compiled_guarantees --test conversion_cache --test call_boundaries
         python3 reports/conversion-and-f32-literals-2026-10-17/audit.py
         python3 reports/composed-frozen-graph-2026-10-17/audit.py --ink target/debug/ink
         # Retain exact historical image checks, then exercise today's emitter
