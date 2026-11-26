@@ -491,6 +491,7 @@ impl Loader {
         let text = match path.to_str() {
             Some("std:words") => include_str!("../stdlib/words.ink").into(),
             Some("std:lists") => include_str!("../stdlib/lists.ink").into(),
+            Some("std:render") => include_str!("../stdlib/render.ink").into(),
             Some("std:text") => include_str!("../knowledge/libraries/text.ink").into(),
             Some("std:math") => include_str!("../knowledge/libraries/math.ink").into(),
             Some("std:approximation") => include_str!("../knowledge/libraries/approximation.ink").into(),

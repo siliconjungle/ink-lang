@@ -199,6 +199,7 @@ fn run() -> LangResult<()> {
     const OPTIONS: &[&str] = &[
         "--budget",
         "--plan",
+        "--shader",
         "--registry",
         "--state-limit",
         "--planning-seconds",
@@ -854,7 +855,7 @@ fn run() -> LangResult<()> {
         println!("ink law-bitvector-obligation THEOREMS.ink LAW_NAME -o CNF.json\nExported scalar obligations remain unproved until emit-laws replays a hinted-RUP certificate.");
         println!("ink semantic-bitvector-obligation SOURCE GOAL.json [--core] [--semantics opaque-v1|fixed-words-v2|fixed-scalars-v3|fixed-scalars-v4|fixed-counts-v5] [--encoding literal-v1|shared-v2|shared-select-v3] -o CNF.json");
         println!("ink emit-semantic SOURCE [--core] -o SUBJECT.json\nink check-selection CORE.json PACKAGE.json\nExecution, lowering and core emission accept --optimise KNOWLEDGE_DIRECTORY or SNAPSHOT.json (external search) or --selection PACKAGE.json (checked replay). Optional --search-tool PATH, --search-budget N, --python PATH and --plan-cache DIRECTORY [--plan-cache-context FILE]. INK_DISTRIBUTION locates an optional installed tool bundle.");
-        println!("ink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|javascript|wasm32|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
+        println!("ink build-render SOURCE FUNCTION --shader SHADER.wgsl -o DIRECTORY\nink check-representation SOURCE REQUEST.json\nink emit-representation SOURCE REQUEST.json [--target rust|rust-packed|rust-memo|javascript|wasm32|rust-wasm|rust-wasm-packed|rust-wasm-memo|wgpu|webgpu] -o OUTPUT\nink execute-representation SOURCE REQUEST.json SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] (compiles standalone Rust; requires Cargo; script supports call and portable migrate steps)");
         println!("ink check-source-route CORE.json ROUTING.json\nink emit-action-model SOURCE -o MODEL.json [--projection legacy|structural-v2] (restricted whole-action transition projection)\nink emit-function-model SOURCE --functions NAME[,NAME...] -o MODEL.json [--core]");
         println!("ink emit-source-syntax SOURCE --roles ROLES.json -o EXPECTED.json\nink check-source-syntax SOURCE --roles ROLES.json --view VIEW.json (complete code-data binding only)");
         println!("ink check-action-values SOURCE --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json\nink emit-action-values SOURCE ACTION ARGS.json --syntax-roles SYNTAX.json --value-roles VALUES.json --view VIEW.json -o IMAGE.json (typed value data only)");
@@ -1555,6 +1556,21 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 "core_sha256":module.identity()?, "functions":module.program().functions.len(),
                 "actions":module.program().actions.len(), "trust":"Rust structural/type/effect checks; no proof of checker or backend correctness"})
             );
+        }
+        "build-render" => {
+            if args.iter().any(|argument| argument.starts_with("--") &&
+                !["--shader", "--core", "--termination-proofs", "--contract-proofs"].contains(&argument.as_str()))
+            {
+                return Err("unsupported build-render option".into());
+            }
+            let function = args.get(2).ok_or("build-render requires a frame function")?;
+            let shader = arg_value(&args, "--shader")?.ok_or("build-render requires --shader FILE")?;
+            let output = arg_value(&args, "-o")?.ok_or("build-render requires -o DIRECTORY")?;
+            let module = core::CheckedModule::from_source(p)?;
+            let shader = String::from_utf8(read_bounded(&shader, 1_048_576)?)
+                .map_err(|error| error.to_string())?;
+            verified_language::render::build(&module, function, &shader, Path::new(&output))?;
+            println!("wrote portable render frame to {output}");
         }
         "emit-state" => {
             let out = arg_value(&args, "-o")?.ok_or("emit-state requires -o DIRECTORY")?;

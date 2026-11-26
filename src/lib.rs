@@ -66,6 +66,7 @@ pub mod runtime {
 pub mod distribution;
 /// Filesystem/source module assembly belongs to the distribution.
 pub mod modules;
+pub mod render;
 
 pub mod representations;
 

@@ -91,6 +91,7 @@ database. See [semantic selection](docs/semantic-optimisation.md),
 | Pure computation | Wrapping words, signed arithmetic, binary32, vectors, records, collections, bounded loops, owned local buffers/maps and [checked recursion/ordered parallel work](docs/parallel-execution.md) |
 | Application state | Typed tables, queries, atomic changes, rollback, ordered events, maintained results and portable snapshots |
 | Targets | Native Rust, JavaScript ES modules, Rust WebAssembly and eligible WGSL through WebGPU/wgpu |
+| Rendering | [Ink-authored render frames](docs/render-frames.md) on wgpu and WebGPU, with checked WGSL bindings and GPU-resident indirect draws |
 | Checked optimisation | Composable expression rewrites, eligible pure action regions and complete action replacements in a documented subset |
 | Physical representations | Database-defined layouts, cached-query implementations and checked transaction-boundary migrations; source/action preservation proofs and standalone CPU/Wasm execution, with target-specific physical capabilities |
 | Incremental work and selection | Fixed-key query delta maintenance with refresh fallback; external selection that charges checking, setup, calls, memory and migration |
