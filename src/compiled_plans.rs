@@ -12,7 +12,7 @@ fn write(path: &Path, bytes: impl AsRef<[u8]>) -> LangResult<()> {
     }
     fs::write(path, bytes).map_err(|e| e.to_string())
 }
-pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
+fn require_target(plan: &CheckedPlan, target: &str) -> LangResult<()> {
     if plan.protocol().is_some()&&target!="javascript" {return Err("selected state protocol currently requires the JavaScript state capability".into());}
     if plan.maintained().is_some() && !matches!(target,"javascript"|"rust"|"rust-wasm") {return Err("maintained source folds currently require the JavaScript or Rust state capability; choose a target-compatible plan".into());}
     if target!="javascript" && plan.physical().is_some_and(|p|!p.plan().dense_prefixes.is_empty()){return Err("dense source table prefixes currently require the JavaScript state capability".into());}
@@ -24,10 +24,8 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
     if plan.route().is_some() && !matches!(target, "wgpu" | "webgpu") {
         return Err("pure placement requires the wgpu or webgpu host; CPU lanes must select a plan without routing".into());
     }
-    if plan.route().is_some() && plan.representation().is_some() {
-        return emit_state_route(plan, target, output);
-    }
-    if !matches!(target, "rust" | "rust-wasm")
+    if !(plan.route().is_some() && plan.representation().is_some())
+        && !matches!(target, "rust" | "rust-wasm")
         && physical.is_some_and(|p| {
             !p.columns.is_empty() || p.column_maps.is_some() || p.bounds.is_some() || p.buffers != ink_core::physical::Buffers::Scoped || p.tables != Tables::Ordered
                 || !p.borrow_reads.is_empty()
@@ -38,6 +36,15 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
         })
     {
         return Err("requested physical sites require the Rust or Rust-Wasm capability; select a compatible database plan".into());
+    }
+    Ok(())
+}
+
+pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
+    require_target(plan, target)?;
+    let physical = plan.physical().map(|p| p.plan());
+    if plan.route().is_some() && plan.representation().is_some() {
+        return emit_state_route(plan, target, output);
     }
     if let Some(representation) = plan.representation() {
         match target {
@@ -89,6 +96,16 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
         "physical":physical,"steps":plan.package().steps.len(),
         "trust":"General proof admission; literal lowerers, ownership primitives, codecs and target toolchains remain trusted"
     })).map_err(|e|e.to_string())?)
+}
+
+pub fn build_rust_project(plan: &CheckedPlan, output: &Path) -> LangResult<()> {
+    require_target(plan, "rust")?;
+    if plan.representation().is_some() {
+        return Err("standalone representation plans require compile --plan".into());
+    }
+    let source = ink_lowering_rust::state_native::emit_planned(plan)?;
+    crate::runtime::emit_rust_program(&source, output)?;
+    write(&output.join("plan.json"), ink_core::planning::canonical(plan.package())?)
 }
 
 pub(crate) fn specialization_evidence(plan: &CheckedPlan) -> LangResult<serde_json::Value> {

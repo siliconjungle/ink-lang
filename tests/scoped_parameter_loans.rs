@@ -40,6 +40,37 @@ fn scoped_parameter_capabilities_bind_actual_nonaffine_parameters(){
 }
 
 #[test]
+fn build_checked_rust_project_with_borrowed_parameters() {
+    let source = "module planned_build; pub fn sample(xs:List<u32>)->u32{return xs.at_or(0,0)+length(xs);}";
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let id = module.identity().unwrap();
+    let packet = json!({"schema":1,"semantics":planning::SEMANTICS,"input_core_sha256":id,
+        "steps":[{"kind":"physical","package":{"schema":1,"semantics":physical::SEMANTICS,
+            "input_core_sha256":id,"borrow_reads":[physical::parameter_read_site("sample","xs").unwrap()]}}]});
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/checked-rust-project");
+    fs::create_dir_all(&dir).unwrap();
+    let image = dir.join("input.core.json");
+    let plan = dir.join("input.plan.json");
+    let project = dir.join("project");
+    fs::write(&image, module.bytes().unwrap()).unwrap();
+    fs::write(&plan, registry::canonical(&packet).unwrap()).unwrap();
+    let built = Command::new(env!("CARGO_BIN_EXE_ink")).arg("build").arg(&image)
+        .args(["--core", "--plan"]).arg(&plan).args(["--target", "rust", "-o"]).arg(&project)
+        .output().unwrap();
+    assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
+    let code = fs::read_to_string(project.join("src/lib.rs")).unwrap();
+    assert!(code.contains("ink_borrowed_function_l_sample"));
+    assert!(code.contains("include!(\"initial-state.rs\")"));
+    let requests = dir.join("requests.json");
+    fs::write(&requests, r#"[{"pure":"sample","args":[[]]},{"pure":"sample","args":[[5,1,2]]}]"#).unwrap();
+    let run = Command::new(env!("CARGO")).args(["run", "--quiet", "--manifest-path"])
+        .arg(project.join("Cargo.toml")).arg("--").arg(requests).output().unwrap();
+    assert!(run.status.success(), "{}", String::from_utf8_lossy(&run.stderr));
+    let replies: serde_json::Value = serde_json::from_slice(&run.stdout).unwrap();
+    assert_eq!(replies, json!([0, 8]));
+}
+
+#[test]
 fn scoped_loans_preserve_aliases_and_move_same_named_transfer_parameters(){
  let m=CheckedModule::from_source(syntax::parse(SOURCE).unwrap()).unwrap();
  let plan=planning::check(&m,&package(&m,"read","x")).unwrap();

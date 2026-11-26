@@ -92,6 +92,11 @@ logical programs continue to execute. GPU conformance includes actual eligible
 numeric dispatch, separately from host fallback. This does not implement a full
 voxel engine, an archetype ECS, or a replacement for LZ4/Zstd.
 
+Use `ink build SOURCE --plan PACKET.json --target rust -o DIRECTORY` to build a
+Cargo library and request runner with the checked plan and source initial state.
+Use `ink compile SOURCE --plan PACKET.json --target rust -o OUTPUT.rs` to emit a
+standalone Rust source file.
+
 ## Verification and evidence
 
 `core/tests/physical_capabilities.rs` checks valid and forged/rehashed bounds,

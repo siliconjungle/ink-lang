@@ -846,7 +846,7 @@ fn run() -> LangResult<()> {
     }
 
     if cmd == "help" || cmd == "--help" {
-        println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|javascript|rust-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
+        println!("ink compile SOURCE --optimise KNOWLEDGE_DIRECTORY [--snapshot SNAPSHOT.json] --target rust|javascript|rust-wasm|wgpu|webgpu -o OUTPUT\nink compile SOURCE --plan PACKET.json --target TARGET -o OUTPUT\nink build SOURCE --plan PACKET.json --target rust -o DIRECTORY\nink check-plan SOURCE PACKET.json [--core]\nink --version\nink doctor [--python PATH]\nink explain SOURCE [--core] [--selection PACKAGE.json | --optimise SNAPSHOT.json]\nink modules SOURCE");
         println!("ink check-boolean-verdict THEOREM.json --lean PATH -o CERTIFICATE.lean");
         println!("ink emit-contract-obligations SOURCE -o OBLIGATIONS.json\nink check-contract-proof-stream SOURCE [--export-obligations FILE.json] (bounded NDJSON authoring attempts)\nink check-contracts SOURCE [--contract-proofs EVIDENCE.json]\nAll source build/execution commands accept --contract-proofs EVIDENCE.json.");
         println!("ink emit-termination-obligations SOURCE -o GOALS.json\nink check-termination SOURCE --termination-proofs BUNDLE.json\nSource compilation/execution accepts --termination-proofs BUNDLE.json; measures grant no authority without checked evidence.");
@@ -1152,16 +1152,27 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                     ]
                     .contains(&arg.as_str())
                 {
-                    return Err(format!("unsupported initialized plan build option {arg}"));
+                    return Err(format!("unsupported plan build option {arg}"));
                 }
             }
-            let seed = arg_value(&args,"--initial-state")?.ok_or("build --plan requires --initial-state; use compile --plan for uninitialized emission")?;
+            let seed = arg_value(&args,"--initial-state")?;
             let module = core::CheckedModule::from_source(p)?;
             let package = verified_language::planning::from_bytes(&read_bounded(
                 &file, verified_language::registry::MAX_VIEW_BYTES)?)?;
             let plan = verified_language::planning::check(&module, &package)?;
             let target = arg_value(&args, "--target")?.unwrap_or_else(|| "native".into());
             let out = arg_value(&args, "-o")?.ok_or("build requires -o OUTPUT")?;
+            let Some(seed) = seed else {
+                if target != "rust" {
+                    return Err("build --plan without --initial-state requires --target rust; use compile --plan for other uninitialized targets".into());
+                }
+                if arg_value(&args, "--cargo")?.is_some() {
+                    return Err("build --plan --target rust emits a project; run Cargo on that project separately".into());
+                }
+                verified_language::compiled_plans::build_rust_project(&plan, Path::new(&out))?;
+                println!("wrote complete rust project to {out}");
+                return Ok(());
+            };
             verified_language::compiled_plans::build_initialized(
                 &plan,
                 &target,
