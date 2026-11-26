@@ -184,8 +184,8 @@ correctness remain separate obligations.
 Rust and Rust-Wasm plans may name an immutable parameter through
 `physical::parameter_read_site(function, parameter)`. The canonical site binds
 the capability `ink-parameter-read-v1`, the exact function name and its parameter
-name. The module checker admits only actual nonrecursive List or record
-parameters without affine Buffer/Map contents. Rehashing a packet does not admit
+name. The module checker admits actual nonrecursive List, record, Option, or
+Result parameters without affine Buffer/Map contents. Rehashing a packet does not admit
 a missing, scalar or affine parameter.
 
 These sites occupy the existing sorted `borrow_reads` list. Legacy lexical read
@@ -209,9 +209,11 @@ There is no CRDT-specific compiler rule or new source syntax.
 
 `physical::expression_read_site(function, expression)` separately binds a lexical
 observation to its function and expression identity (`ink-function-read-v1`).
-The checker admits only existing typed projections rooted in a List or record.
-This permits borrowing a local collection for a traversal or lookup while a
-later final use still moves the collection. It does not make the function's
+The checker admits existing typed projections rooted in a List or record and
+in immutable Option or Result bindings. This permits a traversal, lookup, or
+variant fold to inspect a local value while preserving ownership for a later
+final use. A borrowed variant fold passes a shared reference into its payload
+callback. Returning an owning payload still detaches it. It does not make the function's
 parameter borrowed, change the owning ABI, or establish a mutable loan. Existing
 alias and lifetime checks continue to apply. The read site authorises an
 implementation choice; measurements still decide whether to select it.

@@ -16,6 +16,12 @@ pub const SEMANTICS: &str = "ink-physical-plan-v1";
 pub fn parameter_read_site(function:&str,parameter:&str)->LangResult<String>{
     registry::identity(&serde_json::json!({"capability":"ink-parameter-read-v1","function":function,"parameter":parameter}))
 }
+/// First-order immutable carriers may be read through a shared native loan.
+fn immutable_parameter_carrier(ty: &crate::syntax::Type, program: &crate::core::Program) -> bool {
+    use crate::syntax::Type;
+    matches!(ty, Type::Named(_) | Type::List(_) | Type::Option(_) | Type::Result(..))
+        && !crate::local_collections::owned(ty, program)
+}
 /// Borrow an observation in one function without borrowing its owning formal.
 pub fn expression_read_site(function:&str,expression:&crate::syntax::Expr)->LangResult<String>{
     registry::identity(&serde_json::json!({"capability":"ink-function-read-v1","function":function,"expression":registry::identity(expression)?}))
@@ -356,7 +362,7 @@ pub fn check(
     for f in &p.functions {
         if !crate::recursion::recursive(f) {
             for (name,ty) in &f.params {
-                if matches!(ty,crate::syntax::Type::Named(_)|crate::syntax::Type::List(_)) && !crate::local_collections::owned(ty,p) {
+                if immutable_parameter_carrier(ty, p) {
                     read_sites.insert(parameter_read_site(&f.name,name)?);
                 }
             }
@@ -365,7 +371,8 @@ pub fn check(
         crate::analysis::typed_walk(p, f, |e, env| {
             let lexical = crate::collection_facts::lexical_projection(e);
             let rooted = lexical.as_ref().is_some_and(|(root, _)| matches!(
-                env.get(*root), Some(crate::syntax::Type::Named(_) | crate::syntax::Type::List(_))));
+                env.get(*root), Some(crate::syntax::Type::Named(_) | crate::syntax::Type::List(_)))
+                || env.get(*root).is_some_and(|ty| immutable_parameter_carrier(ty, p)));
             if rooted && crate::check::infer(e, env, p).is_ok() {
                 match registry::identity(e) { Ok(id) => {read_sites.insert(id);}, Err(e) => failure=Some(e) }
                 match expression_read_site(&f.name,e) { Ok(id) => {read_sites.insert(id);}, Err(e) => failure=Some(e) }

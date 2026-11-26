@@ -102,3 +102,85 @@ fn scoped_loans_preserve_aliases_and_move_same_named_transfer_parameters(){
  let out=Command::new(env!("CARGO")).args(["run","--offline","--quiet","--manifest-path"]).arg(selected.join("Cargo.toml")).args(["--bin","count_clones","--target-dir"]).arg(selected.join("target")).output().unwrap();assert!(out.status.success(),"{}",String::from_utf8_lossy(&out.stderr));
  parity::conformance("generated-parity-scoped-parameter-loans",m.program().clone(),SOURCE,steps,expected);
 }
+
+#[test]
+fn immutable_variant_reads_borrow_payloads_and_copy_escaping_values() {
+    let source = r#"module variant_reads;
+record Item { value: u32, }
+record Geometry { items: List<Item>, }
+fn first(g: Geometry) -> u32 { return g.items.at_or(0, Item { value: 0 }).value; }
+fn observe(g: Option<Geometry>) -> u32 {
+    return g.fold(fn(p) => first(p), fn(unit) => 11);
+}
+fn nested(g: Option<Geometry>) -> u32 { return observe(g) + observe(g); }
+fn inspect(g: Result<Geometry, Geometry>) -> u32 {
+    return g.fold(fn(p) => first(p), fn(e) => first(e) + 1);
+}
+fn detach(g: Option<Geometry>) -> List<Item> {
+    return g.fold(fn(p) => p.items, fn(unit) => []);
+}
+fn owning(g: Buffer<u32>) -> List<u32> { return g.freeze(); }
+"#;
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let mut sites: Vec<_> = [("first", "g"), ("observe", "g"), ("nested", "g"), ("inspect", "g"), ("detach", "g")]
+        .into_iter().map(|(f, p)| physical::parameter_read_site(f, p).unwrap()).collect();
+    sites.sort();
+    let id = module.identity().unwrap();
+    let package = |sites: &[String]| serde_json::from_value::<planning::Package>(json!({
+        "schema": 1, "semantics": planning::SEMANTICS, "input_core_sha256": id,
+        "steps": [{ "kind": "physical", "package": { "schema": 1,
+            "semantics": physical::SEMANTICS, "input_core_sha256": id, "borrow_reads": sites }}]
+    })).unwrap();
+    let packet = package(&sites);
+    let checked = planning::check(&module, &packet).unwrap();
+    let mut forbidden = sites;
+    forbidden.push(physical::parameter_read_site("owning", "g").unwrap());
+    forbidden.sort();
+    assert!(planning::check(&module, &package(&forbidden)).is_err());
+
+    let d = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/scoped-variant-loans");
+    fs::create_dir_all(&d).unwrap();
+    let image = d.join("input.core.json");
+    let plan = d.join("input.plan.json");
+    let project = d.join("project");
+    fs::write(&image, module.bytes().unwrap()).unwrap();
+    fs::write(&plan, registry::canonical(checked.package()).unwrap()).unwrap();
+    let generated = Command::new(env!("CARGO_BIN_EXE_ink")).arg("build").arg(&image)
+        .args(["--core", "--plan"]).arg(&plan).args(["--target", "rust", "-o"]).arg(&project).output().unwrap();
+    assert!(generated.status.success(), "{}", String::from_utf8_lossy(&generated.stderr));
+
+    let path = project.join("src/lib.rs");
+    let code = fs::read_to_string(&path).unwrap();
+    let declared = "#[derive(Clone,Debug,PartialEq,Eq)] pub struct l_Item";
+    assert!(code.contains(declared));
+    let code = code.replace(declared, "#[derive(Debug,PartialEq,Eq)] pub struct l_Item");
+    fs::write(path, format!("{code}\npub static CLONES:std::sync::atomic::AtomicUsize=std::sync::atomic::AtomicUsize::new(0);impl Clone for l_Item{{fn clone(&self)->Self{{CLONES.fetch_add(1,std::sync::atomic::Ordering::Relaxed);Self{{l_value:self.l_value}}}}}}\n")).unwrap();
+    let bins = project.join("src/bin");
+    fs::create_dir_all(&bins).unwrap();
+    fs::write(bins.join("observe.rs"), r#"use compiled_state::{State, l_Geometry, l_Item, CLONES};
+use std::sync::atomic::Ordering::Relaxed;
+
+fn geometry() -> l_Geometry {
+    l_Geometry { l_items: (3..260).map(|l_value| l_Item { l_value }).collect() }
+}
+
+fn main() {
+    let state = State::new();
+    let present = Some(geometry());
+    assert_eq!(state.ink_borrowed_function_l_observe(&present), 3);
+    assert_eq!(state.ink_borrowed_function_l_nested(&present), 6);
+    assert_eq!(state.ink_borrowed_function_l_nested(&None), 22);
+    assert_eq!(state.ink_borrowed_function_l_inspect(&Ok(geometry())), 3);
+    assert_eq!(state.ink_borrowed_function_l_inspect(&Err(geometry())), 4);
+    assert_eq!(CLONES.load(Relaxed), 0);
+    let owned = state.ink_borrowed_function_l_detach(&present);
+    assert_eq!(owned.len(), 257);
+    assert_eq!(CLONES.load(Relaxed), 257);
+    assert_eq!(state.ink_borrowed_function_l_observe(&present), 3);
+}
+"#).unwrap();
+    let result = Command::new(env!("CARGO")).args(["run", "--quiet", "--offline", "--manifest-path"])
+        .arg(project.join("Cargo.toml")).args(["--bin", "observe", "--target-dir"])
+        .arg(d.join("target")).output().unwrap();
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+}
