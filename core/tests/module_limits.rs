@@ -13,7 +13,7 @@ fn functions(count: usize) -> Vec<Function> {
 
 #[test]
 fn composed_modules_have_a_bounded_declaration_budget() {
-    let max_declarations = 2048;
+    let max_declarations = 4096;
     let module = CheckedModule::from_source(Program {
         module: "Composed".into(),
         functions: functions(max_declarations),
