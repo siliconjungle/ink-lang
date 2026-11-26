@@ -6,6 +6,10 @@ use crate::{
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 
+// Linked programs can spend additional visits on types and lowered expressions
+// before they reach the independently bounded executable image.
+const MAX_ELABORATION_STEPS: usize = 200_000;
+
 #[derive(Default)]
 pub struct SurfaceProgram {
     pub program: Program,
@@ -64,7 +68,7 @@ impl SurfaceProgram {
             output: self.program,
             instances: BTreeMap::new(),
             pending_functions: Vec::new(),
-            work: 100_000,
+            work: MAX_ELABORATION_STEPS,
             locals: BTreeSet::new(),
             callback_types: self.callback_types,
             fresh: 0,
@@ -1813,4 +1817,50 @@ fn surface_names(p: &Program) -> LangResult<BTreeSet<String>> {
         }
     }
     Ok(names)
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::CheckedModule;
+
+    fn large_surface(count: usize) -> SurfaceProgram {
+        let parameter_type = Type::Option(Box::new(Type::List(Box::new(Type::Result(
+            Box::new(Type::U64),
+            Box::new(Type::U64),
+        )))));
+        let params: Vec<_> = (0..16)
+            .map(|i| (format!("argument_{i}"), parameter_type.clone()))
+            .collect();
+        let functions = (0..count)
+            .map(|i| Function {
+                name: format!("entry_{i}"),
+                params: params.clone(),
+                result: Type::U64,
+                body: Expr::Num(i as u64),
+            })
+            .collect();
+        SurfaceProgram {
+            program: Program {
+                module: "LargeSurface".into(),
+                functions,
+                ..Program::default()
+            },
+            ..SurfaceProgram::default()
+        }
+    }
+
+    #[test]
+    fn composed_surface_programs_fit_the_executable_budget() {
+        let module = CheckedModule::from_source(large_surface(900).elaborate().unwrap()).unwrap();
+        let restored = CheckedModule::from_bytes(&module.bytes().unwrap()).unwrap();
+        assert_eq!(restored.program().functions.len(), 900);
+    }
+
+    #[test]
+    fn elaborating_types_still_spends_a_bounded_budget() {
+        let error = large_surface(1400).elaborate().unwrap_err();
+        assert!(error.contains("surface elaboration budget exceeded"), "{error}");
+    }
 }
