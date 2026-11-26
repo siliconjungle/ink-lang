@@ -215,6 +215,20 @@ change replace(g: Geometry) -> Result<u32, String> writes(Terrain) {
 change read_then_replace(g: Geometry) -> Result<u32, String> reads(Terrain) writes(Terrain) {
     return Ok(inspect(Terrain, replace(g)?));
 }
+change put_key(g: Geometry) -> Result<u32, String> writes(Rooms) {
+    Rooms.put(3, g);
+    return Ok(3);
+}
+change key_then_read(g: Geometry) -> Result<u32, String> reads(Rooms) writes(Rooms) {
+    return Ok(tag(Rooms.get(put_key(g)?).unwrap_or(default_room())));
+}
+change room_default(g: Geometry) -> Result<Geometry, String> writes(Rooms) {
+    Rooms.put(3, g);
+    return Ok(default_room());
+}
+change read_with_effectful_default(g: Geometry) -> Result<u32, String> reads(Rooms) writes(Rooms) {
+    return Ok(tag(Rooms.get(3).unwrap_or(room_default(g)?)));
+}
 query read_value(n: u32) -> u32 reads(Terrain) { return inspect(Terrain, offset(n)); }
 query read_slot(key: u32) -> u32 reads(Rooms) {
     return tag(Rooms.get(key).unwrap_or(default_room()));
@@ -283,8 +297,11 @@ fn main() {
     assert_eq!(detached.len(), 8192);
     assert_eq!(CLONES.load(Relaxed), 8192);
     assert_eq!(state.invoke_l_read_then_replace(geometry(44)).unwrap().result, Ok(27));
+    assert_eq!(state.invoke_l_key_then_read(geometry(54)).unwrap().result, Ok(54));
+    assert_eq!(state.invoke_l_read_with_effectful_default(geometry(66)).unwrap().result, Ok(54));
     CLONES.store(0, Relaxed);
     assert_eq!(state.invoke_l_read_value(2).unwrap().result, 47);
+    assert_eq!(state.invoke_l_read_slot(3).unwrap().result, 66);
     assert_eq!(CLONES.load(Relaxed), 0);
     assert_eq!(detached[0].l_value, 0);
     assert_eq!(state.function_l_recursive(2, None, Err(8)), 8);
