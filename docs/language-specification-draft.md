@@ -106,7 +106,7 @@ change its identity. No source locations or optimisation selection enter it.
 The current wire representation is fixed by the Rust/Serde definitions and
 pinned toolchain; cross-language encoders need to reproduce that encoding.
 
-Ingress is bounded to 16 MB, 1,024 top-level declarations, 128 parameters or
+Ingress is bounded to 16 MB, 2,048 top-level declarations, 128 parameters or
 record fields, 100,000 structural steps and depth 32. Identifiers are ASCII
 letters/digits/underscore, begin with a letter or underscore, and have at most
 128 bytes. Individual string literals have at most one million UTF-8 bytes.

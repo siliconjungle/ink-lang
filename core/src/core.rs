@@ -820,6 +820,8 @@ pub(crate) fn validate_value_groups<'a>(
     Ok(())
 }
 
+const MAX_DECLARATIONS: usize = 2048;
+
 fn validate(p: &Program) -> LangResult<(bool, bool)> {
     if !p.rules.is_empty() {
         return Err(
@@ -834,7 +836,7 @@ fn validate(p: &Program) -> LangResult<(bool, bool)> {
         + p.records.len()
         + p.enums.len()
         + p.events.len()
-        > 1024
+        > MAX_DECLARATIONS
     {
         return Err("core declaration limit exceeded".into());
     }
