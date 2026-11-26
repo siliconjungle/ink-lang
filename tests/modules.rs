@@ -279,3 +279,35 @@ fn imported_record_spread_initializer_keeps_qualified_function_scope() {
     let p=modules::load(dir.join("main.ink")).unwrap().program;CheckedModule::from_source(p.clone()).unwrap();
     assert_eq!(eval::call(&p,"run",vec![],&mut 10000).unwrap(),eval::Value::U32(12));
 }
+
+#[test]
+fn large_linked_graphs_keep_a_file_limit() {
+    let directory = Path::new("build/module-file-limit");
+    fs::create_dir_all(directory).unwrap();
+    let entry = directory.join("main.ink");
+    let mut imports = String::from("module entry;\n");
+    for index in 1..=128 {
+        let name = format!("module_{index}");
+        fs::write(
+            directory.join(format!("{name}.ink")),
+            format!("module {name}; fn value() -> u32 {{ return {index}; }}"),
+        )
+        .unwrap();
+        imports.push_str(&format!("import \"{name}.ink\" as {name};\n"));
+        if index == 127 {
+            let source = format!("{imports}fn run() -> u32 {{ return module_127.value(); }}");
+            fs::write(&entry, source).unwrap();
+            let loaded = modules::load(&entry).unwrap();
+            assert_eq!(loaded.files.len(), 128);
+            assert_eq!(
+                eval::call(&loaded.program, "run", vec![], &mut 10_000).unwrap(),
+                eval::Value::U32(127)
+            );
+        }
+    }
+    fs::write(&entry, imports).unwrap();
+    assert_eq!(
+        modules::load(&entry).err().unwrap(),
+        "module graph exceeds 128 files"
+    );
+}

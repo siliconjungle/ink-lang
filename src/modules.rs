@@ -7,7 +7,7 @@ use std::{
     io::Read,
     path::{Path, PathBuf},
 };
-const MAX_FILES: usize = 64;
+const MAX_FILES: usize = 128;
 const MAX_TOTAL: usize = 4_000_000;
 #[derive(Clone, Debug)]
 pub struct SourceFile {
@@ -486,7 +486,7 @@ impl Loader {
             return Ok(*i);
         }
         if self.nodes.len() >= MAX_FILES {
-            return Err("module graph exceeds 64 files".into());
+            return Err(format!("module graph exceeds {MAX_FILES} files"));
         }
         let text = match path.to_str() {
             Some("std:words") => include_str!("../stdlib/words.ink").into(),
