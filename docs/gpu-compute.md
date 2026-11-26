@@ -204,6 +204,18 @@ carries that input, the carried value (its step's last output) is replaced.
 Element-wise sessions keep every input's length; graph sessions accept list
 lengths up to the capacity they were opened with.
 
+Use `session.writeRanges(input, [{start, values}, ...])` or native
+`Engine::write_ranges(id, input, &[(start, values), ...])` to overwrite entire
+elements of a named List input independent of feedback. Starts count logical
+elements, including vectors or records. The ranges must be ordered, disjoint,
+and inside the current length. The runtime packs and checks the entire batch
+before issuing any writes. The GPU uploads the changed payload only, retaining
+the allocation and its length header. The compiled CPU path applies the same
+batch to its packed input. Run the next `step` before reading or binding its
+results. A device-only `writeFrom` can make the logical length unknown on the
+host. Use an ordinary `write` to establish a known length before patching
+that input.
+
 `session.buffer(stepId)` returns `{buffer, offset, header, type, capacity}`:
 the `GPUBuffer` holding a step's current value. Element 0 starts at `offset`;
 when `header` is set, word 0 is the logical length. Pass your renderer's device
@@ -220,6 +232,7 @@ Native hosts offer the same operations: `Engine::open(&plan, backend)`,
 `--script` accepts `{"open": PLAN, "as": NAME, "backend": ...}`,
 `{"session": NAME, "step": N}`, `{"session": NAME, "read": REQUEST}`,
 `{"session": NAME, "write": {"input": ..., "value": ...}}`,
+`{"session": NAME, "write_ranges": {"input": ..., "ranges": [...]}}`,
 `{"session": NAME, "close": true}` and `{"session": NAME}` (finish); any
 session entry accepts `"wait": true`, and every output line carries `seconds`.
 
