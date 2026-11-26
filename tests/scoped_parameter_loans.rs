@@ -191,11 +191,15 @@ fn compiler_selected_loans_borrow_state_and_keep_recursive_parameters_owned() {
 record Item { value: u32, }
 record Geometry { items: List<Item>, tag: u32, }
 state Terrain: Option<Geometry> = None;
+state Status: Result<Geometry, Geometry> = Err(Geometry { items: [], tag: 19 });
 state Rooms: Table<u32, Geometry> = Table.empty();
 
 fn tag(g: Geometry) -> u32 { return g.tag; }
 fn inspect(g: Option<Geometry>, offset: u32) -> u32 {
     return g.fold(fn(value) => tag(value), fn(unit) => 0) + offset;
+}
+fn inspect_status(status: Result<Geometry, Geometry>) -> u32 {
+    return status.fold(fn(value) => tag(value), fn(error) => tag(error) + 1);
 }
 fn detach(g: Option<Geometry>) -> List<Item> {
     return g.fold(fn(value) => value.items, fn(unit) => []);
@@ -207,6 +211,10 @@ fn recursive(n: u32, a: Option<Geometry>, b: Result<Geometry, u32>) -> u32 {
     return inspect(a, b.fold(fn(value) => tag(value), fn(error) => error));
 }
 change install(g: Geometry) -> Unit writes(Terrain) { Terrain = Some(g); return (); }
+change report(g: Geometry, ready: Bool) -> Unit writes(Status) {
+    Status = if ready { Ok(g) } else { Err(g) };
+    return ();
+}
 change put(g: Geometry) -> Unit writes(Rooms) { Rooms.put(3, g); return (); }
 change replace(g: Geometry) -> Result<u32, String> writes(Terrain) {
     Terrain = Some(g);
@@ -230,6 +238,7 @@ change read_with_effectful_default(g: Geometry) -> Result<u32, String> reads(Roo
     return Ok(tag(Rooms.get(3).unwrap_or(room_default(g)?)));
 }
 query read_value(n: u32) -> u32 reads(Terrain) { return inspect(Terrain, offset(n)); }
+query read_status() -> u32 reads(Status) { return inspect_status(Status); }
 query read_slot(key: u32) -> u32 reads(Rooms) {
     return tag(Rooms.get(key).unwrap_or(default_room()));
 }
@@ -253,6 +262,7 @@ query owned_result() -> List<Item> reads(Terrain) { return detach(Terrain); }
         assert!(!selected.borrows_read(&physical::parameter_read_site("recursive", parameter).unwrap()));
     }
     assert!(selected.borrows_read(&physical::parameter_read_site("inspect", "g").unwrap()));
+    assert!(selected.borrows_read(&physical::parameter_read_site("inspect_status", "status").unwrap()));
     let built = Command::new(env!("CARGO_BIN_EXE_ink")).arg("build").arg(&image)
         .args(["--core", "--plan"]).arg(&packet).args(["--target", "rust", "-o"]).arg(&project)
         .output().unwrap();
@@ -285,6 +295,7 @@ fn geometry(tag: u32) -> l_Geometry {
 fn main() {
     let mut state = State::new();
     assert_eq!(state.invoke_l_read_value(2).unwrap().result, 3);
+    assert_eq!(state.invoke_l_read_status().unwrap().result, 20);
     assert_eq!(state.invoke_l_read_slot(3).unwrap().result, 81);
     state.invoke_l_install(geometry(7)).unwrap();
     state.invoke_l_put(geometry(11)).unwrap();
@@ -293,6 +304,12 @@ fn main() {
     assert_eq!(state.invoke_l_read_slot(3).unwrap().result, 11);
     assert_eq!(state.invoke_l_read_slot(4).unwrap().result, 81);
     assert_eq!(CLONES.load(Relaxed), 0);
+    for (ready, expected) in [(true, 31), (false, 32)] {
+        state.invoke_l_report(geometry(31), ready).unwrap();
+        CLONES.store(0, Relaxed);
+        assert_eq!(state.invoke_l_read_status().unwrap().result, expected);
+        assert_eq!(CLONES.load(Relaxed), 0);
+    }
     let detached = state.invoke_l_owned_result().unwrap().result;
     assert_eq!(detached.len(), 8192);
     assert_eq!(CLONES.load(Relaxed), 8192);
