@@ -16,6 +16,31 @@ fn hash(bytes: &[u8]) -> String {
 }
 
 #[test]
+fn executable_structure_budget_covers_large_flat_modules_and_stays_bounded() {
+    let entries = (0..256).map(|i| i.to_string()).collect::<Vec<_>>().join(",");
+    let source = format!("module Large; fn payload() -> List<u64> {{ return [{entries}]; }}");
+    let mut program = syntax::parse(&source).unwrap();
+    let template = program.functions[0].clone();
+    let functions = |count: usize| {
+        (0..count)
+            .map(|i| {
+                let mut function = template.clone();
+                function.name = format!("payload_{i}");
+                function
+            })
+            .collect()
+    };
+    program.functions = functions(512);
+    let compiled = CheckedModule::from_source(program.clone()).unwrap();
+    let decoded = CheckedModule::from_bytes(&compiled.bytes().unwrap()).unwrap();
+    assert_eq!(decoded.program().functions.len(), 512);
+
+    program.functions = functions(900);
+    let error = CheckedModule::from_source(program).err().unwrap();
+    assert!(error.contains("executable core structure size limit exceeded"));
+}
+
+#[test]
 fn checked_core_roundtrips_preserve_full_width_order_and_native_source() {
     let program = pure();
     let checked = CheckedModule::from_source(program.clone()).unwrap();

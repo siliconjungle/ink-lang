@@ -646,8 +646,11 @@ struct Bounds {
 }
 impl Bounds {
     fn step(&mut self, depth: usize) -> LangResult<()> {
-        if depth > 32 || self.remaining == 0 {
-            return Err("executable core structural budget exceeded".into());
+        if depth > 32 {
+            return Err("executable core nesting limit exceeded".into());
+        }
+        if self.remaining == 0 {
+            return Err("executable core structure size limit exceeded".into());
         }
         self.remaining -= 1;
         Ok(())
@@ -821,6 +824,9 @@ pub(crate) fn validate_value_groups<'a>(
 }
 
 const MAX_DECLARATIONS: usize = 2048;
+// The total includes linked application and engine modules. Each value still
+// shares the existing nesting bound enforced by Bounds::step.
+const MAX_EXECUTABLE_STRUCTURE: usize = 200_000;
 
 fn validate(p: &Program) -> LangResult<(bool, bool)> {
     if !p.rules.is_empty() {
@@ -841,7 +847,7 @@ fn validate(p: &Program) -> LangResult<(bool, bool)> {
         return Err("core declaration limit exceeded".into());
     }
     let mut b = Bounds {
-        remaining: 100_000,
+        remaining: MAX_EXECUTABLE_STRUCTURE,
         extended: false,
         sequence: false,
     };
