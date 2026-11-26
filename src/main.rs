@@ -862,7 +862,7 @@ fn run() -> LangResult<()> {
         println!(
             "ink emit-definition LOCK.json EXPORTS.json [--select PACKAGE.json] -o DEFINITION.rs"
         );
-        println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
+        println!("ink emit-core SOURCE -o CORE.json [--capture-sources INPUTS.json]\nink check-core CORE.json\nink emit-parameter-loans SOURCE [--core] -o PLAN.json (admissible immutable Rust helper parameters)\nink extend-core SOURCE REQUEST.json [--core] -o CORE.json\nink emit-actions SOURCE -o ACTIONS.json\nink check-actions SOURCE ACTIONS.json\nink emit-effects SOURCE -o EFFECTS.json\nink check-effects SOURCE EFFECTS.json\nink emit-access SOURCE -o ACCESS.json\nink check-access SOURCE ACCESS.json\nExecution/lowering commands also accept --core to read a checked CORE.json instead of source.\nChecked replacement packages: build ... --replacement PACKAGE.json");
         println!("ink verify-model DIRECTORY [--replay] (verify bindings; optionally replay training)\nink build-model SOURCE TRACE.json [--restore MODEL.snapshot] [--freeze | --freeze-roots A,B] [--specialize-frozen] --target TARGET -o NEW_DIRECTORY (train and publish; optionally bind immutable roots and withdraw their writers)\nink train SOURCE TRACE.json [--restore MODEL.snapshot] -o MODEL.snapshot (offline authored learning; complete-state resume)
 ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed] [--holes A,B] [--budget N] [--seed N] [--restore MODEL.snapshot] -o MODEL.snapshot (fit learn holes; also writes MODEL.snapshot.trace.json for build-model)\nink emit-holes SOURCE [-o HOLES.json] (learn hole parameter layout for hosts)\nink learn-rows SOURCE [--restore MODEL.snapshot] (learned parameters as keyed rows)\nink gate-edit SOURCE EDIT.json --objective NAME --data DATA.json [--restore MODEL.snapshot] [--allow-equal] -o MODEL.snapshot (admit a row edit only if the exact objective improves)\nink emit-circuit SOURCE FUNCTION [--restore MODEL.snapshot] -o CIRCUIT.json (exact affine/ReLU/ReGLU circuit of a finite function, checked on every input)\nink emit-mir SOURCE [--simplify] [-o MIR.json] (typed dataflow IR with effect order, placement and schedules)\nink train-circuit SOURCE FUNCTION --data EXAMPLES.json [--restore MODEL.snapshot] [--epochs N] [--seed N] -o EDIT.json (fit learn-hole tables by gradient through the function's exact circuit; writes a row edit for gate-edit)\nink emit-tasks SOURCE [-o TASKS.json] (effect and task manifest for hosts)\nink replay-task SOURCE TRACE.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable] (re-run a recorded task trace sequentially and check it)\nink check SOURCE\nink execute SOURCE SCRIPT.json [--restore SNAPSHOT] [--snapshot-out SNAPSHOT] [--portable]\nink run SOURCE FUNCTION ARGS.json [--evaluation-budget N] [--input-receipt] (reference input identity and value; budget 1..10000000000; default100000000)\nink build SOURCE [--initial-state MODEL.snapshot] [--target native|wasm32|rust|javascript|webgpu] [--cpu x86-64-v3|native] -o OUTPUT (native and wasm32 use typed Rust; wasm32 uses SIMD; INK_WASM_OPT=wasm-opt runs binaryen)\nink emit-state SOURCE -o DIRECTORY [--wasm-abi] [--table-storage ordered|indexed-slots]\nink check-representation SOURCE REQUEST.json\nink verify-library LOCK.json");
 
@@ -1182,6 +1182,25 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
             )?;
             return Ok(());
         }
+    }
+    if cmd == "emit-parameter-loans" {
+        let out = arg_value(&args, "-o")?.ok_or("emit-parameter-loans requires -o PLAN.json")?;
+        let module = core::CheckedModule::from_source(p)?;
+        let input = module.identity()?;
+        let sites = verified_language::physical::parameter_read_sites(&module)?;
+        let steps = if sites.is_empty() { vec![] } else {
+            vec![serde_json::json!({"kind":"physical","package":{
+                "schema":1,"semantics":verified_language::physical::SEMANTICS,
+                "input_core_sha256":input,"borrow_reads":sites,
+            }})]
+        };
+        let package: verified_language::planning::Package = serde_json::from_value(serde_json::json!({
+            "schema":1,"semantics":verified_language::planning::SEMANTICS,
+            "input_core_sha256":input,"steps":steps,
+        })).map_err(|e| e.to_string())?;
+        let bytes = verified_language::planning::canonical(&package)?;
+        write(&out, std::str::from_utf8(&bytes).map_err(|e| e.to_string())?)?;
+        return Ok(());
     }
     let semantic_selection = prepare_selection(&args, &p)?;
     if let Some(selected) = &semantic_selection {

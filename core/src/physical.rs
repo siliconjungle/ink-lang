@@ -22,6 +22,22 @@ fn immutable_parameter_carrier(ty: &crate::syntax::Type, program: &crate::core::
     matches!(ty, Type::Named(_) | Type::List(_) | Type::Option(_) | Type::Result(..))
         && !crate::local_collections::owned(ty, program)
 }
+/// Parameter read sites a producer can request for this checked module.
+pub fn parameter_read_sites(module: &CheckedModule) -> LangResult<BTreeSet<String>> {
+    let program = module.program();
+    let mut sites = BTreeSet::new();
+    for function in &program.functions {
+        if crate::recursion::recursive(function) {
+            continue;
+        }
+        for (name, ty) in &function.params {
+            if immutable_parameter_carrier(ty, program) {
+                sites.insert(parameter_read_site(&function.name, name)?);
+            }
+        }
+    }
+    Ok(sites)
+}
 /// Borrow an observation in one function without borrowing its owning formal.
 pub fn expression_read_site(function:&str,expression:&crate::syntax::Expr)->LangResult<String>{
     registry::identity(&serde_json::json!({"capability":"ink-function-read-v1","function":function,"expression":registry::identity(expression)?}))
@@ -358,15 +374,8 @@ pub fn check(
             return Err("dense prefix lacks a supported source table/capacity".into());
         }
     }
-    let mut read_sites = BTreeSet::new();
+    let mut read_sites = parameter_read_sites(module)?;
     for f in &p.functions {
-        if !crate::recursion::recursive(f) {
-            for (name,ty) in &f.params {
-                if immutable_parameter_carrier(ty, p) {
-                    read_sites.insert(parameter_read_site(&f.name,name)?);
-                }
-            }
-        }
         let mut failure = None;
         crate::analysis::typed_walk(p, f, |e, env| {
             let lexical = crate::collection_facts::lexical_projection(e);

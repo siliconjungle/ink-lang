@@ -184,3 +184,114 @@ fn main() {
         .arg(d.join("target")).output().unwrap();
     assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
 }
+
+#[test]
+fn compiler_selected_loans_borrow_state_and_keep_recursive_parameters_owned() {
+    let source = r#"module stored_reads;
+record Item { value: u32, }
+record Geometry { items: List<Item>, tag: u32, }
+state Terrain: Option<Geometry> = None;
+state Rooms: Table<u32, Geometry> = Table.empty();
+
+fn tag(g: Geometry) -> u32 { return g.tag; }
+fn inspect(g: Option<Geometry>, offset: u32) -> u32 {
+    return g.fold(fn(value) => tag(value), fn(unit) => 0) + offset;
+}
+fn detach(g: Option<Geometry>) -> List<Item> {
+    return g.fold(fn(value) => value.items, fn(unit) => []);
+}
+fn offset(n: u32) -> u32 { return n + 1; }
+fn default_room() -> Geometry { return Geometry { items: [], tag: 81 }; }
+fn recursive(n: u32, a: Option<Geometry>, b: Result<Geometry, u32>) -> u32 {
+    if n > 0 { return recursive(n - 1, a, b); }
+    return inspect(a, b.fold(fn(value) => tag(value), fn(error) => error));
+}
+change install(g: Geometry) -> Unit writes(Terrain) { Terrain = Some(g); return (); }
+change put(g: Geometry) -> Unit writes(Rooms) { Rooms.put(3, g); return (); }
+change replace(g: Geometry) -> Result<u32, String> writes(Terrain) {
+    Terrain = Some(g);
+    return Ok(20);
+}
+change read_then_replace(g: Geometry) -> Result<u32, String> reads(Terrain) writes(Terrain) {
+    return Ok(inspect(Terrain, replace(g)?));
+}
+query read_value(n: u32) -> u32 reads(Terrain) { return inspect(Terrain, offset(n)); }
+query read_slot(key: u32) -> u32 reads(Rooms) {
+    return tag(Rooms.get(key).unwrap_or(default_room()));
+}
+query owned_result() -> List<Item> reads(Terrain) { return detach(Terrain); }
+"#;
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/state-parameter-loans");
+    fs::create_dir_all(&dir).unwrap();
+    let image = dir.join("input.core.json");
+    let packet = dir.join("input.plan.json");
+    let project = dir.join("project");
+    fs::write(&image, module.bytes().unwrap()).unwrap();
+    let emitted = Command::new(env!("CARGO_BIN_EXE_ink"))
+        .arg("emit-parameter-loans").arg(&image).args(["--core", "-o"]).arg(&packet)
+        .output().unwrap();
+    assert!(emitted.status.success(), "{}", String::from_utf8_lossy(&emitted.stderr));
+    let package = planning::from_bytes(&fs::read(&packet).unwrap()).unwrap();
+    let checked = planning::check(&module, &package).unwrap();
+    let selected = checked.physical().unwrap();
+    for parameter in ["a", "b"] {
+        assert!(!selected.borrows_read(&physical::parameter_read_site("recursive", parameter).unwrap()));
+    }
+    assert!(selected.borrows_read(&physical::parameter_read_site("inspect", "g").unwrap()));
+    let built = Command::new(env!("CARGO_BIN_EXE_ink")).arg("build").arg(&image)
+        .args(["--core", "--plan"]).arg(&packet).args(["--target", "rust", "-o"]).arg(&project)
+        .output().unwrap();
+    assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
+
+    let path = project.join("src/lib.rs");
+    let mut code = fs::read_to_string(&path).unwrap();
+    let declared = "#[derive(Clone,Debug,PartialEq,Eq)] pub struct l_Item";
+    assert!(code.contains(declared));
+    code = code.replace(declared, "#[derive(Debug,PartialEq,Eq)] pub struct l_Item");
+    code.push_str(r#"
+pub static CLONES: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+impl Clone for l_Item {
+    fn clone(&self) -> Self {
+        CLONES.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Self { l_value: self.l_value }
+    }
+}
+"#);
+    fs::write(path, code).unwrap();
+    let bins = project.join("src/bin");
+    fs::create_dir_all(&bins).unwrap();
+    fs::write(bins.join("observe.rs"), r#"use compiled_state::{State, l_Geometry, l_Item, CLONES};
+use std::sync::atomic::Ordering::Relaxed;
+
+fn geometry(tag: u32) -> l_Geometry {
+    l_Geometry { l_tag: tag, l_items: (0..8192).map(|l_value| l_Item { l_value }).collect() }
+}
+
+fn main() {
+    let mut state = State::new();
+    assert_eq!(state.invoke_l_read_value(2).unwrap().result, 3);
+    assert_eq!(state.invoke_l_read_slot(3).unwrap().result, 81);
+    state.invoke_l_install(geometry(7)).unwrap();
+    state.invoke_l_put(geometry(11)).unwrap();
+    CLONES.store(0, Relaxed);
+    assert_eq!(state.invoke_l_read_value(2).unwrap().result, 10);
+    assert_eq!(state.invoke_l_read_slot(3).unwrap().result, 11);
+    assert_eq!(state.invoke_l_read_slot(4).unwrap().result, 81);
+    assert_eq!(CLONES.load(Relaxed), 0);
+    let detached = state.invoke_l_owned_result().unwrap().result;
+    assert_eq!(detached.len(), 8192);
+    assert_eq!(CLONES.load(Relaxed), 8192);
+    assert_eq!(state.invoke_l_read_then_replace(geometry(44)).unwrap().result, Ok(27));
+    CLONES.store(0, Relaxed);
+    assert_eq!(state.invoke_l_read_value(2).unwrap().result, 47);
+    assert_eq!(CLONES.load(Relaxed), 0);
+    assert_eq!(detached[0].l_value, 0);
+    assert_eq!(state.function_l_recursive(2, None, Err(8)), 8);
+}
+"#).unwrap();
+    let result = Command::new(env!("CARGO")).args(["run", "--quiet", "--offline", "--manifest-path"])
+        .arg(project.join("Cargo.toml")).args(["--bin", "observe", "--target-dir"])
+        .arg(dir.join("target")).output().unwrap();
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+}

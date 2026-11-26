@@ -201,6 +201,18 @@ affine owners are first materialised as ordinary owning temporaries, then lent
 for the synchronous call. This preserves argument evaluation order and lets
 other arguments remain borrowed. Conflicting lexical loans still prevent moves.
 
+`ink emit-parameter-loans SOURCE -o PLAN.json` writes a source-bound plan using
+the same eligibility check as plan admission. Use `--core` for a checked image
+and pass the resulting plan to `ink build --plan ... --target rust`. Recursive
+functions and parameters with affine contents keep their owning entry points.
+This command selects admissible sites on request. It does not predict speed.
+
+When a checked borrowed helper receives a value directly from state, the Rust
+emitter can lend the stored table value for that call. The same path handles
+an explicit `table.get(key).unwrap_or(default)`. It evaluates the key and the
+eager default in source order. If the default or a later argument can access
+state mutably, it takes the ordinary owned snapshot at the original read point.
+
 `producers.readonly_borrows.scoped_candidates` proposes bounded alternatives from
 generic read-use analysis. It excludes aggregate transfers into working storage
 and follows read-only callees to a least fixed point. This analysis ranks
