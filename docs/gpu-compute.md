@@ -216,6 +216,16 @@ results. A device-only `writeFrom` can make the logical length unknown on the
 host. Use an ordinary `write` to establish a known length before patching
 that input.
 
+Use `session.writeChanged(input, value)` or native
+`Engine::write_changed(id, input, &value)` for repeated updates to an
+independent List. The GPU host retains one packed value per tracked input.
+With the same length, it compares exact packed words and uploads the single
+element span from the first changed element through the last. An identical
+value uploads zero bytes. The first tracked update and a supported length
+change use a full upload. A separate whole write, range write, or device
+copy invalidates the baseline. The next tracked update then uploads the
+full value. The compiled CPU path uses its ordinary input replacement.
+
 `session.buffer(stepId)` returns `{buffer, offset, header, type, capacity}`:
 the `GPUBuffer` holding a step's current value. Element 0 starts at `offset`;
 when `header` is set, word 0 is the logical length. Pass your renderer's device
@@ -232,6 +242,7 @@ Native hosts offer the same operations: `Engine::open(&plan, backend)`,
 `--script` accepts `{"open": PLAN, "as": NAME, "backend": ...}`,
 `{"session": NAME, "step": N}`, `{"session": NAME, "read": REQUEST}`,
 `{"session": NAME, "write": {"input": ..., "value": ...}}`,
+`{"session": NAME, "write_changed": {"input": ..., "value": ...}}`,
 `{"session": NAME, "write_ranges": {"input": ..., "ranges": [...]}}`,
 `{"session": NAME, "close": true}` and `{"session": NAME}` (finish); any
 session entry accepts `"wait": true`, and every output line carries `seconds`.
