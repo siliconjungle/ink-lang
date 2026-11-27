@@ -99,6 +99,10 @@ depend on is written, including dependencies through earlier steps. This is
 for feedback-free plans. Update inputs through the session write APIs and
 treat its GPU buffer views as read-only.
 
+Sequential scalar bindings lower as statements at the same WGSL depth.
+Initializers and nested expressions still count toward the depth limit, and
+each statement counts toward the total emission budget.
+
 Stateful programs, exact Int arrays, opaque values and nested heap structures
 use the complete CPU host. See [lowering parity](lowering-parity.md) for mixed
 module assembly, host APIs and resource boundaries. There is no source-level
