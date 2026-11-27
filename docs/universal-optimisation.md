@@ -14,6 +14,12 @@ then `step(item)(old_accumulator)`, assigns the result, and terminates if the st
 flag was true. Both callbacks see the same prior state; empty lists return the
 initial value. Item and accumulator types may differ. This is executable-core V6.
 
+Rust can iterate a retained list by reference during a stopping fold. Each
+callback sees the same item and prior accumulator, and an item that escapes
+through the result still gets an owned value. Computed list inputs finish
+before the first callback. Rust also reuses an owned left vector when
+concatenating lists and can compare two lexical strings by reference.
+
 F32 programs use executable-core V7: arithmetic rounds to binary32 with gradual
 underflow and one quiet NaN (`0x7fc00000`). Transport, identity and negation preserve
 payload bits. Old executable headers do not authorise this new arithmetic domain.
