@@ -33,6 +33,15 @@ object keys (including names equal after escape decoding), trailing data,
 invalid numbers, malformed Unicode and resource exhaustion. Serialization keeps
 number spelling and member order and emits deterministic escaped text; this is
 not RFC 8785 canonicalization and does not preserve original whitespace/escapes.
+For numbers computed as binary64, `std:binary64_decimal` provides
+`finite(value: f64) -> Option<String>`. Its shared Ink implementation selects the
+shortest round-tripping decimal, using the closest value and even coefficient
+for ties. Its decimal-point and exponent notation matches
+[ECMAScript Number::toString](https://tc39.es/ecma262/multipage/ecmascript-data-types-and-values.html#sec-numeric-types-number-tostring).
+Both zero encodings produce `"0"`. NaN and infinities return `None`. Pass the
+returned token to `json.number` to store a computed number without relying on host
+formatting.
+
 Library constructors are ordinary functions; a manually built Number("01") or
 object with duplicate members can be an Ink value but cannot cross the checked
 JSON boundary. Serialization is therefore fallible.

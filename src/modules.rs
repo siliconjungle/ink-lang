@@ -556,6 +556,7 @@ impl Loader {
             Some("std:prepared_complex_text") => include_str!("../knowledge/libraries/prepared_complex_text.ink").into(),
             Some("std:bit_automata") => include_str!("../knowledge/libraries/bit_automata.ink").into(),
             Some("std:json") => include_str!("../knowledge/libraries/json.ink").into(),
+            Some("std:binary64_decimal") => include_str!("../knowledge/libraries/binary64_decimal.ink").into(),
             Some(s) if s.starts_with("std:") => return Err(format!("unknown standard module {s}")),
             _ => {
                 let mut bytes = vec![];
