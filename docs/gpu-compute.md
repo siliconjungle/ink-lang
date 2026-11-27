@@ -99,7 +99,10 @@ Source f32 operations use integer-lane binary32 helpers in WGSL: rounding to
 nearest with ties to even, gradual underflow, signed zero and canonical
 arithmetic NaN. Pass-through and negation retain payload bits. Source sums and
 scans retain their operation order; the parallel integer schedules do not
-reassociate floating-point source computations. Target emission and device
+reassociate floating-point source computations. Normal division and square root
+can use WGSL arithmetic to propose a result. The integer implementation accepts
+it only if exact midpoint comparisons confirm round-to-nearest, ties-to-even.
+Other cases are evaluated in integer arithmetic. Target emission and device
 execution remain trusted implementations of this contract.
 
 Session `read` reductions are separate host operations. Their f32 kernels use

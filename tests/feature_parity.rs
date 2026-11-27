@@ -370,6 +370,17 @@ fn exact_binary32_uses_actual_gpu_dispatch() {
         ("plus", json!([[], 0.0])),
         ("total", json!([[]])),
     ]);
+    let finite = bits
+        .iter()
+        .copied()
+        .filter(|b| (b & 0x7f800000) != 0x7f800000)
+        .chain([0x00800001, 0x3f7fffff, 0x3f800001, 0x3fffffff, 0x40000001])
+        .map(|b| json!({"F32Bits":b}))
+        .collect::<Vec<_>>();
+    for divisor in [0u32, 1, 0x00800001, 0x3f800000, 0x3f800001, 0x3fffffff, 0x40400000, 0xc1200000, 0x7f7fffff] {
+        calls.push(("divide", json!([finite, {"F32Bits":divisor}])));
+    }
+    calls.push(("roots", json!([finite])));
     for (name, args) in calls {
         let f = p.functions.iter().find(|f| f.name == name).unwrap();
         let inputs = args
