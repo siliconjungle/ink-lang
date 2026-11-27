@@ -21,6 +21,74 @@ fn owned(x:Buffer<u32>)->List<u32>{return x.freeze();}
 record Particle{position:u32,velocity:u32,active:Bool,}
 fn particles(xs:List<Particle>)->List<Particle>{return xs.map(fn(p)=>Particle{position:p.position+p.velocity,velocity:p.velocity,active:p.active});}
 "#;
+
+#[test]
+fn immutable_fields_of_temporary_storage_owners_can_be_lent() {
+    let source = r#"module temporary_field_reads;
+record Item { value: u32, }
+record Mixed { values: List<Item>, scratch: Buffer<u32>, }
+fn peek(values: List<Item>, offset: u32) -> u32 {
+    return values.at_or(0, Item { value: 0 }).value + offset;
+}
+fn consume(mixed: Mixed) -> u32 { return mixed.scratch.freeze().at_or(0, 0); }
+pub fn observe(values: List<Item>, n: u32) -> u32 {
+    let mixed = Mixed { values: values, scratch: buffer_fill(1, 9) };
+    let zero: u32 = 0;
+    let sum = repeat_until(n, zero, fn(acc) => false, fn(i) => fn(acc) => acc + peek(mixed.values, i));
+    return sum + mixed.scratch.len();
+}
+pub fn transfer(values: List<Item>) -> u32 {
+    let mixed = Mixed { values: values, scratch: buffer_fill(1, 9) };
+    return peek(mixed.values, consume(mixed));
+}
+"#;
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/temporary-field-loans");
+    fs::create_dir_all(&dir).unwrap();
+    let fixture = dir.join("test.ink");
+    let plan = dir.join("test.plan.json");
+    let project = dir.join("project");
+    fs::write(&fixture, source).unwrap();
+    let run = |args: &[&std::ffi::OsStr]| {
+        let out = Command::new(env!("CARGO_BIN_EXE_ink")).args(args).output().unwrap();
+        assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    };
+    run(&["emit-parameter-loans".as_ref(), fixture.as_os_str(), "-o".as_ref(), plan.as_os_str()]);
+    run(&["build".as_ref(), fixture.as_os_str(), "--plan".as_ref(), plan.as_os_str(),
+        "--target".as_ref(), "rust".as_ref(), "-o".as_ref(), project.as_os_str()]);
+    let lib = project.join("src/lib.rs");
+    let code = fs::read_to_string(&lib).unwrap();
+    let declaration = "#[derive(Clone,Debug,PartialEq,Eq)] pub struct l_Item";
+    assert!(code.contains(declaration));
+    let mut code = code.replace(declaration, "#[derive(Debug,PartialEq,Eq)] pub struct l_Item");
+    code.push_str(r#"
+pub static CLONES: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+impl Clone for l_Item {
+    fn clone(&self) -> Self {
+        CLONES.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Self { l_value: self.l_value }
+    }
+}
+"#);
+    fs::write(lib, code).unwrap();
+    let bins = project.join("src/bin");
+    fs::create_dir_all(&bins).unwrap();
+    fs::write(bins.join("observer.rs"), r#"
+use compiled_state::{State, l_Item, CLONES};
+use std::sync::atomic::Ordering::Relaxed;
+fn main() {
+    let state = State::new();
+    let values = || (3..260).map(|l_value| l_Item { l_value }).collect::<Vec<_>>();
+    assert_eq!(state.function_l_observe(values(), 25), 376);
+    assert_eq!(CLONES.load(Relaxed), 0);
+    assert_eq!(state.function_l_transfer(values()), 12);
+    assert_eq!(CLONES.load(Relaxed), 257);
+}
+"#).unwrap();
+    let out = Command::new(env!("CARGO")).args(["run", "--offline", "--quiet", "--manifest-path"])
+        .arg(project.join("Cargo.toml")).args(["--bin", "observer"]).output().unwrap();
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+}
+
 fn package(m:&CheckedModule,function:&str,param:&str)->planning::Package{
  let mut sites=vec![physical::parameter_read_site(function,param).unwrap(),physical::parameter_read_site("combined","tag").unwrap(),physical::parameter_read_site("combined","x").unwrap(),registry::identity(&json!({"Field":[{"Var":"x"},"values"]})).unwrap(),physical::expression_read_site("retained",&syntax::Expr::Var("xs".into())).unwrap(),physical::expression_read_site("consumed",&syntax::Expr::Var("xs".into())).unwrap(),physical::expression_read_site("folded_alias",&syntax::Expr::Var("xs".into())).unwrap()];sites.sort();
  serde_json::from_value(json!({"schema":1,"semantics":planning::SEMANTICS,"input_core_sha256":m.identity().unwrap(),"steps":[{"kind":"physical","package":{"schema":1,"semantics":physical::SEMANTICS,"input_core_sha256":m.identity().unwrap(),"buffers":"direct","borrow_reads":sites}}]})).unwrap()

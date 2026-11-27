@@ -195,11 +195,12 @@ borrowed implementation. Public functions with no affine arguments or result als
 export that safe Rust entry as `ink_borrowed_function_l_NAME`, so native library
 callers can retain a document while querying or saving it without cloning its
 owning value. Wire entry points keep their existing owning signatures.
-Immutable field observations through an already
-borrowed binding share that lifetime. Computed arguments and projections from
-affine owners are first materialised as ordinary owning temporaries, then lent
-for the synchronous call. This preserves argument evaluation order and lets
-other arguments remain borrowed. Conflicting lexical loans still prevent moves.
+Immutable field observations through an already borrowed binding share that
+lifetime. Synchronous calls can lend an immutable projection from a local
+owner with affine fields when later arguments leave that owner unused.
+Computed arguments and projections whose owners may be consumed by a later
+argument use an owning temporary for the call. Argument evaluation order and
+whole-owner transfers are preserved.
 
 `ink emit-parameter-loans SOURCE -o PLAN.json` writes a source-bound plan using
 the same eligibility check as plan admission. Use `--core` for a checked image
