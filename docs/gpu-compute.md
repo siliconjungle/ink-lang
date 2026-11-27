@@ -87,6 +87,12 @@ sorts tiles and merges them in increasing widths, keeping a stable order across
 tile boundaries. Select it after measuring the device and workload. The
 generated native CLI accepts `--parallel-u64-merge`.
 
+A native resident graph can name pure steps in `retained_steps`. After the
+first execution, the host reuses their device outputs until an input they
+depend on is written, including dependencies through earlier steps. This is
+for feedback-free plans. Update inputs through the session write APIs and
+treat its GPU buffer views as read-only.
+
 Stateful programs, exact Int arrays, opaque values and nested heap structures
 use the complete CPU host. See [lowering parity](lowering-parity.md) for mixed
 module assembly, host APIs and resource boundaries. There is no source-level
