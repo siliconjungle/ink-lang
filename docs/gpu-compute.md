@@ -108,6 +108,7 @@ scans retain their operation order; the parallel integer schedules do not
 reassociate floating-point source computations. Normal division and square root
 can use WGSL arithmetic to propose a result. The integer implementation accepts
 it only if exact midpoint comparisons confirm round-to-nearest, ties-to-even.
+An adjacent estimate can be checked the same way before integer fallback.
 Other cases are evaluated in integer arithmetic. Target emission and device
 execution remain trusted implementations of this contract.
 
