@@ -11,13 +11,31 @@ use std::{
 mod schema;
 use schema::{Frame, Pass, Resource};
 
+#[derive(serde::Deserialize)]
+#[serde(untagged)]
+enum FrameDescription {
+    Single(Frame),
+    WithFallback { primary: Frame, fallback: Frame },
+}
+
 pub fn build(module: &CheckedModule, function: &str, shader: &str, output: &Path) -> LangResult<()> {
     let mut rendered = eval::call_checked(module, function, vec![], &mut 200_000)?.json();
     normalize(&mut rendered);
-    let mut frame: Frame = serde_json::from_value(rendered)
-        .map_err(|error| format!("expected std:render Frame: {error}"))?;
-    for pass in &mut frame.passes {
-        pass.bindings.sort_by_key(|binding| binding.slot);
+    let mut frame = match serde_json::from_value(rendered)
+        .map_err(|error| format!("expected a std:render frame: {error}"))?
+    {
+        FrameDescription::Single(frame) => frame,
+        FrameDescription::WithFallback { mut primary, fallback } => {
+            primary.fallback = Some(Box::new(fallback));
+            primary
+        }
+    };
+    for frame in std::iter::once(&mut frame.passes)
+        .chain(frame.fallback.iter_mut().map(|fallback| &mut fallback.passes))
+    {
+        for pass in frame {
+            pass.bindings.sort_by_key(|binding| binding.slot);
+        }
     }
     check(&frame, shader)?;
     let data = serde_json::to_string(&frame).map_err(|error| error.to_string())?;
@@ -49,7 +67,7 @@ fn normalize(value: &mut Value) {
                             *value = Value::String(variant.to_owned());
                         }
                     }
-                    "clear_parameter" | "packed_count" if value.as_object().is_some_and(|object| object.len() == 1) => {
+                    "clear_parameter" | "packed_count" | "viewport" if value.as_object().is_some_and(|object| object.len() == 1) => {
                         if let Some(some) = value.get_mut("Some") {
                             *value = some.take();
                         } else if value.get("None").is_some_and(Value::is_null) {
@@ -72,25 +90,36 @@ fn identifier(name: &str) -> bool {
 
 fn check(frame: &Frame, shader: &str) -> LangResult<()> {
     use naga::valid::{Capabilities, ValidationFlags, Validator};
-    if frame.textures.len() > 32 || frame.passes.is_empty() || frame.passes.len() > 32 {
-        return Err("render frame requires one to thirty-two passes and at most thirty-two textures".into());
-    }
-    let mut scales = BTreeMap::from([("surface", 1)]);
-    for texture in &frame.textures {
-        if !identifier(&texture.name) || !(1..=4).contains(&texture.scale)
-            || scales.insert(&texture.name, texture.scale).is_some()
-        {
-            return Err(format!("invalid or duplicate render texture {}", texture.name));
-        }
-    }
     let module = naga::front::wgsl::parse_str(shader)
         .map_err(|error| error.emit_to_string(shader))?;
     let info = Validator::new(ValidationFlags::all(), Capabilities::empty())
         .validate(&module).map_err(|error| error.emit_to_string(shader))?;
+    check_frame(frame, &module, &info)?;
+    if let Some(fallback) = &frame.fallback {
+        if fallback.fallback.is_some() {
+            return Err("render frame fallback must be a single frame".into());
+        }
+        check_frame(fallback, &module, &info)?;
+    }
+    Ok(())
+}
+
+fn check_frame(frame: &Frame, module: &naga::Module, info: &naga::valid::ModuleInfo) -> LangResult<()> {
+    if frame.textures.len() > 32 || frame.passes.is_empty() || frame.passes.len() > 32 {
+        return Err("render frame requires one to thirty-two passes and at most thirty-two textures".into());
+    }
+    let mut scales = BTreeMap::from([("surface", [1, 1])]);
+    for texture in &frame.textures {
+        if !identifier(&texture.name) || texture.scales().iter().any(|scale| !(1..=4).contains(scale))
+            || scales.insert(&texture.name, texture.scales()).is_some()
+        {
+            return Err(format!("invalid or duplicate render texture {}", texture.name));
+        }
+    }
     let mut written = BTreeSet::new();
     let mut buffer_kinds = BTreeMap::new();
     for pass in &frame.passes {
-        check_shader(pass, &module, &info)?;
+        check_shader(pass, module, info)?;
         let mut targets = BTreeSet::new();
         if pass.attachments.is_empty() || pass.attachments.len() > 4 || pass.bindings.len() > 16 {
             return Err("render pass requires one to four color attachments and at most sixteen bindings".into());
@@ -106,6 +135,15 @@ fn check(frame: &Frame, shader: &str) -> LangResult<()> {
                 return Err(format!("invalid attachment {target} in {}", pass.fragment));
             }
             target_scale = Some(scale);
+        }
+        if let Some(viewport) = pass.viewport {
+            let [width, height] = *target_scale.expect("at least one checked attachment");
+            if viewport.width == 0 || viewport.height == 0
+                || viewport.x.checked_add(viewport.width).is_none_or(|end| end > width)
+                || viewport.y.checked_add(viewport.height).is_none_or(|end| end > height)
+            {
+                return Err(format!("viewport exceeds render target in {}", pass.fragment));
+            }
         }
         let mut slots = BTreeSet::new();
         for binding in &pass.bindings {

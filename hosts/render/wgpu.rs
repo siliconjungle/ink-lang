@@ -22,6 +22,8 @@ struct Pass {
     pipeline: wgpu::RenderPipeline,
     bindings: usize,
     attachments: Vec<Attachment>,
+    targets: Vec<String>,
+    viewport: [u32; 4],
     draw: schema::Draw,
     packed: Option<usize>,
 }
@@ -48,11 +50,14 @@ impl RenderFrame {
         size: [u32; 2],
         clear_parameters: &[(&str, wgpu::Color)],
     ) -> Result<Self, String> {
-        let frame: Frame = serde_json::from_str(include_str!("frame.json")).map_err(|e| e.to_string())?;
+        let mut frame: Frame = serde_json::from_str(include_str!("frame.json")).map_err(|e| e.to_string())?;
         let limit = device.limits().max_texture_dimension_2d;
-        if size.contains(&0) || size.iter().any(|dimension| *dimension > limit)
-            || frame.textures.iter().any(|texture| size.iter().any(|dimension| *dimension > limit / texture.scale))
-        {
+        let fits = |frame: &Frame| frame.textures.iter().all(|texture| size.into_iter().zip(texture.scales())
+            .all(|(dimension, scale)| dimension <= limit / scale));
+        if !fits(&frame) && let Some(fallback) = frame.fallback.take() {
+            frame = *fallback;
+        }
+        if size.contains(&0) || size.iter().any(|dimension| *dimension > limit) || !fits(&frame) {
             return Err("render frame textures exceed device limits".into());
         }
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -65,8 +70,10 @@ impl RenderFrame {
                 TextureFormat::Rgba16Float => wgpu::TextureFormat::Rgba16Float,
             })).collect();
         let mut textures = BTreeMap::new();
+        let mut scales = BTreeMap::from([("surface".to_owned(), [1, 1])]);
         for texture in &frame.textures {
-            let [width, height] = size.map(|dimension| dimension * texture.scale);
+            let [x_scale, y_scale] = texture.scales();
+            let [width, height] = [size[0] * x_scale, size[1] * y_scale];
             let view = device.create_texture(&wgpu::TextureDescriptor {
                 label: Some(&texture.name),
                 size: wgpu::Extent3d { width, height, depth_or_array_layers: 1 },
@@ -78,6 +85,7 @@ impl RenderFrame {
                 view_formats: &[],
             }).create_view(&Default::default());
             textures.insert(texture.name.clone(), view);
+            scales.insert(texture.name.clone(), texture.scales());
         }
         let use_indirect = matches!(device.adapter_info().backend,
             wgpu::Backend::Vulkan | wgpu::Backend::Metal | wgpu::Backend::Dx12 | wgpu::Backend::BrowserWebGpu);
@@ -153,7 +161,13 @@ impl RenderFrame {
                     packed.len() - 1
                 })
             });
-            passes.push(Pass { pipeline, bindings, attachments, draw: pass.draw, packed: slot });
+            let targets: Vec<_> = pass.attachments.into_iter().map(|attachment| attachment.target).collect();
+            let [width, height] = scales[&targets[0]];
+            let viewport = pass.viewport.map_or([0, 0, width, height], |v| [v.x, v.y, v.width, v.height]);
+            let [width, height] = size;
+            let [x, y, w, h] = viewport;
+            let viewport = [x * width, y * height, w * width, h * height];
+            passes.push(Pass { pipeline, bindings, attachments, targets, viewport, draw: pass.draw, packed: slot });
         }
         Ok(Self { textures, passes, layouts, packed })
     }
@@ -197,7 +211,13 @@ impl RenderFrame {
                 encoder.copy_buffer_to_buffer(source, 0, args, 4, 4);
             }
         }
-        for pass in &self.passes {
+        let mut remaining = self.passes.as_slice();
+        while let Some((pass, following)) = remaining.split_first() {
+            // Consecutive draws that load the same attachments keep their
+            // colors and order within one hardware render pass.
+            let count = 1 + following.iter().take_while(|next| {
+                next.targets == pass.targets && next.attachments.iter().all(|a| matches!(a.load, wgpu::LoadOp::Load))
+            }).count();
             let attachments: [_; 4] = std::array::from_fn(|index| pass.attachments.get(index).map(|attachment|
                 wgpu::RenderPassColorAttachment {
                     view: attachment.view.as_ref().unwrap_or(target), depth_slice: None, resolve_target: None,
@@ -208,17 +228,23 @@ impl RenderFrame {
                 label: Some("Ink render pass"), color_attachments: &attachments[..pass.attachments.len()],
                 ..Default::default()
             });
-            raster.set_pipeline(&pass.pipeline);
-            raster.set_bind_group(0, &bindings.groups[pass.bindings], &[]);
-            if let Some(packed) = pass.packed.map(|index| &self.packed[index]) {
-                if let Some(args) = &packed.args {
-                    raster.draw_indirect(args, 0);
+            for pass in &remaining[..count] {
+                let [x, y, width, height] = pass.viewport;
+                raster.set_viewport(x as f32, y as f32, width as f32, height as f32, 0.0, 1.0);
+                raster.set_scissor_rect(x, y, width, height);
+                raster.set_pipeline(&pass.pipeline);
+                raster.set_bind_group(0, &bindings.groups[pass.bindings], &[]);
+                if let Some(packed) = pass.packed.map(|index| &self.packed[index]) {
+                    if let Some(args) = &packed.args {
+                        raster.draw_indirect(args, 0);
+                    } else {
+                        raster.draw(0..pass.draw.vertices, 0..capacity(&packed.source));
+                    }
                 } else {
-                    raster.draw(0..pass.draw.vertices, 0..capacity(&packed.source));
+                    raster.draw(0..pass.draw.vertices, 0..pass.draw.instances);
                 }
-            } else {
-                raster.draw(0..pass.draw.vertices, 0..pass.draw.instances);
             }
+            remaining = &remaining[count..];
         }
     }
 }

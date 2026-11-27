@@ -1,12 +1,16 @@
 // Ink render host for WebGPU. The compiler embeds the checked frame and WGSL.
 export async function createRenderFrame(device, surfaceFormat, width, height, clearParameters = {}) {
   const limit = device.limits.maxTextureDimension2D;
+  const heightScale = texture => texture.height_scale ?? texture.scale;
+  const selected = [frame, frame.fallback].find(candidate => candidate?.textures.every(
+    texture => width * texture.scale <= limit && height * heightScale(texture) <= limit));
   if (![width, height].every(size => Number.isInteger(size) && size > 0 && size <= limit) ||
-      frame.textures.some(texture => width * texture.scale > limit || height * texture.scale > limit)) {
+      !selected) {
     throw new Error('Render frame textures exceed device limits');
   }
   const module = device.createShaderModule({ label: 'Ink render frame', code: shader });
   const formats = new Map([['surface', surfaceFormat]]);
+  const scales = new Map([['surface', [1, 1]]]);
   const textures = new Map();
   const layouts = new Map();
   const allocations = [];
@@ -17,18 +21,19 @@ export async function createRenderFrame(device, surfaceFormat, width, height, cl
     for (const allocation of allocations) allocation.destroy();
   };
   try {
-    for (const descriptor of frame.textures) {
+    for (const descriptor of selected.textures) {
       const { name, scale } = descriptor;
       const format = descriptor.format === 'Rgba8Unorm' ? 'rgba8unorm' : 'rgba16float';
       const texture = device.createTexture({
-        label: name, size: [scale * width, scale * height], format,
+        label: name, size: [scale * width, heightScale(descriptor) * height], format,
         usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
       });
       allocations.push(texture);
       formats.set(name, format);
+      scales.set(name, [scale, heightScale(descriptor)]);
       textures.set(name, texture.createView());
     }
-    const passes = await Promise.all(frame.passes.map(async pass => {
+    const passes = await Promise.all(selected.passes.map(async pass => {
       const bindingKey = JSON.stringify(pass.bindings);
       if (!layouts.has(bindingKey)) {
         const layout = device.createBindGroupLayout({ entries: pass.bindings.map(layoutEntry) });
@@ -65,7 +70,11 @@ export async function createRenderFrame(device, surfaceFormat, width, height, cl
         },
         primitive: { topology: pass.topology === 'Triangles' ? 'triangle-list' : 'triangle-strip' },
       });
-      return { pipeline, bindingKey, surfaceSlots, descriptor: { colorAttachments }, pass, drawKey };
+      const targets = pass.attachments.map(attachment => attachment.target);
+      const [xScale, yScale] = scales.get(targets[0]);
+      const region = pass.viewport ?? { x: 0, y: 0, width: xScale, height: yScale };
+      const viewport = [region.x * width, region.y * height, region.width * width, region.height * height];
+      return { pipeline, bindingKey, surfaceSlots, descriptor: { colorAttachments }, pass, drawKey, targets, viewport };
     }));
     return {
       bind(buffers) {
@@ -92,13 +101,21 @@ export async function createRenderFrame(device, surfaceFormat, width, height, cl
       },
       draw(encoder, target, bindings) {
         for (const { input, args } of bindings.copies) encoder.copyBufferToBuffer(input, 0, args, 4, 4);
-        for (const [index, { pipeline, descriptor, surfaceSlots, pass, drawKey }] of passes.entries()) {
+        for (let index = 0; index < passes.length;) {
+          const { descriptor, surfaceSlots, targets } = passes[index];
           for (const slot of surfaceSlots) descriptor.colorAttachments[slot].view = target;
           const raster = encoder.beginRenderPass(descriptor);
-          raster.setPipeline(pipeline);
-          raster.setBindGroup(0, bindings.groups[index]);
-          if (drawKey === null) raster.draw(pass.draw.vertices, pass.draw.instances);
-          else raster.drawIndirect(packed.get(drawKey).args, 0);
+          do {
+            const { pipeline, pass, viewport, drawKey } = passes[index];
+            raster.setViewport(...viewport, 0, 1);
+            raster.setScissorRect(...viewport);
+            raster.setPipeline(pipeline);
+            raster.setBindGroup(0, bindings.groups[index]);
+            if (drawKey === null) raster.draw(pass.draw.vertices, pass.draw.instances);
+            else raster.drawIndirect(packed.get(drawKey).args, 0);
+            index++;
+          } while (index < passes.length && passes[index].targets.length === targets.length &&
+            passes[index].pass.attachments.every((attachment, slot) => attachment.load && attachment.target === targets[slot]));
           raster.end();
           for (const slot of surfaceSlots) descriptor.colorAttachments[slot].view = undefined;
         }

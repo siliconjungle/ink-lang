@@ -16,6 +16,13 @@ to a named value supplied by the adapter, or load the preceding pass's image.
 The builder checks the WGSL module, shader slots and stages, output locations,
 attachment sizes, and order of texture reads and writes.
 
+A `ViewportFrame` can scale a texture's width and height independently and
+restrict a draw to an integer rectangle measured in output-size units. The
+hosts encode consecutive draws that load the same attachments in one render
+pass. This lets several viewport regions of an atlas share the same attachments.
+`ViewportFrameWithFallback` selects a checked separate frame when its primary
+textures exceed the device limits.
+
 Use `render.direct(vertices, instances)` for a fixed draw or
 `render.packed(vertices, "name")` to use the leading u32 of a resident
 Ink GPU list as the instance count. Bind that same list as read-only storage

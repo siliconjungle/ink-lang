@@ -69,4 +69,29 @@ fn builds_a_frame_and_rejects_invalid_passes() {
         let error = String::from_utf8_lossy(&failure.stderr);
         assert!(error.contains(diagnostic), "{diagnostic}: {error}");
     }
+
+    let viewports = frame.replace("pub fn frame() -> render.Frame", "fn separate() -> render.Frame") + r#"
+        pub fn frame() -> render.ViewportFrameWithFallback {
+            let primary = render.ViewportFrame {
+                textures: [render.ViewportTexture { name: "intermediate", scale: 2, height_scale: 3,
+                    format: render.TextureFormat.Rgba8Unorm }],
+                passes: [
+                    render.with_viewport(first(), Some(render.Viewport { x: 0, y: 0, width: 2, height: 2 })),
+                    render.with_viewport(second(), None),
+                ],
+            };
+            return render.ViewportFrameWithFallback { primary: primary, fallback: separate() };
+        }
+    "#;
+    fs::write(&source, &viewports).unwrap();
+    let success = build();
+    assert!(success.status.success(), "{}", String::from_utf8_lossy(&success.stderr));
+    let manifest: Value = serde_json::from_slice(&fs::read(artifact.join("frame.json")).unwrap()).unwrap();
+    assert_eq!(manifest["textures"][0]["height_scale"], 3);
+    assert_eq!(manifest["passes"][0]["viewport"]["width"], 2);
+    assert_eq!(manifest["fallback"]["textures"][0]["scale"], 1);
+    fs::write(&source, viewports.replace("width: 2, height: 2", "width: 2, height: 4")).unwrap();
+    let failure = build();
+    assert!(!failure.status.success());
+    assert!(String::from_utf8_lossy(&failure.stderr).contains("viewport exceeds render target"));
 }

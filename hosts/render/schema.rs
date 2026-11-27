@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 pub struct Frame {
     pub textures: Vec<Texture>,
     pub passes: Vec<Pass>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fallback: Option<Box<Frame>>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -12,7 +14,15 @@ pub struct Frame {
 pub struct Texture {
     pub name: String,
     pub scale: u32,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub height_scale: Option<u32>,
     pub format: TextureFormat,
+}
+
+impl Texture {
+    pub fn scales(&self) -> [u32; 2] {
+        [self.scale, self.height_scale.unwrap_or(self.scale)]
+    }
 }
 
 #[derive(Clone, Copy, Deserialize, Serialize)]
@@ -31,6 +41,18 @@ pub struct Pass {
     pub attachments: Vec<Attachment>,
     pub bindings: Vec<Binding>,
     pub draw: Draw,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub viewport: Option<Viewport>,
+}
+
+/// Integer multiples of the output width and height.
+#[derive(Clone, Copy, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct Viewport {
+    pub x: u32,
+    pub y: u32,
+    pub width: u32,
+    pub height: u32,
 }
 
 #[derive(Deserialize, Serialize)]

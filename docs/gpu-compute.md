@@ -81,6 +81,12 @@ host only binds buffers and dispatches. Collection work nested inside a
 per-element lambda stays in a direct shader with an element bound: 1,024 for
 filter/scan per element, 128 when a sort runs per element.
 
+Native hosts can call `Engine::prefer_parallel_u64_merge()` before opening a
+session to select an exact alternative for graph sorts of `List<u64>`. It
+sorts tiles and merges them in increasing widths, keeping a stable order across
+tile boundaries. Select it after measuring the device and workload. The
+generated native CLI accepts `--parallel-u64-merge`.
+
 Stateful programs, exact Int arrays, opaque values and nested heap structures
 use the complete CPU host. See [lowering parity](lowering-parity.md) for mixed
 module assembly, host APIs and resource boundaries. There is no source-level

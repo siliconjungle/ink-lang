@@ -13,6 +13,22 @@ record Pass {
     attachments: List<Attachment>, bindings: List<Binding>, draw: Draw,
 }
 record Frame { textures: List<Texture>, passes: List<Pass>, }
+record ViewportTexture { name: String, scale: u32, height_scale: u32, format: TextureFormat, }
+record Viewport { x: u32, y: u32, width: u32, height: u32, }
+record ViewportPass {
+    vertex: String, fragment: String, topology: Topology, blend: Bool,
+    attachments: List<Attachment>, bindings: List<Binding>, draw: Draw,
+    viewport: Option<Viewport>,
+}
+record ViewportFrame { textures: List<ViewportTexture>, passes: List<ViewportPass>, }
+record ViewportFrameWithFallback { primary: ViewportFrame, fallback: Frame, }
+
+fn with_viewport(pass: Pass, viewport: Option<Viewport>) -> ViewportPass {
+    return ViewportPass {
+        vertex: pass.vertex, fragment: pass.fragment, topology: pass.topology, blend: pass.blend,
+        attachments: pass.attachments, bindings: pass.bindings, draw: pass.draw, viewport: viewport,
+    };
+}
 
 fn clear(target: String, rgba: u32) -> Attachment {
     return Attachment { target: target, rgba: rgba, clear_parameter: None, load: false };
