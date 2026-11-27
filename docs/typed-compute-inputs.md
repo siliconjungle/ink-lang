@@ -40,3 +40,14 @@ Complete outputs, unchanged transfer/dispatch counts and held-out mixed-record
 workloads are controls. Setup/phase medians are never added to warm-call medians.
 Actual public-loader checks cover all five retained models/fixtures. See the
 retained experiment receipts for measured gains and regressions.
+
+## Native resident writes
+
+An emitted wgpu bundle can bind a native input with `Engine::packed_input`.
+The bind checks the scalar types, vector lengths, and ordered record fields
+against the named input in the compiled session. The handle belongs to that
+session. `write_packed`, `write_changed_packed`, and `write_ranges_packed`
+then accept owned 32-bit words in that layout. List lengths come from the word
+count. The runtime checks the payload shape and Boolean words, records float
+finiteness, and uses the same capacity, bounds, and changed-span rules as JSON
+writes. Floating-point words retain their exact bits, including signed zero.
