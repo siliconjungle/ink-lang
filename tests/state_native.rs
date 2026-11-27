@@ -242,3 +242,27 @@ println!("{}",serde_json::to_string(&output).unwrap());}"#;
     assert_eq!(actual[expected.len()]["result"], json!(last.as_u64().unwrap() + 1));
     assert_eq!(&actual[expected.len() + 1]["result"], last);
 }
+
+#[test]
+fn rust_projects_package_the_same_contracts_as_inline_source() {
+    let program = parse(
+        "module ContractFiles;\n\
+         record Cell { values: List<u64>, }\n\
+         fn pass(cell: Option<Cell>) -> Option<Cell> { return cell; }\n\
+         state total_cells: u64 = 0;\n\
+         query current() -> u64 reads(total_cells) { return total_cells; }",
+    ).unwrap();
+    let module = verified_language::core::CheckedModule::from_source(program).unwrap();
+    let inline = state_native::emit_checked(&module).unwrap();
+    let project = state_native::project_checked(&module, state_native::TableStorage::Ordered).unwrap();
+    let [abi, wire] = project.contracts();
+    let mut reconstructed = project.source.clone();
+    for ((file, description), name) in [abi, wire].into_iter().zip(["INK_ABI_CONTRACT", "INK_WIRE_CONTRACT"]) {
+        let declaration = format!("pub const {name}:&str=include_str!({file:?});");
+        assert_eq!(reconstructed.matches(&declaration).count(), 1);
+        let parsed: Value = serde_json::from_str(description).unwrap();
+        assert!(parsed.is_object());
+        reconstructed = reconstructed.replacen(&declaration, &format!("pub const {name}:&str={description:?};"), 1);
+    }
+    assert_eq!(reconstructed, inline);
+}

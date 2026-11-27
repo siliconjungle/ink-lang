@@ -63,9 +63,8 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
         match target {
             "rust" => write(output, ink_lowering_rust::state_native::emit_planned(plan)?)?,
             "rust-wasm" => {
-                let source = ink_lowering_rust::state_native::emit_planned(plan)?;
-                crate::runtime::emit_rust_program(
-                    &source,
+                crate::runtime::emit_rust_project(
+                    &ink_lowering_rust::state_native::project_planned(plan)?,
                     output,
                 )?;
             }
@@ -111,9 +110,9 @@ pub fn build_rust_project_with_source_types(
     if plan.representation().is_some() {
         return Err("standalone representation plans require compile --plan".into());
     }
-    let mut source = ink_lowering_rust::state_native::emit_planned(plan)?;
-    source.push_str(&source_types.rust_exports(plan.module().program()));
-    crate::runtime::emit_rust_program(&source, output)?;
+    let mut project = ink_lowering_rust::state_native::project_planned(plan)?;
+    project.source.push_str(&source_types.rust_exports(plan.module().program()));
+    crate::runtime::emit_rust_project(&project, output)?;
     write(&output.join("plan.json"), ink_core::planning::canonical(plan.package())?)
 }
 
@@ -162,8 +161,8 @@ pub fn build_initialized(
             } else {
                 std::path::PathBuf::from(format!("{}.project", output.display()))
             };
-            crate::runtime::emit_rust_program(
-                &ink_lowering_rust::state_native::emit_planned(plan)?,
+            crate::runtime::emit_rust_project(
+                &ink_lowering_rust::state_native::project_planned(plan)?,
                 &project,
             )?;
             crate::runtime::emit_initial_state(&project, Some(seed))?;
@@ -286,10 +285,11 @@ export async function loadInk(base,options={{}}){{
     )?;
     crate::representations::emit(representation, "wgpu", &output.join("state"))?;
     write(&output.join("Cargo.toml"),"[package]\nname=\"ink-composed-plan\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[workspace]\nexclude=[\"state\",\"route/native\"]\n[dependencies]\nmaintained={package=\"ink-compiled-representation\",path=\"state\"}\nrouted={package=\"ink-gpu-program\",path=\"route/native\"}\nnum-bigint=\"0.4\"\nsha2=\"0.10\"\nserde_json={version=\"1\",features=[\"float_roundtrip\"]}\n")?;
-    write(
-        &output.join("src/pure.rs"),
-        ink_lowering_rust::state_native::emit(plan.module().program())?,
+    let pure = ink_lowering_rust::state_native::project_checked(
+        plan.module(), ink_lowering_rust::state_native::TableStorage::Ordered,
     )?;
+    crate::runtime::emit_rust_contracts(&pure, output)?;
+    write(&output.join("src/pure.rs"), pure.source)?;
     write(
         &output.join("src/lib.rs"),
         format!(

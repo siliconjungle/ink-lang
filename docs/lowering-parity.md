@@ -44,9 +44,15 @@ ink build program.ink --target webgpu -o build/web
 
 Native builds produce an executable accepting a JSON array of requests:
 `[{"pure":"name","args":[...]},{"call":"action","args":[...]}]`.
-Native and `wasm32` builds use the typed Rust lowering by default; pass
-Native and Wasm projects use the same typed Rust lowering.
-Native and Wasm projects emit typed Rust functions and state. GPU bundles use the same Rust emission for CPU fallback, with scalar and packed adapters for browser Wasm and native wgpu hosts. JavaScript and WGSL/WebGPU remain primary execution paths. No C emitter, C primitive runtime, C compiler or Zig cross compiler is required.
+Native and Wasm projects emit typed Rust functions and state. Cargo projects
+keep the value and wire ABI descriptions in `src/ink-abi-contract.json` and
+`src/ink-wire-contract.json`. Cargo embeds those inputs in the compiled
+artifact. The single-file `ink emit-rust` command embeds its metadata
+directly in the source.
+
+GPU bundles use the same Rust emission for CPU fallback, with scalar and packed
+adapters for browser Wasm and native wgpu hosts. JavaScript and WGSL/WebGPU
+remain primary execution paths.
 
 ## Semantic and resource boundaries
 

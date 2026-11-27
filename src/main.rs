@@ -186,6 +186,16 @@ fn emit_state_rust(
         None => state_native::emit_checked_with_table_storage(checked, storage),
     }
 }
+fn emit_state_project_source(
+    checked: &core::CheckedModule,
+    selected: Option<&verified_language::optimisation::CheckedSelection>,
+    storage: state_native::TableStorage,
+) -> LangResult<state_native::ProjectSource> {
+    match selected {
+        Some(s) => state_native::project_selected(s, storage),
+        None => state_native::project_checked(checked, storage),
+    }
+}
 fn state_table_storage(args: &[String]) -> LangResult<state_native::TableStorage> {
     match arg_value(args, "--table-storage")?.as_deref() {
         None | Some("ordered") => Ok(state_native::TableStorage::Ordered),
@@ -1585,10 +1595,9 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 &owned_module
             };
             let storage = state_table_storage(&args)?;
-            let mut code = match semantic_selection.as_ref() {
-                Some(selected) => state_native::emit_selected_with_table_storage(selected, storage)?,
-                None => state_native::emit_checked_with_table_storage(module, storage)?,
-            };
+            let mut project = emit_state_project_source(module, semantic_selection.as_ref(), storage)?;
+            verified_language::runtime::emit_rust_contracts(&project, Path::new(&out))?;
+            let code = &mut project.source;
             code.push_str(&source_types.rust_exports(module.program()));
             if wasm_abi {
                 code.push_str(state_native::WASM_ABI);
@@ -1597,7 +1606,7 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
             code.push_str(verified_language::runtime::INITIAL_STATE_INCLUDE);
             verified_language::runtime::emit_native_state_host(Path::new(&out))?;
             verified_language::runtime::emit_initial_state(Path::new(&out),None)?;
-            write(&format!("{out}/src/lib.rs"), &code)?;
+            write(&format!("{out}/src/lib.rs"), code)?;
             write(
                 &format!("{out}/src/main.rs"),
                 verified_language::runtime::COMPLETE_STATE_RUNNER,
@@ -2002,9 +2011,9 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 if arg_value(&args, "--route")?.is_some() {
                     return Err("explicit routes require the GPU bundle target".into());
                 }
-                let mut code = emit_state_rust(checked, semantic_selection.as_ref(), &args)?;
-                code.push_str(&source_types.rust_exports(checked.program()));
-                verified_language::runtime::emit_rust_program(&code, Path::new(&out))?;
+                let mut project = emit_state_project_source(checked, semantic_selection.as_ref(), state_table_storage(&args)?)?;
+                project.source.push_str(&source_types.rust_exports(checked.program()));
+                verified_language::runtime::emit_rust_project(&project, Path::new(&out))?;
                 verified_language::runtime::emit_initial_state(Path::new(&out),initial.as_deref())?;
                 write(&format!("{out}/plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"table_storage":if target=="rust"{Some(arg_value(&args,"--table-storage")?.unwrap_or_else(||"ordered".into()))}else{None},"initial_state":initial_metadata,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal emission and target runtimes/toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
                 println!("wrote complete {target} project to {out}");
@@ -2017,7 +2026,8 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 let project = std::path::PathBuf::from(format!("{out}.project"));
                 let lowering = arg_value(&args,"--lowering")?.unwrap_or_else(||"rust".into());
                 if lowering!="rust"{return Err("--lowering must be rust; the C backend has been removed".into());}
-                verified_language::runtime::emit_rust_program(&emit_state_rust(checked,semantic_selection.as_ref(),&args)?,&project)?;
+                let source = emit_state_project_source(checked, semantic_selection.as_ref(), state_table_storage(&args)?)?;
+                verified_language::runtime::emit_rust_project(&source, &project)?;
                 verified_language::runtime::emit_initial_state(&project,initial.as_deref())?;
                 let cargo = arg_value(&args, "--cargo")?
                     .or_else(|| std::env::var("INK_CARGO").ok())

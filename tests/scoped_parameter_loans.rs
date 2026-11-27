@@ -60,6 +60,12 @@ fn build_checked_rust_project_with_borrowed_parameters() {
     assert!(built.status.success(), "{}", String::from_utf8_lossy(&built.stderr));
     let code = fs::read_to_string(project.join("src/lib.rs")).unwrap();
     assert!(code.contains("ink_borrowed_function_l_sample"));
+    for file in ["ink-abi-contract.json", "ink-wire-contract.json"] {
+        assert!(code.contains(&format!("include_str!({file:?})")));
+        let contract: serde_json::Value =
+            serde_json::from_slice(&fs::read(project.join("src").join(file)).unwrap()).unwrap();
+        assert!(contract.is_object());
+    }
     assert!(code.contains("include!(\"initial-state.rs\")"));
     let requests = dir.join("requests.json");
     fs::write(&requests, r#"[{"pure":"sample","args":[[]]},{"pure":"sample","args":[[5,1,2]]}]"#).unwrap();
