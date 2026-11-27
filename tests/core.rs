@@ -30,12 +30,12 @@ fn executable_structure_budget_covers_large_flat_modules_and_stays_bounded() {
             })
             .collect()
     };
-    program.functions = functions(512);
+    program.functions = functions(1024);
     let compiled = CheckedModule::from_source(program.clone()).unwrap();
     let decoded = CheckedModule::from_bytes(&compiled.bytes().unwrap()).unwrap();
-    assert_eq!(decoded.program().functions.len(), 512);
+    assert_eq!(decoded.program().functions.len(), 1024);
 
-    program.functions = functions(900);
+    program.functions = functions(2_048);
     let error = CheckedModule::from_source(program).err().unwrap();
     assert!(error.contains("executable core structure size limit exceeded"));
 }

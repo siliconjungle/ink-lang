@@ -826,7 +826,7 @@ pub(crate) fn validate_value_groups<'a>(
 const MAX_DECLARATIONS: usize = 4096;
 // The total includes linked application and engine modules. Each value still
 // shares the existing nesting bound enforced by Bounds::step.
-const MAX_EXECUTABLE_STRUCTURE: usize = 200_000;
+const MAX_EXECUTABLE_STRUCTURE: usize = 512_000;
 
 fn validate(p: &Program) -> LangResult<(bool, bool)> {
     if !p.rules.is_empty() {
