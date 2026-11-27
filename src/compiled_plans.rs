@@ -99,11 +99,20 @@ pub fn emit(plan: &CheckedPlan, target: &str, output: &Path) -> LangResult<()> {
 }
 
 pub fn build_rust_project(plan: &CheckedPlan, output: &Path) -> LangResult<()> {
+    build_rust_project_with_source_types(plan, output, &crate::modules::SourceTypeNames::default())
+}
+
+pub fn build_rust_project_with_source_types(
+    plan: &CheckedPlan,
+    output: &Path,
+    source_types: &crate::modules::SourceTypeNames,
+) -> LangResult<()> {
     require_target(plan, "rust")?;
     if plan.representation().is_some() {
         return Err("standalone representation plans require compile --plan".into());
     }
-    let source = ink_lowering_rust::state_native::emit_planned(plan)?;
+    let mut source = ink_lowering_rust::state_native::emit_planned(plan)?;
+    source.push_str(&source_types.rust_exports(plan.module().program()));
     crate::runtime::emit_rust_program(&source, output)?;
     write(&output.join("plan.json"), ink_core::planning::canonical(plan.package())?)
 }

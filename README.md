@@ -97,6 +97,13 @@ database. See [semantic selection](docs/semantic-optimisation.md),
 | Incremental work and selection | Fixed-key query delta maintenance with refresh fallback; external selection that charges checking, setup, calls, memory and migration |
 | Deployment | Explicit modules, a small standard library, relocatable installation, diagnostics and durable host adapters |
 
+Native Rust hosts can call generated `State` methods directly. Rust projects
+built from Ink source expose nominal types under `compiled_state::ink_types`.
+For example, the Ink type `game.physics.Body` is available as
+`ink_types::m_game::m_physics::l_Body` when declared in module `game.physics`.
+The same path is available in planned Rust builds from source. Build from source
+when these names are needed, since a linked core image only stores linked names.
+
 Execution support is broader than proof-based replacement support. Source/action
 correspondence and physical capabilities each have explicit admitted domains;
 unsupported operators and layouts fail closed. GPU execution

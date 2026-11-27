@@ -5,6 +5,59 @@ use verified_language::{core::CheckedModule, eval, modules, stateful::Runtime};
 mod parity;
 
 #[test]
+fn planned_rust_build_exports_source_qualified_types() {
+    use std::process::Command;
+    let dir = Path::new("build/rust-source-types");
+    let project = dir.join("project");
+    let source = dir.join("root.ink");
+    let plan = dir.join("loans.json");
+    fs::create_dir_all(dir).unwrap();
+    fs::write(dir.join("nested.ink"), r#"module demo.nested;
+        enum Mode { Ready, Waiting, }
+        record Value { count: u32, mode: Mode, }
+    "#).unwrap();
+    fs::write(&source, r#"module demo;
+        import "nested.ink" as child;
+        record nested { count: u32, }
+        pub fn make(value: nested) -> child.Value {
+            return child.Value { count: value.count, mode: child.Mode.Ready };
+        }
+        query inspect(value: nested) -> child.Value { return make(value); }
+    "#).unwrap();
+    let run = |command: &mut Command| {
+        let output = command.output().unwrap();
+        assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+    };
+    run(Command::new(env!("CARGO_BIN_EXE_ink"))
+        .arg("emit-parameter-loans").arg(&source).arg("-o").arg(&plan));
+    run(Command::new(env!("CARGO_BIN_EXE_ink"))
+        .arg("build").arg(&source).arg("--plan").arg(&plan)
+        .args(["--target", "rust", "-o"]).arg(&project));
+    fs::create_dir_all(project.join("tests")).unwrap();
+    fs::write(project.join("tests/host.rs"), r#"
+        use compiled_state::{State, ink_types::m_demo::{
+            l_nested, m_nested::{l_Mode, l_Value},
+        }};
+
+        #[test]
+        fn call_without_json() {
+            let mut state = State::new();
+            let value: l_Value = state.function_l_make(l_nested { l_count: 7 });
+            assert_eq!(value.l_count, 7);
+            assert_eq!(value.l_mode, l_Mode::l_Ready);
+            let reply = state.invoke_view_l_inspect(l_nested { l_count: 8 }).unwrap();
+            assert_eq!(reply.result.l_count, 8);
+            assert_eq!(reply.result.l_mode, l_Mode::l_Ready);
+        }
+    "#).unwrap();
+    run(Command::new(env!("CARGO"))
+        .args(["test", "--quiet", "--offline", "--manifest-path"])
+        .arg(project.join("Cargo.toml"))
+        .arg("--target-dir").arg(project.join("target"))
+        .args(["--test", "host"]));
+}
+
+#[test]
 fn imported_callback_parameters_shadow_same_named_helpers() {
     let dir=Path::new("build/module-callback-shadowing");
     fs::create_dir_all(dir).unwrap();

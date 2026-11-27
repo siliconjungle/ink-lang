@@ -876,23 +876,23 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
         return Err("--capture-sources requires literal emit-core from source".into());
     }
     let mut captured_files = None;
+    let mut source_types = verified_language::modules::SourceTypeNames::default();
     let mut decoded_input_identity = None;
-    let mut p = if capture_path.is_some() {
-        let loaded = if arg_value(&args, "--termination-proofs")?.is_some() {
+    let mut p = if cmd == "check-core" || args.iter().any(|arg| arg == "--core") {
+        let checked = core::CheckedModule::from_bytes(&read_bounded(path, core::MAX_BYTES)?)?;
+        if input_receipt { decoded_input_identity = Some(checked.identity()?); }
+        checked.into_program()
+    } else {
+        let loaded = if cmd == "emit-termination-obligations" || arg_value(&args, "--termination-proofs")?.is_some() {
             verified_language::modules::load_for_termination(path)?
         } else {
             verified_language::modules::load(path)?
         };
-        captured_files = Some(loaded.files);
+        if capture_path.is_some() {
+            captured_files = Some(loaded.files);
+        }
+        source_types = loaded.type_names;
         loaded.program
-    } else if cmd == "check-core" || args.iter().any(|arg| arg == "--core") {
-        let checked = core::CheckedModule::from_bytes(&read_bounded(path, core::MAX_BYTES)?)?;
-        if input_receipt { decoded_input_identity = Some(checked.identity()?); }
-        checked.into_program()
-    } else if cmd=="emit-termination-obligations" || arg_value(&args,"--termination-proofs")?.is_some() {
-        verified_language::modules::load_for_termination(path)?.program
-    } else {
-        source(path)?
     };
     if let Some(file)=arg_value(&args,"--termination-proofs")? {
         p.termination.knowledge=Some(serde_json::from_slice(&read_bounded(&file,verified_language::registry::MAX_VIEW_BYTES)?).map_err(|e|e.to_string())?);
@@ -1170,7 +1170,9 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 if arg_value(&args, "--cargo")?.is_some() {
                     return Err("build --plan --target rust emits a project; run Cargo on that project separately".into());
                 }
-                verified_language::compiled_plans::build_rust_project(&plan, Path::new(&out))?;
+                verified_language::compiled_plans::build_rust_project_with_source_types(
+                    &plan, Path::new(&out), &source_types,
+                )?;
                 println!("wrote complete rust project to {out}");
                 return Ok(());
             };
@@ -1587,6 +1589,7 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 Some(selected) => state_native::emit_selected_with_table_storage(selected, storage)?,
                 None => state_native::emit_checked_with_table_storage(module, storage)?,
             };
+            code.push_str(&source_types.rust_exports(module.program()));
             if wasm_abi {
                 code.push_str(state_native::WASM_ABI);
             }
@@ -1990,7 +1993,8 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
             }
 
             if cmd == "emit-rust" {
-                let code = emit_state_rust(checked, semantic_selection.as_ref(), &args)?;
+                let mut code = emit_state_rust(checked, semantic_selection.as_ref(), &args)?;
+                code.push_str(&source_types.rust_exports(checked.program()));
                 write(&out, &code)?;
                 return Ok(());
             }
@@ -1998,7 +2002,9 @@ ink train SOURCE --objective NAME --data DATA.json [--method coordinate|relaxed]
                 if arg_value(&args, "--route")?.is_some() {
                     return Err("explicit routes require the GPU bundle target".into());
                 }
-                verified_language::runtime::emit_rust_program(&emit_state_rust(checked, semantic_selection.as_ref(), &args)?,Path::new(&out))?;
+                let mut code = emit_state_rust(checked, semantic_selection.as_ref(), &args)?;
+                code.push_str(&source_types.rust_exports(checked.program()));
+                verified_language::runtime::emit_rust_program(&code, Path::new(&out))?;
                 verified_language::runtime::emit_initial_state(Path::new(&out),initial.as_deref())?;
                 write(&format!("{out}/plan.json"),&serde_json::to_string_pretty(&serde_json::json!({"target":target,"table_storage":if target=="rust"{Some(arg_value(&args,"--table-storage")?.unwrap_or_else(||"ordered".into()))}else{None},"initial_state":initial_metadata,"input_core_sha256":input_core_sha256,"selected_core_sha256":selected_core_sha256,"semantic_selection":semantic_selection.as_ref().map(|s|s.evidence()),"semantic_package":semantic_selection.as_ref().map(|s|s.package()),"checked_replacement":replacement,"checked_implementation":implementation,"applied_rule_ids":used,"trust":"literal emission and target runtimes/toolchains remain trusted"})).map_err(|e|e.to_string())?)?;
                 println!("wrote complete {target} project to {out}");

@@ -20,6 +20,56 @@ pub struct SourceFile {
 pub struct Loaded {
     pub program: Program,
     pub files: Vec<SourceFile>,
+    pub type_names: SourceTypeNames,
+}
+
+/// Source spellings of nominal types that survive elaboration. These names are
+/// for host bindings and do not affect executable core identity.
+#[derive(Default)]
+pub struct SourceTypeNames {
+    modules: BTreeMap<String, SourceTypeNames>,
+    types: BTreeMap<String, String>,
+}
+
+impl SourceTypeNames {
+    fn insert(&mut self, module: &str, name: String, linked: String) {
+        let mut namespace = self;
+        for part in module.split('.') {
+            namespace = namespace.modules.entry(part.to_owned()).or_default();
+        }
+        namespace.types.insert(name, linked);
+    }
+
+    /// Re-export generated Rust types under their original module paths.
+    /// Check membership again because a selected program may elide a type.
+    pub fn rust_exports(&self, program: &Program) -> String {
+        fn emit(names: &SourceTypeNames, program: &Program, code: &mut String) {
+            use std::fmt::Write;
+            for (name, linked) in &names.types {
+                if has_nominal_type(program, linked) {
+                    writeln!(code, "pub use crate::l_{linked} as l_{name};").unwrap();
+                }
+            }
+            for (name, child) in &names.modules {
+                writeln!(code, "pub mod m_{name} {{").unwrap();
+                emit(child, program, code);
+                code.push_str("}\n");
+            }
+        }
+        if self.modules.is_empty() {
+            return String::new();
+        }
+        let mut code = String::from("\n#[allow(non_snake_case)]\npub mod ink_types {\n");
+        emit(self, program, &mut code);
+        code.push_str("}\n");
+        code
+    }
+}
+
+fn has_nominal_type(program: &Program, name: &str) -> bool {
+    program.records.contains_key(name)
+        || program.enums.contains_key(name)
+        || program.ids.iter().any(|id| id == name)
 }
 #[derive(Clone)]
 struct Token {
@@ -869,5 +919,13 @@ fn load_impl(path:impl AsRef<Path>,authoring:bool)->LangResult<Loaded> {
             source: n.text.clone(),
         })
         .collect();
-    Ok(Loaded { program, files })
+    let mut type_names = SourceTypeNames::default();
+    for (i, node) in loader.nodes.iter().enumerate() {
+        for (name, linked) in names(node, i == 0) {
+            if has_nominal_type(&program, &linked) {
+                type_names.insert(&node.module, name, linked);
+            }
+        }
+    }
+    Ok(Loaded { program, files, type_names })
 }
