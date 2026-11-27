@@ -196,11 +196,15 @@ fn compiler_selected_loans_borrow_state_and_keep_recursive_parameters_owned() {
     let source = r#"module stored_reads;
 record Item { value: u32, }
 record Geometry { items: List<Item>, tag: u32, }
+record SiteRecord { room: Geometry, unused: List<Item>, }
 state Terrain: Option<Geometry> = None;
 state Status: Result<Geometry, Geometry> = Err(Geometry { items: [], tag: 19 });
 state Rooms: Table<u32, Geometry> = Table.empty();
+state Site: SiteRecord = SiteRecord { room: Geometry { items: [], tag: 81 }, unused: [] };
+state Sites: Table<u32, SiteRecord> = Table.empty();
 
 fn tag(g: Geometry) -> u32 { return g.tag; }
+fn count_items(items: List<Item>, extra: u32) -> u32 { return length(items) + extra; }
 fn inspect(g: Option<Geometry>, offset: u32) -> u32 {
     return g.fold(fn(value) => tag(value), fn(unit) => 0) + offset;
 }
@@ -212,6 +216,7 @@ fn detach(g: Option<Geometry>) -> List<Item> {
 }
 fn offset(n: u32) -> u32 { return n + 1; }
 fn default_room() -> Geometry { return Geometry { items: [], tag: 81 }; }
+fn default_site() -> SiteRecord { return SiteRecord { room: default_room(), unused: [] }; }
 fn recursive(n: u32, a: Option<Geometry>, b: Result<Geometry, u32>) -> u32 {
     if n > 0 { return recursive(n - 1, a, b); }
     return inspect(a, b.fold(fn(value) => tag(value), fn(error) => error));
@@ -222,6 +227,11 @@ change report(g: Geometry, ready: Bool) -> Unit writes(Status) {
     return ();
 }
 change put(g: Geometry) -> Unit writes(Rooms) { Rooms.put(3, g); return (); }
+change install_site(site: SiteRecord) -> Unit writes(Site, Sites) {
+    Site = site;
+    Sites.put(3, site);
+    return ();
+}
 change replace(g: Geometry) -> Result<u32, String> writes(Terrain) {
     Terrain = Some(g);
     return Ok(20);
@@ -243,12 +253,24 @@ change room_default(g: Geometry) -> Result<Geometry, String> writes(Rooms) {
 change read_with_effectful_default(g: Geometry) -> Result<u32, String> reads(Rooms) writes(Rooms) {
     return Ok(tag(Rooms.get(3).unwrap_or(room_default(g)?)));
 }
+change replace_site(site: SiteRecord) -> Result<u32, String> writes(Site) {
+    Site = site;
+    return Ok(3);
+}
+change read_projected_then_replace(site: SiteRecord) -> Result<u32, String> reads(Site) writes(Site) {
+    return Ok(count_items(Site.room.items, replace_site(site)?));
+}
 query read_value(n: u32) -> u32 reads(Terrain) { return inspect(Terrain, offset(n)); }
 query read_status() -> u32 reads(Status) { return inspect_status(Status); }
 query read_slot(key: u32) -> u32 reads(Rooms) {
     return tag(Rooms.get(key).unwrap_or(default_room()));
 }
 query owned_result() -> List<Item> reads(Terrain) { return detach(Terrain); }
+query read_projected(extra: u32) -> u32 reads(Site) { return count_items(Site.room.items, extra); }
+query read_projected_slot(key: u32) -> u32 reads(Sites) {
+    return tag(Sites.get(key).unwrap_or(default_site()).room);
+}
+query owned_projection() -> List<Item> reads(Site) { return Site.room.items; }
 "#;
     let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("build/state-parameter-loans");
@@ -269,6 +291,7 @@ query owned_result() -> List<Item> reads(Terrain) { return detach(Terrain); }
     }
     assert!(selected.borrows_read(&physical::parameter_read_site("inspect", "g").unwrap()));
     assert!(selected.borrows_read(&physical::parameter_read_site("inspect_status", "status").unwrap()));
+    assert!(selected.borrows_read(&physical::parameter_read_site("count_items", "items").unwrap()));
     let built = Command::new(env!("CARGO_BIN_EXE_ink")).arg("build").arg(&image)
         .args(["--core", "--plan"]).arg(&packet).args(["--target", "rust", "-o"]).arg(&project)
         .output().unwrap();
@@ -291,11 +314,15 @@ impl Clone for l_Item {
     fs::write(path, code).unwrap();
     let bins = project.join("src/bin");
     fs::create_dir_all(&bins).unwrap();
-    fs::write(bins.join("observe.rs"), r#"use compiled_state::{State, l_Geometry, l_Item, CLONES};
+    fs::write(bins.join("observe.rs"), r#"use compiled_state::{State, l_Geometry, l_Item, l_SiteRecord, CLONES};
 use std::sync::atomic::Ordering::Relaxed;
 
 fn geometry(tag: u32) -> l_Geometry {
     l_Geometry { l_tag: tag, l_items: (0..8192).map(|l_value| l_Item { l_value }).collect() }
+}
+
+fn site(tag: u32) -> l_SiteRecord {
+    l_SiteRecord { l_room: geometry(tag), l_unused: geometry(0).l_items }
 }
 
 fn main() {
@@ -303,6 +330,8 @@ fn main() {
     assert_eq!(state.invoke_l_read_value(2).unwrap().result, 3);
     assert_eq!(state.invoke_l_read_status().unwrap().result, 20);
     assert_eq!(state.invoke_l_read_slot(3).unwrap().result, 81);
+    assert_eq!(state.invoke_l_read_projected(2).unwrap().result, 2);
+    assert_eq!(state.invoke_l_read_projected_slot(3).unwrap().result, 81);
     state.invoke_l_install(geometry(7)).unwrap();
     state.invoke_l_put(geometry(11)).unwrap();
     CLONES.store(0, Relaxed);
@@ -328,6 +357,18 @@ fn main() {
     assert_eq!(CLONES.load(Relaxed), 0);
     assert_eq!(detached[0].l_value, 0);
     assert_eq!(state.function_l_recursive(2, None, Err(8)), 8);
+    state.invoke_l_install_site(site(14)).unwrap();
+    CLONES.store(0, Relaxed);
+    assert_eq!(state.invoke_l_read_projected(2).unwrap().result, 8194);
+    assert_eq!(state.invoke_l_read_projected_slot(3).unwrap().result, 14);
+    assert_eq!(state.invoke_l_read_projected_slot(4).unwrap().result, 81);
+    assert_eq!(CLONES.load(Relaxed), 0);
+    assert_eq!(state.invoke_l_owned_projection().unwrap().result.len(), 8192);
+    assert_eq!(CLONES.load(Relaxed), 8192);
+    let mut small = site(21);
+    small.l_room.l_items.truncate(4);
+    assert_eq!(state.invoke_l_read_projected_then_replace(small).unwrap().result, Ok(8195));
+    assert_eq!(state.invoke_l_read_projected(2).unwrap().result, 6);
 }
 "#).unwrap();
     let result = Command::new(env!("CARGO")).args(["run", "--quiet", "--offline", "--manifest-path"])
