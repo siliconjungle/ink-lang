@@ -298,14 +298,14 @@ console.log('JSON and binary cross-language conformance passed');
         c.stringify(&reply["Ok"], l).unwrap(),
         "{\"received\":true,\"title\":\"hello\",\"unknown\":1e10000}"
     );
-    // Compile the literal C and Rust native implementations and exercise their
-    // binary APIs on the very same request and expected reply bytes.
+    // Exercise the same requests against the generated Cargo project and its
+    // embedded wire contract on native and Wasm.
     for target in ["rust"] {
         let dir = root.join(target);
+        use verified_language::state_native::{project_checked, TableStorage};
+        let project = project_checked(&module, TableStorage::Ordered).unwrap();
+        verified_language::runtime::emit_rust_project(&project, &dir).unwrap();
 
-            let code = verified_language::state_native::emit(&p).unwrap();
-            verified_language::runtime::emit_rust_program(&code, &dir).unwrap();
-        
         fs::write(dir.join("src/main.rs"),r#"use compiled_state::{State,ValueWireLimits};fn main(){let request=std::fs::read(std::env::args().nth(1).unwrap()).unwrap();let mut state=State::new();let reply=state.call_binary("mark_received",&request,ValueWireLimits::default()).unwrap();std::fs::write(std::env::args().nth(2).unwrap(),reply).unwrap();let packet=std::fs::read(std::env::args().nth(3).unwrap()).unwrap();let reply=state.call_binary("echo_packet",&packet,ValueWireLimits::default()).unwrap();std::fs::write(std::env::args().nth(4).unwrap(),reply).unwrap();let bad=std::fs::read(std::env::args().nth(5).unwrap()).unwrap();assert!(state.call_binary("guarded",&bad,ValueWireLimits::default()).unwrap_err().contains("precondition"));}"#).unwrap();
         let build = Command::new(env!("CARGO"))
             .args(["build", "--offline", "--quiet", "--manifest-path"])
