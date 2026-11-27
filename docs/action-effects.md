@@ -1,5 +1,12 @@
 # Source-bound action effects
 
+The generated JavaScript state runtime accepts `inputLimits: { depth, nodes }`
+in `state.bind(name, options)`. The limits apply to the owned capture of each
+composite argument. Defaults are 64 schema levels and 1,000,000 captured nodes.
+Bindings can choose a depth up to 1,024 for structured inputs whose typed
+representation contains additional records or tagged unions. Capture still
+validates every value and owns the supplied containers before running the action.
+
 `ink emit-effects SOURCE -o EFFECTS.json` exports a bounded effect judgment from
 Ink's checked ordered actions. `ink check-effects SOURCE EFFECTS.json` regenerates
 and compares the artifact. The private witness binds the complete source identity,
