@@ -101,6 +101,10 @@ pub(crate) fn evaluate(n:&str,a:&[crate::stateful::Value])->crate::LangResult<cr
         "f64_from_u64"=>{let V::U64(x)=a[0]else{return Err("expected u64".into());};output(x as f64)},
         "f64_from_i32"=>{let V::I32(x)=a[0]else{return Err("expected i32".into());};output(x as f64)},
         "f64_from_int"=>{let V::Int(x)=&a[0]else{return Err("expected Int".into());};output(x.to_f64().ok_or("Int to f64 conversion")?)},
+        "f64_from_decimal"=>{
+            let V::String(text)=&a[0] else{return Err("expected decimal text".into());};
+            option(text.parse::<f64>().ok().filter(|n|n.is_finite()).map(output))
+        },
         "int_from_f64"=>option(num_bigint::BigInt::from_f64(f(0)?).map(V::Int)),
         "u32_from_f64"=>{let x=f(0)?.trunc();option((x.is_finite()&&x>=0.0&&x<4294967296.0).then(||V::U32(x as u32)))},
         "u64_from_f64"=>{let x=f(0)?.trunc();option((x.is_finite()&&x>=0.0&&x<18446744073709551616.0).then(||V::U64(x as u64)))},

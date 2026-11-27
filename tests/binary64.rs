@@ -4,6 +4,43 @@ use verified_language::{core::CheckedModule,eval,stateful::Runtime,syntax};
 const SOURCE:&str=include_str!("../examples/binary64.ink");
 
 #[test]
+fn decimal_text_has_the_same_finite_binary64_bits_in_reference_rust_and_javascript() {
+    let source = "module decimal; pub fn bits(text:String)->Option<u64> { return f64_from_decimal(text).fold(fn(n)=>Some(f64_bits(n)),fn(unit)=>None); }";
+    let module = CheckedModule::from_source(syntax::parse(source).unwrap()).unwrap();
+    let program = module.program();
+    let reference = Runtime::from_checked(&module).unwrap();
+    let mut steps = Vec::new();
+    let mut expected = Vec::new();
+    for (text, bits) in [
+        ("-0", Some(1u64 << 63)),
+        ("-.0e+5", Some(1u64 << 63)),
+        ("+1.", Some(1.0f64.to_bits())),
+        (".1", Some(0.1f64.to_bits())),
+        ("1.00000000000000011102230246251565404236316680908203125", Some(1.0f64.to_bits())),
+        ("1.0000000000000002", Some(1.0f64.to_bits() + 1)),
+        ("5e-324", Some(1)),
+        ("-1e-999", Some(1u64 << 63)),
+        ("1.7976931348623157e308", Some(f64::MAX.to_bits())),
+        ("1e309", None),
+        ("NaN", None),
+        ("-inf", None),
+        ("0x10", None),
+        ("", None),
+        ("1\n", None),
+        (" 1", None),
+        ("1e", None),
+    ] {
+        use verified_language::stateful::Value;
+        let input = eval::Value::Opaque(Value::String(text.into()));
+        let value = eval::call(program, "bits", vec![input], &mut 10_000).unwrap();
+        assert_eq!(value.json(), Value::Option(bits.map(|word| Box::new(Value::U64(word)))).json(), "{text:?}");
+        steps.push(json!({"pure":"bits","args":[text],"expect_gpu":false,"cpu_only":true}));
+        expected.push(json!({"reply":{"value":value.json()},"snapshot":reference.checkpoint_portable().unwrap()}));
+    }
+    parity::conformance_checked("binary64-decimal", &module, source, steps, expected);
+}
+
+#[test]
 fn action_cli_reports_the_actual_checked_transport_version(){
  use std::{fs,path::Path,process::Command};
  let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("build/binary64-actions-cli");fs::create_dir_all(&root).unwrap();

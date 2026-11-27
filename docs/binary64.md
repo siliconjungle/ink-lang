@@ -43,6 +43,7 @@ integer significands and exact rounding rather than the target's square root.
 | Reinterpret bits | `f64_bits(value)` / `f64_from_bits(bits)` |
 | Cross floating widths | `f64_from_f32(value)` / `f32_from_f64(value)` |
 | Convert integers | `f64_from_u32`, `f64_from_u64`, `f64_from_i32`, `f64_from_int` |
+| Read decimal text | `f64_from_decimal(String) -> Option<f64>` |
 | Checked conversion back | `u32_from_f64`, `u64_from_f64`, `i32_from_f64`, `int_from_f64` |
 
 Checked conversions truncate toward zero, then check the destination domain and
