@@ -70,7 +70,7 @@ Graph stages run these collection operations as parallel multi-pass schedules
 | `scan` | u32, i32, u64 | three-level block scan (5 passes) |
 | `sort` | u32, i32, u64 | stable LSD radix sort, 8-bit digits (4 per 32-bit lane), each digit a histogram, a scan and a stable placement |
 | `sum` | u32, i32, u64 | grid-stride partial sums, then one combining group |
-| `filter` | any packed type, including records | predicate flags, in-place scan, scatter; the header carries the kept count |
+| `filter` | any packed type, including records | predicate flags, tile-local prefix sums, then a stable scatter that applies tile offsets |
 | `concat` | any packed type | one copy pass per element |
 
 Integer results are exact (wrapping where the source wraps), so they equal the
@@ -81,11 +81,17 @@ host only binds buffers and dispatches. Collection work nested inside a
 per-element lambda stays in a direct shader with an element bound: 1,024 for
 filter/scan per element, 128 when a sort runs per element.
 
-Native hosts can call `Engine::prefer_parallel_u64_merge()` before opening a
-session to select an exact alternative for graph sorts of `List<u64>`. It
-sorts tiles and merges them in increasing widths, keeping a stable order across
-tile boundaries. Select it after measuring the device and workload. The
-generated native CLI accepts `--parallel-u64-merge`.
+Use `Engine::prefer_parallel_u64_merge()` in a native host or
+`loadInk(base, { parallelU64Merge: true })` in a browser to select the
+alternate exact sort for `List<u64>` graph stages. It sorts tiles and
+merges them in increasing widths, preserving the order of equal values.
+The generated native CLI also accepts `--parallel-u64-merge`.
+
+A feedback-free resident GPU graph can append draw or copy commands to
+a single compute step. Use `Engine::step_and_encode` on native or
+`session.stepAndEncode` in a browser. The synchronous callback receives
+the command encoder after compute. Ink owns submission. Bind the
+graph's resident buffer views to consume the results without a readback.
 
 A native resident graph can name pure steps in `retained_steps`. After the
 first execution, the host reuses their device outputs until an input they
